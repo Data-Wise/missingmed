@@ -1,0 +1,80 @@
+@startuml
+!theme plain
+
+class SemImputedData {
+    +data: mids
+    +method: String = "lavaan"
+    +conf_int: Boolean = FALSE
+    +conf_level: Numeric = 0.95
+    +SemImputedData(data, method, conf_int, conf_level)
+    +run_sem(data, method, conf_int, conf_level): SemResults
+}
+
+class SemResults {
+    +results: List
+    +estimate_df: DataFrame
+    +coef_df: DataFrame
+    +cov_df: List
+    +method: String
+    +conf_int: Boolean
+    +conf_level: Numeric
+    +SemResults(results, estimate_df, coef_df, cov_df, method, conf_int, conf_level)
+    +pool_sem(): PooledSEMResults
+}
+
+class PooledSEMResults {
+    +tidy_table: DataFrame
+    +cov_total: Matrix
+    +cov_between: Matrix
+    +cov_within: Matrix
+    +method: String
+    +conf_int: Boolean
+    +conf_level: Numeric
+    +PooledSEMResults(tidy_table, cov_total, cov_between, cov_within, method, conf_int, conf_level)
+}
+
+class mids{
+    +data: DataFrame
+    +set_sem(data, method, conf_int, conf_level):SemImputedData
+
+}
+
+' Define interfaces for methods
+interface pool_sem {
+    +pool_sem(SemResults): PooledSEMResults
+}
+
+interface pool_tidy {
+    +pool_tidy(SemResults): data.frame
+}
+
+interface pool_cov {
+    +pool_cov(SemResults): list
+}
+
+interface set_sem {
+    +set_sem(data, method, conf_int, conf_level): SemImputedData
+}
+
+interface run_sem {
+    +run_sem(data, method, conf_int, conf_level): SemResults
+}
+
+' Relationships
+SemResults -down-> pool_sem : uses > 
+pool_sem .down.> PooledSEMResults : returns >
+
+SemResults ..> pool_tidy : uses >
+pool_tidy ..> data.frame : returns >
+
+SemResults ..> pool_cov : uses >
+pool_cov ..> list : returns >
+
+SemImputedData .down.> run_sem: uses >
+run_sem .down.> SemResults : returns
+
+mids -down-> set_sem : uses >
+set_sem ..> SemImputedData : returns > 
+
+@enduml
+

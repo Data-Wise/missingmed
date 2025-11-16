@@ -1,0 +1,39 @@
+Package: missingmed
+Type: Package
+Title: Mediation Analysis with Multiple Imputation for Missing Data
+Version: 0.1.0
+Date: 2024-11-16
+Authors@R: person("Davood", "Tofighi",
+        email = "dtofighi@gmail.com",
+        role = c("aut", "cre"),
+        comment= c(ORCID= "0000-0001-8523-7776")
+        )
+Depends:
+    R (>= 4.1.0),
+    methods (>= 4.1.0)
+Imports:
+    mice (>= 3.0.0),
+    lavaan (>= 0.6-0),
+    OpenMx (>= 2.13),
+    dplyr (>= 1.0.0),
+    purrr (>= 0.3.0),
+    tibble (>= 3.0.0),
+    broom (>= 0.7.0),
+    rlang (>= 0.4.0)
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    quarto
+LazyData: true
+Description: Provides S4 classes and methods for conducting mediation analysis with multiply imputed datasets.
+    Integrates with the 'mice' package for multiple imputation and supports structural equation modeling (SEM)
+    using either 'lavaan' or 'OpenMx'. Implements Rubin's rules for pooling parameter estimates and standard
+    errors across imputations. Designed to work seamlessly with 'RMediation' for computing confidence intervals
+    of indirect effects in the presence of missing data.
+License: GPL-2
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE, roclets = c("rd","collate"))
+RoxygenNote: 7.2.3
+URL: https://github.com/Data-Wise/missingmed
+BugReports: https://github.com/Data-Wise/missingmed/issues
