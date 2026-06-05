@@ -1,0 +1,18 @@
+status: active
+priority: --
+progress: 10
+next: Phase 0 — S7 migration of the S4 MI core (branch feature/s7-migration off dev)
+type: r
+
+# missingmed — Missing-data causal mediation (R package, mediationverse)
+# Scope decided 2026-06-04 (Data-Wise/missingmed#1): general CRAN-targeted toolkit —
+# MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
+# Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
+
+## Quick Notes
+- Scope spec + 6-phase roadmap: docs/specs/SPEC-missingmed-scope-2026-06-04.md (on dev)
+- Contracts confirmed: rmediation (MBCO/MC-CI, consumes medfit MediationData),
+  medfit (fit_mediation/extract_mediation -> MediationData@estimates/@vcov).
+- missingmed's unique code = Rubin's-rules pooling of NAMED (estimates, vcov) + IPW weights + MNAR.
+- Next: Phase 0 S7 migration (integration key — enables medfit/rmediation interop). Critical path.
+- Branches: main (protected) <- dev (current) <- feature/*. Companion manuscript: research/Missing Effect.
