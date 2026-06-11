@@ -23,3 +23,6 @@
 ^ORCHESTRATE-.*\.md$
 ^docs$
 ^docs/.*
+^vignettes/articles$
+^_pkgdown\.yml$
+^pkgdown$

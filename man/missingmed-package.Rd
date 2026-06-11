@@ -40,6 +40,7 @@ confidence intervals of indirect effects in the presence of missing data.
 Useful links:
 \itemize{
   \item \url{https://github.com/Data-Wise/missingmed}
+  \item \url{https://data-wise.github.io/missingmed/}
   \item Report bugs at \url{https://github.com/Data-Wise/missingmed/issues}
 }
 
@@ -47,6 +48,7 @@ Useful links:
 Useful links:
 \itemize{
   \item \url{https://github.com/Data-Wise/missingmed}
+  \item \url{https://data-wise.github.io/missingmed/}
   \item Report bugs at \url{https://github.com/Data-Wise/missingmed/issues}
 }
 
