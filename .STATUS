@@ -1,7 +1,8 @@
 status: active
 priority: --
-progress: 10
-next: Phase 0 — S7 migration of the S4 MI core (branch feature/s7-migration off dev)
+progress: 12
+next: Phase 0 S7 migration — execute SPEC-s7-migration-phase0-2026-06-11.md (steps P0.1–P0.7)
+  on feature/s7-migration off dev; start = scaffold 3 S7 classes + set_md_mediation()
 type: r
 
 # missingmed — Missing-data causal mediation (R package, mediationverse)
@@ -11,6 +12,14 @@ type: r
 
 ## Quick Notes
 - Scope spec + 6-phase roadmap: docs/specs/SPEC-missingmed-scope-2026-06-04.md (on dev)
+- 2026-06-11: Phase 0 PLAN written — docs/specs/SPEC-s7-migration-phase0-2026-06-11.md
+  (S4->S7 class mapping, ordered steps P0.1–P0.7, acceptance). Resolves scope Open Q3
+  (pooled MediationData constructor) as step P0.3.
+- 2026-06-11: Consumer contract documented — docs/CONTRACT-mbco-mi-handoff-2026-06-11.md.
+  The Missing Effect MBCO-MI study (now inference-led; target Psychological Methods) needs:
+  (1) pool() -> NAMED medfit::MediationData; (2) per-imputation list accessor (missingmed#2),
+  because MBCO does not commute with Rubin's rules (D4-stacked MBCO). NOT a blocker —
+  manuscript runs on research/Missing Effect/code/prototype-d4-mbco.R meanwhile.
 - Contracts confirmed: rmediation (MBCO/MC-CI, consumes medfit MediationData),
   medfit (fit_mediation/extract_mediation -> MediationData@estimates/@vcov).
 - missingmed's unique code = Rubin's-rules pooling of NAMED (estimates, vcov) + IPW weights + MNAR.
