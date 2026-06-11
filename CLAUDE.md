@@ -4,9 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this package is
 
-**missingmed** — "Mediation Analysis with Multiple Imputation for Missing Data" (v0.1.0). Provides **S4** classes and methods to run SEM-based mediation analysis across multiply-imputed datasets and pool the results with Rubin's rules.
+**missingmed** — "Mediation Analysis with Multiple Imputation for Missing Data" (v0.1.0). A **thin orchestration layer**: the missing-data middle that runs SEM-based mediation across multiply-imputed datasets and pools with Rubin's rules — delegating fitting to **medfit** and inference to **rmediation**, and simulating via **medsim**.
 
-Core workflow (S4 pipeline):
+> **🟢 Phase 0 (S4 → S7 migration) in progress** — see `docs/specs/SPEC-s7-migration-phase0-2026-06-11.md`. The S4 pipeline below is being migrated to S7 so `pool()` emits a **named** `medfit::MediationData` and a **per-imputation list** accessor is exposed (required by the companion manuscript's MBCO-MI path; see Scope note). Do Phase 0 before adding IPW/GLM so new code isn't written twice in S4.
+
+Core workflow (current S4 pipeline → S7 targets `MDMediationData → MDMediationFit → MDMediationResult`):
 `SemImputedData` (imputed data + model) → `set_sem()` → `run_sem()` → `SemResults` (per-imputation fits) → `pool_sem()` → `PooledSEMResults` (pooled estimates). Integrates **mice** (imputation), **lavaan** and **OpenMx** (SEM), and **RMediation** (indirect-effect CIs).
 
 ## Architecture
@@ -28,11 +30,11 @@ devtools::check()         # R CMD check
 
 ## Ecosystem & manuscript
 
-Part of the **mediationverse** ecosystem (Data-Wise org), coordinated via `~/projects/r-packages/mediation-planning/`. Companion **manuscript**: `~/projects/research/Missing Effect/` (Data-Wise/missing-effect), which studies missing-data mediation more broadly.
+Part of the **mediationverse** ecosystem (Data-Wise org), coordinated via `~/projects/r-packages/mediation-planning/`. Companion **manuscript**: `~/projects/research/Missing Effect/` (Data-Wise/missing-effect).
 
-**Scope note:** this package implements only the **multiple-imputation (MI)** strand. The manuscript also covers **IPW** and **MBCO vs. Monte-Carlo CIs** — those are not (yet) in this package. Confirm which method a task targets before assuming it lives here.
+**Scope / role note:** the manuscript's headline is now **inference-led — MBCO-MI vs Monte-Carlo CI**, so missingmed's job is the **MI estimation + Rubin's-rules pooling** that feeds `rmediation`'s inference (`mbco()` / `medci()`); **IPW** is a thin robustness wrapper (manuscript appendix), and the MBCO/MC-CI machinery itself lives in **rmediation**. Two consumer requirements drive Phase 0: (1) `pool()` must emit a **named** `medfit::MediationData`; (2) expose the **per-imputation list** for MBCO — because **MBCO does not commute with Rubin's rules** (D4-stacked MBCO). Details: `docs/CONTRACT-mbco-mi-handoff-2026-06-11.md` + scope spec `docs/specs/SPEC-missingmed-scope-2026-06-04.md`.
 
-**Convention note:** missingmed uses **S4**, while the newer ecosystem packages (`probmed`, `medrobust`) standardized on **S7**. Keep this in mind when aligning APIs across the suite; an S4→S7 migration is a possible future direction.
+**Convention note:** missingmed is **S4 today**, mid-migration to **S7** (Phase 0, active) to match the newer ecosystem packages (`probmed`, `medrobust`) and the shared `medfit::MediationData` contract. Keep new code S7-first.
 
 ## Workflow
 
