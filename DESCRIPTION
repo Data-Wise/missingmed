@@ -12,6 +12,7 @@ Depends:
     R (>= 4.1.0),
     methods (>= 4.1.0)
 Imports:
+    S7 (>= 0.2.0),
     mice (>= 3.0.0),
     lavaan (>= 0.6-0),
     OpenMx (>= 2.13),
@@ -33,7 +34,7 @@ Description: Provides S4 classes and methods for conducting mediation analysis w
     of indirect effects in the presence of missing data.
 License: GPL-2
 Encoding: UTF-8
-Roxygen: list(markdown = TRUE, roclets = c("rd","collate"))
-RoxygenNote: 7.2.3
+Roxygen: list(markdown = TRUE, roclets = c("rd","collate","namespace"))
+RoxygenNote: 7.3.3
 URL: https://github.com/Data-Wise/missingmed
 BugReports: https://github.com/Data-Wise/missingmed/issues

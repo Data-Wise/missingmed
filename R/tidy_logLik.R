@@ -13,7 +13,7 @@
 #' @rdname tidy_logLik
 #' @seealso \code{\link[stats]{logLik}}
 #' @importFrom stats logLik
-#' @importFrom generics tidy
+#' @importFrom broom tidy
 #' @importFrom tibble tibble
 #' @export
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
