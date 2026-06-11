@@ -10,6 +10,11 @@ type: r
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
+## Active Worktrees
+- feature/s7-migration — Phase 0 S7 migration; ORCHESTRATE-s7-migration.md drives it
+  (8 phases P0.1–P0.8: scaffold→fit→pool→accessor→infer(mbco/mc)→methods→deprecate S4→docs).
+  MBCO D4-stacking hosted in missingmed; vignettes + pkgdown in Phase 8. (created 2026-06-11)
+
 ## Quick Notes
 - Scope spec + 6-phase roadmap: docs/specs/SPEC-missingmed-scope-2026-06-04.md (on dev)
 - 2026-06-11: Phase 0 PLAN written — docs/specs/SPEC-s7-migration-phase0-2026-06-11.md
