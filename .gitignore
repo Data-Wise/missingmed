@@ -7,3 +7,6 @@
 .claude/
 missingmed.code-workspace
 ORCHESTRATE-*.md
+
+# testthat CheckReporter scratch
+tests/testthat/_problems/
