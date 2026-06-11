@@ -2,38 +2,29 @@
 % Please edit documentation in R/missingmed-package.R
 \docType{package}
 \name{missingmed-package}
+\alias{missingmed}
 \alias{missingmed-package}
 \title{missingmed: Mediation Analysis with Multiple Imputation for Missing Data}
 \description{
-Provides S4 classes and methods for conducting mediation analysis with multiply imputed datasets. Integrates with the 'mice' package for multiple imputation and supports structural equation modeling (SEM) using either 'lavaan' or 'OpenMx'. Implements Rubin's rules for pooling parameter estimates and standard errors across imputations. Designed to work seamlessly with 'RMediation' for computing confidence intervals of indirect effects in the presence of missing data.
-
-The missingmed package provides S4 classes and methods for conducting
-mediation analysis with multiply imputed datasets. It integrates with
-the mice package for multiple imputation and supports structural equation
-modeling using either lavaan or OpenMx.
+missingmed runs SEM-based mediation analysis across multiply imputed datasets
+and pools with Rubin's rules. It is a thin orchestration layer: it \strong{fits}
+each imputation with \link[medfit:medfit-package]{medfit::medfit} and delegates \strong{inference} to \link[RMediation:RMediation-package]{RMediation::RMediation}.
 }
-\section{Main Classes}{
+\section{S7 pipeline}{
 
 \itemize{
-\item \code{\link{SemImputedData}}: Container for multiply imputed data and SEM model
-\item \code{\link{SemResults}}: Stores SEM results across imputations
-\item \code{\link{PooledSEMResults}}: Pooled estimates using Rubin's rules
+\item \code{\link[=set_md_mediation]{set_md_mediation()}} -> \link{MDMediationData}: imputed data + mediation spec
+\item \code{\link[=run]{run()}} -> \link{MDMediationFit}: a list of named \link[medfit:MediationData]{medfit::MediationData}, one per imputation
+\item \code{\link[=pool]{pool()}} -> \link{MDMediationResult}: Rubin's-rules pooled named \link[medfit:MediationData]{medfit::MediationData}
+\item \code{\link[=infer]{infer()}}: indirect-effect CI (\code{\link[RMediation:ci_mediation_data]{RMediation::ci_mediation_data()}}) or D4-stacked MBCO
+\item \code{\link[=per_imputation_list]{per_imputation_list()}}: per-imputation fits for MBCO (which does not commute with Rubin's rules)
 }
 }
 
-\section{Main Functions}{
+\section{Deprecated S4 API}{
 
-\itemize{
-\item \code{\link{set_sem}}: Set up SEM analysis with imputed data
-\item \code{\link{run_sem}}: Run SEM on each imputed dataset
-\item \code{\link{pool_sem}}: Pool results across imputations
-}
-}
-
-\section{Integration}{
-
-The package is designed to work seamlessly with RMediation for computing
-confidence intervals of indirect effects in the presence of missing data.
+\code{\link[=set_sem]{set_sem()}}, \code{\link[=run_sem]{run_sem()}}, and \code{\link[=pool_sem]{pool_sem()}} are superseded by the S7 pipeline
+above and kept for one release cycle.
 }
 
 \seealso{
@@ -44,19 +35,8 @@ Useful links:
   \item Report bugs at \url{https://github.com/Data-Wise/missingmed/issues}
 }
 
-
-Useful links:
-\itemize{
-  \item \url{https://github.com/Data-Wise/missingmed}
-  \item \url{https://data-wise.github.io/missingmed/}
-  \item Report bugs at \url{https://github.com/Data-Wise/missingmed/issues}
-}
-
 }
 \author{
-\strong{Maintainer}: Davood Tofighi \email{dtofighi@gmail.com} (\href{https://orcid.org/0000-0001-8523-7776}{ORCID})
-
-
 Davood Tofighi \email{dtofighi@gmail.com}
 }
 \keyword{internal}
