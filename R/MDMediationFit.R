@@ -14,6 +14,8 @@
 #' @param engine medfit fitting engine used (e.g. `"glm"`).
 #' @param conf_int Logical; whether output carries confidence intervals.
 #' @param conf_level Numeric in (0, 1); confidence level.
+#' @param weights (IPW) Full-length numeric IPW weight vector (`NA` for dropped
+#'   rows); `NULL` for MI fits.
 #' @param source The originating [MDMediationData] (retained so MBCO can refit
 #'   constrained/unconstrained models against the imputed data).
 #'
@@ -31,6 +33,7 @@ MDMediationFit <- S7::new_class(
     engine = S7::new_property(S7::class_character, default = "glm"),
     conf_int = S7::new_property(S7::class_logical, default = FALSE),
     conf_level = S7::new_property(S7::class_numeric, default = 0.95),
+    weights = S7::class_any,
     source = S7::class_any
   ),
   validator = function(self) {

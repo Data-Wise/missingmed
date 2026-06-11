@@ -2,7 +2,7 @@
 % Please edit documentation in R/set_md_mediation.R
 \name{set_md_mediation}
 \alias{set_md_mediation}
-\title{Set up a mediation analysis with multiply imputed data}
+\title{Set up a mediation analysis with missing data (MI or IPW)}
 \usage{
 set_md_mediation(
   data,
@@ -15,12 +15,17 @@ set_md_mediation(
   family_m = stats::gaussian(),
   method = c("mi", "ipw"),
   mechanism = c("mar", "mnar"),
+  weight_formula = NULL,
+  weight_stabilize = TRUE,
+  weight_trim = 1,
+  se_type = c("sandwich", "model"),
   conf_int = FALSE,
   conf_level = 0.95
 )
 }
 \arguments{
-\item{data}{A \link[mice:mids]{mice::mids} object containing multiply imputed datasets.}
+\item{data}{For \code{method = "mi"}, a \link[mice:mids]{mice::mids} object; for \code{method = "ipw"},
+a \code{data.frame} (may contain \code{NA}s; complete cases are reweighted).}
 
 \item{formula_y}{Outcome model formula (e.g. \code{Y ~ X + M + C}).}
 
@@ -35,9 +40,18 @@ set_md_mediation(
 \item{family_y, family_m}{\code{stats::family} objects for the outcome and mediator
 models. Default \code{stats::gaussian()}.}
 
-\item{method}{Estimator axis: \code{"mi"} (default) or \code{"ipw"} (reserved).}
+\item{method}{Estimator axis: \code{"mi"} (default) or \code{"ipw"}.}
 
 \item{mechanism}{Assumed missing-data mechanism: \code{"mar"} (default) or \code{"mnar"}.}
+
+\item{weight_formula}{(IPW) Missingness model: \code{NULL} (default; all observed
+predictors), a single \code{formula}, or a named \code{list} of per-variable formulas.}
+
+\item{weight_stabilize}{(IPW) Use stabilized weights? Default \code{TRUE}.}
+
+\item{weight_trim}{(IPW) Upper quantile to cap weights; \code{1} (default) = none.}
+
+\item{se_type}{(IPW) \code{"sandwich"} (default, HC robust) or \code{"model"}.}
 
 \item{conf_int}{Logical; whether downstream output carries confidence
 intervals. Defaults to \code{FALSE}.}
@@ -50,9 +64,17 @@ An \link{MDMediationData} object.
 \description{
 Constructs an \link{MDMediationData} object: the entry point of the missingmed S7
 pipeline. It records a \strong{medfit-style mediation specification} (outcome and
-mediator formulas plus the treatment/mediator roles) together with the \code{mids}
-object. Fitting is delegated to \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}} downstream by
-\code{\link[=run]{run()}}. It is the S7 successor of the S4 \code{\link[=set_sem]{set_sem()}} constructor.
+mediator formulas plus the treatment/mediator roles) together with the data.
+Fitting is delegated to \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}} downstream by \code{\link[=run]{run()}}. It is
+the S7 successor of the S4 \code{\link[=set_sem]{set_sem()}} constructor.
+}
+\details{
+Two estimators share the interface (\code{method}):
+\itemize{
+\item \code{"mi"} — \code{data} is a \link[mice:mids]{mice::mids} object; \code{\link[=run]{run()}} fits every imputation.
+\item \code{"ipw"} — \code{data} is a raw \code{data.frame}; \code{\link[=run]{run()}} reweights the complete cases
+by inverse missingness probability and fits once.
+}
 }
 \examples{
 \dontrun{
@@ -61,9 +83,13 @@ d <- data.frame(X = rbinom(200, 1, .5), C = rnorm(200))
 d$M <- .5 * d$X + .3 * d$C + rnorm(200)
 d$Y <- .2 * d$X + .4 * d$M + .3 * d$C + rnorm(200)
 d$M[sample(200, 30)] <- NA
+# MI
 imp <- mice::mice(d, m = 5, printFlag = FALSE)
-md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+md_mi <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
   treatment = "X", mediator = "M")
+# IPW (raw data.frame)
+md_ipw <- set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M", method = "ipw")
 }
 }
 \seealso{

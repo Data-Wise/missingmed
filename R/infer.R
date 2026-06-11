@@ -36,6 +36,10 @@ S7::method(infer, MDMediationFit) <- function(object, type = c("mc", "mbco"),
     stop("MBCO needs the originating MDMediationData (imputed datasets). ",
       "Run infer() on the MDMediationFit returned by run().", call. = FALSE)
   }
+  if (identical(src@method, "ipw")) {
+    stop("MBCO inference for IPW is not yet implemented. Use type = \"mc\" for ",
+      "IPW objects (weighted Monte-Carlo CI).", call. = FALSE)
+  }
   implist <- mice::complete(src@data, action = "all")
   .mm_d4_mbco(implist, src@formula_y, src@formula_m, src@family_y, src@family_m,
     src@treatment, src@mediator)

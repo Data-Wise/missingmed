@@ -11,6 +11,7 @@ MDMediationFit(
   engine = "glm",
   conf_int = FALSE,
   conf_level = 0.95,
+  weights = NULL,
   source = NULL
 )
 }
@@ -26,6 +27,9 @@ MDMediationFit(
 \item{conf_int}{Logical; whether output carries confidence intervals.}
 
 \item{conf_level}{Numeric in (0, 1); confidence level.}
+
+\item{weights}{(IPW) Full-length numeric IPW weight vector (\code{NA} for dropped
+rows); \code{NULL} for MI fits.}
 
 \item{source}{The originating \link{MDMediationData} (retained so MBCO can refit
 constrained/unconstrained models against the imputed data).}

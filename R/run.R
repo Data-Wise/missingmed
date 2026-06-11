@@ -18,6 +18,12 @@
 run <- S7::new_generic("run", "object")
 
 S7::method(run, MDMediationData) <- function(object, ...) {
+  # IPW: reweight the complete cases and fit once (see .ipw_run).
+  if (object@method == "ipw") {
+    return(.ipw_run(object, ...))
+  }
+
+  # MI: fit every imputation.
   implist <- mice::complete(object@data, action = "all")
 
   per_imp <- lapply(implist, function(d) {

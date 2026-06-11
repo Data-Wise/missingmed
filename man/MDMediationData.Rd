@@ -15,6 +15,10 @@ MDMediationData(
   family_m = NULL,
   method = "mi",
   mechanism = "mar",
+  weight_formula = NULL,
+  weight_stabilize = TRUE,
+  weight_trim = 1,
+  se_type = "sandwich",
   conf_int = FALSE,
   conf_level = 0.95,
   n_imputations = integer(0),
@@ -22,7 +26,9 @@ MDMediationData(
 )
 }
 \arguments{
-\item{data}{An object of class \code{mids} from the \code{mice} package.}
+\item{data}{For \code{method = "mi"}, an object of class \code{mids} from the \code{mice}
+package; for \code{method = "ipw"}, a raw \code{data.frame} (the complete cases are
+reweighted).}
 
 \item{formula_y}{Outcome model formula (e.g. \code{Y ~ X + M + C}).}
 
@@ -41,14 +47,28 @@ models. Default \code{stats::gaussian()}.}
 
 \item{mechanism}{Assumed missing-data mechanism: \code{"mar"} (default) or \code{"mnar"}.}
 
+\item{weight_formula}{(IPW) Missingness model specification: \code{NULL} (default;
+use all observed predictors), a single \code{formula} (joint complete-case
+model), or a named \code{list} of formulas (per-variable models). Ignored for MI.}
+
+\item{weight_stabilize}{(IPW) Logical; if \code{TRUE} (default) use stabilized
+weights \code{P(R=1|X) / P(R=1|Z)}. Ignored for MI.}
+
+\item{weight_trim}{(IPW) Upper quantile at which to cap weights (e.g. \code{0.99});
+\code{1} (default) disables trimming. Ignored for MI.}
+
+\item{se_type}{(IPW) Variance estimator passed to \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}}:
+\code{"sandwich"} (default for IPW, HC robust) or \code{"model"}. Ignored for MI.}
+
 \item{conf_int}{Logical; whether downstream output carries confidence
 intervals. Defaults to \code{FALSE}.}
 
 \item{conf_level}{Numeric in (0, 1); confidence level. Defaults to \code{0.95}.}
 
-\item{n_imputations}{Number of imputations, derived from \code{data}.}
+\item{n_imputations}{Number of imputations (MI) or \code{1} (IPW).}
 
-\item{original_data}{The original (pre-imputation) data, derived from \code{data}.}
+\item{original_data}{The original data (pre-imputation for MI; the supplied
+frame for IPW).}
 }
 \value{
 An \code{MDMediationData} S7 object.
