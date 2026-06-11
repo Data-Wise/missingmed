@@ -296,8 +296,23 @@ follow-on PR.
 The MI path never passes weights.  Phase 1 requires `medfit` to pass `weights`
 through to the underlying `glm()` / `lavaan` calls.  If `medfit` lacks this, a
 minor `medfit` PR (adding `weights` to `fit_mediation()` and through to
-`extract_mediation()`) is needed before any IPW code can be tested.  **Must
-confirm against `data-wise/medfit` before writing implementation.**
+`extract_mediation()`) is needed before any IPW code can be tested.
+
+> **RESOLVED 2026-06-11 — CONFIRMED BLOCKING.** Tested against `medfit` v0.3.0:
+> `fit_mediation(..., weights = w)` **errors** (`..1 used in an incorrect
+> context, no ... to look in`). `fit_mediation` forwards `...` to `stats::glm()`
+> (`R/fit-glm.R` `.fit_mediation_glm`), but `glm`'s `weights` is evaluated by
+> NSE in the wrong frame, so passing it via `...` fails. **Required `medfit` PR
+> (prereq for Phase 1 IPW):**
+> 1. Add an explicit `weights` parameter to `fit_mediation()` and
+>    `.fit_mediation_glm()` and pass it to both `glm()` calls robustly (e.g. via
+>    `do.call()` with the weight vector, or attach to `data` — avoid `...` NSE).
+> 2. No change needed in `extract_mediation()`: it already reads
+>    `stats::vcov(model_m/model_y)` (`R/extract-lm.R:322`), which returns the
+>    **weighted** model-based vcov once the fit is weighted — this is exactly
+>    Option A (§10).
+> Track as a `data-wise/medfit` issue; `missingmed` Phase 1 IPW depends on it
+> (mirrors the Phase 0 pattern where `RMediation::mbco()` needed an MI entry point).
 
 **OQ-2 (design): Single joint-missingness formula or per-variable formulas?**
 The spec supports both (a single formula → joint complete-case model; a named
@@ -354,6 +369,9 @@ no dependency change needed now.
 
 ## 14. History
 
-- **2026-06-11** — Spec drafted; Phase 0 S7 migration confirmed complete as
-  prereq; IPW design scoped as a thin `run()` branch + passthrough `pool()`;
-  six open questions identified.
+- **2026-06-11** — Spec drafted (cloud agent); Phase 0 S7 migration confirmed
+  complete as prereq; IPW design scoped as a thin `run()` branch + passthrough
+  `pool()`; six open questions identified.
+- **2026-06-11** — OQ-1 resolved empirically (CONFIRMED BLOCKING): `medfit` v0.3.0
+  `fit_mediation()` does not accept `weights`; precise `medfit` PR characterized.
+  Phase 1 IPW implementation is gated on that `medfit` change.
