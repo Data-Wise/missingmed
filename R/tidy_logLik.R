@@ -20,7 +20,10 @@
 #' @examples
 #' fit <- lm(mpg ~ wt, data = mtcars)
 #' logLik_fit <- logLik(fit)
+#' # dispatch via the broom generic (load missingmed first so the method registers)
+#' \donttest{
 #' tidy(logLik_fit)
+#' }
 tidy.logLik <- function(x, ...) {
   # Extract the log-likelihood value and the degrees of freedom
   stopifnot(inherits(x, "logLik"))

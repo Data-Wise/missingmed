@@ -9,6 +9,7 @@
 #' external [RMediation::mbco()] MI entry point (missingmed issue #2).
 #'
 #' @param object An [MDMediationFit] object.
+#' @param ... Unused.
 #' @return A list with components `per_imputation` (a length-`m` list of named
 #'   [medfit::MediationData]) and `m` (the number of imputations).
 #' @seealso [run()], [infer()]
@@ -23,6 +24,7 @@ S7::method(per_imputation_list, MDMediationFit) <- function(object) {
 #' Number of imputations
 #'
 #' @param object An [MDMediationFit] or [MDMediationResult] object.
+#' @param ... Unused.
 #' @return Integer count of imputations.
 #' @export
 #' @name n_imputations

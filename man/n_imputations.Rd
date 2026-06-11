@@ -8,6 +8,8 @@ n_imputations(object, ...)
 }
 \arguments{
 \item{object}{An \link{MDMediationFit} or \link{MDMediationResult} object.}
+
+\item{...}{Unused.}
 }
 \value{
 Integer count of imputations.

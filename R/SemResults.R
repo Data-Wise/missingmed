@@ -165,6 +165,7 @@ setGeneric(
 #' @aliases pool_sem
 
 setMethod("pool_sem", signature = "SemResults", function(object) {
+  .Deprecated("pool", msg = "pool_sem() is deprecated; use pool() on an MDMediationFit.")
   if (!object@method %in% c("lavaan", "OpenMx")) {
     stop(
       "Unsupported method specified in SemResults: ",

@@ -12,13 +12,13 @@
 #'
 #' @param object An [MDMediationFit] (supports both `"mc"` and `"mbco"`) or an
 #'   [MDMediationResult] (supports `"mc"`).
-#' @param type Inference type: `"mc"` (default) or `"mbco"`.
-#' @param level Confidence level for `type = "mc"`. Defaults to `0.95`.
-#' @param n.mc Monte-Carlo draws for `type = "mc"`. Defaults to `1e5`.
-#' @param ... Unused.
+#' @param ... Method arguments: `type` (inference type, `"mc"` (default) or
+#'   `"mbco"`), `level` (confidence level for `"mc"`, default `0.95`), and `n.mc`
+#'   (Monte-Carlo draws for `"mc"`, default `1e5`).
 #' @return For `"mc"`, the list returned by [RMediation::ci_mediation_data()].
 #'   For `"mbco"`, a named numeric vector `c(D4, p, r4, nu, d_S)`.
 #' @seealso [run()], [pool()], [per_imputation_list()]
+#' @importFrom RMediation ci_mediation_data
 #' @export
 #' @name infer
 infer <- S7::new_generic("infer", "object")
@@ -28,7 +28,7 @@ S7::method(infer, MDMediationFit) <- function(object, type = c("mc", "mbco"),
   type <- match.arg(type)
   if (type == "mc") {
     pooled <- pool(object)@pooled
-    return(RMediation::ci_mediation_data(pooled, level = level, type = "MC", n.mc = n.mc))
+    return(ci_mediation_data(pooled, level = level, type = "MC", n.mc = n.mc))
   }
   # mbco: D4-stacked over the per-imputation datasets
   src <- object@source

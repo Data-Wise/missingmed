@@ -8,6 +8,8 @@ per_imputation_list(object, ...)
 }
 \arguments{
 \item{object}{An \link{MDMediationFit} object.}
+
+\item{...}{Unused.}
 }
 \value{
 A list with components \code{per_imputation} (a length-\code{m} list of named

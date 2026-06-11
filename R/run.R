@@ -12,6 +12,7 @@
 #' @param ... Additional arguments forwarded to [medfit::fit_mediation()].
 #' @return An [MDMediationFit] object.
 #' @seealso [set_md_mediation()], [pool()], [infer()], [run_sem()]
+#' @importFrom medfit fit_mediation
 #' @export
 #' @name run
 run <- S7::new_generic("run", "object")
@@ -20,7 +21,7 @@ S7::method(run, MDMediationData) <- function(object, ...) {
   implist <- mice::complete(object@data, action = "all")
 
   per_imp <- lapply(implist, function(d) {
-    medfit::fit_mediation(
+    fit_mediation(
       formula_y = object@formula_y,
       formula_m = object@formula_m,
       data = d,

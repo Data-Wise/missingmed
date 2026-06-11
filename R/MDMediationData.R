@@ -49,7 +49,7 @@ MDMediationData <- S7::new_class(
     conf_int = S7::new_property(S7::class_logical, default = FALSE),
     conf_level = S7::new_property(S7::class_numeric, default = 0.95),
     n_imputations = S7::class_numeric,
-    original_data = S7::class_data.frame
+    original_data = S7::new_property(S7::class_data.frame, default = quote(data.frame()))
   ),
   validator = function(self) {
     if (!inherits(self@data, "mids")) {

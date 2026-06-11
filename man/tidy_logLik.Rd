@@ -25,7 +25,10 @@ Creates a data.frame for a log-likelihood object
 \examples{
 fit <- lm(mpg ~ wt, data = mtcars)
 logLik_fit <- logLik(fit)
+# dispatch via the broom generic (load missingmed first so the method registers)
+\donttest{
 tidy(logLik_fit)
+}
 }
 \seealso{
 \code{\link[stats]{logLik}}

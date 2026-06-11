@@ -40,7 +40,7 @@
 #' #
 #' # Fit the model
 #' fit0 <- mxRun(model)
-#' RMediation::tidy(fit0)
+#' tidy(fit0)
 #' }
 tidy.MxModel <-
   function(x,

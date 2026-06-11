@@ -6,20 +6,7 @@
 \usage{
 MDMediationResult(
   pooled = NULL,
-  tidy_table = (function (.data = list(), row.names = NULL) 
- {
-     if
-    (is.null(row.names)) {
-         list2DF(.data)
-     }
-     else {
-         out <-
-    list2DF(.data, length(row.names))
-         attr(out, "row.names") <- row.names
-      
-      out
-     }
- })(),
+  tidy_table = data.frame(),
   cov_total = NULL,
   cov_between = NULL,
   cov_within = NULL,

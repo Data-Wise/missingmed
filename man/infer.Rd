@@ -10,13 +10,9 @@ infer(object, ...)
 \item{object}{An \link{MDMediationFit} (supports both \code{"mc"} and \code{"mbco"}) or an
 \link{MDMediationResult} (supports \code{"mc"}).}
 
-\item{...}{Unused.}
-
-\item{type}{Inference type: \code{"mc"} (default) or \code{"mbco"}.}
-
-\item{level}{Confidence level for \code{type = "mc"}. Defaults to \code{0.95}.}
-
-\item{n.mc}{Monte-Carlo draws for \code{type = "mc"}. Defaults to \code{1e5}.}
+\item{...}{Method arguments: \code{type} (inference type, \code{"mc"} (default) or
+\code{"mbco"}), \code{level} (confidence level for \code{"mc"}, default \code{0.95}), and \code{n.mc}
+(Monte-Carlo draws for \code{"mc"}, default \code{1e5}).}
 }
 \value{
 For \code{"mc"}, the list returned by \code{\link[RMediation:ci_mediation_data]{RMediation::ci_mediation_data()}}.

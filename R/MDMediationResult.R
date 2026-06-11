@@ -26,7 +26,7 @@ MDMediationResult <- S7::new_class(
   package = "missingmed",
   properties = list(
     pooled = S7::class_any,
-    tidy_table = S7::class_data.frame,
+    tidy_table = S7::new_property(S7::class_data.frame, default = quote(data.frame())),
     cov_total = S7::class_any,
     cov_between = S7::class_any,
     cov_within = S7::class_any,

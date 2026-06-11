@@ -17,3 +17,9 @@
 ^dev/.*
 ^Makefile$
 ^README\.dev\.md$
+^\.STATUS$
+^CLAUDE\.md$
+^MIGRATION_NOTES\.md$
+^ORCHESTRATE-.*\.md$
+^docs$
+^docs/.*

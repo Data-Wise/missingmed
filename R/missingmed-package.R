@@ -33,4 +33,6 @@
 NULL
 
 ## usethis namespace: start
+#' @importFrom stats coef var vcov
 ## usethis namespace: end
+NULL

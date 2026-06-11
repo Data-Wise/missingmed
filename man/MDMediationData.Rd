@@ -18,20 +18,7 @@ MDMediationData(
   conf_int = FALSE,
   conf_level = 0.95,
   n_imputations = integer(0),
-  original_data = (function (.data = list(), row.names = NULL) 
- {
-     if
-    (is.null(row.names)) {
-         list2DF(.data)
-     }
-     else {
-         out <-
-    list2DF(.data, length(row.names))
-         attr(out, "row.names") <- row.names
-      
-      out
-     }
- })()
+  original_data = data.frame()
 )
 }
 \arguments{
