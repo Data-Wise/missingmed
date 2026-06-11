@@ -8,7 +8,7 @@ MDMediationFit(
   per_imputation = list(),
   fits = list(),
   m = integer(0),
-  sem_method = "lavaan",
+  engine = "glm",
   conf_int = FALSE,
   conf_level = 0.95,
   source = NULL
@@ -21,7 +21,7 @@ MDMediationFit(
 
 \item{m}{Integer number of imputations.}
 
-\item{sem_method}{Fitting backend: \code{"lavaan"} or \code{"OpenMx"}.}
+\item{engine}{medfit fitting engine used (e.g. \code{"glm"}).}
 
 \item{conf_int}{Logical; whether output carries confidence intervals.}
 
@@ -44,5 +44,5 @@ MBCO-MI path consumes, because MBCO does not commute with Rubin's rules
 It is the S7 successor of the S4 \link{SemResults} class.
 }
 \seealso{
-\code{\link[rmarkdown:run]{rmarkdown::run()}}, \code{\link[=per_imputation_list]{per_imputation_list()}}, \link{SemResults}
+\code{\link[=run]{run()}}, \code{\link[=per_imputation_list]{per_imputation_list()}}, \link{SemResults}
 }

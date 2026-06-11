@@ -24,7 +24,7 @@ MDMediationResult(
   cov_between = NULL,
   cov_within = NULL,
   m = integer(0),
-  sem_method = "lavaan",
+  engine = "glm",
   conf_int = FALSE,
   conf_level = 0.95
 )
@@ -41,7 +41,7 @@ within-imputation covariance matrices.}
 
 \item{m}{Integer number of imputations pooled.}
 
-\item{sem_method}{Fitting backend: \code{"lavaan"} or \code{"OpenMx"}.}
+\item{engine}{medfit fitting engine used (e.g. \code{"glm"}).}
 
 \item{conf_int}{Logical; whether the tidy table carries confidence intervals.}
 

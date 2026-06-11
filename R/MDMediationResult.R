@@ -13,7 +13,7 @@
 #' @param cov_total,cov_between,cov_within The Rubin's-rules total, between-, and
 #'   within-imputation covariance matrices.
 #' @param m Integer number of imputations pooled.
-#' @param sem_method Fitting backend: `"lavaan"` or `"OpenMx"`.
+#' @param engine medfit fitting engine used (e.g. `"glm"`).
 #' @param conf_int Logical; whether the tidy table carries confidence intervals.
 #' @param conf_level Numeric in (0, 1); confidence level.
 #'
@@ -31,7 +31,7 @@ MDMediationResult <- S7::new_class(
     cov_between = S7::class_any,
     cov_within = S7::class_any,
     m = S7::class_numeric,
-    sem_method = S7::new_property(S7::class_character, default = "lavaan"),
+    engine = S7::new_property(S7::class_character, default = "glm"),
     conf_int = S7::new_property(S7::class_logical, default = FALSE),
     conf_level = S7::new_property(S7::class_numeric, default = 0.95)
   ),

@@ -6,7 +6,13 @@
 \usage{
 set_md_mediation(
   data,
-  model,
+  formula_y,
+  formula_m,
+  treatment,
+  mediator,
+  engine = "glm",
+  family_y = stats::gaussian(),
+  family_m = stats::gaussian(),
   method = c("mi", "ipw"),
   mechanism = c("mar", "mnar"),
   conf_int = FALSE,
@@ -16,11 +22,20 @@ set_md_mediation(
 \arguments{
 \item{data}{A \link[mice:mids]{mice::mids} object containing multiply imputed datasets.}
 
-\item{model}{A \code{lavaan} model syntax (character), a fitted \code{lavaan} object, or
-an \code{OpenMx} \code{MxModel} (with or without data).}
+\item{formula_y}{Outcome model formula (e.g. \code{Y ~ X + M + C}).}
 
-\item{method}{Estimator axis: \code{"mi"} (default, multiple imputation) or
-\code{"ipw"} (inverse-probability weighting; reserved for a later phase).}
+\item{formula_m}{Mediator model formula (e.g. \code{M ~ X + C}).}
+
+\item{treatment}{Name of the treatment/exposure variable.}
+
+\item{mediator}{Name of the mediator variable.}
+
+\item{engine}{medfit fitting engine. Defaults to \code{"glm"}.}
+
+\item{family_y, family_m}{\code{stats::family} objects for the outcome and mediator
+models. Default \code{stats::gaussian()}.}
+
+\item{method}{Estimator axis: \code{"mi"} (default) or \code{"ipw"} (reserved).}
 
 \item{mechanism}{Assumed missing-data mechanism: \code{"mar"} (default) or \code{"mnar"}.}
 
@@ -34,25 +49,23 @@ An \link{MDMediationData} object.
 }
 \description{
 Constructs an \link{MDMediationData} object: the entry point of the missingmed S7
-pipeline. It validates that \code{data} is a \link[mice:mids]{mice::mids} object and that \code{model}
-is a supported mediation model (\code{lavaan} syntax/object or \code{OpenMx} \code{MxModel}),
-fits the model to the original (listwise-deleted) data, and derives the
-fitting backend. It is the S7 successor of the S4 \code{\link[=set_sem]{set_sem()}} constructor.
-}
-\details{
-The estimator (\code{method}) and the fitting backend (derived \code{sem_method}) are
-orthogonal: \code{method} chooses the missing-data estimator, while the backend is
-inferred from \code{model}.
+pipeline. It records a \strong{medfit-style mediation specification} (outcome and
+mediator formulas plus the treatment/mediator roles) together with the \code{mids}
+object. Fitting is delegated to \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}} downstream by
+\code{\link[=run]{run()}}. It is the S7 successor of the S4 \code{\link[=set_sem]{set_sem()}} constructor.
 }
 \examples{
 \dontrun{
-data("HolzingerSwineford1939", package = "lavaan")
-imp <- mice::mice(HolzingerSwineford1939[paste0("x", 1:9)],
-  m = 3, printFlag = FALSE)
-model <- "visual =~ x1 + x2 + x3"
-md <- set_md_mediation(imp, model)
+set.seed(1)
+d <- data.frame(X = rbinom(200, 1, .5), C = rnorm(200))
+d$M <- .5 * d$X + .3 * d$C + rnorm(200)
+d$Y <- .2 * d$X + .4 * d$M + .3 * d$C + rnorm(200)
+d$M[sample(200, 30)] <- NA
+imp <- mice::mice(d, m = 5, printFlag = FALSE)
+md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M")
 }
 }
 \seealso{
-\link{MDMediationData}, \code{\link[rmarkdown:run]{rmarkdown::run()}}, \code{\link[mice:pool]{mice::pool()}}, \code{\link[=infer]{infer()}}, \code{\link[=set_sem]{set_sem()}}
+\link{MDMediationData}, \code{\link[=run]{run()}}, \code{\link[mice:pool]{mice::pool()}}, \code{\link[=infer]{infer()}}, \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}}
 }

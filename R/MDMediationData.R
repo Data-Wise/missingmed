@@ -1,30 +1,35 @@
-#' MDMediationData: imputed data + mediation model (S7)
+#' MDMediationData: imputed data + mediation specification (S7)
 #'
-#' An S7 class holding multiply imputed data together with a mediation model
-#' specification. It is the entry point of the missingmed S7 pipeline
+#' An S7 class holding multiply imputed data together with a **medfit-style
+#' mediation specification** (outcome/mediator formulas + roles). It is the entry
+#' point of the missingmed S7 pipeline
 #' (`set_md_mediation()` -> [run()] -> [pool()] -> [infer()]) and the S7
 #' successor of the S4 [SemImputedData] class.
 #'
-#' The estimator and the model are kept as **orthogonal axes**: `method`
-#' selects the missing-data estimator (`"mi"` multiple imputation, `"ipw"`
-#' inverse-probability weighting), while `sem_method` (derived from `model`)
-#' selects the fitting backend (`"lavaan"` or `"OpenMx"`).
+#' Fitting is delegated to [medfit::fit_mediation()] (one call per imputation),
+#' so the per-imputation fits carry **named** path coefficients (`a`, `b`,
+#' `c_prime`) ready for [RMediation] inference. The estimator (`method`) and the
+#' model are orthogonal axes: `method` selects the missing-data estimator
+#' (`"mi"`/`"ipw"`); the formulas/engine select the model.
 #'
 #' @param data An object of class `mids` from the `mice` package.
-#' @param model A `lavaan` model syntax (character), a fitted `lavaan` object,
-#'   or an `OpenMx` `MxModel`.
+#' @param formula_y Outcome model formula (e.g. `Y ~ X + M + C`).
+#' @param formula_m Mediator model formula (e.g. `M ~ X + C`).
+#' @param treatment Name of the treatment/exposure variable.
+#' @param mediator Name of the mediator variable.
+#' @param engine medfit fitting engine, e.g. `"glm"` (default).
+#' @param family_y,family_m `stats::family` objects for the outcome and mediator
+#'   models. Default `stats::gaussian()`.
 #' @param method Estimator axis: `"mi"` (default) or `"ipw"`.
 #' @param mechanism Assumed missing-data mechanism: `"mar"` (default) or `"mnar"`.
-#' @param sem_method Derived fitting backend: `"lavaan"` or `"OpenMx"`.
 #' @param conf_int Logical; whether downstream output carries confidence
 #'   intervals. Defaults to `FALSE`.
 #' @param conf_level Numeric in (0, 1); confidence level. Defaults to `0.95`.
-#' @param original_data The original (pre-imputation) data, derived from `data`.
 #' @param n_imputations Number of imputations, derived from `data`.
-#' @param fit_model The model fitted to the original data with listwise deletion.
+#' @param original_data The original (pre-imputation) data, derived from `data`.
 #'
 #' @return An `MDMediationData` S7 object.
-#' @seealso [set_md_mediation()], [SemImputedData]
+#' @seealso [set_md_mediation()], [medfit::fit_mediation()], [SemImputedData]
 #' @export
 #' @name MDMediationData
 MDMediationData <- S7::new_class(
@@ -32,19 +37,29 @@ MDMediationData <- S7::new_class(
   package = "missingmed",
   properties = list(
     data = S7::class_any,
-    model = S7::class_any,
+    formula_y = S7::class_any,
+    formula_m = S7::class_any,
+    treatment = S7::class_character,
+    mediator = S7::class_character,
+    engine = S7::new_property(S7::class_character, default = "glm"),
+    family_y = S7::class_any,
+    family_m = S7::class_any,
     method = S7::new_property(S7::class_character, default = "mi"),
     mechanism = S7::new_property(S7::class_character, default = "mar"),
-    sem_method = S7::new_property(S7::class_character, default = "lavaan"),
     conf_int = S7::new_property(S7::class_logical, default = FALSE),
     conf_level = S7::new_property(S7::class_numeric, default = 0.95),
-    original_data = S7::class_data.frame,
     n_imputations = S7::class_numeric,
-    fit_model = S7::class_any
+    original_data = S7::class_data.frame
   ),
   validator = function(self) {
     if (!inherits(self@data, "mids")) {
       return("@data must be a 'mids' object from the 'mice' package.")
+    }
+    if (!inherits(self@formula_y, "formula") || !inherits(self@formula_m, "formula")) {
+      return("@formula_y and @formula_m must be formula objects.")
+    }
+    if (length(self@treatment) != 1L || length(self@mediator) != 1L) {
+      return("@treatment and @mediator must each be a single variable name.")
     }
     if (length(self@method) != 1L || !self@method %in% c("mi", "ipw")) {
       return("@method must be a single string: 'mi' or 'ipw'.")

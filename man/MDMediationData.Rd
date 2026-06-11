@@ -2,16 +2,22 @@
 % Please edit documentation in R/MDMediationData.R
 \name{MDMediationData}
 \alias{MDMediationData}
-\title{MDMediationData: imputed data + mediation model (S7)}
+\title{MDMediationData: imputed data + mediation specification (S7)}
 \usage{
 MDMediationData(
   data = NULL,
-  model = NULL,
+  formula_y = NULL,
+  formula_m = NULL,
+  treatment = character(0),
+  mediator = character(0),
+  engine = "glm",
+  family_y = NULL,
+  family_m = NULL,
   method = "mi",
   mechanism = "mar",
-  sem_method = "lavaan",
   conf_int = FALSE,
   conf_level = 0.95,
+  n_imputations = integer(0),
   original_data = (function (.data = list(), row.names = NULL) 
  {
      if
@@ -25,49 +31,55 @@ MDMediationData(
       
       out
      }
- })(),
-  n_imputations = integer(0),
-  fit_model = NULL
+ })()
 )
 }
 \arguments{
 \item{data}{An object of class \code{mids} from the \code{mice} package.}
 
-\item{model}{A \code{lavaan} model syntax (character), a fitted \code{lavaan} object,
-or an \code{OpenMx} \code{MxModel}.}
+\item{formula_y}{Outcome model formula (e.g. \code{Y ~ X + M + C}).}
+
+\item{formula_m}{Mediator model formula (e.g. \code{M ~ X + C}).}
+
+\item{treatment}{Name of the treatment/exposure variable.}
+
+\item{mediator}{Name of the mediator variable.}
+
+\item{engine}{medfit fitting engine, e.g. \code{"glm"} (default).}
+
+\item{family_y, family_m}{\code{stats::family} objects for the outcome and mediator
+models. Default \code{stats::gaussian()}.}
 
 \item{method}{Estimator axis: \code{"mi"} (default) or \code{"ipw"}.}
 
 \item{mechanism}{Assumed missing-data mechanism: \code{"mar"} (default) or \code{"mnar"}.}
-
-\item{sem_method}{Derived fitting backend: \code{"lavaan"} or \code{"OpenMx"}.}
 
 \item{conf_int}{Logical; whether downstream output carries confidence
 intervals. Defaults to \code{FALSE}.}
 
 \item{conf_level}{Numeric in (0, 1); confidence level. Defaults to \code{0.95}.}
 
-\item{original_data}{The original (pre-imputation) data, derived from \code{data}.}
-
 \item{n_imputations}{Number of imputations, derived from \code{data}.}
 
-\item{fit_model}{The model fitted to the original data with listwise deletion.}
+\item{original_data}{The original (pre-imputation) data, derived from \code{data}.}
 }
 \value{
 An \code{MDMediationData} S7 object.
 }
 \description{
-An S7 class holding multiply imputed data together with a mediation model
-specification. It is the entry point of the missingmed S7 pipeline
-(\code{set_md_mediation()} -> \code{\link[rmarkdown:run]{rmarkdown::run()}} -> \code{\link[mice:pool]{mice::pool()}} -> \code{\link[=infer]{infer()}}) and the S7
+An S7 class holding multiply imputed data together with a \strong{medfit-style
+mediation specification} (outcome/mediator formulas + roles). It is the entry
+point of the missingmed S7 pipeline
+(\code{set_md_mediation()} -> \code{\link[=run]{run()}} -> \code{\link[mice:pool]{mice::pool()}} -> \code{\link[=infer]{infer()}}) and the S7
 successor of the S4 \link{SemImputedData} class.
 }
 \details{
-The estimator and the model are kept as \strong{orthogonal axes}: \code{method}
-selects the missing-data estimator (\code{"mi"} multiple imputation, \code{"ipw"}
-inverse-probability weighting), while \code{sem_method} (derived from \code{model})
-selects the fitting backend (\code{"lavaan"} or \code{"OpenMx"}).
+Fitting is delegated to \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}} (one call per imputation),
+so the per-imputation fits carry \strong{named} path coefficients (\code{a}, \code{b},
+\code{c_prime}) ready for \link{RMediation} inference. The estimator (\code{method}) and the
+model are orthogonal axes: \code{method} selects the missing-data estimator
+(\code{"mi"}/\code{"ipw"}); the formulas/engine select the model.
 }
 \seealso{
-\code{\link[=set_md_mediation]{set_md_mediation()}}, \link{SemImputedData}
+\code{\link[=set_md_mediation]{set_md_mediation()}}, \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}}, \link{SemImputedData}
 }

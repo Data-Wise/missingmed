@@ -11,7 +11,7 @@
 #' @param per_imputation A list of named [medfit::MediationData] objects (length `m`).
 #' @param fits A list of the raw backend fits (`lavaan`/`OpenMx`), one per imputation.
 #' @param m Integer number of imputations.
-#' @param sem_method Fitting backend: `"lavaan"` or `"OpenMx"`.
+#' @param engine medfit fitting engine used (e.g. `"glm"`).
 #' @param conf_int Logical; whether output carries confidence intervals.
 #' @param conf_level Numeric in (0, 1); confidence level.
 #' @param source The originating [MDMediationData] (retained so MBCO can refit
@@ -28,7 +28,7 @@ MDMediationFit <- S7::new_class(
     per_imputation = S7::class_list,
     fits = S7::class_list,
     m = S7::class_numeric,
-    sem_method = S7::new_property(S7::class_character, default = "lavaan"),
+    engine = S7::new_property(S7::class_character, default = "glm"),
     conf_int = S7::new_property(S7::class_logical, default = FALSE),
     conf_level = S7::new_property(S7::class_numeric, default = 0.95),
     source = S7::class_any
