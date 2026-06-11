@@ -58,5 +58,5 @@ pooled estimates and total variance-covariance, valid as input to
 resolve by name). It is the S7 successor of the S4 \link{PooledSEMResults} class.
 }
 \seealso{
-\code{\link[mice:pool]{mice::pool()}}, \code{\link[=infer]{infer()}}, \link{PooledSEMResults}
+\code{\link[=pool]{pool()}}, \code{\link[=infer]{infer()}}, \link{PooledSEMResults}
 }

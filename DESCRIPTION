@@ -14,6 +14,7 @@ Depends:
 Imports:
     S7 (>= 0.2.0),
     medfit (>= 0.3.0),
+    RMediation (>= 1.4.0),
     mice (>= 3.0.0),
     lavaan (>= 0.6-0),
     OpenMx (>= 2.13),
@@ -27,6 +28,9 @@ Suggests:
     knitr,
     rmarkdown,
     quarto
+Remotes:
+    data-wise/medfit,
+    data-wise/rmediation
 LazyData: true
 Description: Provides S4 classes and methods for conducting mediation analysis with multiply imputed datasets.
     Integrates with the 'mice' package for multiple imputation and supports structural equation modeling (SEM)

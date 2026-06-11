@@ -70,13 +70,13 @@ An \code{MDMediationData} S7 object.
 An S7 class holding multiply imputed data together with a \strong{medfit-style
 mediation specification} (outcome/mediator formulas + roles). It is the entry
 point of the missingmed S7 pipeline
-(\code{set_md_mediation()} -> \code{\link[=run]{run()}} -> \code{\link[mice:pool]{mice::pool()}} -> \code{\link[=infer]{infer()}}) and the S7
+(\code{set_md_mediation()} -> \code{\link[=run]{run()}} -> \code{\link[=pool]{pool()}} -> \code{\link[=infer]{infer()}}) and the S7
 successor of the S4 \link{SemImputedData} class.
 }
 \details{
 Fitting is delegated to \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}} (one call per imputation),
 so the per-imputation fits carry \strong{named} path coefficients (\code{a}, \code{b},
-\code{c_prime}) ready for \link{RMediation} inference. The estimator (\code{method}) and the
+\code{c_prime}) ready for \link[RMediation:RMediation-package]{RMediation::RMediation} inference. The estimator (\code{method}) and the
 model are orthogonal axes: \code{method} selects the missing-data estimator
 (\code{"mi"}/\code{"ipw"}); the formulas/engine select the model.
 }

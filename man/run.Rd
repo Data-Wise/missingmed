@@ -19,11 +19,11 @@ Runs the mediation specification held in an \link{MDMediationData} object on eve
 imputed dataset, delegating each fit to \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}}. The result
 is an \link{MDMediationFit} whose \code{per_imputation} slot is a list of \strong{named}
 \link[medfit:MediationData]{medfit::MediationData} objects (one per imputation) — the shape consumed by
-both Rubin's-rules pooling (\code{\link[mice:pool]{mice::pool()}}) and D4-stacked MBCO (\code{\link[=infer]{infer()}}).
+both Rubin's-rules pooling (\code{\link[=pool]{pool()}}) and D4-stacked MBCO (\code{\link[=infer]{infer()}}).
 }
 \details{
 It is the S7 successor of the S4 \code{\link[=run_sem]{run_sem()}} method.
 }
 \seealso{
-\code{\link[=set_md_mediation]{set_md_mediation()}}, \code{\link[mice:pool]{mice::pool()}}, \code{\link[=infer]{infer()}}, \code{\link[=run_sem]{run_sem()}}
+\code{\link[=set_md_mediation]{set_md_mediation()}}, \code{\link[=pool]{pool()}}, \code{\link[=infer]{infer()}}, \code{\link[=run_sem]{run_sem()}}
 }

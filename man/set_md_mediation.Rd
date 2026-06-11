@@ -67,5 +67,5 @@ md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
 }
 }
 \seealso{
-\link{MDMediationData}, \code{\link[=run]{run()}}, \code{\link[mice:pool]{mice::pool()}}, \code{\link[=infer]{infer()}}, \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}}
+\link{MDMediationData}, \code{\link[=run]{run()}}, \code{\link[=pool]{pool()}}, \code{\link[=infer]{infer()}}, \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}}
 }
