@@ -24,7 +24,14 @@ type: r
   - S4 set_sem/run_sem/pool_sem .Deprecated() shims kept one cycle.
   - R CMD check E0/W0/N0; 47 tests pass; vignettes + _pkgdown.yml + pkgdown deploy wf.
   - Worktree: ~/.git-worktrees/missingmed/feature-s7-migration.
-- Deferred: cosmetic done; future scope phases = IPW estimator, GLM, MNAR sensitivity.
+- 2026-06-11: Phase 1 IPW estimator SPEC drafted (cloud routine) on branch
+  docs/ipw-phase1-spec — docs/specs/SPEC-ipw-phase1-2026-06-11.md. Design = thin
+  run() branch (.ipw_run: estimate weights -> medfit::fit_mediation(weights=) ->
+  MDMediationFit(m=1)) + passthrough pool() (B=0). BLOCKER (OQ-1, confirmed):
+  medfit v0.3.0 fit_mediation() does NOT accept weights (glm NSE via ...) -> needs
+  a small medfit PR before IPW can be implemented. Design OQs open: OQ-2 weight
+  model (joint vs sequential), OQ-3 SE (model-based vs sandwich).
+- Future scope phases = IPW (Phase 1, spec'd/blocked), GLM, MNAR sensitivity.
 - Scope spec + 6-phase roadmap: docs/specs/SPEC-missingmed-scope-2026-06-04.md (on dev)
 - 2026-06-11: Phase 0 PLAN written — docs/specs/SPEC-s7-migration-phase0-2026-06-11.md
   (S4->S7 class mapping, ordered steps P0.1–P0.7, acceptance). Resolves scope Open Q3
