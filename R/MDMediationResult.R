@@ -42,3 +42,5 @@ MDMediationResult <- S7::new_class(
     NULL
   }
 )
+
+S7::S4_register(MDMediationResult)

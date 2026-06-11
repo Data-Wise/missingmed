@@ -76,3 +76,7 @@ MDMediationData <- S7::new_class(
     NULL
   }
 )
+
+# Register with S4 so S7 methods can attach to the package's S4 generics
+# (print/summary/show were made S4 by the legacy S4 classes).
+S7::S4_register(MDMediationData)
