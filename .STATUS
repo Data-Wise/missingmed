@@ -1,8 +1,9 @@
 status: active
 priority: --
-progress: 12
-next: Phase 0 S7 migration — execute SPEC-s7-migration-phase0-2026-06-11.md (steps P0.1–P0.7)
-  on feature/s7-migration off dev; start = scaffold 3 S7 classes + set_md_mediation()
+progress: 85
+next: Integrate feature/s7-migration (Phase 0 DONE, pushed) — then scope Phase 1
+  (IPW estimator / GLM models / MNAR; method/engine/mechanism axes already wired).
+  Do NOT suggest PR/merge unless asked.
 type: r
 
 # missingmed — Missing-data causal mediation (R package, mediationverse)
@@ -11,6 +12,19 @@ type: r
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
 ## Quick Notes
+- 2026-06-11: Phase 0 S4->S7 migration IMPLEMENTED on feature/s7-migration (pushed,
+  up to commit c4eb495; 11 commits, P0.1–P0.8 + 2 follow-ups). NOT yet merged to dev.
+  - S7 classes MDMediationData/MDMediationFit/MDMediationResult; pipeline
+    set_md_mediation() -> run() -> pool() -> infer(type=c("mc","mbco")).
+  - run() delegates each imputation to medfit::fit_mediation() (named a/b/c_prime);
+    pool() = Rubin's rules -> NAMED pooled medfit::MediationData (Open Q3 closed);
+    per_imputation_list() accessor (#2 closed); D4-stacked MBCO HOSTED in missingmed
+    (R/mbco_mi.R) — exact parity with research prototype (max abs diff 4.8e-11, 3 cells).
+  - Namespace is RMediation (capital), NOT rmediation. medfit+RMediation in Imports.
+  - S4 set_sem/run_sem/pool_sem .Deprecated() shims kept one cycle.
+  - R CMD check E0/W0/N0; 47 tests pass; vignettes + _pkgdown.yml + pkgdown deploy wf.
+  - Worktree: ~/.git-worktrees/missingmed/feature-s7-migration.
+- Deferred: cosmetic done; future scope phases = IPW estimator, GLM, MNAR sensitivity.
 - Scope spec + 6-phase roadmap: docs/specs/SPEC-missingmed-scope-2026-06-04.md (on dev)
 - 2026-06-11: Phase 0 PLAN written — docs/specs/SPEC-s7-migration-phase0-2026-06-11.md
   (S4->S7 class mapping, ordered steps P0.1–P0.7, acceptance). Resolves scope Open Q3
@@ -23,5 +37,5 @@ type: r
 - Contracts confirmed: rmediation (MBCO/MC-CI, consumes medfit MediationData),
   medfit (fit_mediation/extract_mediation -> MediationData@estimates/@vcov).
 - missingmed's unique code = Rubin's-rules pooling of NAMED (estimates, vcov) + IPW weights + MNAR.
-- Next: Phase 0 S7 migration (integration key — enables medfit/rmediation interop). Critical path.
+- Next: integrate feature/s7-migration, then scope Phase 1 (IPW/GLM/MNAR).
 - Branches: main (protected) <- dev (current) <- feature/*. Companion manuscript: research/Missing Effect.
