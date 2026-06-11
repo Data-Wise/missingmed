@@ -15,17 +15,13 @@
 #' @importFrom stats logLik
 #' @importFrom broom tidy
 #' @importFrom tibble tibble
-#' @export
+#' @exportS3Method broom::tidy
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #' @examples
 #' fit <- lm(mpg ~ wt, data = mtcars)
 #' logLik_fit <- logLik(fit)
-#' # Dispatch via the broom generic. (Wrapped in \dontrun because S3 dispatch
-#' # for tidy.logLik depends on which 'tidy' generic is on the search path; the
-#' # behaviour is verified in tests/testthat/test-tidy_logLik.R.)
-#' \dontrun{
+#' # Dispatch via the broom generic (registered against broom::tidy).
 #' tidy(logLik_fit)
-#' }
 tidy.logLik <- function(x, ...) {
   # Extract the log-likelihood value and the degrees of freedom
   stopifnot(inherits(x, "logLik"))

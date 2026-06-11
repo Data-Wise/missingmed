@@ -25,12 +25,8 @@ Creates a data.frame for a log-likelihood object
 \examples{
 fit <- lm(mpg ~ wt, data = mtcars)
 logLik_fit <- logLik(fit)
-# Dispatch via the broom generic. (Wrapped in \dontrun because S3 dispatch
-# for tidy.logLik depends on which 'tidy' generic is on the search path; the
-# behaviour is verified in tests/testthat/test-tidy_logLik.R.)
-\dontrun{
+# Dispatch via the broom generic (registered against broom::tidy).
 tidy(logLik_fit)
-}
 }
 \seealso{
 \code{\link[stats]{logLik}}
