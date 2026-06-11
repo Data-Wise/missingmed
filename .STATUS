@@ -35,7 +35,18 @@ type: r
   - Design OQs still open: OQ-2 weight model (joint vs sequential), OQ-3 SE
     (model-based vs sandwich) — decisions for manuscript author.
   - Integration order for IPW impl: needs S7 pipeline (feature/s7-migration) +
-    patched medfit (feature/fit-weights). IPW branch should base on both.
+    patched medfit (feature/fit-weights). IPW branch based on both.
+- 2026-06-11: Phase 1 IPW IMPLEMENTED on feature/ipw-phase1 (off feature/s7-migration,
+  pushed). method='ipw' takes a data.frame; run()->.ipw_run (weights: joint default
+  + per-variable list, stabilized, trim) -> medfit::fit_mediation(weights=, se_type=
+  'sandwich') -> MDMediationFit(m=1); pool() passthrough (B=0); infer('mc') reuses
+  ci_mediation_data; infer('mbco') errors for IPW. New props on MDMediationData
+  (weight_formula/weight_stabilize/weight_trim/se_type) + data.frame validator;
+  MDMediationFit@weights. R CMD check E0/W0/N0; 72 tests. Technical vignette
+  (vignettes/technical.Rmd) covers all design/contracts/methodology.
+  DEPENDS ON medfit feature/fit-weights (weights= + se_type=sandwich, 806 tests).
+  Worktrees: ~/.git-worktrees/missingmed/{feature-s7-migration,feature-ipw-phase1},
+  ~/.git-worktrees/medfit/feature-fit-weights.
 - Future scope phases = IPW (Phase 1, spec'd/blocked), GLM, MNAR sensitivity.
 - Scope spec + 6-phase roadmap: docs/specs/SPEC-missingmed-scope-2026-06-04.md (on dev)
 - 2026-06-11: Phase 0 PLAN written — docs/specs/SPEC-s7-migration-phase0-2026-06-11.md
