@@ -14,6 +14,9 @@ articles:
   contents:
   - missingmed
   - mbco-mi
+- title: Technical
+  contents:
+  - technical
 - title: Developer
   contents:
   - articles/classes_methods
