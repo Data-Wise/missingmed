@@ -1,6 +1,7 @@
 # missingmed
 
 <!-- badges: start -->
+[![r-universe](https://data-wise.r-universe.dev/badges/missingmed)](https://data-wise.r-universe.dev/missingmed)
 <!-- badges: end -->
 
 ## Overview
@@ -19,6 +20,16 @@ You can install the development version of missingmed from GitHub:
 ```r
 # install.packages("devtools")
 devtools::install_github("Data-Wise/missingmed")
+```
+
+Or from the [Data-Wise r-universe](https://data-wise.r-universe.dev/missingmed)
+(pre-built binaries — no compiler needed):
+
+```r
+install.packages(
+  "missingmed",
+  repos = c("https://data-wise.r-universe.dev", "https://cloud.r-project.org")
+)
 ```
 
 ## Features
