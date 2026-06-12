@@ -1,9 +1,8 @@
 status: active
 priority: --
-progress: 85
-next: Integrate feature/s7-migration (Phase 0 DONE, pushed) — then scope Phase 1
-  (IPW estimator / GLM models / MNAR; method/engine/mechanism axes already wired).
-  Do NOT suggest PR/merge unless asked.
+progress: 100
+next: v0.2.0 RELEASED (S7 + IPW). Next phases (general CRAN toolkit, NOT manuscript-
+  gated): GLM models, MNAR sensitivity. Manuscript runs on medsim, not missingmed.
 type: r
 
 # missingmed — Missing-data causal mediation (R package, mediationverse)
@@ -11,22 +10,21 @@ type: r
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
-## Integration order: medfit ↔ missingmed (r-universe builds DEFAULT branches)
-# The IPW path calls medfit::fit_mediation(weights=, se_type=), added on medfit
-# feature/fit-weights. r-universe rebuilds each repo's DEFAULT branch and resolves
-# medfit from the universe's own medfit build — so missingmed's universe build of the
-# new code FAILS until medfit main carries the patch. DO IN THIS ORDER:
-#   1. [done] medfit feature/fit-weights bumped to 0.3.1 (+ NEWS); this branch now
-#      Imports medfit (>= 0.3.1) — a clean build fails LOUDLY if medfit is too old.
-#   2. Merge medfit feature/fit-weights -> medfit main (PR), 0.3.1 + NEWS.
-#   3. WAIT for the universe to actually serve it: poll
-#      https://data-wise.r-universe.dev/api/packages/medfit until Version >= 0.3.1
-#      (cron lag is ~hourly; do NOT merge missingmed before this shows green).
-#   4. Then merge missingmed feature/s7-migration -> main, then feature/ipw-phase1.
-#   5. Confirm at merge: missingmed Remotes = data-wise/medfit (default branch, NOT a
-#      feature ref) so the universe builds from medfit main.
-#   6. Verify: missingmed _status: success on the universe API before declaring done.
-# medsim is NOT in this chain — PR #18 dropped missingmed/rmediation from its deps.
+## v0.2.0 RELEASED — 2026-06-12 (all integration steps DONE)
+# - main = 0.2.0 (PR #3 ipw-phase1->dev, PR #4 dev->main). GitHub release v0.2.0.
+#   https://github.com/Data-Wise/missingmed/releases/tag/v0.2.0
+# - medfit 0.3.1 + RMediation 1.4.0 live on r-universe (deps satisfied).
+# - Feature worktrees + branches (feature/s7-migration, feature/ipw-phase1) merged
+#   and DELETED. Only docs/ipw-phase1-spec remains (historical spec).
+# - CI fixes that unblocked the release (key learnings):
+#     * RMediation remote MUST be name-qualified: RMediation=data-wise/rmediation
+#       (repo 'rmediation' != package 'RMediation'); plain form fails pak solve.
+#     * DESCRIPTION Additional_repositories = data-wise r-universe (non-CRAN deps).
+#     * check.yml modernized off renv::restore() (stale lock -> old rlang fails to
+#       compile on R 4.6) to standard r-lib setup-r-dependencies + check-r-package.
+#     * RENV_CONFIG_AUTOLOADER_ENABLED=FALSE in CI (keep dev renv out of CI).
+# - pkgdown destination = pkgdown-site (docs/ holds specs); deploy via gh-pages.
+# - Post-release watch: r-universe rebuild of missingmed 0.2.0 (cron); main CI/site deploy.
 
 ## Quick Notes
 - 2026-06-11: Phase 0 S4->S7 migration IMPLEMENTED on feature/s7-migration (pushed,
