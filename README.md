@@ -1,29 +1,35 @@
-# missingmed
+# missingmed <a href="https://data-wise.github.io/missingmed/"><img src="man/figures/logo.png" align="right" height="139" alt="missingmed website" /></a>
 
 <!-- badges: start -->
-[![r-universe](https://data-wise.r-universe.dev/badges/missingmed)](https://data-wise.r-universe.dev/missingmed)
+[![R-CMD-check](https://github.com/Data-Wise/missingmed/actions/workflows/check.yml/badge.svg)](https://github.com/Data-Wise/missingmed/actions/workflows/check.yml)
+[![missingmed status badge](https://data-wise.r-universe.dev/badges/missingmed)](https://data-wise.r-universe.dev/missingmed)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![License: GPL v2](https://img.shields.io/badge/License-GPL_v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 <!-- badges: end -->
 
 ## Overview
 
-**missingmed** provides S4 classes and methods for conducting mediation analysis with multiply imputed datasets. The package integrates seamlessly with:
+**missingmed** runs SEM/GLM-based mediation analysis across incomplete data and
+pools with Rubin's rules. It is the *missing-data middle* of the
+[mediationverse](https://github.com/Data-Wise/mediationverse): a thin
+orchestration layer that **fits** each analysis with
+[medfit](https://data-wise.github.io/medfit/) and delegates **inference** to
+[RMediation](https://data-wise.github.io/rmediation/).
 
-- **mice**: For multiple imputation of missing data
-- **lavaan**: For structural equation modeling with latent variables
-- **OpenMx**: For advanced SEM and path analysis
-- **RMediation**: For computing confidence intervals of indirect effects
+Two estimators share one S7 pipeline:
+
+* **Multiple imputation** (`method = "mi"`) — pools per-imputation fits with
+  Rubin's rules.
+* **Inverse-probability weighting** (`method = "ipw"`) — reweights complete cases
+  (stabilized weights, trimming, HC sandwich SEs).
+
+For the indirect effect it provides both a **Monte-Carlo confidence interval**
+and a **D4-stacked MBCO** likelihood-ratio test (which, unlike pooling, respects
+the union-null geometry of `H0: ab = 0`).
 
 ## Installation
 
-You can install the development version of missingmed from GitHub:
-
-```r
-# install.packages("devtools")
-devtools::install_github("Data-Wise/missingmed")
-```
-
-Or from the [Data-Wise r-universe](https://data-wise.r-universe.dev/missingmed)
-(pre-built binaries — no compiler needed):
+From the Data-Wise R-universe (binaries, no compilation):
 
 ```r
 install.packages(
@@ -32,89 +38,57 @@ install.packages(
 )
 ```
 
-## Features
+Or the development version from GitHub (also pulls the non-CRAN deps):
 
-- **S4 Classes** for structured workflow:
-  - `SemImputedData`: Container for multiply imputed data + SEM model
-  - `SemResults`: Stores SEM fits across all imputations
-  - `PooledSEMResults`: Pooled estimates using Rubin's rules
+```r
+# install.packages("pak")
+pak::pak("Data-Wise/missingmed")
+```
 
-- **Methods**:
-  - `set_sem()`: Set up SEM analysis with imputed data
-  - `run_sem()`: Run SEM on each imputed dataset
-  - `pool_sem()`: Pool results across imputations
-  - `show()`, `summary()`, `print()`: S4 methods for clean output
+## The pipeline
 
-- **Integration**: Works with both `lavaan` and `OpenMx` models
-
-## Basic Usage
+```
+set_md_mediation()  ->  run()          ->  pool()             ->  infer()
+   MDMediationData       MDMediationFit     MDMediationResult      CI / MBCO
+```
 
 ```r
 library(missingmed)
-library(mice)
-library(lavaan)
 
-# Load example data
-data("HolzingerSwineford1939", package = "lavaan")
+# `imp` is a mice::mids object; X -> M -> Y with confounder C
+md  <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+                        treatment = "X", mediator = "M")  # method = "mi" (default)
+res <- pool(run(md))
 
-# Introduce missing data (for demonstration)
-df_complete <- na.omit(HolzingerSwineford1939[paste0("x", 1:9)])
-amp <- mice::ampute(df_complete, prop = 0.1, mech = "MAR")
-data_with_missing <- amp$amp
-
-# Perform multiple imputation
-imputed_data <- mice(data_with_missing, m = 5, maxit = 10, seed = 12345, printFlag = FALSE)
-
-# Define SEM model
-model <- "
-  visual  =~ x1 + x2 + x3
-  textual =~ x4 + x5 + x6
-  speed   =~ x7 + x8 + x9
-"
-
-# Analysis workflow
-results <- imputed_data |>
-  set_sem(model) |>      # Set up analysis
-  run_sem() |>            # Run on each imputation
-  pool_sem()              # Pool results
-
-# View pooled results
-results@tidy_table
+infer(res, type = "mc")    # Monte-Carlo CI for the indirect effect
+infer(run(md), type = "mbco")  # D4-stacked MBCO test of H0: ab = 0
 ```
 
-## Integration with RMediation
-
-The `missingmed` package is designed to work with `RMediation` for computing confidence intervals of indirect effects:
+Inverse-probability weighting takes a raw `data.frame`:
 
 ```r
-library(RMediation)
-
-# After pooling results, extract pooled estimates and covariance
-pooled_coef <- results@tidy_table$estimate
-pooled_cov <- results@cov_total
-
-# Compute CI for indirect effect using RMediation
-ci(mu = pooled_coef,
-   Sigma = pooled_cov,
-   quant = ~b1*b2*b3,  # Specify indirect effect
-   type = "MC")
+md_ipw <- set_md_mediation(df, Y ~ X + M + C, M ~ X + C,
+                           treatment = "X", mediator = "M", method = "ipw")
+infer(pool(run(md_ipw)), type = "mc")
 ```
+
+See `vignette("missingmed")` to get started, `vignette("mbco-mi")` for why MBCO
+needs the per-imputation fits, and `vignette("technical")` for the full design,
+contracts, and methodology.
+
+## Ecosystem
+
+`missingmed` → {`medfit` (fitting), `RMediation` (inference)}; simulation via
+`medsim`. All are part of the [mediationverse](https://github.com/Data-Wise/mediationverse).
 
 ## Citation
 
-If you use this package in your research, please cite:
-
 ```
-Tofighi, D. (2024). missingmed: Mediation Analysis with Multiple Imputation for Missing Data.
-R package version 0.1.0. https://github.com/Data-Wise/missingmed
+Tofighi, D. (2026). missingmed: Mediation Analysis with Multiple Imputation
+for Missing Data. R package version 0.2.0.
+https://github.com/Data-Wise/missingmed
 ```
 
 ## License
 
-GPL-2
-
-## Author
-
-Davood Tofighi (dtofighi@gmail.com)
-
-ORCID: 0000-0001-8523-7776
+GPL-2 · Davood Tofighi (dtofighi@gmail.com) · ORCID 0000-0001-8523-7776

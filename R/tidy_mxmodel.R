@@ -8,7 +8,7 @@
 #' @param ... Additional arguments (currently not used).
 #' @return A tibble with one row per parameter and columns for parameter names, estimates,
 #'         standard errors, and optionally confidence intervals.
-#' @export
+#' @exportS3Method broom::tidy
 #' @import OpenMx
 #' @importFrom dplyr mutate select rename contains
 #' @importFrom tibble tibble as_tibble
@@ -40,7 +40,7 @@
 #' #
 #' # Fit the model
 #' fit0 <- mxRun(model)
-#' RMediation::tidy(fit0)
+#' tidy(fit0)
 #' }
 tidy.MxModel <-
   function(x,

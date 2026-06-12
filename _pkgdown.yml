@@ -1,0 +1,72 @@
+url: https://data-wise.github.io/missingmed/
+
+# The repo's docs/ holds design specs (docs/specs/), so pkgdown builds to a
+# dedicated, git-ignored directory instead of the conventional docs/. Deployment
+# is via the gh-pages branch (see .github/workflows/pkgdown.yaml).
+destination: pkgdown-site
+
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    left: [intro, reference, articles]
+    right: [search, github]
+
+articles:
+- title: Get started
+  navbar: ~
+  contents:
+  - missingmed
+  - mbco-mi
+- title: Technical
+  contents:
+  - technical
+- title: Developer
+  contents:
+  - articles/classes_methods
+
+reference:
+- title: Pipeline
+  desc: The S7 mediation-with-missing-data workflow.
+  contents:
+  - set_md_mediation
+  - run
+  - pool
+  - infer
+- title: Accessors
+  contents:
+  - per_imputation_list
+  - n_imputations
+- title: Classes
+  desc: The three S7 classes carrying data, fits, and pooled results.
+  contents:
+  - MDMediationData
+  - MDMediationFit
+  - MDMediationResult
+- title: Tidiers
+  contents:
+  - tidy.logLik
+  - tidy.MxModel
+- title: Low-level helpers
+  desc: Fitting and validation utilities used by the pipeline.
+  contents:
+  - fit_model
+  - lav_mice
+  - mx_mice
+  - n_imp
+  - is_fit
+  - is_pd
+  - is_lav_syntax
+  - is_valid_lav_syntax
+- title: Deprecated (S4)
+  desc: Superseded by the S7 pipeline; kept for one release cycle.
+  contents:
+  - set_sem
+  - run_sem
+  - pool_sem
+  - SemImputedData
+  - SemResults
+  - PooledSEMResults
+  - "show,SemImputedData-method"
+  - "summary,SemImputedData-method"

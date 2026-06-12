@@ -1,36 +1,28 @@
 #' @keywords internal
-"_PACKAGE"
-
-#' missingmed: Mediation Analysis with Multiple Imputation
 #'
 #' @description
-#' The missingmed package provides S4 classes and methods for conducting
-#' mediation analysis with multiply imputed datasets. It integrates with
-#' the mice package for multiple imputation and supports structural equation
-#' modeling using either lavaan or OpenMx.
+#' missingmed runs SEM-based mediation analysis across multiply imputed datasets
+#' and pools with Rubin's rules. It is a thin orchestration layer: it **fits**
+#' each imputation with [medfit] and delegates **inference** to [RMediation].
 #'
-#' @section Main Classes:
+#' @section S7 pipeline:
 #' \itemize{
-#'   \item \code{\link{SemImputedData}}: Container for multiply imputed data and SEM model
-#'   \item \code{\link{SemResults}}: Stores SEM results across imputations
-#'   \item \code{\link{PooledSEMResults}}: Pooled estimates using Rubin's rules
+#'   \item [set_md_mediation()] -> [MDMediationData]: imputed data + mediation spec
+#'   \item [run()] -> [MDMediationFit]: a list of named [medfit::MediationData], one per imputation
+#'   \item [pool()] -> [MDMediationResult]: Rubin's-rules pooled named [medfit::MediationData]
+#'   \item [infer()]: indirect-effect CI ([RMediation::ci_mediation_data()]) or D4-stacked MBCO
+#'   \item [per_imputation_list()]: per-imputation fits for MBCO (which does not commute with Rubin's rules)
 #' }
 #'
-#' @section Main Functions:
-#' \itemize{
-#'   \item \code{\link{set_sem}}: Set up SEM analysis with imputed data
-#'   \item \code{\link{run_sem}}: Run SEM on each imputed dataset
-#'   \item \code{\link{pool_sem}}: Pool results across imputations
-#' }
-#'
-#' @section Integration:
-#' The package is designed to work seamlessly with RMediation for computing
-#' confidence intervals of indirect effects in the presence of missing data.
+#' @section Deprecated S4 API:
+#' [set_sem()], [run_sem()], and [pool_sem()] are superseded by the S7 pipeline
+#' above and kept for one release cycle.
 #'
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
-#' @docType package
-#' @name missingmed-package
-NULL
+#'
+#' @importFrom stats coef var vcov
+"_PACKAGE"
 
 ## usethis namespace: start
 ## usethis namespace: end
+NULL

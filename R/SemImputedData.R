@@ -132,6 +132,7 @@ setGeneric(
 #' res_sem@estimate_df # long tidy table of estimates across imputed datasets
 #' }
 setMethod("run_sem", "SemImputedData", function(object, ...) {
+  .Deprecated("run", msg = "run_sem() is deprecated; use run() on an MDMediationData.")
   if (!inherits(object@data, "mids")) {
     stop("'object@data' must be a 'mids' object from the 'mice' package.")
   }
@@ -227,6 +228,8 @@ setGeneric("set_sem", function(data, model, conf_int = FALSE, conf_level = 0.95)
 #' @rdname set_sem
 #' @export
 setMethod("set_sem", "mids", function(data, model, conf_int = FALSE, conf_level = 0.95) {
+  .Deprecated("set_md_mediation",
+    msg = "set_sem() is deprecated; use the S7 pipeline set_md_mediation() -> run() -> pool() -> infer().")
   if (missing(data)) {
     stop("Argument 'data' is missing.", call. = FALSE)
   }

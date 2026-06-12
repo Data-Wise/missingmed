@@ -13,13 +13,14 @@
 #' @rdname tidy_logLik
 #' @seealso \code{\link[stats]{logLik}}
 #' @importFrom stats logLik
-#' @importFrom generics tidy
+#' @importFrom broom tidy
 #' @importFrom tibble tibble
-#' @export
+#' @exportS3Method broom::tidy
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #' @examples
 #' fit <- lm(mpg ~ wt, data = mtcars)
 #' logLik_fit <- logLik(fit)
+#' # Dispatch via the broom generic (registered against broom::tidy).
 #' tidy(logLik_fit)
 tidy.logLik <- function(x, ...) {
   # Extract the log-likelihood value and the degrees of freedom
