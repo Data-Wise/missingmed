@@ -1,4 +1,4 @@
-# missingmed
+# missingmed <a href="https://data-wise.github.io/missingmed/"><img src="man/figures/logo.png" align="right" height="139" alt="missingmed website" /></a>
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/Data-Wise/missingmed/actions/workflows/check.yml/badge.svg)](https://github.com/Data-Wise/missingmed/actions/workflows/check.yml)

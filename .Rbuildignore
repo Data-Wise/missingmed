@@ -27,3 +27,4 @@
 ^vignettes/\.quarto$
 ^_pkgdown\.yml$
 ^pkgdown$
+^data-raw$
