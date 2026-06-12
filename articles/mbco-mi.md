@@ -1,0 +1,79 @@
+# MBCO under multiple imputation (D4-stacked)
+
+## Why MBCO does not commute with Rubin’s rules
+
+The **model-based constrained optimization** (MBCO) test of mediation
+tests $`H_0: a b = 0`$. Because $`a b = 0`$ iff $`a = 0`$**or**
+$`b = 0`$, the constrained log-likelihood is a **branch union** — the
+better of the “drop the a-path” and “drop the b-path” fits:
+
+``` math
+T = 2\left[\ell_{\text{full}} - \max(\ell_{a=0},\, \ell_{b=0})\right].
+```
+
+That [`max()`](https://rdrr.io/r/base/Extremes.html) is non-linear, so
+the MBCO statistic of the *pooled* estimate is **not** the pool of the
+per-imputation MBCO statistics. You cannot pool first and test second.
+Instead, missingmed keeps every per-imputation fit (exposed by
+[`per_imputation_list()`](https://data-wise.github.io/missingmed/reference/per_imputation_list.md))
+and combines the **likelihood-ratio statistics** with the **D4** rule
+(Chan & Meng, 2022; Grund, Lüdtke & Robitzsch, 2021):
+
+``` math
+d_S = \frac{\text{LRT(stacked data)}}{K}, \quad
+r_4 = \max\!\left(0, \tfrac{K+1}{k(K-1)}(\bar d - d_S)\right), \quad
+D_4 = \frac{d_S}{k(1 + r_4)} \sim F_{k,\nu}.
+```
+
+## In practice
+
+``` r
+
+library(missingmed)
+
+set.seed(2026)
+n <- 300
+C <- rnorm(n)
+X <- rbinom(n, 1, plogis(0.3 * C))
+M <- 0.39 * X + 0.3 * C + rnorm(n)
+Y <- 0.2 * X + 0.0 * M + 0.3 * C + rnorm(n) # interior null: b = 0
+d <- data.frame(X = X, M = M, Y = Y, C = C)
+d$M[sample(n, 45)] <- NA
+d$Y[sample(n, 30)] <- NA
+
+imp <- mice::mice(d, m = 20, method = "norm", printFlag = FALSE)
+fit <- run(set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M"))
+
+infer(fit, type = "mbco")
+#>          D4           p          r4          nu         d_S 
+#>   0.1745614   0.6762864   0.1995802 454.9648684   0.2094004
+```
+
+The per-imputation fits MBCO needs are available directly:
+
+``` r
+
+acc <- per_imputation_list(fit)
+acc$m
+#> [1] 20
+length(acc$per_imputation)
+#> [1] 20
+```
+
+Asking for MBCO on the *pooled* result is an error by design:
+
+``` r
+
+infer(pool(fit), type = "mbco")
+#> Error:
+#> ! MBCO does not commute with Rubin's rules; it needs the per-imputation fits. Call infer(type = "mbco") on the MDMediationFit from run(), not on the pooled MDMediationResult.
+```
+
+## References
+
+- Chan, K. W., & Meng, X.-L. (2022). Multiple improvements of multiple
+  imputation likelihood ratio tests. *Statistica Sinica*.
+- Grund, S., Lüdtke, O., & Robitzsch, A. (2021). Pooling methods for
+  likelihood-ratio tests with multiply imputed data. *Psychological
+  Methods*.

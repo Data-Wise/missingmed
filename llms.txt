@@ -1,0 +1,197 @@
+# missingmed
+
+## Overview
+
+**missingmed** runs SEM/GLM-based mediation analysis across incomplete
+data and pools with Rubin’s rules. It is the *missing-data middle* of
+the [mediationverse](https://github.com/Data-Wise/mediationverse): a
+thin orchestration layer that **fits** each analysis with
+[medfit](https://data-wise.github.io/medfit/) and delegates
+**inference** to [RMediation](https://data-wise.github.io/rmediation/).
+
+Two estimators share one S7 pipeline:
+
+- **Multiple imputation** (`method = "mi"`) — pools per-imputation fits
+  with Rubin’s rules.
+- **Inverse-probability weighting** (`method = "ipw"`) — reweights
+  complete cases (stabilized weights, trimming, HC sandwich SEs).
+
+For the indirect effect it provides both a **Monte-Carlo confidence
+interval** and a **D4-stacked MBCO** likelihood-ratio test (which,
+unlike pooling, respects the union-null geometry of `H0: ab = 0`).
+
+## Installation
+
+From the Data-Wise R-universe (binaries, no compilation):
+
+``` r
+
+install.packages(
+  "missingmed",
+  repos = c("https://data-wise.r-universe.dev", "https://cloud.r-project.org")
+)
+```
+
+Or the development version from GitHub (also pulls the non-CRAN deps):
+
+``` r
+
+# install.packages("pak")
+pak::pak("Data-Wise/missingmed")
+```
+
+## The pipeline
+
+    set_md_mediation()  ->  run()          ->  pool()             ->  infer()
+       MDMediationData       MDMediationFit     MDMediationResult      CI / MBCO
+
+``` r
+
+library(missingmed)
+
+# `imp` is a mice::mids object; X -> M -> Y with confounder C
+md  <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+                        treatment = "X", mediator = "M")  # method = "mi" (default)
+res <- pool(run(md))
+
+infer(res, type = "mc")    # Monte-Carlo CI for the indirect effect
+infer(run(md), type = "mbco")  # D4-stacked MBCO test of H0: ab = 0
+```
+
+Inverse-probability weighting takes a raw `data.frame`:
+
+``` r
+
+md_ipw <- set_md_mediation(df, Y ~ X + M + C, M ~ X + C,
+                           treatment = "X", mediator = "M", method = "ipw")
+infer(pool(run(md_ipw)), type = "mc")
+```
+
+See
+[`vignette("missingmed")`](https://data-wise.github.io/missingmed/articles/missingmed.md)
+to get started,
+[`vignette("mbco-mi")`](https://data-wise.github.io/missingmed/articles/mbco-mi.md)
+for why MBCO needs the per-imputation fits, and
+[`vignette("technical")`](https://data-wise.github.io/missingmed/articles/technical.md)
+for the full design, contracts, and methodology.
+
+## Ecosystem
+
+`missingmed` → {`medfit` (fitting), `RMediation` (inference)};
+simulation via `medsim`. All are part of the
+[mediationverse](https://github.com/Data-Wise/mediationverse).
+
+## Citation
+
+    Tofighi, D. (2026). missingmed: Mediation Analysis with Multiple Imputation
+    for Missing Data. R package version 0.2.0.
+    https://github.com/Data-Wise/missingmed
+
+## License
+
+GPL-2 · Davood Tofighi (<dtofighi@gmail.com>) · ORCID
+0000-0001-8523-7776
+
+# Package index
+
+## Pipeline
+
+The S7 mediation-with-missing-data workflow.
+
+- [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)
+  : Set up a mediation analysis with missing data (MI or IPW)
+- [`run()`](https://data-wise.github.io/missingmed/reference/run.md) :
+  Fit the mediation model across imputations
+- [`pool()`](https://data-wise.github.io/missingmed/reference/pool.md) :
+  Pool per-imputation mediation fits with Rubin's rules
+- [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md)
+  : Inference on the indirect effect under multiple imputation
+
+## Accessors
+
+- [`per_imputation_list()`](https://data-wise.github.io/missingmed/reference/per_imputation_list.md)
+  : Access the per-imputation mediation fits (for MBCO)
+- [`n_imputations()`](https://data-wise.github.io/missingmed/reference/n_imputations.md)
+  : Number of imputations
+
+## Classes
+
+The three S7 classes carrying data, fits, and pooled results.
+
+- [`MDMediationData()`](https://data-wise.github.io/missingmed/reference/MDMediationData.md)
+  : MDMediationData: imputed data + mediation specification (S7)
+- [`MDMediationFit()`](https://data-wise.github.io/missingmed/reference/MDMediationFit.md)
+  : MDMediationFit: per-imputation mediation fits (S7)
+- [`MDMediationResult()`](https://data-wise.github.io/missingmed/reference/MDMediationResult.md)
+  : MDMediationResult: pooled mediation result (S7)
+
+## Tidiers
+
+- [`tidy(`*`<logLik>`*`)`](https://data-wise.github.io/missingmed/reference/tidy_logLik.md)
+  : Creates a data.frame for a log-likelihood object
+- [`tidy(`*`<MxModel>`*`)`](https://data-wise.github.io/missingmed/reference/tidy_MxModel.md)
+  : Tidy an MxModel Object
+
+## Low-level helpers
+
+Fitting and validation utilities used by the pipeline.
+
+- [`fit_model()`](https://data-wise.github.io/missingmed/reference/fit_model.md)
+  : Fit a Structural Equation Model
+- [`lav_mice()`](https://data-wise.github.io/missingmed/reference/lav_mice.md)
+  : Fit SEM Model to Each Dataset in a MIDS Object Without Pooling
+- [`mx_mice()`](https://data-wise.github.io/missingmed/reference/mx_mice.md)
+  : Fit OpenMx model to multiply imputed datasets
+- [`n_imp()`](https://data-wise.github.io/missingmed/reference/n_imp.md)
+  : Get Number of Imputations from a mids Object
+- [`is_fit()`](https://data-wise.github.io/missingmed/reference/is_fit.md)
+  : Determine If a SEM Model Has Been Fitted
+- [`is_pd()`](https://data-wise.github.io/missingmed/reference/is_pd.md)
+  : Checks if a matrix object is positive definite
+- [`is_lav_syntax()`](https://data-wise.github.io/missingmed/reference/is_lav_syntax.md)
+  : Function to check if lavaan model syntax is valid
+- [`is_valid_lav_syntax()`](https://data-wise.github.io/missingmed/reference/is_valid_lav_syntax.md)
+  : Function to check if lavaan model syntax is valid
+
+## Deprecated (S4)
+
+Superseded by the S7 pipeline; kept for one release cycle.
+
+- [`set_sem()`](https://data-wise.github.io/missingmed/reference/set_sem.md)
+  : Set up an SEM model with multiply imputed data.
+- [`run_sem()`](https://data-wise.github.io/missingmed/reference/run_sem.md)
+  : Run a SEM model
+- [`pool_sem()`](https://data-wise.github.io/missingmed/reference/pool_sem.md)
+  : Pool SEM Analysis Results
+- [`SemImputedData`](https://data-wise.github.io/missingmed/reference/SemImputedData.md)
+  [`SemImputedData-class`](https://data-wise.github.io/missingmed/reference/SemImputedData.md)
+  : SemImputedData Class
+- [`SemResults`](https://data-wise.github.io/missingmed/reference/SemResults.md)
+  [`SemResults-class`](https://data-wise.github.io/missingmed/reference/SemResults.md)
+  : SemResults Class
+- [`PooledSEMResults`](https://data-wise.github.io/missingmed/reference/PooledSEMResults-class.md)
+  [`PooledSEMResults-class`](https://data-wise.github.io/missingmed/reference/PooledSEMResults-class.md)
+  : Pooled SEM Analysis Results Class
+- [`show(`*`<SemImputedData>`*`)`](https://data-wise.github.io/missingmed/reference/show-SemImputedData-method.md)
+  : Show SemImputedData
+- [`summary(`*`<SemImputedData>`*`)`](https://data-wise.github.io/missingmed/reference/summary-SemImputedData-method.md)
+  : Summary Method for SemImputedData Objects
+
+# Articles
+
+### Get started
+
+- [Getting started with
+  missingmed](https://data-wise.github.io/missingmed/articles/missingmed.md):
+- [MBCO under multiple imputation
+  (D4-stacked)](https://data-wise.github.io/missingmed/articles/mbco-mi.md):
+
+### Technical
+
+- [Technical reference: design, contracts, and
+  methodology](https://data-wise.github.io/missingmed/articles/technical.md):
+
+### Developer
+
+- [Mediation Package Documentat Classes and
+  Methods](https://data-wise.github.io/missingmed/articles/classes_methods.md):
