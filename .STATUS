@@ -11,6 +11,23 @@ type: r
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
+## Integration order: medfit ↔ missingmed (r-universe builds DEFAULT branches)
+# The IPW path calls medfit::fit_mediation(weights=, se_type=), added on medfit
+# feature/fit-weights. r-universe rebuilds each repo's DEFAULT branch and resolves
+# medfit from the universe's own medfit build — so missingmed's universe build of the
+# new code FAILS until medfit main carries the patch. DO IN THIS ORDER:
+#   1. [done] medfit feature/fit-weights bumped to 0.3.1 (+ NEWS); this branch now
+#      Imports medfit (>= 0.3.1) — a clean build fails LOUDLY if medfit is too old.
+#   2. Merge medfit feature/fit-weights -> medfit main (PR), 0.3.1 + NEWS.
+#   3. WAIT for the universe to actually serve it: poll
+#      https://data-wise.r-universe.dev/api/packages/medfit until Version >= 0.3.1
+#      (cron lag is ~hourly; do NOT merge missingmed before this shows green).
+#   4. Then merge missingmed feature/s7-migration -> main, then feature/ipw-phase1.
+#   5. Confirm at merge: missingmed Remotes = data-wise/medfit (default branch, NOT a
+#      feature ref) so the universe builds from medfit main.
+#   6. Verify: missingmed _status: success on the universe API before declaring done.
+# medsim is NOT in this chain — PR #18 dropped missingmed/rmediation from its deps.
+
 ## Quick Notes
 - 2026-06-11: Phase 0 S4->S7 migration IMPLEMENTED on feature/s7-migration (pushed,
   up to commit c4eb495; 11 commits, P0.1–P0.8 + 2 follow-ups). NOT yet merged to dev.
