@@ -1,5 +1,10 @@
 url: https://data-wise.github.io/missingmed/
 
+# The repo's docs/ holds design specs (docs/specs/), so pkgdown builds to a
+# dedicated, git-ignored directory instead of the conventional docs/. Deployment
+# is via the gh-pages branch (see .github/workflows/pkgdown.yaml).
+destination: pkgdown-site
+
 template:
   bootstrap: 5
 
