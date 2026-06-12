@@ -1,0 +1,57 @@
+# Build and deploy the pkgdown site to GitHub Pages.
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+name: pkgdown.yaml
+
+permissions:
+  contents: write
+
+jobs:
+  pkgdown:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      # Keep the dev renv setup out of CI; deps resolve from CRAN +
+      # Additional_repositories (the Data-Wise r-universe).
+      RENV_CONFIG_AUTOLOADER_ENABLED: "FALSE"
+    concurrency:
+      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::pkgdown, local::.
+          needs: website
+
+      - name: Remove dev-only markdown from the site build
+        # pkgdown renders every root *.md as a page and has no exclude hook
+        # (pkgdown:::package_mds ignores .Rbuildignore), so drop dev docs here.
+        run: rm -f CLAUDE.md MIGRATION_NOTES.md README.dev.md ORCHESTRATE-*.md
+
+      - name: Build site
+        # dest_dir matches _pkgdown.yml `destination:` (docs/ holds specs, not the site)
+        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE, dest_dir = "pkgdown-site")
+        shell: Rscript {0}
+
+      - name: Deploy to GitHub pages 🚀
+        if: github.event_name != 'pull_request'
+        uses: JamesIves/github-pages-deploy-action@v4.5.0
+        with:
+          clean: false
+          branch: gh-pages
+          folder: pkgdown-site

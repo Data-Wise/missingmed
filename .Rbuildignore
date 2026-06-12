@@ -17,3 +17,15 @@
 ^dev/.*
 ^Makefile$
 ^README\.dev\.md$
+^\.STATUS$
+^CLAUDE\.md$
+^MIGRATION_NOTES\.md$
+^ORCHESTRATE-.*\.md$
+^docs$
+^docs/.*
+^vignettes/articles$
+^vignettes/\.quarto$
+^_pkgdown\.yml$
+^pkgdown$
+^data-raw$
+^pkgdown-site$

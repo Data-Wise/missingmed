@@ -1,0 +1,264 @@
+---
+title: "Technical reference: design, contracts, and methodology"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Technical reference: design, contracts, and methodology}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+This vignette is the single technical reference for **missingmed**: the
+architecture, the cross-package contracts it depends on, the statistical
+methodology of every estimator and inference path, and the engineering decisions
+(and their rationale) made along the way. Code blocks are illustrative
+(`eval = FALSE`); runnable walkthroughs live in `vignette("missingmed")` and
+`vignette("mbco-mi")`.
+
+---
+
+# 1. Architecture (S7, four verbs, three classes)
+
+missingmed is a **thin orchestration layer**: it runs mediation across the
+"missing-data middle" and delegates the statistics outward — **fitting** to
+[medfit](https://data-wise.github.io/medfit/), **inference** to
+[RMediation](https://data-wise.github.io/rmediation/), and (later) simulation to
+medsim. It is written in **S7** to match the newer ecosystem packages and the
+shared `medfit::MediationData` contract.
+
+The pipeline is four verbs over three classes:
+
+```
+set_md_mediation()  ->  run()          ->  pool()             ->  infer()
+   MDMediationData       MDMediationFit     MDMediationResult      CI / MBCO
+   (data + spec)         (per-imputation    (pooled named          (RMediation
+                          named Med.Data)    Med.Data)              or hosted D4)
+```
+
+| S7 class | Carries | S4 ancestor |
+|---|---|---|
+| `MDMediationData` | data (`mids` or `data.frame`) + mediation spec + estimator/mechanism axes | `SemImputedData` |
+| `MDMediationFit` | **list** of per-imputation named `medfit::MediationData` (+ IPW `weights`) | `SemResults` |
+| `MDMediationResult` | **pooled** named `medfit::MediationData` + within/between/total vcov | `PooledSEMResults` |
+
+**Orthogonal axes.** The estimator (`method = "mi" | "ipw"`) and the model
+(formulas + `engine`) are independent. The same `run() -> pool() -> infer()`
+chain serves both estimators; only `run()` branches internally.
+
+```{r}
+md <- set_md_mediation(data, formula_y = Y ~ X + M + C, formula_m = M ~ X + C,
+  treatment = "X", mediator = "M", method = "mi")   # or method = "ipw"
+res <- pool(run(md))
+infer(res, type = "mc")
+```
+
+---
+
+# 2. Ecosystem contracts
+
+missingmed produces and consumes objects defined elsewhere. These contracts are
+load-bearing — getting the **names** right is what makes inference work.
+
+## 2.1 `medfit::MediationData` (the fitting contract)
+
+`fit_mediation()` / `extract_mediation()` return a `MediationData` whose
+`@estimates` is a **named** numeric vector and `@vcov` a **named** matrix:
+
+```
+estimates: m_(Intercept), m_X, m_C, y_(Intercept), y_X, y_M, y_C, a, b, c_prime
+```
+
+The convenience aliases `a` (= `m_X`), `b` (= `y_M`), `c_prime` (= `y_X`) and the
+matching `@vcov` dimnames are the interface every downstream consumer resolves
+**by name**.
+
+## 2.2 `RMediation` (the inference contract)
+
+> **Namespace note:** the package is `RMediation` (capital R-M), *not*
+> `rmediation` — the source repo is `data-wise/rmediation` but
+> `DESCRIPTION: Package: RMediation`. Code uses `RMediation::`.
+
+- `ci_mediation_data(mu, level, type, n.mc)` — Monte-Carlo / distribution-of-the-
+  product CI from a **single named** `MediationData`. Resolves `a`/`b` strictly
+  by name (errors if unnamed). This is the `type = "mc"` path.
+- `mbco(h0, h1, ...)` — likelihood-ratio MBCO, currently **OpenMx-only**; it has
+  no per-imputation / MI entry point (see §4).
+
+## 2.3 Dependency direction (no cycle)
+
+```
+missingmed  ->  medfit       (fit_mediation, MediationData)
+missingmed  ->  RMediation   (ci_mediation_data, medci)
+RMediation  ->  medfit       (consumes MediationData)
+medsim          (Suggests, later phases)
+```
+
+missingmed imports both medfit and RMediation; neither depends back on
+missingmed, so the graph is acyclic.
+
+---
+
+# 3. The MI estimator and Rubin's rules
+
+Under multiple imputation, `run()` fits **every** imputed dataset with
+`medfit::fit_mediation()`, yielding a list of `m` named `MediationData`. `pool()`
+applies Rubin's (1987) rules on the **named** vectors so the path labels survive
+pooling:
+
+\[
+\bar Q = \tfrac1m\sum_i Q_i,\quad
+\bar U = \tfrac1m\sum_i U_i,\quad
+B = \tfrac{1}{m-1}\sum_i (Q_i-\bar Q)(Q_i-\bar Q)^\top,\quad
+T = \bar U + \left(1+\tfrac1m\right)B .
+\]
+
+The pooled `MediationData` is built by **copy-modifying** a per-imputation one
+(S7 is copy-on-write), replacing only `@estimates = `\(\bar Q\) and
+`@vcov = `\(T\) — so all medfit metadata (roles, predictors, families) is
+inherited and the aliases stay name-addressable for `ci_mediation_data()`.
+
+```{r}
+fit <- run(md_mi)            # m named MediationData
+res <- pool(fit)             # pooled named MediationData + within/between/total vcov
+res@tidy_table               # term, estimate, std_error, var_w, var_b, var_tot
+```
+
+---
+
+# 4. MBCO under MI: D4-stacking (and why it is hosted here)
+
+## 4.1 Why MBCO does not commute with Rubin's rules
+
+MBCO tests \(H_0: a b = 0\). Since \(a b = 0 \iff a = 0 \lor b = 0\), the
+constrained log-likelihood is the **branch union**:
+
+\[
+T = 2\big[\ell_{\text{full}} - \max(\ell_{a=0},\ \ell_{b=0})\big].
+\]
+
+That `max()` is non-linear, so the MBCO statistic of the *pooled* estimate is
+**not** the pool of per-imputation MBCO statistics. You cannot pool first and
+test second — you need the per-imputation fits.
+
+## 4.2 D4 combination
+
+Hence `MDMediationFit` retains the per-imputation list (exposed by
+`per_imputation_list()`), and `infer(type = "mbco")` combines the per-imputation
+LRT statistics with the **D4** rule (Chan & Meng 2022; Grund et al. 2021):
+
+\[
+d_S = \tfrac{\text{LRT(stacked data)}}{K},\quad
+r_4 = \max\!\Big(0, \tfrac{K+1}{k(K-1)}(\bar d - d_S)\Big),\quad
+D_4 = \tfrac{d_S}{k(1+r_4)} \sim F_{k,\nu}.
+\]
+
+## 4.3 Hosting decision
+
+`RMediation::mbco()` is OpenMx-only with no MI entry point, so the D4 machinery
+is **hosted in missingmed** (`R/mbco_mi.R`), ported from the Missing-Effect
+research prototype. It reproduces the prototype **exactly** (max abs diff
+\(\approx 5\times10^{-11}\) across design cells). When `RMediation` gains an MI
+entry point, this code should move upstream (`TODO` noted in source).
+
+---
+
+# 5. The IPW estimator
+
+IPW is a robustness complement to MI (manuscript appendix): instead of imputing,
+it **reweights the observed complete cases** to represent the full sample under
+MAR. The whole estimator is a single internal branch, `.ipw_run()`; `pool()` and
+`infer(type = "mc")` are unchanged.
+
+## 5.1 Pipeline
+
+```{r}
+md <- set_md_mediation(df, Y ~ X + M + C, M ~ X + C, treatment = "X",
+  mediator = "M", method = "ipw",
+  weight_formula = NULL, weight_stabilize = TRUE, weight_trim = 0.99,
+  se_type = "sandwich")
+res <- pool(run(md))         # MDMediationFit(m = 1) -> MDMediationResult (B = 0)
+infer(res, type = "mc")
+```
+
+Because there is a single weighted fit, `MDMediationFit@m = 1` and `pool()`
+reduces to \(\bar Q = Q_1,\ B = 0,\ T = \bar U\) — the result is structurally
+identical to an MI result, so nothing downstream changes.
+
+## 5.2 Weight estimation
+
+Let \(R = 1\) mark a complete case over the model variables.
+
+- **Joint complete-case model (default).** `weight_formula = NULL` fits
+  \(\text{logit }P(R=1\mid Z)\) on the **fully observed** model variables (the
+  MAR drivers); a single `formula` overrides the predictors.
+- **Per-variable / sequential factorization.** A *named list* of formulas fits
+  one model per incomplete variable and multiplies:
+  \(P(\text{complete}) = \prod_V P(R_V = 1\mid \cdot)\), following the causal
+  order \(X \to M \to Y\).
+
+**Stabilized weights** (`weight_stabilize = TRUE`, default) use a treatment-only
+numerator to reduce variance:
+\[
+w_i = \frac{\hat P(R=1\mid X_i)}{\hat P(R=1\mid Z_i)} .
+\]
+**Trimming** (`weight_trim`) caps weights at an upper quantile of the untrimmed
+complete-case weights; `1` disables it.
+
+## 5.3 Variance: sandwich vs model
+
+IPW's weighted-GLM model-based vcov is optimistic (it ignores that weights were
+estimated). `se_type = "sandwich"` (the IPW default) uses
+heteroskedasticity-consistent `sandwich::vcovHC` instead. This is implemented
+**in medfit** via an injectable `vcov_fun` threaded through `extract_mediation()`
+(so the named-vcov assembly stays in one place); missingmed just passes
+`se_type` through.
+
+> MBCO for IPW is **not** implemented (a weighted LRT is methodologically
+> distinct); `infer(type = "mbco")` on an IPW fit errors with guidance.
+
+---
+
+# 6. Cross-package engineering decisions
+
+These changes were made upstream to satisfy missingmed's contracts; each is the
+"small upstream fix" that a new capability turned out to need.
+
+| Decision | Where | Why |
+|---|---|---|
+| `fit_mediation(weights=)` via `do.call` (value inlined), added only when non-NULL | medfit | `glm` evaluates `weights` by NSE in the **formula's** environment; passing it through `...` resolves to `stats::weights` (a function). `do.call` inlines the vector; gating on non-NULL keeps the unweighted path byte-identical. |
+| `se_type` -> injectable `vcov_fun` in `extract_mediation` | medfit | Keeps named-vcov assembly in one place; `sandwich::vcovHC` swaps in for `stats::vcov` without missingmed re-implementing medfit's alias expansion. |
+| Tidiers exported with `@exportS3Method broom::tidy` | missingmed | Plain `@export` registers `S3method(tidy, *)` against the wrong generic; the package-qualified form binds to broom's generic so `tidy()`/`broom::tidy()` dispatch. |
+| `S7::S4_register()` per S7 class | missingmed | The legacy S4 generics (`print`/`summary`) require S7 classes to be S4-registered before S7 methods can attach. |
+| `namespace` roclet enabled | missingmed | Lets roxygen regenerate NAMESPACE for the many new S7 exports (surfaced + fixed a latent `generics`/`broom` `tidy` import clash). |
+| Pooled `MediationData` via copy-modify | missingmed | Inherits all medfit metadata; only estimates/vcov/paths change, so names stay intact for RMediation. |
+
+---
+
+# 7. Design-choice summary
+
+- **S7-first**, three classes mirroring the S4 ancestors; estimator and model as
+  orthogonal axes.
+- **Delegate fitting to medfit** (`fit_mediation`) rather than re-implement GLM
+  mediation — keeps missingmed thin and the `MediationData` naming canonical.
+- **Names are the API**: pooled estimates/vcov stay named so RMediation resolves
+  paths by label.
+- **MBCO hosted locally** until RMediation offers an MI entry point; exact parity
+  with the research prototype is the acceptance bar.
+- **IPW = thin `run()` branch + passthrough `pool()`**; weights support both
+  joint and sequential models, stabilized and trimmed; sandwich SE by default.
+- **S4 deprecated** with `.Deprecated()` shims for one cycle.
+
+---
+
+# 8. References
+
+- Rubin, D. B. (1987). *Multiple Imputation for Nonresponse in Surveys*. Wiley.
+- Chan, K. W., & Meng, X.-L. (2022). Multiple improvements of multiple
+  imputation likelihood ratio tests. *Statistica Sinica*.
+- Grund, S., Lüdtke, O., & Robitzsch, A. (2021). Pooling methods for
+  likelihood-ratio tests with multiply imputed data. *Psychological Methods*.
+- Seaman, S. R., & White, I. R. (2013). Review of inverse probability weighting
+  for dealing with missing data. *Statistical Methods in Medical Research*.

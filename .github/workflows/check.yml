@@ -1,32 +1,40 @@
+# Standard r-lib/actions R-CMD-check. Installs current deps via pak (honors
+# DESCRIPTION Additional_repositories -> the Data-Wise r-universe for the
+# non-CRAN deps medfit/RMediation), instead of restoring the dev renv.lock.
 name: R-CMD-check
 
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+permissions: read-all
 
 jobs:
-    check:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
+  R-CMD-check:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      # The repo carries a renv setup for local dev; keep it out of CI so deps
+      # resolve from CRAN + Additional_repositories rather than the lockfile.
+      RENV_CONFIG_AUTOLOADER_ENABLED: "FALSE"
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Set up R
-              uses: r-lib/actions/setup-r@v2
+      - uses: r-lib/actions/setup-pandoc@v2
 
-            - name: Restore renv (if present) or install deps
-              run: |
-                  Rscript -e "if (file.exists('renv.lock')) { install.packages('renv', repos='https://cran.rstudio.com'); renv::restore() } else { install.packages('remotes', repos='https://cran.rstudio.com'); remotes::install_deps(dependencies = TRUE) }"
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
 
-            - name: Lint package
-              run: Rscript -e "if (!requireNamespace('lintr', quietly=TRUE)) install.packages('lintr', repos='https://cran.rstudio.com'); lintr::lint_package()"
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
 
-            - name: Run R CMD check
-              env:
-                  _R_CHECK_FORCE_SUGGESTS_: false
-              run: |
-                  R CMD check --no-manual --as-cran .
-
-            - name: Run tests (extra)
-              run: Rscript -e "if (!requireNamespace('testthat', quietly=TRUE)) install.packages('testthat', repos='https://cran.rstudio.com'); testthat::test_dir('tests/testthat')"
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          args: 'c("--no-manual", "--as-cran")'

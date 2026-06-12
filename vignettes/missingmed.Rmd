@@ -1,0 +1,107 @@
+---
+title: "Getting started with missingmed"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with missingmed}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+# These deps are not on CRAN; only evaluate when available.
+has_deps <- requireNamespace("mice", quietly = TRUE) &&
+  requireNamespace("medfit", quietly = TRUE) &&
+  requireNamespace("RMediation", quietly = TRUE)
+knitr::opts_chunk$set(eval = has_deps)
+```
+
+**missingmed** runs SEM-based mediation across multiply imputed datasets and
+pools with Rubin's rules. It is a thin orchestration layer: it **fits** each
+imputation with [medfit](https://data-wise.github.io/medfit/) and delegates
+**inference** to [RMediation](https://data-wise.github.io/rmediation/). The S7
+pipeline is four verbs:
+
+```
+set_md_mediation()  ->  run()  ->  pool()  ->  infer()
+   MDMediationData    MDMediationFit  MDMediationResult   CI / MBCO
+```
+
+## A worked example
+
+We simulate a simple mediation model `X -> M -> Y` with a confounder `C`, impose
+some MAR missingness, and impute with `mice`.
+
+```{r setup}
+library(missingmed)
+
+set.seed(2026)
+n <- 300
+C <- rnorm(n)
+X <- rbinom(n, 1, plogis(0.3 * C))
+M <- 0.5 * X + 0.3 * C + rnorm(n)
+Y <- 0.2 * X + 0.4 * M + 0.3 * C + rnorm(n)
+d <- data.frame(X = X, M = M, Y = Y, C = C)
+d$M[sample(n, 45)] <- NA
+d$Y[sample(n, 30)] <- NA
+
+imp <- mice::mice(d, m = 20, method = "norm", printFlag = FALSE)
+```
+
+### 1. Specify the mediation model
+
+`set_md_mediation()` records the outcome and mediator formulas plus the
+treatment/mediator roles.
+
+```{r set}
+md <- set_md_mediation(
+  imp,
+  formula_y = Y ~ X + M + C,
+  formula_m = M ~ X + C,
+  treatment = "X",
+  mediator  = "M"
+)
+md
+```
+
+### 2. Fit each imputation
+
+`run()` fits every imputed dataset with `medfit::fit_mediation()`, yielding a
+list of **named** `medfit::MediationData` objects.
+
+```{r run}
+fit <- run(md)
+fit
+```
+
+### 3. Pool with Rubin's rules
+
+`pool()` combines the per-imputation estimates and variance-covariance into a
+single **named** pooled `medfit::MediationData`.
+
+```{r pool}
+res <- pool(fit)
+summary(res)
+```
+
+### 4. Inference on the indirect effect
+
+The Monte-Carlo / distribution-of-the-product CI is computed by RMediation on
+the pooled object:
+
+```{r mc}
+infer(res, type = "mc")
+```
+
+For the **MBCO** likelihood-ratio test of `H0: a*b = 0`, use the fit object (see
+`vignette("mbco-mi")` for why pooling does not commute with MBCO):
+
+```{r mbco}
+infer(fit, type = "mbco")
+```
+
+## Migrating from the S4 API
+
+The S4 entry points (`set_sem()`, `run_sem()`, `pool_sem()`) are **deprecated**
+in favour of the S7 verbs above. They still work for one release cycle but emit
+a deprecation warning.
