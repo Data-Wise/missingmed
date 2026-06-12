@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      # Keep the dev renv setup out of CI; deps resolve from CRAN +
+      # Additional_repositories (the Data-Wise r-universe).
+      RENV_CONFIG_AUTOLOADER_ENABLED: "FALSE"
     concurrency:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     steps:
