@@ -32,7 +32,7 @@ Suggests:
 VignetteBuilder: knitr
 Remotes:
     data-wise/medfit,
-    data-wise/rmediation
+    RMediation=data-wise/rmediation
 Additional_repositories: https://data-wise.r-universe.dev
 LazyData: true
 Description: Provides S4 classes and methods for conducting mediation analysis with multiply imputed datasets.
