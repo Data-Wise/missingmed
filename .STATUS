@@ -27,6 +27,9 @@ type: r
 # - Post-release watch: r-universe rebuild of missingmed 0.2.0 (cron); main CI/site deploy.
 
 ## Quick Notes
+- 2026-06-12: CLAUDE.md audited CLEAN (local + global hierarchy) — 0 errors/warnings,
+  all v0.2.0 claims verified vs codebase. Fixed stale "craft only" line in GLOBAL
+  ~/.claude/CLAUDE.md (multi-branch dev pattern now names craft + missingmed).
 - 2026-06-11: Phase 0 S4->S7 migration IMPLEMENTED on feature/s7-migration (pushed,
   up to commit c4eb495; 11 commits, P0.1–P0.8 + 2 follow-ups). NOT yet merged to dev.
   - S7 classes MDMediationData/MDMediationFit/MDMediationResult; pipeline
