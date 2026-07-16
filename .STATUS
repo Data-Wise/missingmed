@@ -1,6 +1,7 @@
 status: active
 priority: --
 progress: 100
+kind: package
 next: v0.2.0 RELEASED (S7 + IPW). Next phases (general CRAN toolkit, NOT manuscript-
   gated): GLM models, MNAR sensitivity. Manuscript runs on medsim, not missingmed.
 type: r
