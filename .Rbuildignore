@@ -4,6 +4,7 @@
 ^\.Rproj\.user$
 ^\.github$
 ^\.claude$
+^\.remember$
 ^LICENSE\.md$
 ^README\.Rmd$
 ^\.git$
