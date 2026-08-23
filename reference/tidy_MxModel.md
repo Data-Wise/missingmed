@@ -1,9 +1,9 @@
 # Tidy an MxModel Object
 
 Extracts parameter estimates from an
-[OpenMx::MxModel](https://rdrr.io/pkg/OpenMx/man/MxModel-class.html)
-from the [OpenMx::OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html)
-model and formats them into a tidy dataframe.
+[MxModel](https://rdrr.io/pkg/OpenMx/man/MxModel-class.html) from the
+[OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html) model and formats
+them into a tidy dataframe.
 
 ## Usage
 
@@ -17,8 +17,8 @@ tidy(x, conf_int = FALSE, conf_level = 0.95, ...)
 - x:
 
   An object of class
-  [OpenMx::MxModel](https://rdrr.io/pkg/OpenMx/man/MxModel-class.html)
-  resulting from an SEM fit using OpenMx.
+  [MxModel](https://rdrr.io/pkg/OpenMx/man/MxModel-class.html) resulting
+  from an SEM fit using OpenMx.
 
 - conf_int:
 
@@ -39,9 +39,9 @@ estimates, standard errors, and optionally confidence intervals.
 
 ## See also
 
-[OpenMx::OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html)
-[OpenMx::MxModel](https://rdrr.io/pkg/OpenMx/man/MxModel-class.html)
-[OpenMx::summary.MxModel](https://rdrr.io/pkg/OpenMx/man/summary.MxModel.html)
+[OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html)
+[MxModel](https://rdrr.io/pkg/OpenMx/man/MxModel-class.html)
+[summary.MxModel](https://rdrr.io/pkg/OpenMx/man/summary.MxModel.html)
 
 ## Examples
 

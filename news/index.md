@@ -2,6 +2,24 @@
 
 ## missingmed (development version)
 
+- Non-gaussian models (`family_y`, `family_m`) are now covered by tests
+  and documented. GLM support was already plumbed –
+  [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)
+  forwards `engine`/`family_y`/`family_m` to
+  [`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html),
+  whose default engine is `"glm"` – but nothing exercised it. A binary
+  mediator, a binary outcome and a count outcome are now tested through
+  both estimators (`"mi"` and `"ipw"`) and through MBCO. No user-facing
+  behavior changed.
+
+- [`vignette("technical")`](https://data-wise.github.io/missingmed/articles/technical.md)
+  gains a section on the **scale** of `a*b` under a non-identity link:
+  the product is on the link scale (log-odds, log-rate), is not a risk
+  difference or odds ratio, and `exp(a*b)` does not produce one. It also
+  documents the benign `non-integer #successes` warning that
+  [`stats::glm()`](https://rdrr.io/r/stats/glm.html) emits for every IPW
+  fit with a binomial family.
+
 - Raised the `RMediation` dependency floor to `>= 1.5.0`. That release
   replaced positional path-parameter resolution (which could silently
   assume `cov(a, b) = 0`) with strict name-based extraction.

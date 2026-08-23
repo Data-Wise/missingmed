@@ -139,11 +139,53 @@ infer(fit, type = "mbco")
 #> 2.496516e+01 1.428789e-06 3.818416e-01 1.716563e+02 3.449790e+01
 ```
 
+## A binary mediator (or outcome)
+
+[`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)
+takes `family_m` and `family_y` and passes them to
+[`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html),
+whose engine is a GLM. Nothing else in the pipeline changes – the same
+four verbs handle a binary mediator:
+
+``` r
+
+set.seed(7)
+Mb <- rbinom(n, 1, plogis(-0.2 + 1.2 * X + 0.3 * C))
+Yb <- 0.2 * X + 1.0 * Mb + 0.3 * C + rnorm(n)
+db <- data.frame(X = X, M = Mb, Y = Yb, C = C)
+db$M[sample(n, 45)] <- NA
+
+impb <- mice::mice(db, m = 10, printFlag = FALSE)
+mdb <- set_md_mediation(impb, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M",
+  family_m = binomial()
+)
+infer(pool(run(mdb)), type = "mc")
+#> $CI
+#> [1] 0.3040328 1.5766371
+#> 
+#> $Estimate
+#> [1] 0.9009985
+#> 
+#> $SE
+#> [1] 0.3253329
+#> 
+#> $MC.Error
+#> [1] 0.001028793
+```
+
+**Mind the scale.** With a non-identity link, `a` and `b` are link-scale
+coefficients, so `a * b` and its interval are on the link scale as well
+– here, a change in `Y` per log-odds of `M`. It is not a risk difference
+or an odds ratio, and exponentiating it does not make one.
+[`vignette("technical")`](https://data-wise.github.io/missingmed/articles/technical.md)
+has the full table and the reasoning.
+
 ## Migrating from the S4 API
 
 The S4 entry points
 ([`set_sem()`](https://data-wise.github.io/missingmed/reference/set_sem.md),
 [`run_sem()`](https://data-wise.github.io/missingmed/reference/run_sem.md),
 [`pool_sem()`](https://data-wise.github.io/missingmed/reference/pool_sem.md))
-are **deprecated** in favour of the S7 verbs above. They still work for
+are **deprecated** in favor of the S7 verbs above. They still work for
 one release cycle but emit a deprecation warning.

@@ -4,11 +4,9 @@ Fits a SEM model to each dataset in a `mids` object without pooling the
 results. This function is an extension for the
 [`lavaan::sem()`](https://rdrr.io/pkg/lavaan/man/sem.html) function to
 handle [mice::mids](https://amices.org/mice/reference/mids.html) objects
-from the [mice::mice](https://amices.org/mice/reference/mice.html)
-package. It allows for both a SEM model syntax as a character string or
-a pre-fitted
-[lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) model
-object.
+from the [mice](https://amices.org/mice/reference/mice.html) package. It
+allows for both a SEM model syntax as a character string or a pre-fitted
+[lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) model object.
 
 ## Usage
 
@@ -21,14 +19,13 @@ lav_mice(model, mids, ...)
 - model:
 
   Either a character string representing the SEM model to be fitted or a
-  pre-fitted
-  [lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) model
+  pre-fitted [lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) model
   object.
 
 - mids:
 
   A `mids` object from the
-  [mice::mice](https://amices.org/mice/reference/mice.html) package.
+  [mice](https://amices.org/mice/reference/mice.html) package.
 
 - ...:
 
@@ -37,8 +34,8 @@ lav_mice(model, mids, ...)
 
 ## Value
 
-A list of [lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html)
-model fits, one for each imputed dataset.
+A list of [lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) model
+fits, one for each imputed dataset.
 
 ## Author
 

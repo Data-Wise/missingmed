@@ -3,9 +3,9 @@
 missingmed runs SEM-based mediation analysis across multiply imputed
 datasets and pools with Rubin's rules. It is a thin orchestration layer:
 it **fits** each imputation with
-[medfit::medfit](https://data-wise.github.io/medfit/reference/medfit-package.html)
+[medfit](https://data-wise.github.io/medfit/reference/medfit-package.html)
 and delegates **inference** to
-[RMediation::RMediation](https://data-wise.github.io/rmediation/reference/RMediation-package.html).
+[RMediation](https://data-wise.github.io/rmediation/reference/RMediation-package.html).
 
 ## S7 pipeline
 

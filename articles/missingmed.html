@@ -185,11 +185,51 @@ MBCO):</p>
 </div>
 </div>
 <div class="section level2">
+<h2 id="a-binary-mediator-or-outcome">A binary mediator (or outcome)<a class="anchor" aria-label="anchor" href="#a-binary-mediator-or-outcome"></a>
+</h2>
+<p><code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> takes <code>family_m</code> and
+<code>family_y</code> and passes them to
+<code><a href="https://data-wise.github.io/medfit/reference/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code>, whose engine is a GLM. Nothing
+else in the pipeline changes – the same four verbs handle a binary
+mediator:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span></span>
+<span><span class="va">Mb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.2</span> <span class="op">+</span> <span class="fl">1.2</span> <span class="op">*</span> <span class="va">X</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">C</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">Yb</span> <span class="op">&lt;-</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">X</span> <span class="op">+</span> <span class="fl">1.0</span> <span class="op">*</span> <span class="va">Mb</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">C</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="va">db</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>X <span class="op">=</span> <span class="va">X</span>, M <span class="op">=</span> <span class="va">Mb</span>, Y <span class="op">=</span> <span class="va">Yb</span>, C <span class="op">=</span> <span class="va">C</span><span class="op">)</span></span>
+<span><span class="va">db</span><span class="op">$</span><span class="va">M</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">45</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
+<span></span>
+<span><span class="va">impb</span> <span class="op">&lt;-</span> <span class="fu">mice</span><span class="fu">::</span><span class="fu"><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice</a></span><span class="op">(</span><span class="va">db</span>, m <span class="op">=</span> <span class="fl">10</span>, printFlag <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">mdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">impb</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>,</span>
+<span>  family_m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">mdb</span><span class="op">)</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"mc"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $CI</span></span>
+<span><span class="co">#&gt; [1] 0.3040328 1.5766371</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Estimate</span></span>
+<span><span class="co">#&gt; [1] 0.9009985</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $SE</span></span>
+<span><span class="co">#&gt; [1] 0.3253329</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $MC.Error</span></span>
+<span><span class="co">#&gt; [1] 0.001028793</span></span></code></pre></div>
+<p><strong>Mind the scale.</strong> With a non-identity link,
+<code>a</code> and <code>b</code> are link-scale coefficients, so
+<code>a * b</code> and its interval are on the link scale as well –
+here, a change in <code>Y</code> per log-odds of <code>M</code>. It is
+not a risk difference or an odds ratio, and exponentiating it does not
+make one. <code><a href="../articles/technical.html">vignette("technical")</a></code> has the full table and the
+reasoning.</p>
+</div>
+<div class="section level2">
 <h2 id="migrating-from-the-s4-api">Migrating from the S4 API<a class="anchor" aria-label="anchor" href="#migrating-from-the-s4-api"></a>
 </h2>
 <p>The S4 entry points (<code><a href="../reference/set_sem.html">set_sem()</a></code>, <code><a href="../reference/run_sem.html">run_sem()</a></code>,
-<code><a href="../reference/pool_sem.html">pool_sem()</a></code>) are <strong>deprecated</strong> in favour of
-the S7 verbs above. They still work for one release cycle but emit a
+<code><a href="../reference/pool_sem.html">pool_sem()</a></code>) are <strong>deprecated</strong> in favor of the
+S7 verbs above. They still work for one release cycle but emit a
 deprecation warning.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

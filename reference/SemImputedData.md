@@ -19,9 +19,8 @@ or `OpenMx` packages.
   in
   [lavaan::model.syntax](https://rdrr.io/pkg/lavaan/man/model.syntax.html).
   For `OpenMx` models, the syntax should be an
-  [OpenMx::mxModel](https://rdrr.io/pkg/OpenMx/man/mxModel.html) object
-  with or without
-  [`OpenMx::mxData()`](https://rdrr.io/pkg/OpenMx/man/mxData.html)
+  [mxModel](https://rdrr.io/pkg/OpenMx/man/mxModel.html) object with or
+  without [`mxData()`](https://rdrr.io/pkg/OpenMx/man/mxData.html)
   specified; that is, `mxModel` syntax can be without data specified. In
   addition, both `lavaan` and `OpenMx` models can be a fitted model
   object in the respective package.

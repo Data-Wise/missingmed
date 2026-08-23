@@ -129,7 +129,7 @@ Fitting is delegated to
 [`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html)
 (one call per imputation), so the per-imputation fits carry **named**
 path coefficients (`a`, `b`, `c_prime`) ready for
-[RMediation::RMediation](https://data-wise.github.io/rmediation/reference/RMediation-package.html)
+[RMediation](https://data-wise.github.io/rmediation/reference/RMediation-package.html)
 inference. The estimator (`method`) and the model are orthogonal axes:
 `method` selects the missing-data estimator (`"mi"`/`"ipw"`); the
 formulas/engine select the model.

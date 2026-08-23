@@ -343,6 +343,100 @@ fit errors with guidance.</p>
 </div>
 </div>
 <div class="section level2">
+<h2 id="a--non-gaussian-models-family_y-family_m-and-the-scale-of-ab">5A. Non-gaussian models (<code>family_y</code>,
+<code>family_m</code>) and the scale of <code>a*b</code><a class="anchor" aria-label="anchor" href="#a--non-gaussian-models-family_y-family_m-and-the-scale-of-ab"></a>
+</h2>
+<p><code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> takes <code>engine</code>,
+<code>family_y</code> and <code>family_m</code> and forwards them to
+<code><a href="https://data-wise.github.io/medfit/reference/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code>, whose default engine already
+<strong>is</strong> <code>"glm"</code>. Both estimators and both
+inference types therefore accept non-gaussian families with no extra
+machinery: a binary mediator (<code>family_m = binomial()</code>), a
+binary outcome (<code>family_y = binomial()</code>) and a count outcome
+(<code>family_y = poisson()</code>) all run through
+<code>set_md_mediation() -&gt; run() -&gt; pool() -&gt; infer()</code>.</p>
+<div class="section level3">
+<h3 id="a-1-the-scale-caveat">5A.1 The scale caveat<a class="anchor" aria-label="anchor" href="#a-1-the-scale-caveat"></a>
+</h3>
+<p>For a non-identity link, <code>a</code> and <code>b</code> are
+<strong>link-scale</strong> coefficients, so their product – and the
+Monte-Carlo interval around it – is on the link scale too:</p>
+<table class="table">
+<colgroup>
+<col width="25%">
+<col width="25%">
+<col width="25%">
+<col width="25%">
+</colgroup>
+<thead><tr class="header">
+<th>Model</th>
+<th><code>a</code></th>
+<th><code>b</code></th>
+<th>
+<code>a*b</code> is…</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>gaussian / gaussian</td>
+<td>mean difference</td>
+<td>mean difference</td>
+<td>a mean difference</td>
+</tr>
+<tr class="even">
+<td>binomial mediator</td>
+<td>log-odds</td>
+<td>mean difference</td>
+<td>change in Y per log-odds of M</td>
+</tr>
+<tr class="odd">
+<td>binomial outcome</td>
+<td>mean difference</td>
+<td>log-odds</td>
+<td>log-odds units</td>
+</tr>
+<tr class="even">
+<td>poisson outcome</td>
+<td>mean difference</td>
+<td>log-rate</td>
+<td>log-rate units</td>
+</tr>
+</tbody>
+</table>
+<p>Two consequences worth stating plainly:</p>
+<ol style="list-style-type: decimal">
+<li>
+<code>a*b</code> under a non-identity link is <strong>not</strong> a
+risk difference, a risk ratio or an odds ratio, and
+<code>exp(a*b)</code> does not produce one. Reporting it as such is a
+category error, not a rounding issue.</li>
+<li>Rubin’s rules are applied to the <strong>coefficients</strong>,
+which is standard. Pooling a transformed quantity (an odds ratio, say)
+is a different and much less well-behaved operation; <code><a href="../reference/pool.html">pool()</a></code>
+deliberately does not do it.</li>
+</ol>
+<p>Where a response-scale contrast is wanted – a natural direct/indirect
+effect on the risk difference or risk-ratio scale – the mediation
+formula must be applied to the fitted models, which is outside
+missingmed’s orchestration remit. That is a fitting-layer concern
+(medfit), not a pooling one.</p>
+</div>
+<div class="section level3">
+<h3 id="a-2-ipw-plus-a-binomial-family-the-non-integer-successes-warning">5A.2 IPW plus a binomial family: the non-integer-successes
+warning<a class="anchor" aria-label="anchor" href="#a-2-ipw-plus-a-binomial-family-the-non-integer-successes-warning"></a>
+</h3>
+<p><code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">stats::glm()</a></code> emits
+<code>non-integer #successes in a binomial glm!</code> whenever a
+binomial fit receives non-integer prior weights. IPW weights are inverse
+sampling probabilities, not trial counts, so the warning fires on every
+<code>method = "ipw"</code> fit with a binomial family. It is a false
+alarm: the weighted score equations being solved are exactly the ones
+IPW specifies, and the point estimates and sandwich SEs are unaffected.
+It is left unsuppressed rather than silenced, so that a genuine
+non-integer-response mistake still surfaces.</p>
+<hr>
+</div>
+</div>
+<div class="section level2">
 <h2 id="cross-package-engineering-decisions">6. Cross-package engineering decisions<a class="anchor" aria-label="anchor" href="#cross-package-engineering-decisions"></a>
 </h2>
 <p>These changes were made upstream to satisfy missingmed’s contracts;

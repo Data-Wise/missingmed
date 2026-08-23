@@ -52,8 +52,8 @@ otherwise.
 
 ## See also
 
-[lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html),
-[OpenMx::MxModel](https://rdrr.io/pkg/OpenMx/man/MxModel-class.html)
+[lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html),
+[MxModel](https://rdrr.io/pkg/OpenMx/man/MxModel-class.html)
 
 ## Examples
 

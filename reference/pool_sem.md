@@ -60,8 +60,8 @@ and assumptions.
 
 ## See also
 
-[lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html),
-[OpenMx::OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html)
+[lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html),
+[OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html)
 
 ## Author
 

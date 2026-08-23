@@ -5,4 +5,4 @@ to see their documentation.
 
 - broom:
 
-  [`tidy`](https://broom.tidymodels.org/reference/reexports.html)
+  [`tidy`](https://generics.r-lib.org/reference/tidy.html)

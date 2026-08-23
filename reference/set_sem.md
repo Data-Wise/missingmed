@@ -4,9 +4,8 @@ This function sets up an SEM model with multiply imputed data for
 analysis. The function accepts a
 [mice::mids](https://amices.org/mice/reference/mids.html) object and a
 model syntax for either
-[lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) or
-[OpenMx::OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html) and returns
-a
+[lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) or
+[OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html) and returns a
 [SemImputedData](https://data-wise.github.io/missingmed/reference/SemImputedData.md)
 object for analysis. It returns an error if the provided data is not a
 [mice::mids](https://amices.org/mice/reference/mids.html) object or if
@@ -32,15 +31,14 @@ set_sem(data, model, conf_int = FALSE, conf_level = 0.95)
 
 - model:
 
-  A [lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) or
-  [OpenMx::OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html) model
-  syntax to be used for SEM analysis. For `lavaan` models, the syntax
-  should be a character string as described in
+  A [lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) or
+  [OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html) model syntax to
+  be used for SEM analysis. For `lavaan` models, the syntax should be a
+  character string as described in
   [lavaan::model.syntax](https://rdrr.io/pkg/lavaan/man/model.syntax.html).
   For `OpenMx` models, the syntax should be an
-  [OpenMx::mxModel](https://rdrr.io/pkg/OpenMx/man/mxModel.html) object
-  with or without
-  [`OpenMx::mxData()`](https://rdrr.io/pkg/OpenMx/man/mxData.html)
+  [mxModel](https://rdrr.io/pkg/OpenMx/man/mxModel.html) object with or
+  without [`mxData()`](https://rdrr.io/pkg/OpenMx/man/mxData.html)
   specified; that is, `mxModel` syntax can be without data specified. In
   addition, both `lavaan` and `OpenMx` models can be a fitted model
   object in the respective package.
@@ -67,9 +65,9 @@ for the details of the slots.
 The function technically constructs a new
 [SemImputedData](https://data-wise.github.io/missingmed/reference/SemImputedData.md)
 object for structural equation modeling (SEM) analysis using either
-[lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) or
-[OpenMx::OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html) on multiply
-imputed datasets. This function ensures that the provided data is a
+[lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) or
+[OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html) on multiply imputed
+datasets. This function ensures that the provided data is a
 [mice::mids](https://amices.org/mice/reference/mids.html) object from
 the `mice` package and that the specified SEM analysis method is
 supported.
@@ -83,8 +81,8 @@ the `SemImputedData` class.
 
 [SemImputedData](https://data-wise.github.io/missingmed/reference/SemImputedData.md)
 [mice::mids](https://amices.org/mice/reference/mids.html)
-[lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html)
-[OpenMx::OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html)
+[lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html)
+[OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html)
 
 ## Examples
 
