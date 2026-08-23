@@ -94,22 +94,41 @@ a categorical method (`logreg`, `polyreg`, `polr`, `lda`), naming the target and
 the reason. v2 implements it as a **log-odds offset on the imputation model's
 linear predictor**, with delta reported on the **odds-ratio** scale.
 
-**Rationale.** The additive shift is only meaningful on a continuous scale: for
-a binary mediator, imputations are 0/1 and `imp + 1.5` yields 1.5/2.5 — not a
-probability, not a category. The v1 refusal stands because the correct
-construction needs a **custom `mice` imputation method** carrying an offset,
-which `post` post-processing cannot express: `post` sees the drawn values, not
-the linear predictor.
+**Rationale.** The additive shift on drawn values is meaningless for a binary
+target: imputations are 0/1 and `imp + 1.5` yields 1.5/2.5 — not a probability,
+not a category. But the construction itself is **fully defined**, and Leacy et
+al. (2017) write it down: δ enters the imputation model's linear predictor as an
+offset on the response indicator,
 
-**Revised after the literature scan.** The original draft of this decision
-implied no settled parameterization existed for categorical targets. That was
-wrong. Resseguier et al. (2011, *Epidemiology*) state the convention: for
-continuous variables the sensitivity parameter is the **difference in expected
-values** (our delta); for binary or categorical variables it is the **odds
-ratio** comparing the odds of the modality of interest among those with a
-missing value to the odds among those without. So D4 is an **effort deferral
-with a known target design**, not an open question — and the error message must
-say "not yet implemented", never anything implying the case is ill-defined.
+> logit{Pr[Y = 1 | X, R]} = Φ₀ + Φ'ₓX + δ(1 − R)
+
+so that δ "represents the difference in the log-odds of Y = 1 for individuals
+with missing Y values compared with individuals with observed Y values."
+
+The v1 refusal is therefore purely an **effort** deferral: expressing that offset
+needs a custom `mice` imputation method, because `post` operates on drawn values
+rather than on the linear predictor. It is not a conceptual gap, and the error
+message must not imply one.
+
+**Revised after reading the sources.** The original draft implied no settled
+parameterization existed for categorical targets. That was wrong. Resseguier et
+al. (2011, *Epidemiology* 22(2):282–287, verified against the full text) give
+three cases:
+
+| Target | Sensitivity parameter θ |
+|---|---|
+| continuous | difference in expected values (this SPEC's delta) |
+| binary / categorical | **odds ratio**, comparing odds of the modality of interest among those with a missing value to the odds among those without |
+| standardized | the difference expressed as a **coefficient of variation** |
+
+For a **polytomous** target, θ is a **vector** — one entry per non-reference
+modality (their trinary example runs θ = [1.2; 1.2] and [1.2; 1.5]). D2's
+data.frame grid must therefore accommodate a vector-valued θ per target when v2
+lands, not a scalar.
+
+So D4 is an **effort deferral with a known target design**, not an open question
+— and the error message must say "not yet implemented", never anything implying
+the case is ill-defined.
 
 Two implementation routes for v2: a custom `mice` method carrying the offset, or
 the Heckman-based MICE imputation models of Galimard et al. (2018), which handle
@@ -164,6 +183,36 @@ mice::mice(md@data$data,
 `mids$call` references the caller's local symbols and does not resolve outside
 the function that built it (F1). Rebuilding from slots reproduced **identical**
 imputations (F2).
+
+### 3.1b What delta is added to — corrected against the source
+
+**The canonical definition applies delta to the imputation model's LINEAR
+PREDICTOR, not to the drawn value.** Leacy et al. (2017), §Delta-adjustment
+procedure, verbatim:
+
+> "implementation of the delta-adjustment procedure involves adding a fixed
+> quantity δ to the linear predictor before imputing missing data using the
+> updated model. As such, it is a simple type of pattern-mixture model."
+
+with the binary case written explicitly as
+
+> logit{Pr[Y = 1 | X, R]} = Φ₀ + Φ'ₓX + δ(1 − R),  R = 1 if observed, 0 if missing
+
+This SPEC's mechanism (`post`, §3.2) adds delta to the **drawn value** instead.
+When the two coincide, and when they do not:
+
+| Imputation method | `post` shift vs linear-predictor shift |
+|---|---|
+| `norm`, `norm.nob`, `norm.boot` | **Identical.** The draw is `Xβ̇ + ε`; adding δ before or after the noise is the same number. |
+| `pmm` (mice's default) | **NOT identical.** Adding δ to the linear predictor shifts the *matching target*, then a donor is drawn from observed values — so the result stays inside the observed range. Adding δ afterwards shifts the donor itself, and can leave that range. |
+| `logreg` / categorical | **Not comparable.** The draw is 0/1; only the linear-predictor form is defined (see D4). |
+
+**Consequence for v1:** the `post` mechanism is exact for `norm*` targets and an
+approximation for `pmm` — and `pmm` is `mice`'s default for numeric variables,
+so this is the common case, not an edge case. v1 therefore either restricts to
+`norm*` targets or documents the `pmm` divergence prominently. **This is an open
+implementation question for M2**, raised here because it was missed when the
+mechanism was chosen from an abstract rather than from the method text.
 
 ### 3.2 `post` is composed, never overwritten
 

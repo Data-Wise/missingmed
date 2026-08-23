@@ -6,6 +6,12 @@
 Literature scan run to ground the MNAR phase's design decisions rather than
 invent them. Where a finding changed a decision, the SPEC records the change.
 
+> **Sourcing.** Claims marked **[full text]** were verified against the PDF.
+> Claims marked **[abstract only]** were not, and must not be relied on for a
+> design decision until they are. The first draft of this note was written
+> entirely from search-tool abstracts; re-reading the sources corrected two
+> substantive points (§2, §3), one of which had already reached the SPEC.
+
 ---
 
 ## 1. The taxonomy, and why MNAR is different in kind
@@ -49,10 +55,40 @@ Conditional Specification). What the SPEC describes *is* NARFCS with the offset
 supplied through `mice`'s `post` argument, so it should say so and inherit the
 literature's cautions rather than presenting itself as bespoke.
 
-**Direct precedent for our exact use case.** Leacy et al. (2017, *Am J
-Epidemiol*, 72 citations) review delta adjustment and demonstrate it **for
-parametric causal mediation analysis with a partially observed mediator** —
-missingmed's central case. They run two flavors worth noting:
+**Direct precedent for our exact use case. [full text]** Leacy et al. (2017,
+*Am J Epidemiol* 185(4):304–315) review delta adjustment and demonstrate it
+**for parametric causal mediation analysis with a partially observed mediator**
+— missingmed's central case.
+
+**Correction the full text forced.** The method section states that delta is
+added to the **linear predictor**, not to the drawn value:
+
+> "implementation of the delta-adjustment procedure involves adding a fixed
+> quantity δ to the linear predictor before imputing missing data using the
+> updated model. As such, it is a simple type of pattern-mixture model."
+
+The SPEC's mechanism shifts the *drawn* value via `mice`'s `post`. Those coincide
+exactly for `norm*` imputation but **not** for `pmm` — `mice`'s default for
+numeric variables — where shifting the linear predictor moves the matching target
+and keeps the result inside the observed range, while shifting afterwards moves
+the donor and can leave it. Now recorded as an open M2 question in SPEC §3.1b.
+(The quote also confirms the pattern-mixture reading from the canonical source
+rather than from inference.)
+
+**Their implementation is missingmed's architecture.** Verbatim: they "first
+fitted the regression models for the outcome and the mediator in each imputed
+data set and then pooled the resulting imputation-specific coefficient estimates
+and their variance-covariance matrices using Rubin's rules", then computed the
+causal effects — i.e. `run()` → `pool()` → `infer()`.
+
+**Effect scale.** They use Valeri & VanderWeele's framework, which decomposes the
+total effect into NDE and NIE **on the odds-ratio scale**, is valid under
+exposure-mediator interaction, and admits any combination of binary, categorical,
+continuous or count outcome and mediator. That is the established route to the
+response-scale contrasts `vignette("technical")` §5A currently calls out of
+scope — worth revisiting rather than leaving as a permanent limitation.
+
+They run two flavors worth noting:
 
 1. a **constant** delta for everyone with a missing value;
 2. a delta that **varies by an observed covariate** (there, self-reported HIV
@@ -76,8 +112,8 @@ additive `imp + delta` is meaningless for a 0/1 imputation. That reasoning is
 correct, but the implication — that no settled parameterization exists — is
 **wrong**, and the SPEC has been corrected.
 
-Resseguier et al. (2011) state the convention directly: the sensitivity
-parameter is
+Resseguier et al. (2011) **[full text]** state the convention directly: the
+sensitivity parameter is
 
 - for **continuous** variables, the **difference in expected values**
   (missingmed's additive delta), and
@@ -85,11 +121,23 @@ parameter is
   of the modality of interest among subjects with a missing value to the odds
   among subjects without.
 
+— and, for a **polytomous** target, θ is a **vector**, one entry per
+non-reference modality (their trinary worked example uses θ = [1.2; 1.2] and
+[1.2; 1.5]). They add a third case the abstract omits: for **standardized**
+variables the difference can be expressed as a **coefficient of variation**.
+
+Their tipping-point guidance is also explicit, and carries a constraint worth
+keeping: look for parameter values "that modify the overall conclusions, ie, the
+test results or a point estimate outside of the original confidence interval,"
+but those values "should be consistent with the targeted exposure effect and
+should correspond to reasonable hypotheses supported by epidemiologic evidences."
+A tipping point that requires an implausible delta is reassurance, not a warning.
+
 So the correct binary construction is a **log-odds offset on the imputation
 model's linear predictor**, with delta reported on the odds-ratio scale. Two
 routes exist: a custom `mice` method carrying an offset, or the Heckman-based
-imputation models of Galimard et al. (2018, *BMC Med Res Methodol*), which
-handle MNAR binary outcomes inside MICE.
+imputation models of Galimard et al. (2018, *BMC Med Res Methodol*) **[abstract
+only]**, which handle MNAR binary outcomes inside MICE.
 
 **Effect on the SPEC:** D4 still defers categorical targets out of v1 — the
 offset needs a custom imputation method, not `post` post-processing — but it is
@@ -101,8 +149,9 @@ ill-defined.
 
 ## 4. Caution the SPEC must carry: substantive-model compatibility
 
-Zhang et al. (2024) show that a **naive NARFCS implementation produces biased
-effect estimates** when the imputation model is incompatible with the
+**[abstract only — no full text obtained; this claim is NOT yet verified and no
+design decision may rest on it until it is.]** Zhang et al. (2024) report that a
+**naive NARFCS implementation produces biased effect estimates** when the imputation model is incompatible with the
 substantive model — and propose NAR-SMCFCS / NAR-SMC-stack to fix it.
 Compatibility means the imputation model reflects the structure of the analysis
 model, including interactions.
