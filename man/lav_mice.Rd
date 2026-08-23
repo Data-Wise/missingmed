@@ -7,19 +7,19 @@
 lav_mice(model, mids, ...)
 }
 \arguments{
-\item{model}{Either a character string representing the SEM model to be fitted or a pre-fitted \link[lavaan:lavaan]{lavaan::lavaan} model object.}
+\item{model}{Either a character string representing the SEM model to be fitted or a pre-fitted \link[lavaan:lavaan]{lavaan} model object.}
 
-\item{mids}{A \code{mids} object from the \link[mice:mice]{mice::mice} package.}
+\item{mids}{A \code{mids} object from the \link[mice:mice]{mice} package.}
 
 \item{...}{Additional arguments to be passed to \code{\link[lavaan:sem]{lavaan::sem()}}.}
 }
 \value{
-A list of \link[lavaan:lavaan]{lavaan::lavaan} model fits, one for each imputed dataset.
+A list of \link[lavaan:lavaan]{lavaan} model fits, one for each imputed dataset.
 }
 \description{
 Fits a SEM model to each dataset in a \code{mids} object without pooling the results.
-This function is an extension for the \code{\link[lavaan:sem]{lavaan::sem()}} function to handle \link[mice:mids]{mice::mids} objects from the \link[mice:mice]{mice::mice} package.
-It allows for both a SEM model syntax as a character string or a pre-fitted \link[lavaan:lavaan]{lavaan::lavaan} model object.
+This function is an extension for the \code{\link[lavaan:sem]{lavaan::sem()}} function to handle \link[mice:mids]{mice::mids} objects from the \link[mice:mice]{mice} package.
+It allows for both a SEM model syntax as a character string or a pre-fitted \link[lavaan:lavaan]{lavaan} model object.
 }
 \examples{
 \dontrun{

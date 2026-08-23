@@ -57,5 +57,5 @@ print(mx_model_fit)
 }
 }
 \seealso{
-\link[lavaan:lavaan]{lavaan::lavaan}, \link[OpenMx:MxModel-class]{OpenMx::MxModel}
+\link[lavaan:lavaan]{lavaan}, \link[OpenMx:MxModel]{MxModel}
 }

@@ -68,7 +68,7 @@ res_pooled@tidy_table # Print the pooled results
 
 }
 \seealso{
-\link[lavaan:lavaan]{lavaan::lavaan}, \link[OpenMx:OpenMx]{OpenMx::OpenMx}
+\link[lavaan:lavaan]{lavaan}, \link[OpenMx:OpenMx]{OpenMx}
 }
 \author{
 Davood Tofighi \email{dtofighi@gmail.com}
