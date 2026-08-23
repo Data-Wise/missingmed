@@ -15,7 +15,7 @@ using either the \code{lavaan} or \code{OpenMx} packages.
 \describe{
 \item{\code{data}}{An object of class \code{mids} from the \code{mice} package, representing multiply imputed datasets.}
 
-\item{\code{model}}{A \code{lavaan} or \code{OpenMx} model syntax to be used for SEM analysis. For \code{lavaan} models, the syntax should be a character string as described in \link[lavaan:model.syntax]{lavaan::model.syntax}. For \code{OpenMx} models, the syntax should be an \link[OpenMx:mxModel]{OpenMx::mxModel} object with or without \code{\link[OpenMx:mxData]{OpenMx::mxData()}} specified; that is, \code{mxModel} syntax can be without data specified. In addition, both \code{lavaan} and \code{OpenMx} models can be a fitted model object in the respective package.}
+\item{\code{model}}{A \code{lavaan} or \code{OpenMx} model syntax to be used for SEM analysis. For \code{lavaan} models, the syntax should be a character string as described in \link[lavaan:model.syntax]{lavaan::model.syntax}. For \code{OpenMx} models, the syntax should be an \link[OpenMx:mxModel]{mxModel} object with or without \code{\link[OpenMx:mxData]{mxData()}} specified; that is, \code{mxModel} syntax can be without data specified. In addition, both \code{lavaan} and \code{OpenMx} models can be a fitted model object in the respective package.}
 
 \item{\code{method}}{A character string indicating the SEM package to be used for analysis. It is a derived slot from the \code{model} slot, and it is set automatically based on the class of the \code{model} slot. The possible values are "lavaan" or "OpenMx".}
 

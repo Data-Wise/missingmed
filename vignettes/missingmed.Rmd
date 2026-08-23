@@ -100,8 +100,35 @@ For the **MBCO** likelihood-ratio test of `H0: a*b = 0`, use the fit object (see
 infer(fit, type = "mbco")
 ```
 
+## A binary mediator (or outcome)
+
+`set_md_mediation()` takes `family_m` and `family_y` and passes them to
+`medfit::fit_mediation()`, whose engine is a GLM. Nothing else in the pipeline
+changes -- the same four verbs handle a binary mediator:
+
+```{r glm}
+set.seed(7)
+Mb <- rbinom(n, 1, plogis(-0.2 + 1.2 * X + 0.3 * C))
+Yb <- 0.2 * X + 1.0 * Mb + 0.3 * C + rnorm(n)
+db <- data.frame(X = X, M = Mb, Y = Yb, C = C)
+db$M[sample(n, 45)] <- NA
+
+impb <- mice::mice(db, m = 10, printFlag = FALSE)
+mdb <- set_md_mediation(impb, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M",
+  family_m = binomial()
+)
+infer(pool(run(mdb)), type = "mc")
+```
+
+**Mind the scale.** With a non-identity link, `a` and `b` are link-scale
+coefficients, so `a * b` and its interval are on the link scale as well -- here,
+a change in `Y` per log-odds of `M`. It is not a risk difference or an odds
+ratio, and exponentiating it does not make one. `vignette("technical")` has the
+full table and the reasoning.
+
 ## Migrating from the S4 API
 
 The S4 entry points (`set_sem()`, `run_sem()`, `pool_sem()`) are **deprecated**
-in favour of the S7 verbs above. They still work for one release cycle but emit
+in favor of the S7 verbs above. They still work for one release cycle but emit
 a deprecation warning.

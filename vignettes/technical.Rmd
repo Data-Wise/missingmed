@@ -221,6 +221,53 @@ heteroskedasticity-consistent `sandwich::vcovHC` instead. This is implemented
 
 ---
 
+# 5A. Non-gaussian models (`family_y`, `family_m`) and the scale of `a*b`
+
+`set_md_mediation()` takes `engine`, `family_y` and `family_m` and forwards them
+to `medfit::fit_mediation()`, whose default engine already **is** `"glm"`. Both
+estimators and both inference types therefore accept non-gaussian families with
+no extra machinery: a binary mediator (`family_m = binomial()`), a binary
+outcome (`family_y = binomial()`) and a count outcome (`family_y = poisson()`)
+all run through `set_md_mediation() -> run() -> pool() -> infer()`.
+
+## 5A.1 The scale caveat
+
+For a non-identity link, `a` and `b` are **link-scale** coefficients, so their
+product -- and the Monte-Carlo interval around it -- is on the link scale too:
+
+| Model | `a` | `b` | `a*b` is... |
+|---|---|---|---|
+| gaussian / gaussian | mean difference | mean difference | a mean difference |
+| binomial mediator | log-odds | mean difference | change in Y per log-odds of M |
+| binomial outcome | mean difference | log-odds | log-odds units |
+| poisson outcome | mean difference | log-rate | log-rate units |
+
+Two consequences worth stating plainly:
+
+1. `a*b` under a non-identity link is **not** a risk difference, a risk ratio or
+   an odds ratio, and `exp(a*b)` does not produce one. Reporting it as such is a
+   category error, not a rounding issue.
+2. Rubin's rules are applied to the **coefficients**, which is standard.
+   Pooling a transformed quantity (an odds ratio, say) is a different and much
+   less well-behaved operation; `pool()` deliberately does not do it.
+
+Where a response-scale contrast is wanted -- a natural direct/indirect effect on
+the risk difference or risk-ratio scale -- the mediation formula must be applied
+to the fitted models, which is outside missingmed's orchestration remit. That is
+a fitting-layer concern (medfit), not a pooling one.
+
+## 5A.2 IPW plus a binomial family: the non-integer-successes warning
+
+`stats::glm()` emits `non-integer #successes in a binomial glm!` whenever a
+binomial fit receives non-integer prior weights. IPW weights are inverse
+sampling probabilities, not trial counts, so the warning fires on every
+`method = "ipw"` fit with a binomial family. It is a false alarm: the weighted
+score equations being solved are exactly the ones IPW specifies, and the point
+estimates and sandwich SEs are unaffected. It is left unsuppressed rather than
+silenced, so that a genuine non-integer-response mistake still surfaces.
+
+---
+
 # 6. Cross-package engineering decisions
 
 These changes were made upstream to satisfy missingmed's contracts; each is the

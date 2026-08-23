@@ -83,7 +83,7 @@ successor of the S4 \link{SemImputedData} class.
 \details{
 Fitting is delegated to \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}} (one call per imputation),
 so the per-imputation fits carry \strong{named} path coefficients (\code{a}, \code{b},
-\code{c_prime}) ready for \link[RMediation:RMediation-package]{RMediation::RMediation} inference. The estimator (\code{method}) and the
+\code{c_prime}) ready for \link[RMediation:RMediation]{RMediation} inference. The estimator (\code{method}) and the
 model are orthogonal axes: \code{method} selects the missing-data estimator
 (\code{"mi"}/\code{"ipw"}); the formulas/engine select the model.
 }

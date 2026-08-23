@@ -7,7 +7,7 @@
 \method{tidy}{MxModel}(x, conf_int = FALSE, conf_level = 0.95, ...)
 }
 \arguments{
-\item{x}{An object of class \link[OpenMx:MxModel-class]{OpenMx::MxModel} resulting from an SEM fit using OpenMx.}
+\item{x}{An object of class \link[OpenMx:MxModel]{MxModel} resulting from an SEM fit using OpenMx.}
 
 \item{conf_int}{Logical, whether to include confidence intervals in the output.}
 
@@ -20,7 +20,7 @@ A tibble with one row per parameter and columns for parameter names, estimates,
 standard errors, and optionally confidence intervals.
 }
 \description{
-Extracts parameter estimates from an \link[OpenMx:MxModel-class]{OpenMx::MxModel} from the \link[OpenMx:OpenMx]{OpenMx::OpenMx} model and formats them into a tidy dataframe.
+Extracts parameter estimates from an \link[OpenMx:MxModel]{MxModel} from the \link[OpenMx:OpenMx]{OpenMx} model and formats them into a tidy dataframe.
 }
 \examples{
 \dontrun{
@@ -49,5 +49,5 @@ tidy(fit0)
 }
 }
 \seealso{
-\link[OpenMx:OpenMx]{OpenMx::OpenMx} \link[OpenMx:MxModel-class]{OpenMx::MxModel} \link[OpenMx:summary.MxModel]{OpenMx::summary.MxModel}
+\link[OpenMx:OpenMx]{OpenMx} \link[OpenMx:MxModel]{MxModel} \link[OpenMx:summary.MxModel]{summary.MxModel}
 }
