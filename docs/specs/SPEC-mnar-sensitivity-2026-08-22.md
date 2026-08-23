@@ -110,6 +110,15 @@ needs a custom `mice` imputation method, because `post` operates on drawn values
 rather than on the linear predictor. It is not a conceptual gap, and the error
 message must not imply one.
 
+**The two-mechanism split is standard, not our invention.** Hayati Rezvan et al.
+(2018) **[full text]** state it directly: for continuous variables the procedure
+imputes under MAR and *then* adds the constant, whereas "for categorical
+incomplete variables, the missing values are drawn from an imputation model
+assuming MNAR, which proceeds by **adding offsets to the linear predictors**" —
+and in that case the post-hoc addition step "is omitted." So the continuous and
+categorical paths are *meant* to differ in mechanism; v1 implements the first and
+defers the second. Delegating to the NARFCS extension (§3.0) would supply both.
+
 **Revised after reading the sources.** The original draft implied no settled
 parameterization existed for categorical targets. That was wrong. Resseguier et
 al. (2011, *Epidemiology* 22(2):282–287, verified against the full text) give
@@ -250,7 +259,7 @@ chained equations. **A test asserting that the imputed mean moves by exactly
 Rungs must differ only by delta. Reseeding per rung would mix Monte-Carlo noise
 into the curve and make it uninterpretable.
 
-### 3.4 The `delta = 0` guarantee — stated precisely
+### 3.4 The `delta = 0` guarantee — stated precisely (`post` mechanism only; see §3.0)
 
 - **`mids$seed` available:** the `delta = 0` rung reproduces the original MAR
   analysis **exactly**. This is the primary acceptance test. **Verified:** a
@@ -265,6 +274,42 @@ Conflating these two would produce a test that passes locally and fails for any
 user who omitted a seed.
 
 ---
+
+### 3.0 OPEN FORK — hand-roll via `post`, or delegate to the NARFCS `mice` extension?
+
+**A reference implementation already exists.** Tompsett et al. (2018)
+**[full text]**: NARFCS "can be implemented using modifications to existing
+software packages for MICE... an extension to the R package `mice`... currently
+available on GitHub under the URL
+`https://github.com/moreno-betancur/NARFCS`." Kawabata et al. (2024)
+**[full text]** used it: "Monte Carlo NARFCS was implemented in R using the
+NARFCS extension to mice, and in Stata using `mi impute` with option `offset`."
+
+This is a genuine architectural fork, and it should be settled before M2:
+
+| | `post` composition (this SPEC) | NARFCS extension |
+|---|---|---|
+| Consistency with the package's stated role | poor — hand-rolls the missingness middle | **good** — missingmed is a thin orchestration layer that delegates |
+| Parameter interpretability | criticised by Tompsett as not formally defined | formal MNAR imputation model |
+| Categorical targets (D4) | blocked | supported natively |
+| Dependency | none | **GitHub-only, not on CRAN** — hostile to a CRAN-targeted package |
+| `delta = 0` identity | holds (verified) | **does NOT hold** — see below |
+
+**The `delta = 0` guarantee does not survive delegation.** Tompsett, verbatim:
+
+> "We note that imputing under NARFCS setting all sensitivity parameters to zero
+> is **not** equivalent to imputing under standard FCS due to the presence of the
+> M₋ⱼ terms in the models."
+
+NARFCS additionally includes the missingness indicators of the *other* incomplete
+variables as predictors, so its delta = 0 rung is not the MAR analysis. §3.4's
+primary acceptance test is therefore **specific to the `post` mechanism** and
+must be restated if this fork is taken the other way.
+
+**Recommendation:** keep `post` for v1 (no non-CRAN dependency, and the delta = 0
+identity is worth having as a correctness anchor), but state the limitation
+honestly and treat NARFCS delegation as the v2 direction — at which point D4
+comes free.
 
 ### 3.4b The CSP/MSP gap — the most consequential finding, and it is ours to handle
 
