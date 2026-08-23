@@ -2,6 +2,7 @@ status: active
 priority: --
 progress: 100
 kind: package
+updated: 2026-08-22
 next: v0.2.0 RELEASED (S7 + IPW). Next phases (general CRAN toolkit, NOT manuscript-
   gated): GLM models, MNAR sensitivity. Manuscript runs on medsim, not missingmed.
 type: r
@@ -10,6 +11,15 @@ type: r
 # Scope decided 2026-06-04 (Data-Wise/missingmed#1): general CRAN-targeted toolkit —
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
+
+## Since v0.2.0 — repo hygiene only, no code changes
+- 2026-08-22: currency pass. Tree clean, dev == origin/dev @ 5946b3f; README +
+  CLAUDE.md verified current vs v0.2.0. Companions have moved locally: medfit 0.3.2,
+  RMediation 1.7.0 — DESCRIPTION floors (>=0.3.1 / >=1.4.0) still hold, but RMediation
+  is 3 minors ahead, so audit its API before the next release. Open cleanup:
+  ORCHESTRATE-s7-migration.md is still tracked on dev (merge-cleanup rule says remove).
+- 2026-07-19: .Rbuildignore the .remember/ session-memory dir (5946b3f).
+- 2026-07-16: .STATUS gained `kind: package` (ecosystem convention).
 
 ## v0.2.0 RELEASED — 2026-06-12 (all integration steps DONE)
 # - main = 0.2.0 (PR #3 ipw-phase1->dev, PR #4 dev->main). GitHub release v0.2.0.
@@ -32,7 +42,8 @@ type: r
   all v0.2.0 claims verified vs codebase. Fixed stale "craft only" line in GLOBAL
   ~/.claude/CLAUDE.md (multi-branch dev pattern now names craft + missingmed).
 - 2026-06-11: Phase 0 S4->S7 migration IMPLEMENTED on feature/s7-migration (pushed,
-  up to commit c4eb495; 11 commits, P0.1–P0.8 + 2 follow-ups). NOT yet merged to dev.
+  up to commit c4eb495; 11 commits, P0.1–P0.8 + 2 follow-ups). Merged to dev
+  via PR #3; branch deleted.
   - S7 classes MDMediationData/MDMediationFit/MDMediationResult; pipeline
     set_md_mediation() -> run() -> pool() -> infer(type=c("mc","mbco")).
   - run() delegates each imputation to medfit::fit_mediation() (named a/b/c_prime);
@@ -42,17 +53,15 @@ type: r
   - Namespace is RMediation (capital), NOT rmediation. medfit+RMediation in Imports.
   - S4 set_sem/run_sem/pool_sem .Deprecated() shims kept one cycle.
   - R CMD check E0/W0/N0; 47 tests pass; vignettes + _pkgdown.yml + pkgdown deploy wf.
-  - Worktree: ~/.git-worktrees/missingmed/feature-s7-migration.
 - 2026-06-11: Phase 1 IPW estimator SPEC drafted (cloud routine) on branch
   docs/ipw-phase1-spec — docs/specs/SPEC-ipw-phase1-2026-06-11.md. Design = thin
   run() branch (.ipw_run: estimate weights -> medfit::fit_mediation(weights=) ->
   MDMediationFit(m=1)) + passthrough pool() (B=0).
   - OQ-1 BLOCKER RESOLVED + IMPLEMENTED: medfit feature/fit-weights (pushed) adds
     weights= to fit_mediation() (do.call inlines value; unweighted byte-identical;
-    weighted vcov via extract_mediation). medfit 802 tests pass. Worktree:
-    ~/.git-worktrees/medfit/feature-fit-weights.
-  - Design OQs still open: OQ-2 weight model (joint vs sequential), OQ-3 SE
-    (model-based vs sandwich) — decisions for manuscript author.
+    weighted vcov via extract_mediation). medfit 802 tests pass.
+  - Design OQs OQ-2 (weight model) and OQ-3 (SE) were settled by the shipped impl
+    below: joint weight model default (+ per-variable list), se_type = 'sandwich'.
   - Integration order for IPW impl: needs S7 pipeline (feature/s7-migration) +
     patched medfit (feature/fit-weights). IPW branch based on both.
 - 2026-06-11: Phase 1 IPW IMPLEMENTED on feature/ipw-phase1 (off feature/s7-migration,
@@ -63,10 +72,9 @@ type: r
   (weight_formula/weight_stabilize/weight_trim/se_type) + data.frame validator;
   MDMediationFit@weights. R CMD check E0/W0/N0; 72 tests. Technical vignette
   (vignettes/technical.Rmd) covers all design/contracts/methodology.
-  DEPENDS ON medfit feature/fit-weights (weights= + se_type=sandwich, 806 tests).
-  Worktrees: ~/.git-worktrees/missingmed/{feature-s7-migration,feature-ipw-phase1},
-  ~/.git-worktrees/medfit/feature-fit-weights.
-- Future scope phases = IPW (Phase 1, spec'd/blocked), GLM, MNAR sensitivity.
+  DEPENDS ON medfit feature/fit-weights (weights= + se_type=sandwich, 806 tests) —
+  merged and released as medfit 0.3.1. All three worktrees removed.
+- Future scope phases = GLM, MNAR sensitivity (IPW shipped in v0.2.0).
 - Scope spec + 6-phase roadmap: docs/specs/SPEC-missingmed-scope-2026-06-04.md (on dev)
 - 2026-06-11: Phase 0 PLAN written — docs/specs/SPEC-s7-migration-phase0-2026-06-11.md
   (S4->S7 class mapping, ordered steps P0.1–P0.7, acceptance). Resolves scope Open Q3
@@ -79,5 +87,4 @@ type: r
 - Contracts confirmed: rmediation (MBCO/MC-CI, consumes medfit MediationData),
   medfit (fit_mediation/extract_mediation -> MediationData@estimates/@vcov).
 - missingmed's unique code = Rubin's-rules pooling of NAMED (estimates, vcov) + IPW weights + MNAR.
-- Next: integrate feature/s7-migration, then scope Phase 1 (IPW/GLM/MNAR).
 - Branches: main (protected) <- dev (current) <- feature/*. Companion manuscript: research/Missing Effect.
