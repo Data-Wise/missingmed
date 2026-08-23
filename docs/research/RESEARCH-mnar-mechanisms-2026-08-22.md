@@ -126,11 +126,11 @@ cannot verify its compatibility. Substantive-model-compatible imputation
 A parallel strand seeks *identification* of mediation effects under MNAR rather
 than sensitivity to it:
 
-- **Zuo et al. (2022, JASA)** — identifiability of direct and indirect effects
+- **Zuo et al. (2024, JASA 120(550):794–804)** — identifiability of direct and indirect effects
   when **both mediator and outcome** are MNAR, under interpretable mechanisms.
 - **Li et al. (2017, *Stat Med*)** — identifiability with missing outcomes under
   several mechanisms, with estimating-equation estimators.
-- **Shan et al. (2024, JASA)** — a **shadow-variable** framework for
+- **Shan et al. (2026, JASA)** — a **shadow-variable** framework for
   nonignorable missing confounders, with semiparametric efficiency results.
 - **Jin et al. (2026)** — extension to **multiple mediators** under MNAR.
 
@@ -173,16 +173,22 @@ analysis" covers both.
 
 ## References
 
-- Galimard J-E, et al. (2018). Heckman imputation models for binary or continuous MNAR outcomes and MAR predictors. *BMC Medical Research Methodology*.
-- Heymans MW, Twisk JWR (2022). Handling missing data in clinical research. *Journal of Clinical Epidemiology*.
-- Hsu C-H, et al. (2020; 2023). Multiple imputation-based sensitivity analysis for MNAR data / MNAR covariates. *Statistics in Medicine*.
+All records verified against Crossref and curated in Zotero — collection
+**"MNAR sensitivity — missingmed (2026-08-22)"** (My Library), 11 items with
+full text attached. Years below follow the publisher record, which corrected two
+of this note's first-draft citations (Zuo 2022→2024, Shan 2024→2026).
+
+
+- Galimard J-E, Chevret S, Curis E, Resche-Rigon M (2018). Heckman imputation models for binary or continuous MNAR outcomes and MAR predictors. *BMC Medical Research Methodology* 18(1). doi:10.1186/s12874-018-0547-1
+- Heymans MW, Twisk JWR (2022). Handling missing data in clinical research. *Journal of Clinical Epidemiology* 151:185–188. doi:10.1016/j.jclinepi.2022.08.016
+- Hsu C-H, He Y, Hu C, Zhou W (2020; 2023). Multiple imputation-based sensitivity analysis for MNAR data / an MNAR covariate. *Statistics in Medicine* 39(26):3756–3771; 42(14):2275–2292. doi:10.1002/sim.8691; doi:10.1002/sim.9723
 - Jin Y, et al. (2026). Mediation analysis with multiple mediators subject to MNAR.
-- Leacy FP, et al. (2017). Analyses of sensitivity to the MAR assumption using multiple imputation with delta adjustment. *American Journal of Epidemiology*.
-- Li W, et al. (2017). Identifiability and estimation of causal mediation effects with missing data. *Statistics in Medicine*.
-- Resseguier N, Giorgi R, Paoletti X (2011). Sensitivity analysis when data are missing not-at-random. *Epidemiology*. (`SensMice`)
-- Rezvan PH, et al. (2018). Sensitivity analysis within the MI framework using delta-adjustment. *Longitudinal and Life Course Studies*.
-- Shan J, et al. (2024). Efficient nonparametric inference for mediation analysis with nonignorable missing confounders. *JASA*.
-- Tofighi D (2021). Sensitivity analysis in nonrandomized longitudinal mediation analysis. *Frontiers in Psychology*.
+- Leacy FP, Floyd S, Yates TA, White IR (2017). Analyses of sensitivity to the missing-at-random assumption using multiple imputation with delta adjustment. *American Journal of Epidemiology*. doi:10.1093/aje/kww107
+- Li W, Zhou X-H (2017). Identifiability and estimation of causal mediation effects with missing data. *Statistics in Medicine* 36(25):3948–3965. doi:10.1002/sim.7413
+- Resseguier N, Giorgi R, Paoletti X (2011). Sensitivity analysis when data are missing not-at-random. *Epidemiology* 22(2):282–287. doi:10.1097/ede.0b013e318209dec7 (`SensMice`)
+- Hayati Rezvan P, Lee KJ, Simpson JA (2018). Sensitivity analysis within the MI framework using delta-adjustment. *Longitudinal and Life Course Studies* 9(3):259–278. doi:10.14301/llcs.v9i3.503
+- Shan J, Li W, Ai C (2026). Efficient nonparametric inference for mediation analysis with nonignorable missing confounders. *JASA*. doi:10.1080/01621459.2026.2654218
+- Tofighi D (2021). Sensitivity analysis in nonrandomized longitudinal mediation analysis. *Frontiers in Psychology* 12. doi:10.3389/fpsyg.2021.755102
 - Zhang J, et al. (2024). Sensitivity analysis methods for outcome missingness using substantive-model-compatible multiple imputation.
-- Zuo S, et al. (2022). Mediation analysis with the mediator and outcome missing not at random. *JASA*.
+- Zuo S, Ghosh D, Ding P, Yang F (2024). Mediation analysis with the mediator and outcome missing not at random. *JASA* 120(550):794–804. doi:10.1080/01621459.2024.2359132
 - van Buuren S. *Flexible Imputation of Missing Data*, 2nd ed., §9.2 (delta adjustment).

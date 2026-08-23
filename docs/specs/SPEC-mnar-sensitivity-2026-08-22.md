@@ -285,8 +285,8 @@ Not detectable from our side, so it is documented rather than checked.
   observed auxiliary variable). The `post` mechanism extends to it naturally;
   v1 keeps delta constant across all missing values of a target.
 - **Identification** under MNAR, as distinct from sensitivity to it — Zuo et al.
-  (2022, JASA) for mediator-and-outcome MNAR, Li et al. (2017) for missing
-  outcomes, Shan et al. (2024) for shadow variables. These buy point
+  (2024, JASA) for mediator-and-outcome MNAR, Li et al. (2017) for missing
+  outcomes, Shan et al. (2026) for shadow variables. These buy point
   identification with untestable assumptions of their own; a different product,
   not a better version of this one.
 - `medrobust` reuse. Scope-spec Open Q1 asked whether its bounds machinery
