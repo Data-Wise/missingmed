@@ -12,14 +12,24 @@ type: r
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
-## Since v0.2.0 — repo hygiene only, no code changes
-- 2026-08-22: currency pass. Tree clean, dev == origin/dev @ 5946b3f; README +
-  CLAUDE.md verified current vs v0.2.0. Companions have moved locally: medfit 0.3.2,
-  RMediation 1.7.0 — DESCRIPTION floors (>=0.3.1 / >=1.4.0) still hold, but RMediation
-  is 3 minors ahead, so audit its API before the next release. Removed the stale
-  ORCHESTRATE-s7-migration.md working artifact (merge-cleanup rule; in git history).
+## Since v0.2.0 (unreleased work on dev)
+- 2026-08-22 (code): RMediation API audit DONE. The entire runtime surface is
+  ci_mediation_data() (R/infer.R:32,56); 1.4.0 -> 1.7.0 is NON-BREAKING because
+  pool() already emits named a/b/c_prime + dimnamed vcov, exactly what 1.5.0's
+  strict name-based extraction requires. Floor raised to RMediation (>= 1.5.0):
+  below it, unresolvable paths silently assumed cov(a,b)=0 -> a wrong CI instead
+  of an error. New regression test pins that (test-s7-pipeline.R).
+  Evidence: 73 pass / 0 fail / 0 skip vs RMediation 1.7.0, medfit 0.3.2, R 4.6.1.
+  NB the installed library was 1.6.1 until this session; 1.7.0 now installed.
+- 2026-08-22 (docs): follow-up plan for the remaining two items (rforge .STATUS
+  parser, GLM then MNAR phases) -> docs/specs/PLAN-post-v0.2.0-followups-2026-08-22.md.
+  Headline: GLM is already plumbed end-to-end (medfit's default engine IS glm), so
+  that phase is tests + docs with no medfit blocker; MNAR needs a spec first.
+- 2026-08-22 (hygiene): removed the stale ORCHESTRATE-s7-migration.md working
+  artifact (merge-cleanup rule; content remains in git history).
   Note: /rforge:status cannot read this file — its parser keys on emoji section
-  headers (🎯 📊 ✅ 📋 ⏰), this file uses `key: value` + `##` markdown.
+  headers (🎯 📊 ✅ 📋 ⏰), this file uses `key: value` + `##` markdown. All 7
+  active packages use the frontmatter convention, so the fix belongs in the parser.
 - 2026-07-19: .Rbuildignore the .remember/ session-memory dir (5946b3f).
 - 2026-07-16: .STATUS gained `kind: package` (ecosystem convention).
 

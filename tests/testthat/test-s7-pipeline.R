@@ -70,6 +70,26 @@ test_that("pool() returns a named pooled MediationData valid for RMediation", {
   expect_true(ci$CI[1] < ci$CI[2])
 })
 
+test_that("unnamed pooled estimates error out (RMediation >= 1.5.0 contract)", {
+  # RMediation < 1.5.0 resolved the a/b paths positionally and silently fell back
+  # to assuming cov(a, b) = 0 when it could not identify them -- a wrong CI rather
+  # than an error. From 1.5.0 the extraction is strictly name-based. pool() always
+  # emits named estimates + dimnamed vcov, so this locks in the contract that makes
+  # the DESCRIPTION floor meaningful.
+  res <- pool(run(make_md(5, 150, 0.4, 0.4, m = 3)))
+  stripped <- res@pooled
+  est <- stripped@estimates
+  names(est) <- NULL
+  vc <- stripped@vcov
+  dimnames(vc) <- NULL
+  stripped@estimates <- est
+  stripped@vcov <- vc
+  expect_error(
+    RMediation::ci_mediation_data(stripped, level = 0.95, type = "MC", n.mc = 1e3),
+    "Cannot resolve path parameters by name"
+  )
+})
+
 test_that("per_imputation_list() exposes the list + m for MBCO", {
   fit <- run(make_md(4, 150, 0.4, 0.4, m = 5))
   acc <- per_imputation_list(fit)

@@ -1,3 +1,11 @@
+# missingmed (development version)
+
+* Raised the `RMediation` dependency floor to `>= 1.5.0`. That release replaced
+  positional path-parameter resolution (which could silently assume `cov(a, b) = 0`)
+  with strict name-based extraction. `pool()` already emits named estimates and a
+  dimnamed vcov, so no user-visible behavior changes -- the floor makes the
+  requirement explicit, and a new regression test pins it.
+
 # missingmed 0.2.0
 
 Major release: the package is rewritten from S4 to **S7** and gains a second
