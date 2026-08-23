@@ -1,6 +1,16 @@
 # missingmed follow-up plan — v0.2.0 → next
 
 **Drafted:** 2026-08-22 · read-only investigation, no code changed.
+**Executed:** 2026-08-22 — Items 1 and 2 DONE, Item 3 half done (GLM shipped,
+MNAR still unstarted). Status per item below; the original analysis is left
+unedited so the plan can be judged against what actually happened.
+
+| Item | State | Where |
+|---|---|---|
+| 1 · RMediation audit | ✅ DONE | `dev` @ `15dc6e2`, `240544e` |
+| 2 · rforge parser | ✅ DONE, unmerged | rforge `feature/status-frontmatter` @ `cf3182d` |
+| 3a · GLM phase | ✅ DONE, unmerged | missingmed `feature/glm-phase` @ `ef6cf16`…`0c1fc6a` |
+| 3b · MNAR sensitivity | ⬜ NOT STARTED | needs a spec first |
 
 **TL;DR:** Do the RMediation audit first — the investigation itself is ~80% of it
 (verdict: no breaking change for missingmed; raise the floor to `>= 1.5.0` and re-test
@@ -11,6 +21,14 @@ already exists end-to-end, with **zero medfit blockers**.
 ---
 
 ## Item 1 — RMediation API audit (do first)
+
+> **✅ DONE 2026-08-22.** Verdict held: non-breaking. Floor raised to
+> `RMediation (>= 1.5.0)` (not 1.7.0 — 1.5.0 is where the strict name-based
+> extraction landed, so it is the real correctness boundary). Added a regression
+> test that strips names off a pooled `MediationData` and asserts the
+> informative error. Evidence: 73 pass / 0 fail, `R CMD check` Status OK, against
+> RMediation 1.7.0 + medfit 0.3.2 + R 4.6.1. One unplanned find: `R CMD check`
+> flagged a hidden-files NOTE for `.token-optimizer`, fixed in `240544e`.
 
 ### Finding (verified)
 
@@ -72,6 +90,16 @@ already exists end-to-end, with **zero medfit blockers**.
 
 ## Item 2 — `/rforge:status` parser mismatch
 
+> **✅ DONE 2026-08-22**, on rforge `feature/status-frontmatter` (`cf3182d`,
+> pushed, unmerged). Recommendation (c) — extend the parser — was taken.
+> The plan understated the bug: it is not that frontmatter files fail to parse,
+> it is that the progress extractor takes `max()` over every `N%` in the file and
+> so scrapes unrelated percentages out of prose. **All 7 packages reported wrong**
+> — mediationverse showed 100% while actually 92% and BLOCKED, probmed showed
+> 100% while actually 90% and ON HOLD. Also fixed: a key containing dots
+> (`cran_0.3.1_check`) silently truncated the block, dropping every field below
+> it. 599 pass / 2 skip, 7 new tests.
+
 ### Finding (verified)
 
 - `status.py` (rforge 2.18.0) is regex-only and, per its own comment, "tightly coupled to
@@ -114,6 +142,21 @@ already exists end-to-end, with **zero medfit blockers**.
 ---
 
 ## Item 3 — next feature phase: GLM models, then MNAR sensitivity
+
+> **GLM ✅ DONE 2026-08-22**, on missingmed `feature/glm-phase` (pushed,
+> unmerged). The "already plumbed, zero medfit blockers" finding held exactly —
+> no production code was needed. 103 pass / 0 fail (was 73), `R CMD check`
+> Status OK. Two things the plan did not anticipate:
+> - Every IPW fit with a binomial family emits `non-integer #successes in a
+>   binomial glm!`, because IPW weights are sampling weights, not trial counts.
+>   Benign; left unsuppressed and pinned by a test so silencing it stays a
+>   deliberate act.
+> - A first draft of the binary-mediator generator drew `M` independently of `Y`,
+>   making the true indirect effect 0 and every "CI excludes zero" assertion
+>   meaningless. Caught by probing before writing assertions.
+>
+> **MNAR ⬜ NOT STARTED.** Its prerequisite is now satisfied: MNAR re-runs the
+> GLM surface across a delta grid, and that surface is tested as of `ef6cf16`.
 
 ### Finding (verified)
 

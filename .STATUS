@@ -3,9 +3,12 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-08-22
-next: v0.2.0 RELEASED (S7 + IPW). Next phases (general CRAN toolkit, NOT manuscript-
-  gated): GLM models, MNAR sensitivity. Manuscript runs on medsim, not missingmed.
+next: MNAR sensitivity — the only unstarted phase; needs a design spec first
+  (delta-adjusted imputation, sensitivity_mnar() verb, result class). GLM phase is
+  DONE on feature/glm-phase (unmerged). Manuscript runs on medsim, not missingmed.
 type: r
+worktrees: ~/.git-worktrees/missingmed/feature-glm-phase (branch feature/glm-phase,
+  pushed, UNMERGED — 3 commits: GLM tests+docs, tidyselect fixes, roxygen2 8.0.0).
 
 # missingmed — Missing-data causal mediation (R package, mediationverse)
 # Scope decided 2026-06-04 (Data-Wise/missingmed#1): general CRAN-targeted toolkit —
@@ -23,15 +26,26 @@ type: r
   NB the installed library was 1.6.1 until this session; 1.7.0 now installed.
   R CMD check --as-cran: Status OK (0E/0W/0N) after .Rbuildignore'ing the
   .token-optimizer dir, which had produced a hidden-files NOTE.
-- 2026-08-22 (docs): follow-up plan for the remaining two items (rforge .STATUS
-  parser, GLM then MNAR phases) -> docs/specs/PLAN-post-v0.2.0-followups-2026-08-22.md.
-  Headline: GLM is already plumbed end-to-end (medfit's default engine IS glm), so
-  that phase is tests + docs with no medfit blocker; MNAR needs a spec first.
+- 2026-08-22 (docs): follow-up plan + per-item outcomes ->
+  docs/specs/PLAN-post-v0.2.0-followups-2026-08-22.md. Items 1 and 2 DONE, GLM DONE,
+  MNAR not started. That file is the record; do not restate its detail here.
+- 2026-08-22 (branch, UNMERGED): feature/glm-phase — GLM phase shipped. Non-gaussian
+  families now tested (MI x {binomial mediator, binomial outcome, poisson outcome};
+  IPW x {binomial mediator, binomial outcome} with sandwich; MBCO D4 with a binomial
+  mediator, previously gaussian-only). NO production code changed — the plan's
+  "already plumbed, zero medfit blockers" finding held. 103 pass / 0 fail (was 73),
+  R CMD check Status OK. Also on that branch: 6 tidyselect .data$ deprecations fixed,
+  and roxygen2 7.3.3 -> 8.0.0 regeneration (matches medfit/medsim/RMediation).
+  Documented in vignette("technical") 5A: under a non-identity link a*b is on the
+  LINK scale (log-odds, log-rate) — not a risk difference or odds ratio, and
+  exp(a*b) is not one either.
 - 2026-08-22 (hygiene): removed the stale ORCHESTRATE-s7-migration.md working
   artifact (merge-cleanup rule; content remains in git history).
-  Note: /rforge:status cannot read this file — its parser keys on emoji section
-  headers (🎯 📊 ✅ 📋 ⏰), this file uses `key: value` + `##` markdown. All 7
-  active packages use the frontmatter convention, so the fix belongs in the parser.
+  Note: /rforge:status could not read this file — its parser keys on emoji section
+  headers (🎯 📊 ✅ 📋 ⏰) while all 7 active packages use `key: value` frontmatter.
+  Worse than "no data": it took max() over every N% in the prose, so every package
+  was reported with a WRONG progress figure. FIXED on rforge
+  feature/status-frontmatter (cf3182d, pushed, UNMERGED) — 599 pass / 2 skip.
 - 2026-07-19: .Rbuildignore the .remember/ session-memory dir (5946b3f).
 - 2026-07-16: .STATUS gained `kind: package` (ecosystem convention).
 
