@@ -55,12 +55,12 @@ tidy.MxModel <-
     # Extract parameter estimates
     tidy_df <-
       summary(x)$parameters |>
-      dplyr::select(-dplyr::contains("bound"), -.data$row, -.data$matrix) |>
+      dplyr::select(-dplyr::contains("bound"), -"row", -"matrix") |>
       dplyr::rename(
-        term = .data$name,
-        label = .data$col,
-        estimate = .data$Estimate,
-        std_error = .data$Std.Error
+        term = "name",
+        label = "col",
+        estimate = "Estimate",
+        std_error = "Std.Error"
       ) |>
       dplyr::mutate(
         statistic = .data$estimate / .data$std_error,
