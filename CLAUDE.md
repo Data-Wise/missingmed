@@ -39,7 +39,7 @@ The **S4 API is deprecated** (`set_sem`/`run_sem`/`pool_sem` + `SemImputedData`/
 ```r
 devtools::load_all(); devtools::document(); devtools::test(); devtools::check()
 ```
-Needs medfit ≥ 0.3.1 + RMediation installed (from the r-universe). CI uses standard r-lib actions (`RENV_CONFIG_AUTOLOADER_ENABLED=FALSE` — the dev `renv.lock` is kept out of CI). pkgdown builds to **`pkgdown-site/`** (not `docs/`, which holds design specs) and deploys via the `gh-pages` branch.
+Needs medfit ≥ 0.3.1 + RMediation installed (from the r-universe). CI uses standard r-lib actions (`RENV_CONFIG_AUTOLOADER_ENABLED=FALSE` — the dev `renv.lock` is kept out of CI). pkgdown builds to **`pkgdown-site/`** (not `docs/`, which holds design specs) and deploys via the `gh-pages` branch. `_pkgdown.yml` carries an **explicit `reference:` index** — every new export must be added there or the pkgdown CI job fails; `R CMD check` does not read pkgdown config and will not catch it.
 
 ## Ecosystem & manuscript
 

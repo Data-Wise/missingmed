@@ -3,21 +3,27 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-08-22
-next: MERGE DECISION — all roadmap phases are implemented; three branches are
-  pushed and unmerged (see worktrees:). Nothing is blocked on code. After merging,
-  the v2 candidates are named in SPEC-mnar-sensitivity-2026-08-22.md 5: NARFCS
-  delegation (makes categorical targets free), CSP calibration, covariate-varying
-  delta. Manuscript runs on medsim, not missingmed.
+next: PUSH feature/mnar-sensitivity, then merge PR #6. The rebase onto dev is
+  LOCAL ONLY — branch-guard blocked the force-push (it reads the branch from the
+  session CWD, dev, not from the feature/* target), so the user must run it:
+  cd ~/.git-worktrees/missingmed/feature-mnar-sensitivity && git push
+  --force-with-lease origin feature/mnar-sensitivity. Until then PR #6 reads
+  CONFLICTING with two green checks, because the checks ran on the STALE head.
+  After that merge every roadmap phase is landed; the v2 candidates are named in
+  SPEC-mnar-sensitivity-2026-08-22.md 5: NARFCS delegation (makes categorical
+  targets free), CSP calibration, covariate-varying delta. Manuscript runs on
+  medsim, not missingmed.
 type: r
 worktrees:
-  ~/.git-worktrees/missingmed/feature-glm-phase — feature/glm-phase, pushed,
-    UNMERGED, 3 commits: GLM family tests + link-scale docs, tidyselect fixes,
-    roxygen2 8.0.0. 103 tests, R CMD check OK.
+  ~/.git-worktrees/missingmed/feature-glm-phase — feature/glm-phase, MERGED as
+    PR #5 (24fffc3). Worktree is now stale; left in place, not cleaned up.
   ~/.git-worktrees/missingmed/feature-mnar-sensitivity — feature/mnar-sensitivity,
-    pushed, UNMERGED, 6 commits: SPEC + research note + sensitivity_mnar()
-    implementation + vignette. 98 tests, R CMD check OK.
-  NB both branches carry the SAME roxygen2 8.0.0 bump to DESCRIPTION + man/;
-    identical content, so whichever merges second shows no diff there.
+    PR #6 OPEN. local 825c331 / remote 3f9c005: the branch was rebased onto dev
+    (9 commits) but NOT pushed — see next:. Verified on the rebased tree:
+    128 pass / 0 fail, R CMD check Status OK, pkgdown clean.
+  NB the duplicate roxygen2 8.0.0 bump both branches carried was resolved during
+    that rebase, along with NEWS.md and vignettes/technical.Rmd (both kept whole:
+    MNAR then GLM in NEWS; 5A GLM then 5B MNAR in the vignette).
   ~/.herdr/worktrees/missingmed/fix-minibook — branch fix-minibook @ 240544e.
     NOT created by this work; left untouched, owner unknown.
 
@@ -27,6 +33,12 @@ worktrees:
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
 ## Since v0.2.0 (unreleased work on dev)
+- 2026-08-22 (merged): PR #5 feature/glm-phase -> dev (24fffc3). Also merged
+  rforge#75 (ac16b0a), the .STATUS frontmatter parser fix. Two CI failures were
+  self-inflicted by running a SUBSET of what CI runs: rforge's gate is
+  tests/test-all.sh (44 checks), not `pytest tests/` (599); and missingmed's
+  pkgdown job reads _pkgdown.yml's explicit reference index, which R CMD check
+  never opens — two new exports were missing from it. See CLAUDE.md.
 - 2026-08-22 (code): RMediation API audit DONE. The entire runtime surface is
   ci_mediation_data() (R/infer.R:32,56); 1.4.0 -> 1.7.0 is NON-BREAKING because
   pool() already emits named a/b/c_prime + dimnamed vcov, exactly what 1.5.0's
