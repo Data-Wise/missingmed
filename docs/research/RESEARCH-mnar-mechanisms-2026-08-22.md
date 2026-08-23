@@ -105,6 +105,53 @@ question the vignette must answer.
 
 ---
 
+## 2b. NARFCS's own literature: the CSP/MSP gap **[full text]**
+
+Tompsett, Leacy, Moreno-Betancur, Heron & White (2018, *Stat Med* 37(15):
+2338–2353) is the canonical NARFCS paper and should have been the first source
+read. Two things in it matter more than anything else in this note.
+
+**1. The parameter you specify is not the parameter you mean.**
+
+> "NARFCS sensitivity parameters are the specified differences between imputed
+> and observed values of a variable, conditional on all remaining variables of
+> the data and their missingness indicators. We therefore refer to them as
+> **conditional sensitivity parameters, or CSPs**... Most sensitivity parameters
+> are marginal on at least some of the remaining variables and hence referred to
+> as **marginal sensitivity parameters (MSP)**. Direct elicitation of a CSP is
+> typically not feasible."
+
+Their simulation quantifies the consequence of confusing them:
+
+| Input | Bias E(Y₂) | Coverage (nominal 95%) |
+|---|---|---|
+| true | 0.000 | 95.0% |
+| elicited MSP inserted as CSP | 0.301 | **49.3%** |
+| calibrated CSP | 0.002 | 95.1% |
+
+Half nominal coverage, silently. Every elicitation route in §7 produces an MSP;
+`sensitivity_mnar(delta = ...)` consumes a CSP. SPEC §3.4b now requires the docs
+to say so and `tidy()` to report the realized MSP per rung.
+
+**This retro-explains the empirical oddity** recorded when the mechanism was
+probed: a specified delta of 3 produced a marginal shift of 3.182. That was
+labelled "propagation through the chained equations." It is the CSP/MSP gap, and
+Tompsett show the bias grows as the gap widens.
+
+**2. They criticize precisely the mechanism this SPEC uses.** On the van Buuren
+and Resseguier style approaches — i.e. `mice`'s `post`:
+
+> "these do not include formally defined imputation models. This made it
+> difficult to understand precisely the nature of the sensitivity parameters
+> that were being used. NARFCS constitutes a formalisation of such methods, by
+> defining MNAR imputation models for the chained equations approach."
+
+Absorbed rather than dismissed: v1 cannot reimplement NARFCS, but it can report
+the realized MSP, which is the part of the interpretability gap we can close
+cheaply. Full calibration is v2.
+
+---
+
 ## 3. Finding that changed a decision: categorical targets have a standard scale
 
 SPEC **D4** originally deferred categorical targets on the grounds that an
@@ -149,8 +196,10 @@ ill-defined.
 
 ## 4. Caution the SPEC must carry: substantive-model compatibility
 
-**[abstract only — no full text obtained; this claim is NOT yet verified and no
-design decision may rest on it until it is.]** Zhang et al. (2024) report that a
+**[abstract only — and the source could not be located at all. Searched
+Crossref, arXiv, Europe PMC and Semantic Scholar; no DOI, no preprint, no
+record. Treat as unverified hearsay until someone produces the paper. The
+verified NARFCS pitfall is §2b.]** Zhang et al. (2024) reportedly show that a
 **naive NARFCS implementation produces biased effect estimates** when the imputation model is incompatible with the
 substantive model — and propose NAR-SMCFCS / NAR-SMC-stack to fix it.
 Compatibility means the imputation model reflects the structure of the analysis
@@ -228,6 +277,8 @@ full text attached. Years below follow the publisher record, which corrected two
 of this note's first-draft citations (Zuo 2022→2024, Shan 2024→2026).
 
 
+- Kawabata E, Major-Smith D, Clayton GL, et al. (2024). Accounting for bias due to outcome data missing not at random. *BMC Medical Research Methodology*. doi:10.1186/s12874-024-02382-4 (applied NARFCS; OA full text obtained)
+- Tompsett DM, Leacy F, Moreno-Betancur M, Heron J, White IR (2018). On the use of the not-at-random fully conditional specification (NARFCS) procedure in practice. *Statistics in Medicine* 37(15):2338–2353. doi:10.1002/sim.7643 **[full text]** — CSP/MSP distinction; canonical NARFCS reference.
 - Galimard J-E, Chevret S, Curis E, Resche-Rigon M (2018). Heckman imputation models for binary or continuous MNAR outcomes and MAR predictors. *BMC Medical Research Methodology* 18(1). doi:10.1186/s12874-018-0547-1
 - Heymans MW, Twisk JWR (2022). Handling missing data in clinical research. *Journal of Clinical Epidemiology* 151:185–188. doi:10.1016/j.jclinepi.2022.08.016
 - Hsu C-H, He Y, Hu C, Zhou W (2020; 2023). Multiple imputation-based sensitivity analysis for MNAR data / an MNAR covariate. *Statistics in Medicine* 39(26):3756–3771; 42(14):2275–2292. doi:10.1002/sim.8691; doi:10.1002/sim.9723

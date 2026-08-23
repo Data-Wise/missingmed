@@ -266,12 +266,71 @@ user who omitted a seed.
 
 ---
 
+### 3.4b The CSP/MSP gap — the most consequential finding, and it is ours to handle
+
+**`delta` is a CONDITIONAL sensitivity parameter (CSP). It is almost certainly
+not the number a user thinks they are supplying.** Tompsett et al. (2018), the
+canonical NARFCS paper **[full text]**:
+
+> "NARFCS sensitivity parameters are the specified differences between imputed
+> and observed values of a variable, **conditional on all remaining variables of
+> the data and their missingness indicators**. We therefore refer to them as
+> conditional sensitivity parameters, or CSPs... Most sensitivity parameters are
+> marginal on at least some of the remaining variables and hence referred to as
+> **marginal sensitivity parameters (MSP)**. Direct elicitation of a CSP is
+> typically not feasible."
+
+An analyst asked "how much higher are non-respondents?" answers with an **MSP**.
+`sensitivity_mnar(delta = 0.5)` consumes it as a **CSP**. Tompsett's simulation
+measures what that costs:
+
+| Input | Bias, E(Y₂) | Coverage (nominal 95%) |
+|---|---|---|
+| true values | 0.000 | 95.0% |
+| **elicited MSP inserted as the CSP** | **0.301** | **49.3%** |
+| calibrated CSP | 0.002 | 95.1% |
+
+Coverage collapses to roughly half of nominal. This is not a subtle caveat — it
+is the single most likely way a user misreads this function, and the failure is
+silent.
+
+**This also explains the 3.182 observation** in §3.2. That was not incidental
+"propagation": the specified CSP of 3 realized as a marginal shift of ≈3.18. The
+gap between the two *is* the CSP/MSP gap, and Tompsett show the bias worsens as
+it widens.
+
+**v1 requirements arising:**
+
+1. The `delta` argument is documented as a **CSP** wherever it appears —
+   `?sensitivity_mnar`, the vignette, and `print()`.
+2. **Report the realized MSP per rung.** It is cheap: the marginal mean
+   difference between imputed and observed values of the target is computable
+   from the imputations already in hand. `tidy()` gains an `msp` column so the
+   user sees the gap rather than assuming there is none.
+3. §4.5's tipping-point recommendation is **qualified**: Tompsett note the
+   tipping point on the CSP scale "does not have a clear clinical
+   interpretation." Report the tipping point with its realized MSP alongside.
+4. **Calibration** — searching for the CSP that realizes a target MSP — is the
+   principled fix and is **v2**, named here so it is not reinvented.
+
+**Related criticism to absorb, not dismiss.** Tompsett describe the van Buuren
+and Resseguier style approaches — which is what §3.2's `post` mechanism is — as
+methods that "do not include formally defined imputation models," making the
+sensitivity parameters hard to interpret precisely. Requirement 2 above is the
+mitigation available to us without reimplementing NARFCS: if we cannot make the
+specified parameter interpretable, we can at least report the realized one.
+
 ### 3.5 Stated limitation: substantive-model compatibility
 
-Zhang et al. (2024) show a **naive NARFCS implementation is biased** when the
-imputation model is incompatible with the substantive model — i.e. when the
-imputation model does not reflect the analysis model's structure, interactions
-included.
+*(The claim below came from an abstract for a paper — Zhang et al. 2024 — that
+could not be located in Crossref, arXiv, Europe PMC or Semantic Scholar. It is
+retained as a plausible concern, explicitly unverified, and no requirement rests
+on it. The verified NARFCS pitfall is §3.4b.)*
+
+Zhang et al. (2024) **[abstract only, source not located]** report that a naive
+NARFCS implementation is biased when the imputation model is incompatible with
+the substantive model — i.e. when the imputation model does not reflect the
+analysis model's structure, interactions included.
 
 This applies here. The substantive model is a mediation system (`M ~ X + C`,
 `Y ~ X + M + C`), while the `mids` arrives **pre-built by the user** and
@@ -299,7 +358,8 @@ Not detectable from our side, so it is documented rather than checked.
 3. A user's pre-existing `post` entry survives re-imputation (§3.2).
 4. Every documented refusal — D3 no-missingness, D4 categorical target, D5 IPW —
    has a test asserting its message.
-5. `tidy()` returns one row per rung with the delta column(s) and interval.
+5. `tidy()` returns one row per rung with the delta column(s), the **realized
+   MSP**, and the interval (§3.4b requirement 2).
 6. Suite green; `R CMD check --as-cran` Status OK.
 
 ---
@@ -308,12 +368,14 @@ Not detectable from our side, so it is documented rather than checked.
 
 1. **Never present a rung as "the MNAR estimate."** Every rung is conditional on
    its delta.
-2. **Give the user a way to choose delta.** Three defensible routes: expert
-   elicitation with pooled elicited distributions (Rezvan et al. 2018), a range
-   benchmarked against an observed effect size, or a **tipping-point**
-   presentation — report the delta at which the conclusion changes, which avoids
-   having to defend any single value. `summary()` should make the tipping point
-   easy to read off.
+2. **Give the user a way to choose delta — and warn what delta is.** Routes:
+   expert elicitation with pooled elicited distributions (Hayati Rezvan et al.
+   2018), a range benchmarked against an observed effect size, or a
+   **tipping-point** presentation. Every one of them elicits an **MSP**, while
+   the argument is a **CSP** (§3.4b) — so the docs must say so plainly, and
+   `summary()` must report the tipping point together with its realized MSP,
+   since Tompsett et al. note a CSP-scale tipping point has no clear clinical
+   interpretation on its own.
 3. **State the pattern-mixture reading** (§1) so delta is interpretable.
 4. **Distinguish this from confounder sensitivity.** `sensitivity_mnar()` probes
    the **MAR** assumption. CAMSA (Tofighi 2021) probes the **no-omitted-
@@ -330,6 +392,8 @@ Not detectable from our side, so it is documented rather than checked.
 - A weighting-based MNAR sensitivity for IPW (D5).
 - Link-scale offsets for categorical targets (D4) — the first candidate for v2,
   with the design already fixed (odds-ratio-scaled delta).
+- **CSP calibration** — searching for the CSP that realizes a target MSP
+  (Tompsett et al. 2018, §8). The principled fix for §3.4b; v2.
 - Covariate-varying delta (Leacy et al.'s second flavor: delta differing by an
   observed auxiliary variable). The `post` mechanism extends to it naturally;
   v1 keeps delta constant across all missing values of a target.
