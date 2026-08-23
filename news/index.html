@@ -38,6 +38,10 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
+<ul><li>Raised the <code>RMediation</code> dependency floor to <code>&gt;= 1.5.0</code>. That release replaced positional path-parameter resolution (which could silently assume <code>cov(a, b) = 0</code>) with strict name-based extraction. <code><a href="../reference/pool.html">pool()</a></code> already emits named estimates and a dimnamed vcov, so no user-visible behavior changes – the floor makes the requirement explicit, and a new regression test pins it.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="missingmed-020">missingmed 0.2.0<a class="anchor" aria-label="anchor" href="#missingmed-020"></a></h2>
 <p>Major release: the package is rewritten from S4 to <strong>S7</strong> and gains a second estimator (IPW). It is now a thin orchestration layer — fitting is delegated to <a href="https://data-wise.github.io/medfit/" class="external-link">medfit</a> and inference to <a href="https://data-wise.github.io/rmediation/" class="external-link">RMediation</a>.</p>
 <div class="section level3">
