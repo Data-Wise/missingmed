@@ -1,6 +1,8 @@
 # SPEC — MNAR sensitivity analysis (`sensitivity_mnar()`)
 
-**Status:** DRAFT — D1 and D4 need maintainer confirmation (marked ⚠ below).
+**Status:** DRAFT — **D1 needs maintainer confirmation** (marked ⚠). D4 was
+revised after a literature scan and no longer needs a judgment call; see
+`docs/research/RESEARCH-mnar-mechanisms-2026-08-22.md` §3.
 **Branch:** `feature/mnar-sensitivity` · **Date:** 2026-08-22
 **Implements:** scope-spec criterion "MNAR sensitivity analysis available for
 departures from MAR" (`SPEC-missingmed-scope-2026-06-04.md`), resolving its
@@ -20,7 +22,20 @@ units higher than MAR-based imputation implies.
 
 Method: **delta-adjusted imputation** (van Buuren, *FIMD* §9.2). Each rung
 re-imputes with an offset applied to the target's imputed values, then runs the
-existing pipeline unchanged.
+existing pipeline unchanged. In its multivariate form inside chained equations
+this is **NARFCS** (Not-At-Random Fully Conditional Specification) — naming it
+matters, because it means this design inherits the literature's cautions (§5)
+rather than being bespoke.
+
+**Delta is a pattern-mixture parameter**, not a selection-model one: it is the
+assumed difference between the non-respondents' distribution and what a MAR
+imputation produces. Read a rung as "if the unobserved values run delta higher
+than MAR implies, the indirect effect is X."
+
+**Direct precedent.** Leacy et al. (2017, *Am J Epidemiol*) apply delta-adjusted
+MI to **parametric causal mediation with a partially observed mediator** — this
+package's central case. Background and full citations:
+`docs/research/RESEARCH-mnar-mechanisms-2026-08-22.md`.
 
 ---
 
@@ -72,22 +87,33 @@ missing value (`nmis > 0`). A target with no missingness is an **error**, not a
 silent no-op, because a delta on a fully observed variable does nothing and
 almost certainly indicates a typo.
 
-### D4 ⚠ — Non-gaussian targets: error in v1
+### D4 — Categorical targets: deferred to v2, on the odds-ratio scale
 
-**Decision.** The additive shift is applied to the target's imputed values, which
-is only meaningful on a continuous scale. v1 **errors** for a target that is a
-factor, logical, or imputed by a categorical method (`logreg`, `polyreg`,
-`polr`, `lda`), naming the target and the reason.
+**Decision.** v1 **errors** for a target that is a factor, logical, or imputed by
+a categorical method (`logreg`, `polyreg`, `polr`, `lda`), naming the target and
+the reason. v2 implements it as a **log-odds offset on the imputation model's
+linear predictor**, with delta reported on the **odds-ratio** scale.
 
-**Rationale.** For a binary mediator, imputations are 0/1; `imp + 1.5` yields
-1.5/2.5, which is not a probability, not a category, and not a link-scale shift.
-The correct construction offsets the **linear predictor** of the imputation
-model, which needs a custom `mice` method rather than `post` post-processing.
-Shipping a silently wrong additive shift is worse than shipping a clear refusal.
+**Rationale.** The additive shift is only meaningful on a continuous scale: for
+a binary mediator, imputations are 0/1 and `imp + 1.5` yields 1.5/2.5 — not a
+probability, not a category. The v1 refusal stands because the correct
+construction needs a **custom `mice` imputation method** carrying an offset,
+which `post` post-processing cannot express: `post` sees the drawn values, not
+the linear predictor.
 
-> ⚠ **Confirm:** this leaves binary mediators — plausibly a common case — without
-> MNAR sensitivity in v1. The alternative is to implement the link-scale offset
-> now, which is a custom imputation method and roughly doubles this phase.
+**Revised after the literature scan.** The original draft of this decision
+implied no settled parameterization existed for categorical targets. That was
+wrong. Resseguier et al. (2011, *Epidemiology*) state the convention: for
+continuous variables the sensitivity parameter is the **difference in expected
+values** (our delta); for binary or categorical variables it is the **odds
+ratio** comparing the odds of the modality of interest among those with a
+missing value to the odds among those without. So D4 is an **effort deferral
+with a known target design**, not an open question — and the error message must
+say "not yet implemented", never anything implying the case is ill-defined.
+
+Two implementation routes for v2: a custom `mice` method carrying the offset, or
+the Heckman-based MICE imputation models of Galimard et al. (2018), which handle
+MNAR binary outcomes directly.
 
 ### D5 — IPW: error with guidance
 
@@ -191,6 +217,31 @@ user who omitted a seed.
 
 ---
 
+### 3.5 Stated limitation: substantive-model compatibility
+
+Zhang et al. (2024) show a **naive NARFCS implementation is biased** when the
+imputation model is incompatible with the substantive model — i.e. when the
+imputation model does not reflect the analysis model's structure, interactions
+included.
+
+This applies here. The substantive model is a mediation system (`M ~ X + C`,
+`Y ~ X + M + C`), while the `mids` arrives **pre-built by the user** and
+missingmed cannot verify how it was specified. If the imputation of `M` is
+incompatible with the `Y` model consuming it, the resulting curve confounds two
+effects: departure from MAR, and imputation-model misspecification.
+
+Delta adjustment does not cause this, but it **inherits** it. Therefore:
+
+- `print()` on `MDSensitivityResult` states that the curve assumes the supplied
+  imputation model is compatible with the mediation model.
+- The vignette names `smcfcs` (substantive-model-compatible FCS) as the upstream
+  fix, and NAR-SMCFCS as the compatible-sensitivity method.
+- Integrating either is **v2**, not v1.
+
+Not detectable from our side, so it is documented rather than checked.
+
+---
+
 ## 4. Acceptance criteria
 
 1. `delta = 0` reproduces the MAR analysis, per the §3.4 distinction.
@@ -204,12 +255,40 @@ user who omitted a seed.
 
 ---
 
+### 4.5 Documentation requirements (not optional)
+
+1. **Never present a rung as "the MNAR estimate."** Every rung is conditional on
+   its delta.
+2. **Give the user a way to choose delta.** Three defensible routes: expert
+   elicitation with pooled elicited distributions (Rezvan et al. 2018), a range
+   benchmarked against an observed effect size, or a **tipping-point**
+   presentation — report the delta at which the conclusion changes, which avoids
+   having to defend any single value. `summary()` should make the tipping point
+   easy to read off.
+3. **State the pattern-mixture reading** (§1) so delta is interpretable.
+4. **Distinguish this from confounder sensitivity.** `sensitivity_mnar()` probes
+   the **MAR** assumption. CAMSA (Tofighi 2021) probes the **no-omitted-
+   confounder** assumption. Both underlie the same estimate, and an analysis can
+   be robust to one and fragile to the other, so the docs must not let a reader
+   assume "the sensitivity analysis" covers both.
+
+---
+
 ## 5. Out of scope
 
 - Point identification under MNAR.
 - Selection-model or pattern-mixture estimation beyond delta adjustment.
 - A weighting-based MNAR sensitivity for IPW (D5).
-- Link-scale offsets for categorical targets (D4) — the first candidate for v2.
+- Link-scale offsets for categorical targets (D4) — the first candidate for v2,
+  with the design already fixed (odds-ratio-scaled delta).
+- Covariate-varying delta (Leacy et al.'s second flavor: delta differing by an
+  observed auxiliary variable). The `post` mechanism extends to it naturally;
+  v1 keeps delta constant across all missing values of a target.
+- **Identification** under MNAR, as distinct from sensitivity to it — Zuo et al.
+  (2022, JASA) for mediator-and-outcome MNAR, Li et al. (2017) for missing
+  outcomes, Shan et al. (2024) for shadow variables. These buy point
+  identification with untestable assumptions of their own; a different product,
+  not a better version of this one.
 - `medrobust` reuse. Scope-spec Open Q1 asked whether its bounds machinery
   transfers; it addresses misclassification, not missingness, and the sensitivity
   parameter has no shared meaning. **Open Q1 is hereby answered: no reuse.**
