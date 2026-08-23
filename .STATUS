@@ -3,12 +3,23 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-08-22
-next: MNAR sensitivity — the only unstarted phase; needs a design spec first
-  (delta-adjusted imputation, sensitivity_mnar() verb, result class). GLM phase is
-  DONE on feature/glm-phase (unmerged). Manuscript runs on medsim, not missingmed.
+next: MERGE DECISION — all roadmap phases are implemented; three branches are
+  pushed and unmerged (see worktrees:). Nothing is blocked on code. After merging,
+  the v2 candidates are named in SPEC-mnar-sensitivity-2026-08-22.md 5: NARFCS
+  delegation (makes categorical targets free), CSP calibration, covariate-varying
+  delta. Manuscript runs on medsim, not missingmed.
 type: r
-worktrees: ~/.git-worktrees/missingmed/feature-glm-phase (branch feature/glm-phase,
-  pushed, UNMERGED — 3 commits: GLM tests+docs, tidyselect fixes, roxygen2 8.0.0).
+worktrees:
+  ~/.git-worktrees/missingmed/feature-glm-phase — feature/glm-phase, pushed,
+    UNMERGED, 3 commits: GLM family tests + link-scale docs, tidyselect fixes,
+    roxygen2 8.0.0. 103 tests, R CMD check OK.
+  ~/.git-worktrees/missingmed/feature-mnar-sensitivity — feature/mnar-sensitivity,
+    pushed, UNMERGED, 6 commits: SPEC + research note + sensitivity_mnar()
+    implementation + vignette. 98 tests, R CMD check OK.
+  NB both branches carry the SAME roxygen2 8.0.0 bump to DESCRIPTION + man/;
+    identical content, so whichever merges second shows no diff there.
+  ~/.herdr/worktrees/missingmed/fix-minibook — branch fix-minibook @ 240544e.
+    NOT created by this work; left untouched, owner unknown.
 
 # missingmed — Missing-data causal mediation (R package, mediationverse)
 # Scope decided 2026-06-04 (Data-Wise/missingmed#1): general CRAN-targeted toolkit —
@@ -46,6 +57,26 @@ worktrees: ~/.git-worktrees/missingmed/feature-glm-phase (branch feature/glm-pha
   Worse than "no data": it took max() over every N% in the prose, so every package
   was reported with a WRONG progress figure. FIXED on rforge
   feature/status-frontmatter (cf3182d, pushed, UNMERGED) — 599 pass / 2 skip.
+- 2026-08-22 (branch, UNMERGED): feature/mnar-sensitivity — MNAR phase COMPLETE,
+  M1–M6. sensitivity_mnar() + MDSensitivityResult: delta-adjusted imputation over
+  a grid, re-running the pipeline per rung to give a sensitivity CURVE (not an
+  estimator — MAR vs MNAR is untestable, so no rung is "the MNAR estimate").
+  98 tests / 0 fail, R CMD check Status OK. Design record:
+  docs/specs/SPEC-mnar-sensitivity-2026-08-22.md +
+  docs/research/RESEARCH-mnar-mechanisms-2026-08-22.md.
+  Key design facts worth not re-deriving:
+    * delta is a CONDITIONAL sensitivity parameter (CSP); what analysts elicit is
+      MARGINAL. Confusing them cost coverage 95% -> 49.3% in Tompsett et al.
+      (2018). tidy() therefore reports the realized msp beside the supplied delta.
+    * Re-imputation rebuilds from the mids' STORED SLOTS, never mids$call, which
+      does not resolve outside the function that built the mids.
+    * mechanism = "mnar" on set_md_mediation() is now DEPRECATED + ignored; it
+      never changed behavior. Only sensitivity_mnar() stamps it.
+    * v1 uses mice's `post`; the NARFCS mice extension (moreno-betancur/NARFCS)
+      is the v2 direction but is GitHub-only, and delegating loses the delta = 0
+      identity (NARFCS also conditions on other variables' missingness).
+  Literature is curated in Zotero ("MNAR sensitivity — missingmed", 14 items) and
+  in a NotebookLM notebook (13 full-text sources).
 - 2026-07-19: .Rbuildignore the .remember/ session-memory dir (5946b3f).
 - 2026-07-16: .STATUS gained `kind: package` (ecosystem convention).
 
