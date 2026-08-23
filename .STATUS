@@ -16,8 +16,10 @@ type: r
 - 2026-08-22: currency pass. Tree clean, dev == origin/dev @ 5946b3f; README +
   CLAUDE.md verified current vs v0.2.0. Companions have moved locally: medfit 0.3.2,
   RMediation 1.7.0 — DESCRIPTION floors (>=0.3.1 / >=1.4.0) still hold, but RMediation
-  is 3 minors ahead, so audit its API before the next release. Open cleanup:
-  ORCHESTRATE-s7-migration.md is still tracked on dev (merge-cleanup rule says remove).
+  is 3 minors ahead, so audit its API before the next release. Removed the stale
+  ORCHESTRATE-s7-migration.md working artifact (merge-cleanup rule; in git history).
+  Note: /rforge:status cannot read this file — its parser keys on emoji section
+  headers (🎯 📊 ✅ 📋 ⏰), this file uses `key: value` + `##` markdown.
 - 2026-07-19: .Rbuildignore the .remember/ session-memory dir (5946b3f).
 - 2026-07-16: .STATUS gained `kind: package` (ecosystem convention).
 
