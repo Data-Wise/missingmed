@@ -5,6 +5,7 @@
 ^\.github$
 ^\.claude$
 ^\.remember$
+^\.token-optimizer$
 ^LICENSE\.md$
 ^README\.Rmd$
 ^\.git$

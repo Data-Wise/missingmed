@@ -21,6 +21,8 @@ type: r
   of an error. New regression test pins that (test-s7-pipeline.R).
   Evidence: 73 pass / 0 fail / 0 skip vs RMediation 1.7.0, medfit 0.3.2, R 4.6.1.
   NB the installed library was 1.6.1 until this session; 1.7.0 now installed.
+  R CMD check --as-cran: Status OK (0E/0W/0N) after .Rbuildignore'ing the
+  .token-optimizer dir, which had produced a hidden-files NOTE.
 - 2026-08-22 (docs): follow-up plan for the remaining two items (rforge .STATUS
   parser, GLM then MNAR phases) -> docs/specs/PLAN-post-v0.2.0-followups-2026-08-22.md.
   Headline: GLM is already plumbed end-to-end (medfit's default engine IS glm), so
