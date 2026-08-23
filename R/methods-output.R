@@ -57,3 +57,74 @@ S7::method(summary, MDMediationResult) <- function(object, ...) {
 S7::method(tidy, MDMediationResult) <- function(x, ...) {
   tibble::as_tibble(x@tidy_table)
 }
+
+# print(<MDSensitivityResult>)
+S7::method(print, MDSensitivityResult) <- function(x, ...) {
+  cat("<MDSensitivityResult>  MNAR sensitivity curve\n")
+  cat("  target(s):", paste(x@target, collapse = ", "),
+    "| rungs:", nrow(x@grid), "| inference:", x@type, "\n"
+  )
+  cat("  seed:", x@seed, paste0("(from ", x@seed_source, ")"),
+    "| target imputed by:", x@method_target, "\n"
+  )
+  tb <- tidy(x)
+  print(utils::head(tb, 10L), row.names = FALSE)
+  if (nrow(tb) > 10L) cat("  ...", nrow(tb) - 10L, "more rung(s)\n")
+  cat("\n  delta is a CONDITIONAL sensitivity parameter; `msp` is the marginal\n")
+  cat("  difference actually realized. Compare msp against what you intended.\n")
+  cat("  Assumes the supplied imputation model is compatible with the\n")
+  cat("  mediation model; this is not verifiable from here.\n")
+  invisible(x)
+}
+
+# summary(<MDSensitivityResult>) -- adds the tipping point
+S7::method(summary, MDSensitivityResult) <- function(object, ...) {
+  tb <- tidy(object)
+  tp <- NULL
+  if (all(c("conf_low", "conf_high") %in% names(tb))) {
+    excl <- tb$conf_low > 0 | tb$conf_high < 0
+    if (any(excl) && any(!excl)) {
+      first_null <- which(!excl)[1L]
+      tp <- tb[first_null, , drop = FALSE]
+    }
+  }
+  structure(
+    list(table = tb, tipping = tp, target = object@target, type = object@type),
+    class = "summary.MDSensitivityResult"
+  )
+}
+
+#' @exportS3Method base::print
+print.summary.MDSensitivityResult <- function(x, ...) {
+  cat("MNAR sensitivity curve --", x$type, "| target:",
+    paste(x$target, collapse = ", "), "\n\n"
+  )
+  print(x$table, row.names = FALSE)
+  if (is.null(x$tipping)) {
+    cat("\nNo tipping point within the supplied grid.\n")
+  } else {
+    d <- x$tipping[[1L]]
+    cat("\nTipping point: the interval first includes 0 at delta =", d,
+      "(realized msp =", round(x$tipping$msp, 4), ").\n"
+    )
+    cat("A CSP-scale tipping point has no direct clinical reading -- judge\n")
+    cat("plausibility on the realized msp, and only call the result fragile if\n")
+    cat("that departure from MAR is itself plausible.\n")
+  }
+  invisible(x)
+}
+
+# tidy(<MDSensitivityResult>) -- one row per rung
+S7::method(tidy, MDSensitivityResult) <- function(x, ...) {
+  base <- x@grid
+  base$msp <- x@msp
+  if (identical(x@type, "mc")) {
+    base$estimate <- vapply(x@rungs, function(r) as.numeric(r$Estimate)[1], numeric(1))
+    base$conf_low <- vapply(x@rungs, function(r) as.numeric(r$CI)[1], numeric(1))
+    base$conf_high <- vapply(x@rungs, function(r) as.numeric(r$CI)[2], numeric(1))
+  } else {
+    base$D4 <- vapply(x@rungs, function(r) unname(r[["D4"]]), numeric(1))
+    base$p_value <- vapply(x@rungs, function(r) unname(r[["p"]]), numeric(1))
+  }
+  tibble::as_tibble(base)
+}

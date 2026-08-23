@@ -42,7 +42,10 @@ models. Default \code{stats::gaussian()}.}
 
 \item{method}{Estimator axis: \code{"mi"} (default) or \code{"ipw"}.}
 
-\item{mechanism}{Assumed missing-data mechanism: \code{"mar"} (default) or \code{"mnar"}.}
+\item{mechanism}{\strong{Deprecated.} The pipeline estimates under MAR regardless,
+so this argument never changed behavior. Passing \code{"mnar"} warns and is
+ignored. Use \code{\link[=sensitivity_mnar]{sensitivity_mnar()}} to assess departures from MAR; it sets
+\code{mechanism = "mnar"} on the objects it creates.}
 
 \item{weight_formula}{(IPW) Missingness model: \code{NULL} (default; all observed
 predictors), a single \code{formula}, or a named \code{list} of per-variable formulas.}
