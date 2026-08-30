@@ -12,7 +12,9 @@ gen_mbco <- function(n = 800, seed = 5, interaction = FALSE) {
   data.frame(X = X, M = M, Y = Y + rnorm(n), C = C)
 }
 Tstat <- function(d, fy, fm) {
-  missingmed:::.mm_mbco_T(d, fy, fm, stats::gaussian(), stats::gaussian(), "X", "M")
+  unname(missingmed:::.mm_mbco_T(
+    d, fy, fm, stats::gaussian(), stats::gaussian(), "X", "M"
+  )[["T"]])
 }
 
 test_that(".mm_drop_path removes every term carrying the variable", {
@@ -77,4 +79,39 @@ test_that("T does not depend on the outcome model when the a-branch wins", {
   t1 <- Tstat(d, Y ~ X + M + C, M ~ X + C)
   t2 <- Tstat(d, Y ~ X + M + C + I(C^2), M ~ X + C)
   expect_equal(t1, t2, tolerance = 1e-8)
+})
+
+# ── PR #9 review findings ───────────────────────────────────────────────────
+
+test_that(".mm_drop_path preserves response transformation, intercept and offset", {
+  dp <- function(f, v) paste(deparse(missingmed:::.mm_drop_path(f, v)), collapse = "")
+  # Rebuilding from term.labels alone turned log(Y) ~ . into Y ~ ., so llF and
+  # llC were computed on different scales -- 2*(llF - llC) was not an LRT.
+  expect_equal(dp(log(Y) ~ X + M, "M"), "log(Y) ~ X")
+  expect_equal(dp(cbind(s, f) ~ X + M, "M"), "cbind(s, f) ~ X")
+  expect_match(dp(Y ~ 0 + X + M, "M"), "- 1$")
+  expect_match(dp(Y ~ X + M + offset(o), "M"), "offset\\(o\\)")
+  expect_match(dp(Y ~ M + offset(o), "M"), "offset\\(o\\)")
+  expect_equal(dp(Y ~ M, "M"), "Y ~ 1")
+})
+
+test_that("k reflects the parameters the winning branch removes", {
+  d <- gen_mbco()
+  # plain spec: one parameter, so k = 1 and nothing about the old behavior moves
+  expect_equal(unname(missingmed:::.mm_mbco_T(
+    d, Y ~ X + M + C, M ~ X + C, stats::gaussian(), stats::gaussian(), "X", "M"
+  )[["k"]]), 1)
+  # dropping M from Y ~ X*M + C removes M and X:M
+  expect_equal(missingmed:::.mm_drop_df(Y ~ X * M + C, "M", d), 2)
+  expect_equal(missingmed:::.mm_drop_df(Y ~ poly(M, 2) + X, "M", d), 2)
+  expect_equal(missingmed:::.mm_drop_df(M ~ X * C, "X", d), 2)
+})
+
+test_that("D4 pooling refuses m = 1 instead of returning NaN", {
+  d <- gen_mbco()
+  expect_error(
+    missingmed:::.mm_d4_mbco(list(d), Y ~ X + M + C, M ~ X + C,
+      stats::gaussian(), stats::gaussian(), "X", "M"),
+    "at least 2 imputations"
+  )
 })

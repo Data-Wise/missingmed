@@ -107,11 +107,17 @@ S7::method(summary, MDSensitivityResult) <- function(object, ...) {
 # defined ordering too; for a single column it reduces to abs(delta).
 .mnar_tipping <- function(object, tb) {
   keep <- .mnar_null_retained(object, tb)
-  if (is.null(keep) || !any(keep) || all(keep)) return(NULL)
+  if (is.null(keep) || !any(keep)) return(NULL)
   dist <- sqrt(rowSums(as.matrix(object@grid)^2))
-  # If the null is already retained at MAR itself there is no tipping point to
-  # find: the analysis is null before any departure is assumed.
+  # The null already retained at MAR itself: nothing tips, the analysis is null
+  # before any departure is assumed.
   if (any(dist == 0 & keep)) return(NULL)
+  # NB `all(keep)` is deliberately NOT treated as "no tipping point". When the
+  # grid contains no MAR rung and every rung retains the null, the conclusion
+  # flips at or below the smallest departure supplied -- reporting "none found"
+  # there is false reassurance in exactly the direction a sensitivity analysis
+  # exists to prevent. Report the smallest, and let the caller see it sits at
+  # the edge of the grid.
   cand <- which(keep)
   tb[cand[which.min(dist[cand])], , drop = FALSE]
 }

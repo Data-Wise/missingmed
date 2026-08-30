@@ -20,11 +20,38 @@
 # catalog of term shapes is needed. See
 # docs/specs/SPEC-mbco-constrained-models-2026-08-30.md.
 .mm_drop_path <- function(formula, var) {
-  tl <- attr(stats::terms(formula), "term.labels")
-  keep <- tl[!vapply(tl, function(t) var %in% all.vars(str2lang(t)), logical(1))]
-  stats::reformulate(if (length(keep)) keep else "1",
-    response = all.vars(formula)[1]
-  )
+  tt <- stats::terms(formula)
+  tl <- attr(tt, "term.labels")
+  idx <- which(vapply(tl, function(t) var %in% all.vars(str2lang(t)), logical(1)))
+  if (!length(idx)) {
+    return(formula)
+  }
+  # Dropping every term: drop.terms() cannot express an empty RHS, so rebuild
+  # the intercept/offset-only model by hand.
+  if (length(idx) == length(tl)) {
+    rhs <- if (identical(attr(tt, "intercept"), 1L)) "1" else "0"
+    off <- attr(tt, "offset")
+    if (length(off)) {
+      rhs <- paste(c(rhs, as.character(attr(tt, "variables"))[off + 1L]),
+        collapse = " + "
+      )
+    }
+    return(stats::reformulate(rhs, response = formula[[2]]))
+  }
+  # drop.terms() carries the response EXPRESSION, the intercept flag and any
+  # offset() through. Rebuilding from term.labels alone (via reformulate with
+  # all.vars(formula)[1]) silently turned `log(Y) ~ .` into `Y ~ .`, so llF and
+  # llC were computed on different scales and 2*(llF - llC) was not a
+  # likelihood ratio at all; it also regained a suppressed intercept and
+  # dropped offsets.
+  stats::formula(stats::drop.terms(tt, idx, keep.response = TRUE))
+}
+
+# How many parameters does nulling `var` remove from `formula`? This is the
+# degrees of freedom of the corresponding branch of the constraint.
+.mm_drop_df <- function(formula, var, data) {
+  full <- ncol(stats::model.matrix(formula, data = data))
+  full - ncol(stats::model.matrix(.mm_drop_path(formula, var), data = data))
 }
 
 # RULING (2026-08-30, author): when the outcome model contains a
@@ -60,11 +87,20 @@
   # That is correct, not a bug -- but a user who edits the outcome model and
   # sees T unmoved will suspect one.
   llF <- .mm_ll_med(d, formula_y, formula_m, family_y, family_m, treatment, mediator)
-  llC <- max(
-    .mm_ll_med(d, formula_y, formula_m, family_y, family_m, treatment, mediator, drop_a = TRUE),
-    .mm_ll_med(d, formula_y, formula_m, family_y, family_m, treatment, mediator, drop_b = TRUE)
-  )
-  2 * (llF - llC)
+  ll_a <- .mm_ll_med(d, formula_y, formula_m, family_y, family_m, treatment, mediator, drop_a = TRUE)
+  ll_b <- .mm_ll_med(d, formula_y, formula_m, family_y, family_m, treatment, mediator, drop_b = TRUE)
+  a_wins <- ll_a >= ll_b
+  # The df of the statistic is the number of parameters the WINNING branch
+  # removes -- 1 in the plain specification, but more once the target appears in
+  # an interaction or a nonlinear term, since nulling the path now removes all
+  # of them. Hard-coding k = 1 would refer a multi-parameter constraint to
+  # F(1, nu). See SPEC-mbco-constrained-models-2026-08-30.md.
+  k <- if (a_wins) {
+    .mm_drop_df(formula_m, treatment, d)
+  } else {
+    .mm_drop_df(formula_y, mediator, d)
+  }
+  c(T = 2 * (llF - max(ll_a, ll_b)), k = k)
 }
 
 # D4 pooling of a likelihood-ratio statistic (Chan & Meng 2022; Grund et al.
@@ -87,10 +123,32 @@
 .mm_d4_mbco <- function(implist, formula_y, formula_m, family_y, family_m,
                         treatment, mediator) {
   K <- length(implist)
-  d_k <- vapply(implist, function(d) {
+  if (K < 2) {
+    stop("D4 pooling of the MBCO statistic needs at least 2 imputations; the ",
+      "supplied object has ", K, ". Re-impute with m >= 2.",
+      call. = FALSE
+    )
+  }
+  per <- vapply(implist, function(d) {
     .mm_mbco_T(d, formula_y, formula_m, family_y, family_m, treatment, mediator)
-  }, numeric(1))
+  }, numeric(2))
+  d_k <- per["T", ]
   stacked <- do.call(rbind, implist)
-  d_S <- .mm_mbco_T(stacked, formula_y, formula_m, family_y, family_m, treatment, mediator) / K
-  .mm_d4_from_stats(d_k, d_S, k = 1)
+  st <- .mm_mbco_T(stacked, formula_y, formula_m, family_y, family_m, treatment, mediator)
+  d_S <- unname(st[["T"]]) / K
+  # D4 assumes one k for the whole pooling. The branch is data-dependent, so if
+  # imputations disagree about which one wins -- and therefore about how many
+  # parameters the constraint removes -- there is no single k and pooling is not
+  # defined. Refuse rather than pick one.
+  ks <- unique(c(per["k", ], st[["k"]]))
+  if (length(ks) > 1L) {
+    stop("The MBCO constraint removes a different number of parameters in ",
+      "different imputations (", paste(sort(ks), collapse = " vs "), "), so the ",
+      "D4 reference distribution is not well defined. This happens when the ",
+      "winning branch of `max(a = 0, b = 0)` differs across imputations and the ",
+      "two paths carry different numbers of terms.",
+      call. = FALSE
+    )
+  }
+  .mm_d4_from_stats(d_k, d_S, k = ks[[1L]])
 }
