@@ -26,7 +26,10 @@ pool(object, ...)
 
   An
   [MDMediationFit](https://data-wise.github.io/missingmed/reference/MDMediationFit.md)
-  object.
+  object. Anything else (a
+  [`mice::mira`](https://amices.org/mice/reference/mira.html), say) is
+  forwarded to
+  [`mice::pool()`](https://amices.org/mice/reference/pool.html).
 
 - ...:
 

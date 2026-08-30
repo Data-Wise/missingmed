@@ -1,6 +1,6 @@
 # Changelog
 
-## missingmed (development version)
+## missingmed 0.3.0
 
 - New
   [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/reference/sensitivity_mnar.md)
@@ -125,7 +125,7 @@ New S7 classes: `MDMediationData`, `MDMediationFit`,
   [`run_sem()`](https://data-wise.github.io/missingmed/reference/run_sem.md),
   [`pool_sem()`](https://data-wise.github.io/missingmed/reference/pool_sem.md),
   and the `SemImputedData` / `SemResults` / `PooledSEMResults` classes)
-  is **deprecated** in favour of the S7 pipeline above. The shims emit a
+  is **deprecated** in favor of the S7 pipeline above. The shims emit a
   [`.Deprecated()`](https://rdrr.io/r/base/Deprecated.html) warning and
   will be removed in a future release.
 

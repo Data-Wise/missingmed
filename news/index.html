@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.0" id="missingmed-030">missingmed 0.3.0<a class="anchor" aria-label="anchor" href="#missingmed-030"></a></h2>
 <ul><li><p>New <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> and <code>MDSensitivityResult</code>: MNAR sensitivity analysis by delta-adjusted imputation. Re-imputes across a grid of delta values and re-runs the pipeline at each rung, producing a sensitivity <strong>curve</strong> for the indirect effect. It is not an estimator – MAR versus MNAR is not testable from observed data, so no rung is “the MNAR estimate”.</p></li>
 <li><p><code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> reports the <strong>realized marginal sensitivity parameter</strong> (<code>msp</code>) alongside the supplied <code>delta</code>. <code>delta</code> is a <em>conditional</em> sensitivity parameter; the quantity analysts can actually reason about is <em>marginal</em>, and supplying one for the other is the standard failure mode of this method (Tompsett et al. 2018). The two coincide only when a single variable is incomplete; with more, the shift feeds back through the chained equations.</p></li>
 <li><p>Documented refusals: IPW (no imputations to shift), categorical targets (the correct construction offsets the imputation model’s linear predictor, with delta on the odds-ratio scale – not yet implemented), and targets with no missing values.</p></li>
@@ -86,7 +86,7 @@
 </ul></div>
 <div class="section level3">
 <h3 id="deprecations-0-2-0">Deprecations<a class="anchor" aria-label="anchor" href="#deprecations-0-2-0"></a></h3>
-<ul><li>The S4 API (<code><a href="../reference/set_sem.html">set_sem()</a></code>, <code><a href="../reference/run_sem.html">run_sem()</a></code>, <code><a href="../reference/pool_sem.html">pool_sem()</a></code>, and the <code>SemImputedData</code> / <code>SemResults</code> / <code>PooledSEMResults</code> classes) is <strong>deprecated</strong> in favour of the S7 pipeline above. The shims emit a <code><a href="https://rdrr.io/r/base/Deprecated.html" class="external-link">.Deprecated()</a></code> warning and will be removed in a future release.</li>
+<ul><li>The S4 API (<code><a href="../reference/set_sem.html">set_sem()</a></code>, <code><a href="../reference/run_sem.html">run_sem()</a></code>, <code><a href="../reference/pool_sem.html">pool_sem()</a></code>, and the <code>SemImputedData</code> / <code>SemResults</code> / <code>PooledSEMResults</code> classes) is <strong>deprecated</strong> in favor of the S7 pipeline above. The shims emit a <code><a href="https://rdrr.io/r/base/Deprecated.html" class="external-link">.Deprecated()</a></code> warning and will be removed in a future release.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="dependencies-0-2-0">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies-0-2-0"></a></h3>
