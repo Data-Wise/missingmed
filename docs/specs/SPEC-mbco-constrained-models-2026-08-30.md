@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | draft — **§4 needs the author's ruling before implementation** |
+| **Status** | **IMPLEMENTED 2026-08-30** — §4 shipped as reading (iii) (refuse); the ruling is still open |
 | **Created** | 2026-08-30 |
 | **Source** | adversarial `/code-review high main..dev`, finding 3; parked in `PLAN-pre-v0.3.0-review-fixes-2026-08-29.md` |
 | **Affects** | `R/mbco_mi.R:17-18` (`.mm_ll_med`) |
@@ -137,6 +137,29 @@ fit, the weights. Today that is masked because `infer(type = "mbco")` errors on
 IPW fits by design, and the MI path is glm-only — so it is latent, not live.
 Fix it in the same pass or record it as a known limitation; do not leave it
 undocumented.
+
+## 6a. What was actually implemented (2026-08-30)
+
+`.mm_drop_path()` replaces both `update()` calls; `.mm_check_no_xm_interaction()`
+guards `.mm_mbco_T()`. §4 shipped as the **recommended reading (iii)**: a
+treatment-by-mediator interaction in the outcome model errors, naming the reason
+and pointing at `infer(type = "mc")`. A mediator-by-covariate interaction
+(`Y ~ X + M * C`) is *not* ambiguous and still runs.
+
+**The §4 ruling remains open.** If the author confirms reading (i) — that MBCO's
+null means "M has no effect on Y at all" — delete the
+`.mm_check_no_xm_interaction()` call at the top of `.mm_mbco_T()`; `.mm_drop_path()`
+already implements (i) correctly, and the tests for it are written.
+
+§6's `stats::glm()` limitation was **recorded as a comment**, not fixed: it is
+latent (`infer(type = "mbco")` errors on IPW fits by design, and the MI path is
+glm-only).
+
+Evidence: 18 new tests in `tests/testthat/test-mbco-constrained.R`; 4 of the 6
+`test_that` blocks fail on the pre-fix source and pass after, while the parity
+gate and the §5 cancellation test pass in both states — which is the correct
+signature for a fix that changes only the broken shapes. Suite 166 pass / 0 fail
+(was 148). `R CMD check --as-cran` 0/0/0.
 
 ## 7. Acceptance criteria
 

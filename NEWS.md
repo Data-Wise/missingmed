@@ -1,3 +1,34 @@
+# missingmed (development version)
+
+## Bug fixes
+
+* **MBCO's constrained models did not null the whole path.** The constraint was
+  imposed with `update(. ~ . - M)`, which removes only the term labelled exactly
+  `M`; every other term carrying the mediator survived. `Y ~ X * M + C` kept
+  `X:M`, and `Y ~ poly(M, 2) + X` was left **completely unchanged** -- so the
+  "constrained" model equalled the full model, the statistic was exactly 0, and
+  the test could never reject, at any sample size, with no error or warning.
+  The constraint now drops every term whose variables include the target, which
+  covers `poly(M, 2)`, `I(M^2)`, `log(M)`, splines and interactions alike.
+
+  The effect was **conservative** -- an inflated constrained log-likelihood
+  makes the statistic too small, so the test lost power. It did not produce
+  false positives.
+
+  Results for the plain `Y ~ X + M + C` / `M ~ X + C` specification are
+  **unchanged to the digit**, so no previously reported analysis of that shape
+  is affected.
+
+* `infer(type = "mbco")` now **errors** when the outcome model contains a
+  treatment-by-mediator interaction. With that interaction the indirect effect
+  is not `a * b` -- the natural indirect effect involves the interaction term
+  too -- so the null `a * b = 0` has no single meaning, and MBCO as published
+  (Tofighi & Kelley, 2020) is stated for the no-interaction case. Refusing is
+  deliberate: nulling the mediator's main effect alone would leave mediation
+  running through the interaction, and report a number for a hypothesis nobody
+  chose. Use `infer(type = "mc")`, or a model without the interaction. See
+  `docs/specs/SPEC-mbco-constrained-models-2026-08-30.md`.
+
 # missingmed 0.3.0
 
 * New `sensitivity_mnar()` and `MDSensitivityResult`: MNAR sensitivity analysis
