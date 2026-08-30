@@ -1,3 +1,69 @@
+# missingmed 0.3.1
+
+## Bug fixes
+
+* **MBCO's constrained models did not null the whole path.** The constraint was
+  imposed with `update(. ~ . - M)`, which removes only the term labelled exactly
+  `M`; every other term carrying the mediator survived. `Y ~ X * M + C` kept
+  `X:M`, and `Y ~ poly(M, 2) + X` was left **completely unchanged** -- so the
+  "constrained" model equalled the full model, the statistic was exactly 0, and
+  the test could never reject, at any sample size, with no error or warning.
+  The constraint now drops every term whose variables include the target, which
+  covers `poly(M, 2)`, `I(M^2)`, `log(M)`, splines and interactions alike.
+
+  The effect was **conservative** -- an inflated constrained log-likelihood
+  makes the statistic too small, so the test lost power. It did not produce
+  false positives.
+
+  Results for the plain `Y ~ X + M + C` / `M ~ X + C` specification are
+  **unchanged to the digit**, so no previously reported analysis of that shape
+  is affected.
+
+* **MBCO's constrained models kept the response transformation, the intercept
+  and any offset.** The constrained formula was rebuilt from term labels alone,
+  which silently turned `log(Y) ~ .` into `Y ~ .` -- so the full and constrained
+  log-likelihoods were computed on different scales and `2 * (llF - llC)` was
+  not a likelihood ratio at all. On simulated data it produced `T = 813.76`,
+  `p = 1.3e-32`, rejecting regardless of whether mediation existed; with the
+  scale reversed it went negative and never rejected. A suppressed intercept
+  (`Y ~ 0 + X + M`) was silently regained and `offset()` terms were dropped.
+  Constrained models are now built with `stats::drop.terms()`, which carries all
+  three through.
+
+* **The MBCO statistic is now referred to the right degrees of freedom.** `k`
+  was hard-coded to 1, which was correct only while the constraint removed a
+  single parameter. Since the constraint now nulls the whole path, an
+  interaction or a nonlinear term removes more, and the statistic was being
+  referred to `F(1, nu)` regardless. `k` is now the number of parameters the
+  winning branch actually removes. Pooling refuses, rather than guessing, when
+  imputations disagree about that number -- the branch is data-dependent, and
+  D4 assumes one `k`.
+
+* `infer(type = "mbco")` on a single imputation returned a vector of `NaN`
+  rather than an error. D4 pooling needs `m >= 2`; it now says so.
+
+* `summary()` of a sensitivity curve no longer reports "no tipping point" when
+  *every* rung tips. With a grid containing no MAR rung, that was false
+  reassurance in exactly the direction a sensitivity analysis exists to prevent.
+
+* `set_md_mediation(conf_level = NA)` failed with `missing value where
+  TRUE/FALSE needed` instead of naming the argument -- the guard added to the
+  fit and result classes had not been added to the entry-point class.
+
+* **What MBCO's null means under a treatment-by-mediator interaction is now
+  stated explicitly.** With that interaction the indirect effect is not `a * b`
+  -- the natural indirect effect involves the interaction term too -- so the
+  null needs a reading. `missingmed` takes the null to be **"the mediator has
+  no effect on the outcome at all"**: the constrained outcome model drops the
+  mediator's main effect *and* every interaction carrying it. The alternative
+  (null the main effect only, leaving `X:M`) would let mediation run through
+  the interaction under a hypothesis asserting there is none.
+
+  Note that MBCO as published (Tofighi & Kelley, 2020) is stated for the
+  no-interaction case; this is the package's stated extension of it, not a
+  result from that paper. See
+  `docs/specs/SPEC-mbco-constrained-models-2026-08-30.md`.
+
 # missingmed 0.3.0
 
 * New `sensitivity_mnar()` and `MDSensitivityResult`: MNAR sensitivity analysis

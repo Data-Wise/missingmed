@@ -1,7 +1,7 @@
 Package: missingmed
 Type: Package
 Title: Mediation Analysis with Multiple Imputation for Missing Data
-Version: 0.3.0
+Version: 0.3.1
 Date: 2026-08-29
 Authors@R: person("Davood", "Tofighi",
         email = "dtofighi@gmail.com",

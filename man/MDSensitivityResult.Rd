@@ -10,6 +10,7 @@ MDSensitivityResult(
   msp = numeric(),
   target = character(0),
   type = "mc",
+  level = 0.95,
   seed = integer(0),
   seed_source = "argument",
   method_target = NA_character_,
@@ -27,6 +28,10 @@ rung, computed on the first target (\code{target[1]}).}
 \item{target}{Character; the shifted variable(s).}
 
 \item{type}{Inference type used for each rung (\code{"mc"} or \code{"mbco"}).}
+
+\item{level}{Numeric in (0, 1); the confidence level the rungs were built
+at. Needed by \code{summary()} to decide whether an \code{"mbco"} rung retains the
+null, since that test reports a p-value rather than an interval.}
 
 \item{seed}{Integer seed pinned across rungs.}
 

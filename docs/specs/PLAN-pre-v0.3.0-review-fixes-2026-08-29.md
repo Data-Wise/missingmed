@@ -98,10 +98,13 @@ Status: CONFIRMED.
 
 ## Parked (post-v0.3.0; open as issues, do not fix here)
 
-- `R/mbco_mi.R:17` — `. ~ . - M` leaves `X:M` in the constrained model; D4
-  anti-conservative under interactions. Refit hard-codes `glm`, ignores IPW weights
-  and `@engine`. Substantive; needs its own spec (the parity-with-prototype claim
-  must be re-derived).
+- `R/mbco_mi.R:17` — **SPEC WRITTEN 2026-08-30**: `SPEC-mbco-constrained-models-2026-08-30.md`.
+  Confirmed and worse than reported: `Y ~ poly(M, 2) + X` leaves the constrained model
+  *identical* to the full model, so T = 0 and the test can never reject. Direction is
+  **conservative** (power loss), not anti-conservative as the review said. Parity with
+  the research prototype does NOT need re-deriving — old and new agree to the digit on
+  the no-interaction case (79.7323). One open question for the author: what the null
+  means when an `X:M` interaction is present.
 - `R/infer.R:27` — `level = 0.95` ignores `object@conf_level`.
 - `R/pool.R:52` — no `p_value`/df/fmi in the tidy table; pooled object carries
   imputation-1 `data`/`sigma_m`/`sigma_y`.

@@ -72,6 +72,23 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
   pooled@a_path <- unname(Qbar[["a"]])
   pooled@b_path <- unname(Qbar[["b"]])
   pooled@c_prime <- unname(Qbar[["c_prime"]])
+  # Everything not overwritten above is still imputation 1's. Carrying one
+  # imputation's completed data and residual SDs on an object labelled "pooled"
+  # invites them to be read as pooled quantities, which they are not: with m = 3
+  # here, sigma_m differed by 2% across imputations. There is no single completed
+  # dataset for a pooled fit, and this package does not claim to pool nuisance
+  # parameters (averaging sigma-hat is not pooling sigma-hat-squared, and neither
+  # is the Rubin estimate), so carry nothing rather than something misread.
+  # NULL, not NA: medfit's validator does an unguarded `sigma_m < 0`, and its
+  # data/n_obs consistency check forbids a zero-row frame.
+  pooled@data <- NULL
+  pooled@sigma_m <- NULL
+  pooled@sigma_y <- NULL
+  # @n_obs is deliberately NOT blanked: mice::complete() returns full-n frames,
+  # so it is identical across imputations and imputation 1's value is correct.
+  pooled@converged <- all(vapply(
+    object@per_imputation, function(x) isTRUE(x@converged), logical(1)
+  ))
 
   # Pooled tidy table (diagonal variance components, Rubin)
   tidy_table <- data.frame(

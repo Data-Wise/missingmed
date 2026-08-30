@@ -11,7 +11,9 @@ infer(object, ...)
 \link{MDMediationResult} (supports \code{"mc"}).}
 
 \item{...}{Method arguments: \code{type} (inference type, \code{"mc"} (default) or
-\code{"mbco"}), \code{level} (confidence level for \code{"mc"}, default \code{0.95}), and \code{n.mc}
+\code{"mbco"}), \code{level} (confidence level for \code{"mc"}; defaults to the
+object's \verb{@conf_level}, itself \code{0.95} unless set in \code{\link[=set_md_mediation]{set_md_mediation()}}),
+and \code{n.mc}
 (Monte-Carlo draws for \code{"mc"}, default \code{1e5}).}
 }
 \value{

@@ -17,6 +17,9 @@
 #'   rung, computed on the first target (`target[1]`).
 #' @param target Character; the shifted variable(s).
 #' @param type Inference type used for each rung (`"mc"` or `"mbco"`).
+#' @param level Numeric in (0, 1); the confidence level the rungs were built
+#'   at. Needed by `summary()` to decide whether an `"mbco"` rung retains the
+#'   null, since that test reports a p-value rather than an interval.
 #' @param seed Integer seed pinned across rungs.
 #' @param seed_source `"mids"` if taken from the supplied `mids`, `"argument"` if
 #'   passed explicitly, `"default"` if neither was available.
@@ -36,6 +39,7 @@ MDSensitivityResult <- S7::new_class(
     msp = S7::new_property(S7::class_numeric, default = quote(numeric())),
     target = S7::class_character,
     type = S7::new_property(S7::class_character, default = "mc"),
+    level = S7::new_property(S7::class_numeric, default = 0.95),
     seed = S7::class_numeric,
     seed_source = S7::new_property(S7::class_character, default = "argument"),
     method_target = S7::new_property(S7::class_character, default = NA_character_),
