@@ -1,11 +1,11 @@
 Package: missingmed
 Type: Package
 Title: Mediation Analysis with Multiple Imputation for Missing Data
-Version: 0.2.0
-Date: 2026-06-11
+Version: 0.3.0
+Date: 2026-08-29
 Authors@R: person("Davood", "Tofighi",
         email = "dtofighi@gmail.com",
-        role = c("aut", "cre"),
+        role = c("aut", "cre", "cph"),
         comment= c(ORCID= "0000-0001-8523-7776")
         )
 Depends:
@@ -14,8 +14,8 @@ Depends:
 Imports:
     S7 (>= 0.2.0),
     medfit (>= 0.3.1),
-    RMediation (>= 1.4.0),
-    mice (>= 3.0.0),
+    RMediation (>= 1.5.0),
+    mice (>= 3.18.0),
     lavaan (>= 0.6-0),
     OpenMx (>= 2.13),
     dplyr (>= 1.0.0),
@@ -29,7 +29,9 @@ Suggests:
     rmarkdown,
     quarto,
     pkgdown
-VignetteBuilder: knitr
+VignetteBuilder: knitr, rmarkdown
+Language: en-US
+Config/testthat/edition: 3
 Remotes:
     data-wise/medfit,
     RMediation=data-wise/rmediation
@@ -43,6 +45,6 @@ Description: Provides S4 classes and methods for conducting mediation analysis w
 License: GPL-2
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, roclets = c("rd","collate","namespace"))
-RoxygenNote: 7.3.3
 URL: https://github.com/Data-Wise/missingmed, https://data-wise.github.io/missingmed/
 BugReports: https://github.com/Data-Wise/missingmed/issues
+Config/roxygen2/version: 8.0.0

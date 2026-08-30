@@ -12,7 +12,7 @@ run_sem(object, ...)
 \arguments{
 \item{object}{A \code{SemImputedData} object}
 
-\item{...}{Additional arguments passed to either \link[lavaan:sem]{lavaan::sem} or \link[OpenMx:MxModel-class]{OpenMx::MxModel}.}
+\item{...}{Additional arguments passed to either \link[lavaan:sem]{lavaan::sem} or \link[OpenMx:MxModel]{OpenMx::MxModel}.}
 }
 \value{
 A \link{SemResults} object
@@ -21,7 +21,7 @@ A \link{SemResults} object
 A generic function to run and analyze multiply imputed data sets.
 
 This method facilitates running SEM analysis using either lavaan or OpenMx
-on multiply imputed datasets contained within a \linkS4class{SemImputedData} object.
+on multiply imputed datasets contained within a \link[=SemImputedData-class]{SemImputedData} object.
 }
 \examples{
 \dontrun{

@@ -4,6 +4,8 @@
 ^\.Rproj\.user$
 ^\.github$
 ^\.claude$
+^\.remember$
+^\.token-optimizer$
 ^LICENSE\.md$
 ^README\.Rmd$
 ^\.git$
@@ -29,3 +31,8 @@
 ^pkgdown$
 ^data-raw$
 ^pkgdown-site$
+^tests/testthat/testthat-problems\.rds$
+^cran-comments\.md$
+^CLAUDE\.md$
+^MIGRATION_NOTES\.md$
+^README\.dev\.md$

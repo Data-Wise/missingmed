@@ -1,36 +1,136 @@
 status: active
 priority: --
-progress: 85
-next: Integrate feature/s7-migration (Phase 0 DONE, pushed) — then scope Phase 1
-  (IPW estimator / GLM models / MNAR; method/engine/mechanism axes already wired).
-  Do NOT suggest PR/merge unless asked.
+progress: 100
+kind: package
+updated: 2026-08-30
+next: RELEASE v0.3.0 — dev is 20 commits ahead of main, CI green at e424b8d,
+  rforge cran-prep reports STATUS ready with no blockers. Open the dev->main PR
+  (merge commit, not squash), merge, tag v0.3.0, cut the GitHub release; the
+  r-universe picks it up from there. After that the v0.4.0 candidate is
+  SPEC-narfcs-delegation-2026-08-29.md (routes categorical targets to mice's
+  mnar.logreg, keeps post for pmm). Manuscript runs on medsim, not missingmed.
 type: r
+worktrees:
+  ~/.git-worktrees/missingmed/feature-glm-phase — feature/glm-phase, MERGED as
+    PR #5 (24fffc3). Stale; left in place, not cleaned up.
+  ~/.git-worktrees/missingmed/feature-mnar-sensitivity — feature/mnar-sensitivity,
+    MERGED as PR #6 (b9ac0ce, squash). Remote branch deleted; local branch kept
+    because the worktree still holds it. Stale; left in place.
+  ~/.herdr/worktrees/missingmed/fix-minibook — branch fix-minibook @ 240544e.
+    NOT created by this work; left untouched, owner unknown.
 
 # missingmed — Missing-data causal mediation (R package, mediationverse)
 # Scope decided 2026-06-04 (Data-Wise/missingmed#1): general CRAN-targeted toolkit —
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
-## Integration order: medfit ↔ missingmed (r-universe builds DEFAULT branches)
-# The IPW path calls medfit::fit_mediation(weights=, se_type=), added on medfit
-# feature/fit-weights. r-universe rebuilds each repo's DEFAULT branch and resolves
-# medfit from the universe's own medfit build — so missingmed's universe build of the
-# new code FAILS until medfit main carries the patch. DO IN THIS ORDER:
-#   1. [done] medfit feature/fit-weights bumped to 0.3.1 (+ NEWS); this branch now
-#      Imports medfit (>= 0.3.1) — a clean build fails LOUDLY if medfit is too old.
-#   2. Merge medfit feature/fit-weights -> medfit main (PR), 0.3.1 + NEWS.
-#   3. WAIT for the universe to actually serve it: poll
-#      https://data-wise.r-universe.dev/api/packages/medfit until Version >= 0.3.1
-#      (cron lag is ~hourly; do NOT merge missingmed before this shows green).
-#   4. Then merge missingmed feature/s7-migration -> main, then feature/ipw-phase1.
-#   5. Confirm at merge: missingmed Remotes = data-wise/medfit (default branch, NOT a
-#      feature ref) so the universe builds from medfit main.
-#   6. Verify: missingmed _status: success on the universe API before declaring done.
-# medsim is NOT in this chain — PR #18 dropped missingmed/rmediation from its deps.
+## Since v0.2.0 (unreleased work on dev)
+- 2026-08-22 (merged): PR #5 feature/glm-phase -> dev (24fffc3). Also merged
+  rforge#75 (ac16b0a), the .STATUS frontmatter parser fix. Two CI failures were
+  self-inflicted by running a SUBSET of what CI runs: rforge's gate is
+  tests/test-all.sh (44 checks), not `pytest tests/` (599); and missingmed's
+  pkgdown job reads _pkgdown.yml's explicit reference index, which R CMD check
+  never opens — two new exports were missing from it. See CLAUDE.md.
+- 2026-08-30 (review + gate): PR #7 merged (3521d91). Two adversarial review
+  passes over the release candidate found 4 blockers, then 5 more in the fixes
+  themselves -- including a REGRESSION introduced by the first pass: passing
+  maxit = mids$iteration made a maxit = 0 baseline return a silently FLAT
+  sensitivity curve. Confirmed defects, all fixed: IPW weights misaligned to
+  rows (fitted() vs predict()); .mnar_reimpute() dropping maxit/blocks/formulas/
+  ignore; pool() masking mice::pool; mids$method being block-keyed not
+  variable-keyed; mice floor needing >= 3.18.0 for $calltype.
+  Then rforge cran-prep caught what R CMD check --as-cran cannot see:
+  VignetteBuilder declared knitr but the engine is knitr::rmarkdown, so the
+  CRAN noSuggests pass ERRORed on vignette rebuilding. Gate now STATUS ready.
+  148 tests pass; check --as-cran 0/0/0.
+- 2026-08-30 (research): prior-art scan (docs/specs/SPEC-narfcs-delegation-
+  2026-08-29.md). Every method component is already published; the package-level
+  gap is real -- no R package combines missing-data handling + mediation + MNAR
+  sensitivity. Verified empirically that the post-based delta and mice's native
+  mnar.norm produce IDENTICAL draws (8.9e-16) on the same seed, which retires
+  the old spec's open fork.
+- 2026-08-29 (merge): PR #6 MNAR sensitivity MERGED to dev (b9ac0ce). Before the
+  merge an adversarial review of the diff found 3 real defects, fixed in 7aa2a9f:
+  format() truncated the delta to 7 sig. digits inside the post expression
+  (now digits = 15); seed_source said "argument" for the hard-coded fallback
+  (now "default"); pmm check + method_target only covered target[1] of a
+  multi-column delta (msp is documented as target[1]). 133 pass / 0 fail.
+- 2026-08-22 (code): RMediation API audit DONE. The entire runtime surface is
+  ci_mediation_data() (R/infer.R:32,56); 1.4.0 -> 1.7.0 is NON-BREAKING because
+  pool() already emits named a/b/c_prime + dimnamed vcov, exactly what 1.5.0's
+  strict name-based extraction requires. Floor raised to RMediation (>= 1.5.0):
+  below it, unresolvable paths silently assumed cov(a,b)=0 -> a wrong CI instead
+  of an error. New regression test pins that (test-s7-pipeline.R).
+  Evidence: 73 pass / 0 fail / 0 skip vs RMediation 1.7.0, medfit 0.3.2, R 4.6.1.
+  NB the installed library was 1.6.1 until this session; 1.7.0 now installed.
+  R CMD check --as-cran: Status OK (0E/0W/0N) after .Rbuildignore'ing the
+  .token-optimizer dir, which had produced a hidden-files NOTE.
+- 2026-08-22 (docs): follow-up plan + per-item outcomes ->
+  docs/specs/PLAN-post-v0.2.0-followups-2026-08-22.md. Items 1 and 2 DONE, GLM DONE,
+  MNAR not started. That file is the record; do not restate its detail here.
+- 2026-08-22 (branch, UNMERGED): feature/glm-phase — GLM phase shipped. Non-gaussian
+  families now tested (MI x {binomial mediator, binomial outcome, poisson outcome};
+  IPW x {binomial mediator, binomial outcome} with sandwich; MBCO D4 with a binomial
+  mediator, previously gaussian-only). NO production code changed — the plan's
+  "already plumbed, zero medfit blockers" finding held. 103 pass / 0 fail (was 73),
+  R CMD check Status OK. Also on that branch: 6 tidyselect .data$ deprecations fixed,
+  and roxygen2 7.3.3 -> 8.0.0 regeneration (matches medfit/medsim/RMediation).
+  Documented in vignette("technical") 5A: under a non-identity link a*b is on the
+  LINK scale (log-odds, log-rate) — not a risk difference or odds ratio, and
+  exp(a*b) is not one either.
+- 2026-08-22 (hygiene): removed the stale ORCHESTRATE-s7-migration.md working
+  artifact (merge-cleanup rule; content remains in git history).
+  Note: /rforge:status could not read this file — its parser keys on emoji section
+  headers (🎯 📊 ✅ 📋 ⏰) while all 7 active packages use `key: value` frontmatter.
+  Worse than "no data": it took max() over every N% in the prose, so every package
+  was reported with a WRONG progress figure. FIXED on rforge
+  feature/status-frontmatter (cf3182d, pushed, UNMERGED) — 599 pass / 2 skip.
+- 2026-08-22 (branch, UNMERGED): feature/mnar-sensitivity — MNAR phase COMPLETE,
+  M1–M6. sensitivity_mnar() + MDSensitivityResult: delta-adjusted imputation over
+  a grid, re-running the pipeline per rung to give a sensitivity CURVE (not an
+  estimator — MAR vs MNAR is untestable, so no rung is "the MNAR estimate").
+  98 tests / 0 fail, R CMD check Status OK. Design record:
+  docs/specs/SPEC-mnar-sensitivity-2026-08-22.md +
+  docs/research/RESEARCH-mnar-mechanisms-2026-08-22.md.
+  Key design facts worth not re-deriving:
+    * delta is a CONDITIONAL sensitivity parameter (CSP); what analysts elicit is
+      MARGINAL. Confusing them cost coverage 95% -> 49.3% in Tompsett et al.
+      (2018). tidy() therefore reports the realized msp beside the supplied delta.
+    * Re-imputation rebuilds from the mids' STORED SLOTS, never mids$call, which
+      does not resolve outside the function that built the mids.
+    * mechanism = "mnar" on set_md_mediation() is now DEPRECATED + ignored; it
+      never changed behavior. Only sensitivity_mnar() stamps it.
+    * v1 uses mice's `post`; the NARFCS mice extension (moreno-betancur/NARFCS)
+      is the v2 direction but is GitHub-only, and delegating loses the delta = 0
+      identity (NARFCS also conditions on other variables' missingness).
+  Literature is curated in Zotero ("MNAR sensitivity — missingmed", 14 items) and
+  in a NotebookLM notebook (13 full-text sources).
+- 2026-07-19: .Rbuildignore the .remember/ session-memory dir (5946b3f).
+- 2026-07-16: .STATUS gained `kind: package` (ecosystem convention).
+
+## v0.2.0 RELEASED — 2026-06-12 (all integration steps DONE)
+# - main = 0.2.0 (PR #3 ipw-phase1->dev, PR #4 dev->main). GitHub release v0.2.0.
+#   https://github.com/Data-Wise/missingmed/releases/tag/v0.2.0
+# - medfit 0.3.1 + RMediation 1.4.0 live on r-universe (deps satisfied).
+# - Feature worktrees + branches (feature/s7-migration, feature/ipw-phase1) merged
+#   and DELETED. Only docs/ipw-phase1-spec remains (historical spec).
+# - CI fixes that unblocked the release (key learnings):
+#     * RMediation remote MUST be name-qualified: RMediation=data-wise/rmediation
+#       (repo 'rmediation' != package 'RMediation'); plain form fails pak solve.
+#     * DESCRIPTION Additional_repositories = data-wise r-universe (non-CRAN deps).
+#     * check.yml modernized off renv::restore() (stale lock -> old rlang fails to
+#       compile on R 4.6) to standard r-lib setup-r-dependencies + check-r-package.
+#     * RENV_CONFIG_AUTOLOADER_ENABLED=FALSE in CI (keep dev renv out of CI).
+# - pkgdown destination = pkgdown-site (docs/ holds specs); deploy via gh-pages.
+# - Post-release watch: r-universe rebuild of missingmed 0.2.0 (cron); main CI/site deploy.
 
 ## Quick Notes
+- 2026-06-12: CLAUDE.md audited CLEAN (local + global hierarchy) — 0 errors/warnings,
+  all v0.2.0 claims verified vs codebase. Fixed stale "craft only" line in GLOBAL
+  ~/.claude/CLAUDE.md (multi-branch dev pattern now names craft + missingmed).
 - 2026-06-11: Phase 0 S4->S7 migration IMPLEMENTED on feature/s7-migration (pushed,
-  up to commit c4eb495; 11 commits, P0.1–P0.8 + 2 follow-ups). NOT yet merged to dev.
+  up to commit c4eb495; 11 commits, P0.1–P0.8 + 2 follow-ups). Merged to dev
+  via PR #3; branch deleted.
   - S7 classes MDMediationData/MDMediationFit/MDMediationResult; pipeline
     set_md_mediation() -> run() -> pool() -> infer(type=c("mc","mbco")).
   - run() delegates each imputation to medfit::fit_mediation() (named a/b/c_prime);
@@ -40,17 +140,15 @@ type: r
   - Namespace is RMediation (capital), NOT rmediation. medfit+RMediation in Imports.
   - S4 set_sem/run_sem/pool_sem .Deprecated() shims kept one cycle.
   - R CMD check E0/W0/N0; 47 tests pass; vignettes + _pkgdown.yml + pkgdown deploy wf.
-  - Worktree: ~/.git-worktrees/missingmed/feature-s7-migration.
 - 2026-06-11: Phase 1 IPW estimator SPEC drafted (cloud routine) on branch
   docs/ipw-phase1-spec — docs/specs/SPEC-ipw-phase1-2026-06-11.md. Design = thin
   run() branch (.ipw_run: estimate weights -> medfit::fit_mediation(weights=) ->
   MDMediationFit(m=1)) + passthrough pool() (B=0).
   - OQ-1 BLOCKER RESOLVED + IMPLEMENTED: medfit feature/fit-weights (pushed) adds
     weights= to fit_mediation() (do.call inlines value; unweighted byte-identical;
-    weighted vcov via extract_mediation). medfit 802 tests pass. Worktree:
-    ~/.git-worktrees/medfit/feature-fit-weights.
-  - Design OQs still open: OQ-2 weight model (joint vs sequential), OQ-3 SE
-    (model-based vs sandwich) — decisions for manuscript author.
+    weighted vcov via extract_mediation). medfit 802 tests pass.
+  - Design OQs OQ-2 (weight model) and OQ-3 (SE) were settled by the shipped impl
+    below: joint weight model default (+ per-variable list), se_type = 'sandwich'.
   - Integration order for IPW impl: needs S7 pipeline (feature/s7-migration) +
     patched medfit (feature/fit-weights). IPW branch based on both.
 - 2026-06-11: Phase 1 IPW IMPLEMENTED on feature/ipw-phase1 (off feature/s7-migration,
@@ -61,10 +159,9 @@ type: r
   (weight_formula/weight_stabilize/weight_trim/se_type) + data.frame validator;
   MDMediationFit@weights. R CMD check E0/W0/N0; 72 tests. Technical vignette
   (vignettes/technical.Rmd) covers all design/contracts/methodology.
-  DEPENDS ON medfit feature/fit-weights (weights= + se_type=sandwich, 806 tests).
-  Worktrees: ~/.git-worktrees/missingmed/{feature-s7-migration,feature-ipw-phase1},
-  ~/.git-worktrees/medfit/feature-fit-weights.
-- Future scope phases = IPW (Phase 1, spec'd/blocked), GLM, MNAR sensitivity.
+  DEPENDS ON medfit feature/fit-weights (weights= + se_type=sandwich, 806 tests) —
+  merged and released as medfit 0.3.1. All three worktrees removed.
+- Future scope phases = GLM, MNAR sensitivity (IPW shipped in v0.2.0).
 - Scope spec + 6-phase roadmap: docs/specs/SPEC-missingmed-scope-2026-06-04.md (on dev)
 - 2026-06-11: Phase 0 PLAN written — docs/specs/SPEC-s7-migration-phase0-2026-06-11.md
   (S4->S7 class mapping, ordered steps P0.1–P0.7, acceptance). Resolves scope Open Q3
@@ -77,5 +174,4 @@ type: r
 - Contracts confirmed: rmediation (MBCO/MC-CI, consumes medfit MediationData),
   medfit (fit_mediation/extract_mediation -> MediationData@estimates/@vcov).
 - missingmed's unique code = Rubin's-rules pooling of NAMED (estimates, vcov) + IPW weights + MNAR.
-- Next: integrate feature/s7-migration, then scope Phase 1 (IPW/GLM/MNAR).
 - Branches: main (protected) <- dev (current) <- feature/*. Companion manuscript: research/Missing Effect.

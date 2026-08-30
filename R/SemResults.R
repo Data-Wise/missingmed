@@ -228,15 +228,15 @@ setMethod("pool_tidy", signature = "SemResults", function(object) {
       p_value = exp(mean(log(.data$p_value)))
     ) |>
     dplyr::ungroup() |>
-    dplyr::rename(estimate = .data$est, std_error = .data$se) |>
+    dplyr::rename(estimate = "est", std_error = "se") |>
     dplyr::relocate(
-      .data$term,
-      .data$estimate,
-      .data$std_error,
-      .data$p_value,
-      .data$var_b,
-      .data$var_w,
-      .data$var_tot
+      "term",
+      "estimate",
+      "std_error",
+      "p_value",
+      "var_b",
+      "var_w",
+      "var_tot"
     ) |>
     tibble::as_tibble()
 })
@@ -267,7 +267,7 @@ setMethod("pool_cov", signature = "SemResults", function(object) {
   ## Extract the relevant information from a SemResults object and return a list of covariance matrices
   n_imputations <- length(object@results)
   cov_between <- object@coef_df |>
-    dplyr::select(-.data$.imp) |>
+    dplyr::select(-".imp") |>
     cov()
   cov_within <- Reduce("+", object@cov_df) / n_imputations
   cov_total <- cov_between * (1 + 1 / n_imputations) + cov_within

@@ -8,7 +8,7 @@
 \description{
 missingmed runs SEM-based mediation analysis across multiply imputed datasets
 and pools with Rubin's rules. It is a thin orchestration layer: it \strong{fits}
-each imputation with \link[medfit:medfit-package]{medfit::medfit} and delegates \strong{inference} to \link[RMediation:RMediation-package]{RMediation::RMediation}.
+each imputation with \link[medfit:medfit]{medfit} and delegates \strong{inference} to \link[RMediation:RMediation]{RMediation}.
 }
 \section{S7 pipeline}{
 
