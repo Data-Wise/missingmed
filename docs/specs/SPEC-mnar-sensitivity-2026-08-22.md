@@ -277,6 +277,16 @@ user who omitted a seed.
 
 ### 3.0 OPEN FORK — hand-roll via `post`, or delegate to the NARFCS `mice` extension?
 
+> **RESOLVED 2026-08-29 — see `SPEC-narfcs-delegation-2026-08-29.md`.** The
+> dependency objection below is stale: NARFCS ships inside `mice` itself
+> (`mice.impute.mnar.norm`/`mnar.logreg`), not only in the GitHub extension, so
+> delegation adds no dependency. It was also verified that for a `norm` target
+> the `post` path and `mnar.norm` produce **identical draws** (max abs diff
+> 8.9e-16 on the same seed) — so this fork was never a correctness question for
+> continuous targets, only a capability one. The successor spec keeps `post`
+> for `pmm` and routes categorical targets to `mnar.logreg`.
+
+
 **A reference implementation already exists.** Tompsett et al. (2018)
 **[full text]**: NARFCS "can be implemented using modifications to existing
 software packages for MICE... an extension to the R package `mice`... currently
