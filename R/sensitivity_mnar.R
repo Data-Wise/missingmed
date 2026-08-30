@@ -161,6 +161,12 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     if (!v %in% names(d)) {
       stop("Target '", v, "' is not a column of the imputed data.", call. = FALSE)
     }
+    if (is.na(mids$method[v])) {
+      stop("Target '", v, "' has no imputation method of its own: it is part of ",
+        "a multivariate block. Delta adjustment needs a per-variable method.",
+        call. = FALSE
+      )
+    }
     if (!isTRUE(mids$nmis[[v]] > 0)) {
       stop("Target '", v, "' has no missing values, so a delta on it would do ",
         "nothing. Check the target name.",
@@ -189,14 +195,25 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     line <- sprintf("imp[[j]][, i] <- imp[[j]][, i] + (%s)", format(row[[v]], digits = 15))
     post[v] <- if (nzchar(post[[v]])) paste(post[[v]], line, sep = "; ") else line
   }
-  mice::mice(
-    mids$data,
-    m = mids$m, method = mids$method,
-    predictorMatrix = mids$predictorMatrix,
-    visitSequence = mids$visitSequence,
-    where = mids$where, blots = mids$blots,
-    post = post, seed = seed, printFlag = FALSE
-  )
+  # mice() accepts EITHER predictorMatrix (calltype "pred") OR formulas
+  # (calltype "formula") per call, never both: passing both breaks
+  # make.calltype(). Replay whichever the baseline used. Verified against
+  # mice 3.x: each branch reproduces $imp exactly under the same seed.
+  spec <- if (any(mids$calltype == "formula")) {
+    list(formulas = mids$formulas)
+  } else {
+    list(predictorMatrix = mids$predictorMatrix)
+  }
+  do.call(mice::mice, c(
+    list(
+      mids$data,
+      m = mids$m, maxit = mids$iteration, method = mids$method,
+      blocks = mids$blocks, visitSequence = mids$visitSequence,
+      where = mids$where, blots = mids$blots, ignore = mids$ignore,
+      post = post, seed = seed, printFlag = FALSE
+    ),
+    spec
+  ))
 }
 
 # Realized MARGINAL sensitivity parameter: mean(imputed) - mean(observed) for

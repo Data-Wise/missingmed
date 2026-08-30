@@ -14,13 +14,13 @@ gen_mnar <- function(n = 400, seed = 4) {
   d$M[runif(n) < plogis(-1.2 + 0.5 * X + 0.5 * C)] <- NA
   d
 }
-md_mi <- function(m = 5, seed = 99, ...) {
+md_mi <- function(m = 5, seed = 99, maxit = 5, ...) {
   # Materialise the data BEFORE calling mice(). Passing `gen_mnar(...)` inline
   # hands mice() a promise, which R forces only after mice() has called
   # set.seed(seed) -- so gen_mnar()'s own set.seed() lands afterwards and
   # silently overrides it, making the "seeded" imputation unreproducible.
   d <- gen_mnar(...)
-  imp <- mice::mice(d, m = m, printFlag = FALSE, seed = seed)
+  imp <- mice::mice(d, m = m, maxit = maxit, printFlag = FALSE, seed = seed)
   set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
     treatment = "X", mediator = "M"
   )
@@ -209,4 +209,22 @@ test_that("method_target covers every target of a multi-column delta", {
   )
   expect_equal(sens@target, c("M", "Y"))
   expect_length(sens@method_target, 2L)
+})
+
+test_that("delta = 0 reproduces MAR when the baseline used a non-default maxit", {
+  md <- md_mi(maxit = 12)
+  sens <- suppressMessages(sensitivity_mnar(md, delta = 0, type = "mbco"))
+  base <- infer(run(md), type = "mbco")
+  expect_equal(unname(sens@rungs[[1]][["D4"]]), unname(base[["D4"]]))
+})
+
+test_that("a target inside a multivariate block is refused", {
+  d <- gen_mnar()
+  d$Y[runif(nrow(d)) < 0.2] <- NA
+  imp <- mice::mice(d, m = 2, maxit = 1, printFlag = FALSE, seed = 3,
+    blocks = list(MY = c("M", "Y"), X = "X", C = "C"), method = c("norm", "", ""))
+  md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M"
+  )
+  expect_error(sensitivity_mnar(md, delta = 1), "multivariate block")
 })
