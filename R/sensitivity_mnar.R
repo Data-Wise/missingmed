@@ -72,6 +72,18 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     )
   }
 
+  # The delta is applied through mice's `post`, which only runs inside the
+  # sampler. A maxit = 0 baseline (the standard "set up, then edit" idiom) has
+  # fill-in draws but no chain, so every rung would silently return the
+  # unshifted imputation and the sensitivity curve would be flat.
+  if (isTRUE(mids$iteration == 0)) {
+    stop("The supplied `mids` was built with maxit = 0, so there is no ",
+      "imputation chain for the delta to enter and every rung would be ",
+      "identical. Re-impute with maxit >= 1.",
+      call. = FALSE
+    )
+  }
+
   grid <- .mnar_grid(delta, target, object)
   targets <- names(grid)
   .mnar_check_targets(targets, mids)
@@ -87,7 +99,7 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     }
   }
 
-  meth <- unname(mids$method[targets])
+  meth <- unname(mids$method[vapply(targets, .mnar_block_of, character(1), mids = mids)])
   for (v in targets[meth == "pmm"]) {
     message(
       "sensitivity_mnar(): target '", v, "' is imputed by 'pmm'. ",
@@ -161,6 +173,18 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     if (!v %in% names(d)) {
       stop("Target '", v, "' is not a column of the imputed data.", call. = FALSE)
     }
+    # `mids$method` is keyed by BLOCK, not by variable: a univariate block with
+    # a non-default name gives method[v] = NA for a perfectly valid target, and
+    # a multivariate block named after one of its members gives a hit for an
+    # invalid one. Ask the blocks themselves.
+    blk <- .mnar_block_of(mids, v)
+    if (length(mids$blocks[[blk]]) > 1L) {
+      stop("Target '", v, "' sits in the multivariate block '", blk, "' (",
+        paste(mids$blocks[[blk]], collapse = ", "), "). Delta adjustment needs ",
+        "a per-variable imputation method.",
+        call. = FALSE
+      )
+    }
     if (!isTRUE(mids$nmis[[v]] > 0)) {
       stop("Target '", v, "' has no missing values, so a delta on it would do ",
         "nothing. Check the target name.",
@@ -189,14 +213,34 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     line <- sprintf("imp[[j]][, i] <- imp[[j]][, i] + (%s)", format(row[[v]], digits = 15))
     post[v] <- if (nzchar(post[[v]])) paste(post[[v]], line, sep = "; ") else line
   }
-  mice::mice(
-    mids$data,
-    m = mids$m, method = mids$method,
-    predictorMatrix = mids$predictorMatrix,
-    visitSequence = mids$visitSequence,
-    where = mids$where, blots = mids$blots,
-    post = post, seed = seed, printFlag = FALSE
-  )
+  # Replay the spec the baseline actually used. A pred-mode mids also stores an
+  # auto-generated `formulas`, and handing mice() both that and the
+  # predictorMatrix errors inside make.calltype(); so pass exactly one. Each
+  # branch was verified against mice 3.19 to reproduce $imp bit-for-bit under
+  # the same seed. `calltype` exists from mice 3.18.0 (see DESCRIPTION floor).
+  ct <- mids$calltype
+  spec <- if (all(ct == "formula")) {
+    list(formulas = mids$formulas)
+  } else if (all(ct == "pred")) {
+    list(predictorMatrix = mids$predictorMatrix)
+  } else {
+    stop("The imputation mixes `predictorMatrix` and `formulas` blocks ",
+      "(mice `calltype` = ", paste(unique(ct), collapse = "/"), "). ",
+      "Delta adjustment cannot replay a mixed specification; impute with one ",
+      "or the other.",
+      call. = FALSE
+    )
+  }
+  do.call(mice::mice, c(
+    list(
+      mids$data,
+      m = mids$m, maxit = mids$iteration, method = mids$method,
+      blocks = mids$blocks, visitSequence = mids$visitSequence,
+      where = mids$where, blots = mids$blots, ignore = mids$ignore,
+      post = post, seed = seed, printFlag = FALSE
+    ),
+    spec
+  ))
 }
 
 # Realized MARGINAL sensitivity parameter: mean(imputed) - mean(observed) for
@@ -212,4 +256,16 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   mean(vapply(seq_len(ncol(imp_cells)), function(k) {
     mean(as.numeric(imp_cells[[k]]))
   }, numeric(1))) - obs_mean
+}
+
+# Which mice block contains variable `v`? Blocks are named arbitrarily, so a
+# name lookup on $method (keyed by block) is not a lookup on the variable.
+.mnar_block_of <- function(mids, v) {
+  hit <- vapply(mids$blocks, function(b) v %in% b, logical(1))
+  if (!any(hit)) {
+    stop("Target '", v, "' is not imputed by any block of this `mids`.",
+      call. = FALSE
+    )
+  }
+  names(mids$blocks)[which(hit)[1L]]
 }

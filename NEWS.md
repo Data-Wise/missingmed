@@ -1,4 +1,4 @@
-# missingmed (development version)
+# missingmed 0.3.0
 
 * New `sensitivity_mnar()` and `MDSensitivityResult`: MNAR sensitivity analysis
   by delta-adjusted imputation. Re-imputes across a grid of delta values and
@@ -90,7 +90,7 @@ New S7 classes: `MDMediationData`, `MDMediationFit`, `MDMediationResult`.
 ## Deprecations
 
 * The S4 API (`set_sem()`, `run_sem()`, `pool_sem()`, and the `SemImputedData` /
-  `SemResults` / `PooledSEMResults` classes) is **deprecated** in favour of the
+  `SemResults` / `PooledSEMResults` classes) is **deprecated** in favor of the
   S7 pipeline above. The shims emit a `.Deprecated()` warning and will be removed
   in a future release.
 

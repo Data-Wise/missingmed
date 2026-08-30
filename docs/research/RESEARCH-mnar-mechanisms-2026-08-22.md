@@ -135,7 +135,7 @@ to say so and `tidy()` to report the realized MSP per rung.
 
 **This retro-explains the empirical oddity** recorded when the mechanism was
 probed: a specified delta of 3 produced a marginal shift of 3.182. That was
-labelled "propagation through the chained equations." It is the CSP/MSP gap, and
+labeled "propagation through the chained equations." It is the CSP/MSP gap, and
 Tompsett show the bias grows as the gap widens.
 
 **2. They criticize precisely the mechanism this SPEC uses.** On the van Buuren

@@ -1,7 +1,7 @@
 Package: missingmed
 Type: Package
 Title: Mediation Analysis with Multiple Imputation for Missing Data
-Version: 0.2.0
+Version: 0.3.0
 Date: 2026-06-11
 Authors@R: person("Davood", "Tofighi",
         email = "dtofighi@gmail.com",
@@ -15,7 +15,7 @@ Imports:
     S7 (>= 0.2.0),
     medfit (>= 0.3.1),
     RMediation (>= 1.5.0),
-    mice (>= 3.0.0),
+    mice (>= 3.18.0),
     lavaan (>= 0.6-0),
     OpenMx (>= 2.13),
     dplyr (>= 1.0.0),

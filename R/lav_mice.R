@@ -38,7 +38,7 @@
 #' @export
 #' @import mice
 #' @importFrom lavaan sem
-#' @importFrom mice mice complete pool
+#' @importFrom mice mice complete
 #' @importFrom stats update
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 

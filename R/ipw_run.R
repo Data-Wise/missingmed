@@ -28,6 +28,13 @@
     # Per-variable (sequential factorization): P(complete) = prod_V P(R_V = 1).
     p <- rep(1, n)
     p_num <- rep(1, n)
+    unknown <- setdiff(names(wf), names(data))
+    if (length(unknown)) {
+      stop("`weight_formula` names variables not in the data: ",
+        paste0("'", unknown, "'", collapse = ", "), ".",
+        call. = FALSE
+      )
+    }
     for (v in names(wf)) {
       Rv <- as.integer(!is.na(data[[v]]))
       dd <- data
@@ -35,11 +42,11 @@
       rhs <- attr(stats::terms(wf[[v]]), "term.labels")
       mod <- stats::glm(stats::reformulate(rhs, ".R_v"), data = dd,
         family = stats::binomial())
-      p <- p * stats::fitted(mod)
+      p <- p * .ipw_prob(mod, dd)
       if (stabilize) {
         num <- stats::glm(stats::reformulate(treatment, ".R_v"), data = dd,
           family = stats::binomial())
-        p_num <- p_num * stats::fitted(num)
+        p_num <- p_num * .ipw_prob(num, dd)
       }
     }
   } else {
@@ -56,10 +63,10 @@
     dd[[".R_ind"]] <- R
     mod <- stats::glm(stats::reformulate(rhs, ".R_ind"), data = dd,
       family = stats::binomial())
-    p <- stats::fitted(mod)
+    p <- .ipw_prob(mod, dd)
     p_num <- if (stabilize) {
-      stats::fitted(stats::glm(stats::reformulate(treatment, ".R_ind"), data = dd,
-        family = stats::binomial()))
+      .ipw_prob(stats::glm(stats::reformulate(treatment, ".R_ind"), data = dd,
+        family = stats::binomial()), dd)
     } else {
       rep(1, n)
     }
@@ -68,6 +75,17 @@
   # NB: use if/else, not ifelse() — the condition is scalar, so ifelse() would
   # collapse the result to length 1.
   w <- if (stabilize) p_num / p else 1 / p
+  # A complete case with an undefined probability means a predictor of the
+  # missingness model is itself incomplete on that row -- a specification error,
+  # never something to drop silently.
+  if (anyNA(w[cc])) {
+    stop("The missingness model cannot be evaluated on ", sum(is.na(w[cc])),
+      " complete-case row(s): a predictor of `weight_formula` (or the treatment ",
+      "used for stabilization) is incomplete there. Use fully observed ",
+      "predictors, or impute them first.",
+      call. = FALSE
+    )
+  }
   w[!cc] <- NA_real_ # incomplete rows are dropped from the fit
 
   # Trim at the requested upper quantile (computed on complete cases).
@@ -112,4 +130,22 @@
     weights = w_full,
     source = object
   )
+}
+
+# Full-length P(R = 1 | Z): predict() on the original frame keeps one value per
+# row (NA where a predictor is NA), unlike fitted(), which drops those rows and
+# silently misaligns the weights.
+.ipw_prob <- function(mod, dd) {
+  out <- tryCatch(
+    stats::predict(mod, newdata = dd, type = "response"),
+    error = function(e) {
+      stop("The missingness model could not be evaluated on the full data: ",
+        conditionMessage(e), ". This usually means a factor predictor has a ",
+        "level that appears only on rows the model dropped. Use a predictor ",
+        "that is observed across all rows, or collapse the rare level.",
+        call. = FALSE
+      )
+    }
+  )
+  unname(out)
 }

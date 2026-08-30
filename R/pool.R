@@ -13,7 +13,8 @@
 #'
 #' It is the S7 successor of the S4 [pool_sem()] method.
 #'
-#' @param object An [MDMediationFit] object.
+#' @param object An [MDMediationFit] object. Anything else (a `mice::mira`,
+#'   say) is forwarded to [mice::pool()].
 #' @param ... Unused.
 #' @return An [MDMediationResult] object.
 #' @seealso [run()], [infer()], [pool_sem()]
@@ -22,6 +23,22 @@
 #' @export
 #' @name pool
 pool <- S7::new_generic("pool", "object")
+
+# Anything that is not a missingmed fit (a mice::mira, for one) goes to
+# mice::pool, so attaching missingmed does not break the standard mice workflow.
+S7::method(pool, S7::class_any) <- function(object, ...) {
+  mice::pool(object, ...)
+}
+
+S7::method(pool, MDMediationData) <- function(object, ...) {
+  stop("`pool()` takes a fitted object. Call `run()` on this data first.",
+    call. = FALSE
+  )
+}
+
+S7::method(pool, MDMediationResult) <- function(object, ...) {
+  stop("This object is already pooled. Pass it to `infer()`.", call. = FALSE)
+}
 
 S7::method(pool, MDMediationFit) <- function(object, ...) {
   m <- object@m

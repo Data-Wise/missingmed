@@ -7,7 +7,8 @@
 pool(object, ...)
 }
 \arguments{
-\item{object}{An \link{MDMediationFit} object.}
+\item{object}{An \link{MDMediationFit} object. Anything else (a \code{mice::mira},
+say) is forwarded to \code{\link[mice:pool]{mice::pool()}}.}
 
 \item{...}{Unused.}
 }
