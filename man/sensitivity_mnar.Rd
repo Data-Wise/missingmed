@@ -10,7 +10,7 @@ sensitivity_mnar(
   target = NULL,
   type = c("mc", "mbco"),
   seed = NULL,
-  level = 0.95,
+  level = NULL,
   n.mc = 1e+05,
   ...
 )

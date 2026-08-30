@@ -13,7 +13,9 @@
 #' @param object An [MDMediationFit] (supports both `"mc"` and `"mbco"`) or an
 #'   [MDMediationResult] (supports `"mc"`).
 #' @param ... Method arguments: `type` (inference type, `"mc"` (default) or
-#'   `"mbco"`), `level` (confidence level for `"mc"`, default `0.95`), and `n.mc`
+#'   `"mbco"`), `level` (confidence level for `"mc"`; defaults to the
+#'   object's `@conf_level`, itself `0.95` unless set in [set_md_mediation()]),
+#'   and `n.mc`
 #'   (Monte-Carlo draws for `"mc"`, default `1e5`).
 #' @return For `"mc"`, the list returned by [RMediation::ci_mediation_data()].
 #'   For `"mbco"`, a named numeric vector `c(D4, p, r4, nu, d_S)`.
@@ -24,8 +26,12 @@
 infer <- S7::new_generic("infer", "object")
 
 S7::method(infer, MDMediationFit) <- function(object, type = c("mc", "mbco"),
-                                              level = 0.95, n.mc = 1e5, ...) {
+                                              level = NULL, n.mc = 1e5, ...) {
   type <- match.arg(type)
+  # NULL (not 0.95) is the default so that "unspecified" is distinguishable from
+  # "specified as 0.95": an explicit level= still wins, and otherwise the level
+  # the user set once on the data object is honoured instead of ignored.
+  level <- level %||% object@conf_level
   if (type == "mc") {
     pooled <- pool(object)@pooled
     return(ci_mediation_data(pooled, level = level, type = "MC", n.mc = n.mc))
@@ -46,8 +52,9 @@ S7::method(infer, MDMediationFit) <- function(object, type = c("mc", "mbco"),
 }
 
 S7::method(infer, MDMediationResult) <- function(object, type = c("mc", "mbco"),
-                                                 level = 0.95, n.mc = 1e5, ...) {
+                                                 level = NULL, n.mc = 1e5, ...) {
   type <- match.arg(type)
+  level <- level %||% object@conf_level
   if (type == "mbco") {
     stop("MBCO does not commute with Rubin's rules; it needs the per-imputation ",
       "fits. Call infer(type = \"mbco\") on the MDMediationFit from run(), not ",

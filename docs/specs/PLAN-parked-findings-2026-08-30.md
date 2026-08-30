@@ -6,9 +6,44 @@ Source: the parked section of `PLAN-pre-v0.3.0-review-fixes-2026-08-29.md`, afte
 Every defect below was **reproduced before being planned**; the numbers are measured,
 not quoted from the review.
 
-**Branch:** work on `dev` (all changes are to existing files). One commit per item.
+**Branch:** `dev` — every change is a bug fix to an existing file. (Item 3, the one
+addition that would have counted as feature work, is deferred.)
 
 **Estimate:** ~70 min total.
+
+---
+
+## Adversarial review of this plan (2026-08-30) — what it got wrong
+
+The plan was reviewed against the source before implementation. It was wrong in
+ways that would have shipped:
+
+1. **`%||%` is not in the package namespace.** It resolved from **base**, which
+   only gained it in R **4.4.0**, while `DESCRIPTION` declares `R (>= 4.1.0)`.
+   Invisible on the dev box (R 4.6.1); a "could not find function" failure on
+   oldrel CI. Fixed by `@importFrom rlang %||%`.
+2. **A zero-row frame is rejected** by `medfit::MediationData`'s validator
+   (`nrow(data) == n_obs` and `n_obs >= 1`). **`NULL` is the only permitted
+   blank** — the plan's part 2 was unimplementable as written.
+3. **The plan's own recommended `NA_real_` throws.** medfit's validator does an
+   unguarded `sigma_m < 0`, so `NA` errors with "missing value where TRUE/FALSE
+   needed". Option (c) was right in spirit, wrong in mechanism: `NULL`.
+4. **`@n_obs` is not a defect.** `mice::complete()` returns full-n frames, so it
+   is identical across imputations and imputation 1's value is correct. Removed
+   from scope; the real set is `{@data, @sigma_m, @sigma_y, @converged}`.
+5. **The mbco predicate needs an alpha the class did not carry.** `@level` is a
+   new property on `MDSensitivityResult`, set from `sensitivity_mnar()`'s
+   `level`. `@source` can be NULL, so reading it was not a safe alternative.
+6. **`abs(delta)` is undefined for a multi-column grid.** Replaced by distance
+   from the all-zero (MAR) row, which reduces to `abs(delta)` in one column.
+7. **The `delta = 0` guard was under-specified.** If the null is retained *at
+   MAR*, there is no tipping point at all and the search must abort — not merely
+   skip that rung.
+8. **Line reference wrong**: the code is `R/methods-output.R:87`, not `:91`
+   (copied from a stale bullet).
+9. **Item 3 was deferred, not implemented** — see below.
+10. **The gate was non-binding** ("≥ 168 + new tests" is satisfied by adding
+    none). Suite is now **189**.
 
 ---
 
@@ -116,6 +151,28 @@ instead. Rejected because the columns are genuinely useful for the individual pa
 the legacy API provided them; removing the promise is a regression in capability, not a
 fix.
 
+> **DEFERRED 2026-08-30 — not implemented.** The review found five problems that
+> together make this not ready:
+>
+> 1. `pool.scalar()` returns `df`, `r`, `fmi` but **not** `statistic` or
+>    `p_value`; those must be hand-computed. The plan listed all four as if they
+>    came from the call.
+> 2. The `n` argument is **mandatory and unspecified here**. Left at its `Inf`
+>    default it prints `df = 4802` for an n = 200 analysis (measured).
+> 3. `dfcom` genuinely **differs per term**: `m_*` terms come from the mediator
+>    model (n − 2), `y_*` from the outcome model (n − 3).
+> 4. `a`, `b`, `c_prime` are **exact duplicates** of `m_X`, `y_M`, `y_X`, so the
+>    table would carry 8 rows with 3 p-values repeated under two names each —
+>    aggravating the very misreading the caveat above warns about.
+> 5. The IPW path builds `m = 1`, where `pool.scalar` returns all-`NA` for
+>    `b`/`t`/`df`/`r`/`fmi`, and `R/pool.R`'s explicit `m == 1` special case
+>    would be lost.
+>
+> Also: the legacy S4 `p_value` was a **geometric mean of per-imputation
+> p-values** (`R/SemResults.R:228`), not a Rubin-df Wald p — so reinstating the
+> column under the same name would silently change its meaning. This needs its
+> own spec, not a plan bullet.
+
 ---
 
 ## Item 4 — tipping point uses grid order, not |delta| (~10 min)
@@ -154,7 +211,7 @@ Not implementing without an explicit instruction.
 
 ## Gate (before commit)
 
-- Full suite green; expect ≥ 168 + new tests.
+- Full suite green; **strictly more** than the 168 on entry (now 189).
 - `R CMD check --as-cran` 0/0/0.
 - No new exports, so `_pkgdown.yml`'s reference index is untouched.
 - Each item's reproducer must fail on the pre-fix source.

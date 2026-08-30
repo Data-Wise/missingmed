@@ -80,18 +80,40 @@ S7::method(print, MDSensitivityResult) <- function(x, ...) {
 # summary(<MDSensitivityResult>) -- adds the tipping point
 S7::method(summary, MDSensitivityResult) <- function(object, ...) {
   tb <- tidy(object)
-  tp <- NULL
-  if (all(c("conf_low", "conf_high") %in% names(tb))) {
-    excl <- tb$conf_low > 0 | tb$conf_high < 0
-    if (any(excl) && any(!excl)) {
-      first_null <- which(!excl)[1L]
-      tp <- tb[first_null, , drop = FALSE]
-    }
-  }
+  tp <- .mnar_tipping(object, tb)
   structure(
     list(table = tb, tipping = tp, target = object@target, type = object@type),
     class = "summary.MDSensitivityResult"
   )
+}
+
+# Is the null retained at each rung? Type-agnostic: an "mc" rung retains it when
+# the interval covers 0; an "mbco" rung when p > alpha. Before this was
+# type-aware, summary() of an mbco curve printed "no tipping point" without ever
+# having looked for one.
+.mnar_null_retained <- function(object, tb) {
+  if (all(c("conf_low", "conf_high") %in% names(tb))) {
+    return(!(tb$conf_low > 0 | tb$conf_high < 0))
+  }
+  if ("p_value" %in% names(tb)) {
+    return(tb$p_value > (1 - object@level))
+  }
+  NULL
+}
+
+# The tipping point is the SMALLEST departure from MAR at which the null is
+# retained -- not the first such rung in whatever order the grid was supplied.
+# Distance is measured from the all-zero (MAR) row, so a multi-column grid has a
+# defined ordering too; for a single column it reduces to abs(delta).
+.mnar_tipping <- function(object, tb) {
+  keep <- .mnar_null_retained(object, tb)
+  if (is.null(keep) || !any(keep) || all(keep)) return(NULL)
+  dist <- sqrt(rowSums(as.matrix(object@grid)^2))
+  # If the null is already retained at MAR itself there is no tipping point to
+  # find: the analysis is null before any departure is assumed.
+  if (any(dist == 0 & keep)) return(NULL)
+  cand <- which(keep)
+  tb[cand[which.min(dist[cand])], , drop = FALSE]
 }
 
 #' @exportS3Method base::print
@@ -104,7 +126,8 @@ print.summary.MDSensitivityResult <- function(x, ...) {
     cat("\nNo tipping point within the supplied grid.\n")
   } else {
     d <- x$tipping[[1L]]
-    cat("\nTipping point: the interval first includes 0 at delta =", d,
+    cat("\nTipping point: the smallest departure at which the null is\n",
+      " retained is delta =", d,
       "(realized msp =", round(x$tipping$msp, 4), ").\n"
     )
     cat("A CSP-scale tipping point has no direct clinical reading -- judge\n")

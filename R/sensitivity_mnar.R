@@ -50,7 +50,7 @@
 #' @export
 sensitivity_mnar <- function(object, delta, target = NULL,
                              type = c("mc", "mbco"), seed = NULL,
-                             level = 0.95, n.mc = 1e5, ...) {
+                             level = NULL, n.mc = 1e5, ...) {
   type <- match.arg(type)
   if (!S7::S7_inherits(object, MDMediationData)) {
     stop("`object` must be an MDMediationData (from set_md_mediation()).",
@@ -83,6 +83,8 @@ sensitivity_mnar <- function(object, delta, target = NULL,
       call. = FALSE
     )
   }
+
+  level <- level %||% object@conf_level
 
   grid <- .mnar_grid(delta, target, object)
   targets <- names(grid)
@@ -128,7 +130,7 @@ sensitivity_mnar <- function(object, delta, target = NULL,
 
   MDSensitivityResult(
     rungs = rungs, grid = grid, msp = msp, target = targets,
-    type = type, seed = seed, seed_source = seed_source,
+    type = type, level = level, seed = seed, seed_source = seed_source,
     method_target = meth, source = object
   )
 }

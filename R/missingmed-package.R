@@ -21,6 +21,7 @@
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #'
 #' @importFrom stats coef var vcov
+#' @importFrom rlang %||%
 "_PACKAGE"
 
 ## usethis namespace: start

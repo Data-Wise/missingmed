@@ -37,6 +37,10 @@ MDMediationFit <- S7::new_class(
     source = S7::class_any
   ),
   validator = function(self) {
+    if (length(self@conf_level) != 1L || is.na(self@conf_level) ||
+      self@conf_level <= 0 || self@conf_level >= 1) {
+      return("@conf_level must be a single number in (0, 1).")
+    }
     if (length(self@m) != 1L || self@m < 1) {
       return("@m must be a single positive number of imputations.")
     }
