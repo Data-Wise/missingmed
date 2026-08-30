@@ -96,3 +96,37 @@ test_that("weight_trim caps extreme weights", {
   expect_lte(max(w_trim[cc]), cap + 1e-8)
   expect_lt(max(w_trim[cc]), max(w_full[cc]))
 })
+
+# ── Review fix: weights must align to rows when the missingness model has NAs ─
+
+test_that("NAs in a missingness-model predictor do not misalign the weights", {
+  d <- make_ipw_data()
+  d$X[1:30] <- NA # treatment (stabilization numerator) now incomplete
+  md <- set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M", method = "ipw"
+  )
+  expect_no_warning(w <- missingmed:::.ipw_weights(md))
+  cc <- stats::complete.cases(d[, c("X", "M", "Y", "C")])
+  expect_length(w, nrow(d))
+  expect_identical(is.na(w), !cc)
+  expect_true(all(w[cc] > 0))
+})
+
+test_that("an incomplete weight_formula predictor on a complete case is refused", {
+  d <- make_ipw_data()
+  d$Z <- rnorm(nrow(d))
+  d$Z[which(stats::complete.cases(d))[1:5]] <- NA # Z is not a model variable
+  md <- set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M", method = "ipw", weight_formula = ~ X + Z
+  )
+  expect_error(missingmed:::.ipw_weights(md), "5 complete-case row")
+})
+
+test_that("a weight_formula naming a non-column is refused", {
+  d <- make_ipw_data()
+  md <- set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M", method = "ipw",
+    weight_formula = list(Nope = ~ X)
+  )
+  expect_error(missingmed:::.ipw_weights(md), "Nope")
+})
