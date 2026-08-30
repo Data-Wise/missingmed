@@ -78,18 +78,19 @@ sensitivity_mnar <- function(object, delta, target = NULL,
 
   seed_source <- "argument"
   if (is.null(seed)) {
-    if (!is.na(mids$seed) && is.numeric(mids$seed)) {
+    if (is.numeric(mids$seed) && length(mids$seed) == 1L && !is.na(mids$seed)) {
       seed <- mids$seed
       seed_source <- "mids"
     } else {
       seed <- 20260822L
+      seed_source <- "default"
     }
   }
 
-  meth <- mids$method[targets[1]]
-  if (identical(unname(meth), "pmm")) {
+  meth <- unname(mids$method[targets])
+  for (v in targets[meth == "pmm"]) {
     message(
-      "sensitivity_mnar(): target '", targets[1], "' is imputed by 'pmm'. ",
+      "sensitivity_mnar(): target '", v, "' is imputed by 'pmm'. ",
       "The shift is applied to the imputed values, so they may fall outside ",
       "the observed range that pmm otherwise guarantees."
     )
@@ -99,6 +100,8 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   msp <- numeric(nrow(grid))
   for (i in seq_len(nrow(grid))) {
     imp_i <- .mnar_reimpute(mids, grid[i, , drop = FALSE], seed)
+    # msp is reported for the first target only; a multi-target grid shifts
+    # every named column, but the marginal summary tracks targets[1].
     msp[i] <- .mnar_realized_msp(imp_i, targets[1])
     obj_i <- object
     obj_i@data <- imp_i
@@ -114,7 +117,7 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   MDSensitivityResult(
     rungs = rungs, grid = grid, msp = msp, target = targets,
     type = type, seed = seed, seed_source = seed_source,
-    method_target = unname(meth), source = object
+    method_target = meth, source = object
   )
 }
 
@@ -183,7 +186,7 @@ sensitivity_mnar <- function(object, delta, target = NULL,
 .mnar_reimpute <- function(mids, row, seed) {
   post <- mids$post
   for (v in names(row)) {
-    line <- sprintf("imp[[j]][, i] <- imp[[j]][, i] + (%s)", format(row[[v]]))
+    line <- sprintf("imp[[j]][, i] <- imp[[j]][, i] + (%s)", format(row[[v]], digits = 15))
     post[v] <- if (nzchar(post[[v]])) paste(post[[v]], line, sep = "; ") else line
   }
   mice::mice(

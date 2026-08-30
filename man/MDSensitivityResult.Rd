@@ -21,7 +21,8 @@ MDSensitivityResult(
 
 \item{grid}{Data frame of delta values; one column per target, one row per rung.}
 
-\item{msp}{Numeric vector of realized marginal sensitivity parameters, one per rung.}
+\item{msp}{Numeric vector of realized marginal sensitivity parameters, one per
+rung, computed on the first target (\code{target[1]}).}
 
 \item{target}{Character; the shifted variable(s).}
 
@@ -29,9 +30,10 @@ MDSensitivityResult(
 
 \item{seed}{Integer seed pinned across rungs.}
 
-\item{seed_source}{\code{"mids"} if taken from the supplied \code{mids}, \code{"argument"} otherwise.}
+\item{seed_source}{\code{"mids"} if taken from the supplied \code{mids}, \code{"argument"} if
+passed explicitly, \code{"default"} if neither was available.}
 
-\item{method_target}{The \code{mice} imputation method used for the target variable.}
+\item{method_target}{The \code{mice} imputation method(s) used for the target variable(s).}
 
 \item{source}{The originating \link{MDMediationData}.}
 }

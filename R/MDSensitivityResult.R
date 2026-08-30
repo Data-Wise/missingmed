@@ -13,12 +13,14 @@
 #'
 #' @param rungs List of inference results, one per row of `grid`.
 #' @param grid Data frame of delta values; one column per target, one row per rung.
-#' @param msp Numeric vector of realized marginal sensitivity parameters, one per rung.
+#' @param msp Numeric vector of realized marginal sensitivity parameters, one per
+#'   rung, computed on the first target (`target[1]`).
 #' @param target Character; the shifted variable(s).
 #' @param type Inference type used for each rung (`"mc"` or `"mbco"`).
 #' @param seed Integer seed pinned across rungs.
-#' @param seed_source `"mids"` if taken from the supplied `mids`, `"argument"` otherwise.
-#' @param method_target The `mice` imputation method used for the target variable.
+#' @param seed_source `"mids"` if taken from the supplied `mids`, `"argument"` if
+#'   passed explicitly, `"default"` if neither was available.
+#' @param method_target The `mice` imputation method(s) used for the target variable(s).
 #' @param source The originating [MDMediationData].
 #'
 #' @return An `MDSensitivityResult` S7 object.

@@ -176,3 +176,37 @@ test_that("sensitivity_mnar stamps mechanism on the objects it creates", {
   expect_equal(sens@source@mechanism, "mar") # the original is untouched
   expect_s7_class(sens, MDSensitivityResult)
 })
+
+# ── Review fixes (PR #6 adversarial pass) ───────────────────────────────────
+
+test_that("an unseeded mids falls back to the package default and says so", {
+  d <- gen_mnar()
+  imp <- mice::mice(d, m = 3, printFlag = FALSE)
+  md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M"
+  )
+  sens <- suppressMessages(sensitivity_mnar(md, delta = 0, type = "mbco"))
+  expect_equal(sens@seed, 20260822L)
+  expect_equal(sens@seed_source, "default")
+})
+
+test_that("delta is composed into the post expression at full precision", {
+  md <- md_mi(m = 2)
+  delta <- 0.123456789012
+  imp <- missingmed:::.mnar_reimpute(md@data, data.frame(M = delta), seed = 1)
+  expect_match(imp$post[["M"]], "0.123456789012", fixed = TRUE)
+})
+
+test_that("method_target covers every target of a multi-column delta", {
+  d <- gen_mnar()
+  d$Y[runif(nrow(d)) < 0.2] <- NA
+  imp <- mice::mice(d, m = 3, printFlag = FALSE, seed = 7)
+  md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M"
+  )
+  sens <- suppressMessages(
+    sensitivity_mnar(md, delta = data.frame(M = 0, Y = 0), type = "mbco")
+  )
+  expect_equal(sens@target, c("M", "Y"))
+  expect_length(sens@method_target, 2L)
+})
