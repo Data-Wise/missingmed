@@ -3,14 +3,15 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-08-30
-next: RELEASE v0.3.1 — a patch of three user-visible correctness fixes sitting
-  unreleased on dev (8 commits ahead of main, CI green at 2815f50). Gate, open
-  the dev->main PR (merge commit), merge, tag, release. After that the two
-  candidates are SPEC-narfcs-delegation-2026-08-29.md (v0.4.0 feature: routes
-  categorical MNAR targets to mice's mnar.logreg, keeps post for pmm) and a
-  spec for the pooled tidy table's p_value/df/fmi columns, deferred with five
-  recorded reasons in PLAN-parked-findings-2026-08-30.md. Manuscript runs on
-  medsim, not missingmed.
+next: Nothing pending — v0.3.1 released (tag 2f466de), main CI green, dev ==
+  main, tree clean. Two candidates, in order: (1) SPEC-narfcs-delegation-
+  2026-08-29.md, the v0.4.0 feature — route categorical MNAR targets to mice's
+  mnar.logreg, keep post for pmm; spec is written and ready. (2) a spec for the
+  pooled tidy table's p_value/df/fmi columns, deferred with five recorded
+  reasons in PLAN-parked-findings-2026-08-30.md. OPEN QUESTION for upstream:
+  whether medfit's sandwich stacks the weight-model score — it decides whether
+  IPW SEs are correct-and-efficient or merely conservative (RRZ 1994). Raised
+  twice on 2026-08-30, never settled. Manuscript runs on medsim, not missingmed.
 type: r
 worktrees:
   ~/.git-worktrees/missingmed/feature-glm-phase — feature/glm-phase, MERGED as
@@ -33,6 +34,18 @@ worktrees:
   tests/test-all.sh (44 checks), not `pytest tests/` (599); and missingmed's
   pkgdown job reads _pkgdown.yml's explicit reference index, which R CMD check
   never opens — two new exports were missing from it. See CLAUDE.md.
+- 2026-08-30 (release): v0.3.1 SHIPPED — tag 2f466de, GitHub release published,
+  main CI green (R-CMD-check + pkgdown). Patch of 7 correctness fixes. Suite
+  128 -> 200 across the day; check --as-cran 0/0/0 throughout. r-universe still
+  served 0.3.0 at close: it polls main and the v0.3.0 cycle took ~96 min from
+  merge to published, so expect 0.3.1 within a couple of hours. Not a fault.
+- 2026-08-30 (process): THREE adversarial reviews ran, and two of them caught
+  regressions introduced by the PREVIOUS round of fixes — maxit = 0 returning a
+  silently flat sensitivity curve, and .mm_drop_path() turning log(Y) ~ . into
+  Y ~ . so the two log-likelihoods were on different scales and T was not a
+  likelihood ratio (measured 813.76, p = 1.3e-32, rejecting unconditionally).
+  Neither would have surfaced from a failing test. See memory
+  green-ci-is-not-evidence-of-a-correct-artifact.
 - 2026-08-30 (release): v0.3.0 SHIPPED — tag v0.3.0 on e482527, GitHub release
   published, main CI green, docs live. rforge cran-prep caught what
   R CMD check --as-cran cannot see: VignetteBuilder declared knitr while the
