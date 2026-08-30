@@ -91,20 +91,32 @@ match the newer ecosystem packages and the shared
    (data + spec)         (per-imputation    (pooled named          (RMediation
                           named Med.Data)    Med.Data)              or hosted D4)</code></pre>
 <p>The same pipeline as a diagram:</p>
-<pre class="mermaid"><code>flowchart LR
-  D["data&lt;br/&gt;mids or data.frame"] --&gt; A
-  A["set_md_mediation()&lt;br/&gt;&lt;b&gt;MDMediationData&lt;/b&gt;"] --&gt;|"method = mi"| R1["run()&lt;br/&gt;fit each imputation"]
-  A --&gt;|"method = ipw"| R2["run()&lt;br/&gt;reweight complete cases"]
-  R1 --&gt; F["&lt;b&gt;MDMediationFit&lt;/b&gt;&lt;br/&gt;list of m named MediationData"]
-  R2 --&gt; F
-  F --&gt;|"pool()"| P["&lt;b&gt;MDMediationResult&lt;/b&gt;&lt;br/&gt;pooled named MediationData"]
-  P --&gt;|"infer(type = mc)"| C1["RMediation::ci_mediation_data()"]
-  F --&gt;|"infer(type = mbco)"| C2["hosted D4 stacking&lt;br/&gt;R/mbco_mi.R"]</code></pre>
-<p>Note the asymmetry the linear sketch above cannot show:
+<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 880 225" width="100%" role="img" aria-label="missingmed pipeline: set_md_mediation to run to pool to infer"><title>
+missingmed pipeline
+</title>
+<defs><marker id="ah" viewbox="0 0 10 10" refx="9" refy="5" markerwidth="7" markerheight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#444"></path></marker></defs><g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif"><rect x="15" y="30" width="160" height="52" rx="7" fill="#eef4fb" stroke="#4a76a8" stroke-width="1.4"></rect><text x="95.0" y="51" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1b2b3a">MDMediationData</text><text x="95.0" y="68" text-anchor="middle" font-size="10.5" fill="#5a6b7a">data
++ spec</text><rect x="245" y="30" width="160" height="52" rx="7" fill="#eef4fb" stroke="#4a76a8" stroke-width="1.4"></rect><text x="325.0" y="51" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1b2b3a">MDMediationFit</text><text x="325.0" y="68" text-anchor="middle" font-size="10.5" fill="#5a6b7a">m
+named MediationData</text><rect x="475" y="30" width="160" height="52" rx="7" fill="#eef4fb" stroke="#4a76a8" stroke-width="1.4"></rect><text x="555.0" y="51" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1b2b3a">MDMediationResult</text><text x="555.0" y="68" text-anchor="middle" font-size="10.5" fill="#5a6b7a">pooled
+MediationData</text><rect x="705" y="30" width="160" height="52" rx="7" fill="#eef4fb" stroke="#4a76a8" stroke-width="1.4"></rect><text x="785.0" y="51" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1b2b3a">RMediation</text><text x="785.0" y="68" text-anchor="middle" font-size="10.5" fill="#5a6b7a">ci_mediation_data()</text><rect x="245" y="150" width="160" height="52" rx="7" fill="#fdf3e7" stroke="#c98a3c" stroke-width="1.4"></rect><text x="325.0" y="171" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1b2b3a">hosted
+D4</text><text x="325.0" y="188" text-anchor="middle" font-size="10.5" fill="#5a6b7a">R/mbco_mi.R</text><path d="M175,56 L240,56" stroke="#444" stroke-width="1.4" fill="none" marker-end="url(#ah)"></path><text x="207" y="50" text-anchor="middle" font-size="11" fill="#333" font-style="italic">run()</text><path d="M405,56 L470,56" stroke="#444" stroke-width="1.4" fill="none" marker-end="url(#ah)"></path><text x="437" y="50" text-anchor="middle" font-size="11" fill="#333" font-style="italic">pool()</text><path d="M635,56 L700,56" stroke="#444" stroke-width="1.4" fill="none" marker-end="url(#ah)"></path><text x="667" y="50" text-anchor="middle" font-size="11" fill="#333" font-style="italic">infer("mc")</text><path d="M325,82 L325,150" stroke="#444" stroke-width="1.4" fill="none" marker-end="url(#ah)"></path><text x="335" y="120" font-size="11" fill="#333" font-style="italic">infer(“mbco”)</text><text x="15" y="205" font-size="10.5" fill="#5a6b7a">Note: infer(“mc”)
+consumes the pooled result; infer(“mbco”) reaches back to the
+per-imputation fit (section 4.1).</text></g></svg><p>Note the asymmetry the linear sketch above cannot show:
 <code>infer(type = "mc")</code> consumes the <strong>pooled</strong>
 result, while <code>infer(type = "mbco")</code> reaches back to the
 <strong>per-imputation</strong> fit. That is section 4.1’s
 non-commutativity, drawn.</p>
+<!-- Mermaid source for the diagram above. The SVG is pre-rendered so the
+     vignette needs no JavaScript, no CDN and no build-time browser:
+flowchart LR
+  D["data<br/>mids or data.frame"] -->
+<p>A A[“set_md_mediation()<br>MDMediationData”] –&gt;|“method = mi”|
+R1[“run()<br>fit each imputation”] A –&gt;|“method = ipw”|
+R2[“run()<br>reweight complete cases”] R1 –&gt;
+F[“MDMediationFit<br>list of m named MediationData”] R2 –&gt; F F
+–&gt;|“pool()”| P[“MDMediationResult<br>pooled named MediationData”] P
+–&gt;|“infer(type = mc)”| C1[“RMediation::ci_mediation_data()”] F
+–&gt;|“infer(type = mbco)”| C2[“hosted D4 stacking<br>R/mbco_mi.R”]
+–&gt;</p>
 <!-- LaTeX equivalent of the diagram above, for a PDF build:
 \begin{tikzpicture}[node distance=2.2cm, every node/.style={font=\small},
   box/.style={draw, rounded corners, align=center, inner sep=4pt}]
@@ -156,7 +168,7 @@ within/between/total vcov</td>
 <code>engine</code>) are independent. The same
 <code>run() -&gt; pool() -&gt; infer()</code> chain serves both
 estimators; only <code><a href="../reference/run.html">run()</a></code> branches internally.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">md</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">data</span>, formula_y <span class="op">=</span> <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
 <span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, method <span class="op">=</span> <span class="st">"mi"</span><span class="op">)</span>   <span class="co"># or method = "ipw"</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span><span class="op">)</span></span>
@@ -345,6 +357,7 @@ is missing.</li>
 \mathbf{6.125}</annotation></semantics></math>. Three imputations buy
 about six df, not three.</li>
 </ul>
+<p><img src="technical_files/figure-html/rubin-decomp-1.png" class="r-plt" alt="Stacked bar: total variance T splits into a within-imputation part 0.010 and a between-imputation part 0.0133; the standard error rises from 0.100 to 0.153." width="672"></p>
 <p><strong>Explain this one to yourself before moving on.</strong> Step
 4 multiplies
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
@@ -372,7 +385,8 @@ it is
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1.01</mn><annotation encoding="application/x-tex">1.01</annotation></semantics></math>.
 The more imputations you draw, the better you know the
 between-imputation variance, and the less you must pad it.</p>
-</details><p><strong>Your turn – same four steps, one line blanked.</strong> Now
+</details><p><img src="technical_files/figure-html/correction-vs-m-1.png" class="r-plt" alt="The correction factor 1 + 1/m falls from 1.5 at m = 2 toward 1 as m grows, with m = 3, 10 and 20 marked." width="672"></p>
+<p><strong>Your turn – same four steps, one line blanked.</strong> Now
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0.20</mn><mo>,</mo><mspace width="0.222em"></mspace><mn>0.30</mn><mo>,</mo><mspace width="0.222em"></mspace><mn>0.40</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">Q = (0.20,\ 0.30,\ 0.40)</annotation></semantics></math>,
 still with
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>U</mi><mi>i</mi></msub><mo>=</mo><mn>0.01</mn></mrow><annotation encoding="application/x-tex">U_i = 0.01</annotation></semantics></math>
@@ -424,7 +438,7 @@ and
 — so all medfit metadata (roles, predictors, families) is inherited and
 the aliases stay name-addressable for
 <code><a href="https://data-wise.github.io/rmediation/reference/ci_mediation_data.html" class="external-link">ci_mediation_data()</a></code>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md_mi</span><span class="op">)</span>            <span class="co"># m named MediationData</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>             <span class="co"># pooled named MediationData + within/between/total vcov</span></span>
 <span><span class="va">res</span><span class="op">@</span><span class="va">tidy_table</span>               <span class="co"># term, estimate, std_error, var_w, var_b, var_tot</span></span></code></pre></div>
@@ -499,6 +513,7 @@ so the small-sample branch applies:
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ν</mi><mo>=</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>2</mn></mfrac></mstyle><mo>⋅</mo><mn>2</mn><mo>⋅</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>1</mn></mfrac></mstyle><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>3</mn></mfrac></mstyle><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mn>4</mn><mi>/</mi><mn>3</mn><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo>=</mo><mn mathvariant="bold">3.556</mn></mrow><annotation encoding="application/x-tex">\nu = \tfrac12 \cdot 2 \cdot (1 + \tfrac11)(1 + \tfrac13)^2 = 2(4/3)^2
 = \mathbf{3.556}</annotation></semantics></math>, giving
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mrow><mi mathvariant="normal">Pr</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">[</mo><msub><mi>F</mi><mrow><mn>1</mn><mo>,</mo><mspace width="0.167em"></mspace><mn>3.556</mn></mrow></msub><mo>&gt;</mo><mn>1.5</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn mathvariant="bold">0.296</mn></mrow><annotation encoding="application/x-tex">p = \Pr[F_{1,\,3.556} &gt; 1.5] = \mathbf{0.296}</annotation></semantics></math>.</p>
+<p><img src="technical_files/figure-html/d4-deflation-1.png" class="r-plt" alt="Three bars: naive mean of the per-imputation statistics 7.5, stacked statistic 6.0, and the correct D4 value 1.5." width="672"></p>
 <p><strong>Explain this one to yourself.</strong> Why is
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>d</mi><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar d</annotation></semantics></math><em>larger</em> than
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mi>S</mi></msub><annotation encoding="application/x-tex">d_S</annotation></semantics></math>
@@ -560,7 +575,7 @@ internal branch, <code>.ipw_run()</code>; <code><a href="../reference/pool.html"
 <div class="section level3">
 <h3 id="pipeline">5.1 Pipeline<a class="anchor" aria-label="anchor" href="#pipeline"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">md</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>, treatment <span class="op">=</span> <span class="st">"X"</span>,</span>
 <span>  mediator <span class="op">=</span> <span class="st">"M"</span>, method <span class="op">=</span> <span class="st">"ipw"</span>,</span>
 <span>  weight_formula <span class="op">=</span> <span class="cn">NULL</span>, weight_stabilize <span class="op">=</span> <span class="cn">TRUE</span>, weight_trim <span class="op">=</span> <span class="fl">0.99</span>,</span>
@@ -685,6 +700,7 @@ stabilized weights,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.25</mn><mo>+</mo><mn>0.25</mn><mo stretchy="false" form="prefix">(</mo><mn>2.00</mn><mo>−</mo><mn>1.25</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn mathvariant="bold">1.4375</mn></mrow><annotation encoding="application/x-tex">1.25 + 0.25(2.00-1.25) = \mathbf{1.4375}</annotation></semantics></math>,
 pulling case 4 from 2.000 down to 1.4375.</li>
 </ol>
+<p><img src="technical_files/figure-html/ipw-weights-1.png" class="r-plt" alt="Paired bars for four cases showing stabilized weights and the same weights after trimming; only case 4, with the lowest completeness probability, is cut." width="672"></p>
 <p><strong>Explain this one to yourself.</strong> Point 1 says a common
 rescaling is harmless. Why, then, is trimming <em>not</em> harmless?</p>
 <details><summary>
@@ -850,7 +866,7 @@ meaningless additive shift.</p>
 <code>call</code> — a <code>mids</code> built inside a function stores a
 call referencing that function’s local variables, which does not resolve
 anywhere else.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sens</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sensitivity_mnar.html">sensitivity_mnar</a></span><span class="op">(</span><span class="va">md</span>, delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1.5</span>, <span class="op">-</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">sens</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sens</span><span class="op">)</span>   <span class="co"># adds the tipping point, if the grid contains one</span></span></code></pre></div>
@@ -915,6 +931,12 @@ Resseguier et al. add the constraint that a tipping value must
 “correspond to reasonable hypotheses supported by epidemiologic
 evidences” — a tipping point that requires an implausible departure from
 MAR is <em>reassurance</em>, not a warning.</p>
+<p>The figure below uses the same illustrative grid as the table in
+5B.2. It shows why the resolution warning matters: the interval’s lower
+bound crosses zero near <strong>-1.6</strong>, but a grid of
+<code>c(0, -0.5, -1, -1.5, -2)</code> can only <em>report</em>
+<strong>-2.0</strong>.</p>
+<p><img src="technical_files/figure-html/sensitivity-curve-1.png" class="r-plt" alt="Sensitivity curve of the indirect effect against delta with a confidence band; the reported tipping point at delta = -2 is marked alongside the interpolated true crossing near -1.6." width="672"></p>
 </div>
 <div class="section level3">
 <h3 id="b-4-limitations">5B.4 Limitations<a class="anchor" aria-label="anchor" href="#b-4-limitations"></a>

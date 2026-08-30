@@ -31,22 +31,23 @@ The pipeline is four verbs over three classes:
 
 The same pipeline as a diagram:
 
-``` mermaid
-flowchart LR
-  D["data<br/>mids or data.frame"] --> A
-  A["set_md_mediation()<br/><b>MDMediationData</b>"] -->|"method = mi"| R1["run()<br/>fit each imputation"]
-  A -->|"method = ipw"| R2["run()<br/>reweight complete cases"]
-  R1 --> F["<b>MDMediationFit</b><br/>list of m named MediationData"]
-  R2 --> F
-  F -->|"pool()"| P["<b>MDMediationResult</b><br/>pooled named MediationData"]
-  P -->|"infer(type = mc)"| C1["RMediation::ci_mediation_data()"]
-  F -->|"infer(type = mbco)"| C2["hosted D4 stacking<br/>R/mbco_mi.R"]
-```
+![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdib3g9IjAgMCA4ODAgMjI1IiB3aWR0aD0iMTAwJSIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJtaXNzaW5nbWVkIHBpcGVsaW5lOiBzZXRfbWRfbWVkaWF0aW9uIHRvIHJ1biB0byBwb29sIHRvIGluZmVyIj48dGl0bGU+Cm1pc3NpbmdtZWQgcGlwZWxpbmUKPC90aXRsZT4KPGRlZnM+PG1hcmtlciBpZD0iYWgiIHZpZXdib3g9IjAgMCAxMCAxMCIgcmVmeD0iOSIgcmVmeT0iNSIgbWFya2Vyd2lkdGg9IjciIG1hcmtlcmhlaWdodD0iNyIgb3JpZW50PSJhdXRvLXN0YXJ0LXJldmVyc2UiPjxwYXRoIGQ9Ik0wLDAgTDEwLDUgTDAsMTAgeiIgZmlsbD0iIzQ0NCIgLz48L21hcmtlcj48L2RlZnM+PGcgZm9udC1mYW1pbHk9Ii1hcHBsZS1zeXN0ZW0sU2Vnb2UgVUksSGVsdmV0aWNhLEFyaWFsLHNhbnMtc2VyaWYiPjxyZWN0IHg9IjE1IiB5PSIzMCIgd2lkdGg9IjE2MCIgaGVpZ2h0PSI1MiIgcng9IjciIGZpbGw9IiNlZWY0ZmIiIHN0cm9rZT0iIzRhNzZhOCIgc3Ryb2tlLXdpZHRoPSIxLjQiIC8+PHRleHQgeD0iOTUuMCIgeT0iNTEiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTIuNSIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzFiMmIzYSI+TURNZWRpYXRpb25EYXRhPC90ZXh0Pjx0ZXh0IHg9Ijk1LjAiIHk9IjY4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEwLjUiIGZpbGw9IiM1YTZiN2EiPmRhdGEKKyBzcGVjPC90ZXh0PjxyZWN0IHg9IjI0NSIgeT0iMzAiIHdpZHRoPSIxNjAiIGhlaWdodD0iNTIiIHJ4PSI3IiBmaWxsPSIjZWVmNGZiIiBzdHJva2U9IiM0YTc2YTgiIHN0cm9rZS13aWR0aD0iMS40IiAvPjx0ZXh0IHg9IjMyNS4wIiB5PSI1MSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMi41IiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjMWIyYjNhIj5NRE1lZGlhdGlvbkZpdDwvdGV4dD48dGV4dCB4PSIzMjUuMCIgeT0iNjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTAuNSIgZmlsbD0iIzVhNmI3YSI+bQpuYW1lZCBNZWRpYXRpb25EYXRhPC90ZXh0PjxyZWN0IHg9IjQ3NSIgeT0iMzAiIHdpZHRoPSIxNjAiIGhlaWdodD0iNTIiIHJ4PSI3IiBmaWxsPSIjZWVmNGZiIiBzdHJva2U9IiM0YTc2YTgiIHN0cm9rZS13aWR0aD0iMS40IiAvPjx0ZXh0IHg9IjU1NS4wIiB5PSI1MSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMi41IiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjMWIyYjNhIj5NRE1lZGlhdGlvblJlc3VsdDwvdGV4dD48dGV4dCB4PSI1NTUuMCIgeT0iNjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTAuNSIgZmlsbD0iIzVhNmI3YSI+cG9vbGVkCk1lZGlhdGlvbkRhdGE8L3RleHQ+PHJlY3QgeD0iNzA1IiB5PSIzMCIgd2lkdGg9IjE2MCIgaGVpZ2h0PSI1MiIgcng9IjciIGZpbGw9IiNlZWY0ZmIiIHN0cm9rZT0iIzRhNzZhOCIgc3Ryb2tlLXdpZHRoPSIxLjQiIC8+PHRleHQgeD0iNzg1LjAiIHk9IjUxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEyLjUiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiMxYjJiM2EiPlJNZWRpYXRpb248L3RleHQ+PHRleHQgeD0iNzg1LjAiIHk9IjY4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEwLjUiIGZpbGw9IiM1YTZiN2EiPmNpX21lZGlhdGlvbl9kYXRhKCk8L3RleHQ+PHJlY3QgeD0iMjQ1IiB5PSIxNTAiIHdpZHRoPSIxNjAiIGhlaWdodD0iNTIiIHJ4PSI3IiBmaWxsPSIjZmRmM2U3IiBzdHJva2U9IiNjOThhM2MiIHN0cm9rZS13aWR0aD0iMS40IiAvPjx0ZXh0IHg9IjMyNS4wIiB5PSIxNzEiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTIuNSIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzFiMmIzYSI+aG9zdGVkCkQ0PC90ZXh0Pjx0ZXh0IHg9IjMyNS4wIiB5PSIxODgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTAuNSIgZmlsbD0iIzVhNmI3YSI+Ui9tYmNvX21pLlI8L3RleHQ+PHBhdGggZD0iTTE3NSw1NiBMMjQwLDU2IiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMS40IiBmaWxsPSJub25lIiBtYXJrZXItZW5kPSJ1cmwoI2FoKSIgLz48dGV4dCB4PSIyMDciIHk9IjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjExIiBmaWxsPSIjMzMzIiBmb250LXN0eWxlPSJpdGFsaWMiPnJ1bigpPC90ZXh0PjxwYXRoIGQ9Ik00MDUsNTYgTDQ3MCw1NiIgc3Ryb2tlPSIjNDQ0IiBzdHJva2Utd2lkdGg9IjEuNCIgZmlsbD0ibm9uZSIgbWFya2VyLWVuZD0idXJsKCNhaCkiIC8+PHRleHQgeD0iNDM3IiB5PSI1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzMzMyIgZm9udC1zdHlsZT0iaXRhbGljIj5wb29sKCk8L3RleHQ+PHBhdGggZD0iTTYzNSw1NiBMNzAwLDU2IiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMS40IiBmaWxsPSJub25lIiBtYXJrZXItZW5kPSJ1cmwoI2FoKSIgLz48dGV4dCB4PSI2NjciIHk9IjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjExIiBmaWxsPSIjMzMzIiBmb250LXN0eWxlPSJpdGFsaWMiPmluZmVyKCZxdW90O21jJnF1b3Q7KTwvdGV4dD48cGF0aCBkPSJNMzI1LDgyIEwzMjUsMTUwIiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMS40IiBmaWxsPSJub25lIiBtYXJrZXItZW5kPSJ1cmwoI2FoKSIgLz48dGV4dCB4PSIzMzUiIHk9IjEyMCIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzMzMyIgZm9udC1zdHlsZT0iaXRhbGljIj5pbmZlcijigJxtYmNv4oCdKTwvdGV4dD48dGV4dCB4PSIxNSIgeT0iMjA1IiBmb250LXNpemU9IjEwLjUiIGZpbGw9IiM1YTZiN2EiPk5vdGU6IGluZmVyKOKAnG1j4oCdKQpjb25zdW1lcyB0aGUgcG9vbGVkIHJlc3VsdDsgaW5mZXIo4oCcbWJjb+KAnSkgcmVhY2hlcyBiYWNrIHRvIHRoZQpwZXItaW1wdXRhdGlvbiBmaXQgKHNlY3Rpb24gNC4xKS48L3RleHQ+PC9nPjwvc3ZnPg==)
 
 Note the asymmetry the linear sketch above cannot show:
 `infer(type = "mc")` consumes the **pooled** result, while
 `infer(type = "mbco")` reaches back to the **per-imputation** fit. That
 is section 4.1’s non-commutativity, drawn.
+
+A A\[“set_md_mediation()  
+MDMediationData”\] –\>\|“method = mi”\| R1\[“run()  
+fit each imputation”\] A –\>\|“method = ipw”\| R2\[“run()  
+reweight complete cases”\] R1 –\> F\[“MDMediationFit  
+list of m named MediationData”\] R2 –\> F F –\>\|“pool()”\|
+P\[“MDMediationResult  
+pooled named MediationData”\] P –\>\|“infer(type = mc)”\|
+C1\[“RMediation::ci_mediation_data()”\] F –\>\|“infer(type = mbco)”\|
+C2\[“hosted D4 stacking  
+R/mbco_mi.R”\] –\>
 
 | S7 class | Carries | S4 ancestor |
 |----|----|----|
@@ -184,6 +185,10 @@ Two more numbers fall straight out:
   $`\nu = (m-1)\big(1 + \bar U/[(1+\tfrac1m)B]\big)^2 = 2(1+0.75)^2 =
   \mathbf{6.125}`$. Three imputations buy about six df, not three.
 
+![Stacked bar: total variance T splits into a within-imputation part
+0.010 and a between-imputation part 0.0133; the standard error rises
+from 0.100 to 0.153.](technical_files/figure-html/rubin-decomp-1.png)
+
 **Explain this one to yourself before moving on.** Step 4 multiplies
 $`B`$ by $`(1+\tfrac1m)`$ instead of using $`B`$ alone. Why should a
 *larger* $`m`$ make that correction *smaller*?
@@ -195,6 +200,10 @@ sampling error of its own. The $`(1+\tfrac1m)`$ factor inflates it to
 account for that. With $`m = 3`$ the factor is $`4/3`$; with $`m = 100`$
 it is $`1.01`$. The more imputations you draw, the better you know the
 between-imputation variance, and the less you must pad it.
+
+![The correction factor 1 + 1/m falls from 1.5 at m = 2 toward 1 as m
+grows, with m = 3, 10 and 20
+marked.](technical_files/figure-html/correction-vs-m-1.png)
 
 **Your turn – same four steps, one line blanked.** Now
 $`Q = (0.20,\ 0.30,\ 0.40)`$, still with $`U_i = 0.01`$ and $`m = 3`$.
@@ -299,6 +308,10 @@ is not $`> 4`$, so the small-sample branch applies:
 $`\nu = \tfrac12 \cdot 2 \cdot (1 + \tfrac11)(1 + \tfrac13)^2 = 2(4/3)^2
 = \mathbf{3.556}`$, giving
 $`p = \Pr[F_{1,\,3.556} > 1.5] = \mathbf{0.296}`$.
+
+![Three bars: naive mean of the per-imputation statistics 7.5, stacked
+statistic 6.0, and the correct D4 value
+1.5.](technical_files/figure-html/d4-deflation-1.png)
 
 **Explain this one to yourself.** Why is $`\bar d`$*larger* than $`d_S`$
 when both describe the same hypothesis?
@@ -414,6 +427,10 @@ back.
 2.  `weight_trim = 0.75` caps at the 0.75 quantile of the stabilized
     weights, $`1.25 + 0.25(2.00-1.25) = \mathbf{1.4375}`$, pulling case
     4 from 2.000 down to 1.4375.
+
+![Paired bars for four cases showing stabilized weights and the same
+weights after trimming; only case 4, with the lowest completeness
+probability, is cut.](technical_files/figure-html/ipw-weights-1.png)
 
 **Explain this one to yourself.** Point 1 says a common rescaling is
 harmless. Why, then, is trimming *not* harmless?
@@ -583,6 +600,16 @@ add the constraint that a tipping value must “correspond to reasonable
 hypotheses supported by epidemiologic evidences” — a tipping point that
 requires an implausible departure from MAR is *reassurance*, not a
 warning.
+
+The figure below uses the same illustrative grid as the table in 5B.2.
+It shows why the resolution warning matters: the interval’s lower bound
+crosses zero near **-1.6**, but a grid of `c(0, -0.5, -1, -1.5, -2)` can
+only *report* **-2.0**.
+
+![Sensitivity curve of the indirect effect against delta with a
+confidence band; the reported tipping point at delta = -2 is marked
+alongside the interpolated true crossing near
+-1.6.](technical_files/figure-html/sensitivity-curve-1.png)
 
 ### 5B.4 Limitations
 
