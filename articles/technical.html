@@ -60,7 +60,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Technical reference: design, contracts, and methodology</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/v0.3.0/vignettes/technical.Rmd" class="external-link"><code>vignettes/technical.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/dev/vignettes/technical.Rmd" class="external-link"><code>vignettes/technical.Rmd</code></a></small>
       <div class="d-none name"><code>technical.Rmd</code></div>
     </div>
 
@@ -90,6 +90,33 @@ match the newer ecosystem packages and the shared
    MDMediationData       MDMediationFit     MDMediationResult      CI / MBCO
    (data + spec)         (per-imputation    (pooled named          (RMediation
                           named Med.Data)    Med.Data)              or hosted D4)</code></pre>
+<p>The same pipeline as a diagram:</p>
+<pre class="mermaid"><code>flowchart LR
+  D["data&lt;br/&gt;mids or data.frame"] --&gt; A
+  A["set_md_mediation()&lt;br/&gt;&lt;b&gt;MDMediationData&lt;/b&gt;"] --&gt;|"method = mi"| R1["run()&lt;br/&gt;fit each imputation"]
+  A --&gt;|"method = ipw"| R2["run()&lt;br/&gt;reweight complete cases"]
+  R1 --&gt; F["&lt;b&gt;MDMediationFit&lt;/b&gt;&lt;br/&gt;list of m named MediationData"]
+  R2 --&gt; F
+  F --&gt;|"pool()"| P["&lt;b&gt;MDMediationResult&lt;/b&gt;&lt;br/&gt;pooled named MediationData"]
+  P --&gt;|"infer(type = mc)"| C1["RMediation::ci_mediation_data()"]
+  F --&gt;|"infer(type = mbco)"| C2["hosted D4 stacking&lt;br/&gt;R/mbco_mi.R"]</code></pre>
+<p>Note the asymmetry the linear sketch above cannot show:
+<code>infer(type = "mc")</code> consumes the <strong>pooled</strong>
+result, while <code>infer(type = "mbco")</code> reaches back to the
+<strong>per-imputation</strong> fit. That is section 4.1’s
+non-commutativity, drawn.</p>
+<!-- LaTeX equivalent of the diagram above, for a PDF build:
+\begin{tikzpicture}[node distance=2.2cm, every node/.style={font=\small},
+  box/.style={draw, rounded corners, align=center, inner sep=4pt}]
+  \node[box] (A) {\texttt{set\_md\_mediation()}\\\textbf{MDMediationData}};
+  \node[box, right=of A] (F) {\texttt{run()}\\\textbf{MDMediationFit}};
+  \node[box, right=of F] (P) {\texttt{pool()}\\\textbf{MDMediationResult}};
+  \node[box, right=of P] (C) {\texttt{infer(type="mc")}\\RMediation};
+  \node[box, below=1.4cm of P] (M) {\texttt{infer(type="mbco")}\\hosted D4};
+  \draw[->] (A) -- (F); \draw[->] (F) -- (P); \draw[->] (P) -- (C);
+  \draw[->] (F) -- (M) node[midway, sloped, above, font=\tiny]{per-imputation};
+\end{tikzpicture}
+-->
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -129,7 +156,7 @@ within/between/total vcov</td>
 <code>engine</code>) are independent. The same
 <code>run() -&gt; pool() -&gt; infer()</code> chain serves both
 estimators; only <code><a href="../reference/run.html">run()</a></code> branches internally.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">md</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">data</span>, formula_y <span class="op">=</span> <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
 <span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, method <span class="op">=</span> <span class="st">"mi"</span><span class="op">)</span>   <span class="co"># or method = "ipw"</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span><span class="op">)</span></span>
@@ -207,6 +234,76 @@ survive pooling:</p>
 B = \tfrac{1}{m-1}\sum_i (Q_i-\bar Q)(Q_i-\bar Q)^\top,\quad
 T = \bar U + \left(1+\tfrac1m\right)B .
 </annotation></semantics></math></p>
+<p><strong>A hand-computable example.</strong> Take
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">m = 3</annotation></semantics></math>
+imputations of a single path
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>,
+each with the same within-imputation variance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>U</mi><mi>i</mi></msub><mo>=</mo><mn>0.01</mn></mrow><annotation encoding="application/x-tex">U_i = 0.01</annotation></semantics></math>
+(that is,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mi>E</mi><mo>=</mo><mn>0.10</mn></mrow><annotation encoding="application/x-tex">SE = 0.10</annotation></semantics></math>):</p>
+<table class="table">
+<thead><tr class="header">
+<th><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math></th>
+<th><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo>=</mo><msub><mover><mi>a</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">Q_i = \hat a_i</annotation></semantics></math></th>
+<th><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>U</mi><mi>i</mi></msub><annotation encoding="application/x-tex">U_i</annotation></semantics></math></th>
+<th><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo>−</mo><mover><mi>Q</mi><mo accent="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">Q_i - \bar Q</annotation></semantics></math></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>0.50</td>
+<td>0.01</td>
+<td>-0.10</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>0.60</td>
+<td>0.01</td>
+<td>0.00</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>0.70</td>
+<td>0.01</td>
+<td>+0.10</td>
+</tr>
+</tbody>
+</table>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>Q</mi><mo accent="true">‾</mo></mover><mo>=</mo><mstyle displaystyle="false"><mfrac><mrow><mn>0.50</mn><mo>+</mo><mn>0.60</mn><mo>+</mo><mn>0.70</mn></mrow><mn>3</mn></mfrac></mstyle><mo>=</mo><mn mathvariant="bold">0.60</mn><mo>,</mo><mspace width="2.0em"></mspace><mover><mi>U</mi><mo accent="true">‾</mo></mover><mo>=</mo><mstyle displaystyle="false"><mfrac><mrow><mn>0.01</mn><mo>+</mo><mn>0.01</mn><mo>+</mo><mn>0.01</mn></mrow><mn>3</mn></mfrac></mstyle><mo>=</mo><mn mathvariant="bold">0.01</mn></mrow><annotation encoding="application/x-tex">
+\bar Q = \tfrac{0.50+0.60+0.70}{3} = \mathbf{0.60},\qquad
+\bar U = \tfrac{0.01+0.01+0.01}{3} = \mathbf{0.01}
+</annotation></semantics></math><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>=</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mrow><mn>3</mn><mo>−</mo><mn>1</mn></mrow></mfrac></mstyle><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">[</mo><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>0.10</mn><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo>+</mo><msup><mn>0</mn><mn>2</mn></msup><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>0.10</mn><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">]</mo><mo>=</mo><mstyle displaystyle="false"><mfrac><mn>0.02</mn><mn>2</mn></mfrac></mstyle><mo>=</mo><mn mathvariant="bold">0.01</mn></mrow><annotation encoding="application/x-tex">
+B = \tfrac{1}{3-1}\big[(-0.10)^2 + 0^2 + (0.10)^2\big]
+  = \tfrac{0.02}{2} = \mathbf{0.01}
+</annotation></semantics></math><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mover><mi>U</mi><mo accent="true">‾</mo></mover><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>3</mn></mfrac></mstyle><mo stretchy="true" form="postfix">)</mo></mrow><mi>B</mi><mo>=</mo><mn>0.01</mn><mo>+</mo><mstyle displaystyle="false"><mfrac><mn>4</mn><mn>3</mn></mfrac></mstyle><mo stretchy="false" form="prefix">(</mo><mn>0.01</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mn mathvariant="bold">0.0233</mn><mover><mn>𝟑</mn><mo accent="true">¯</mo></mover></mrow><mo>,</mo><mspace width="2.0em"></mspace><mi>S</mi><mi>E</mi><mo>=</mo><msqrt><mi>T</mi></msqrt><mo>=</mo><mn mathvariant="bold">0.1528</mn></mrow><annotation encoding="application/x-tex">
+T = \bar U + \left(1+\tfrac13\right)B
+  = 0.01 + \tfrac43(0.01) = \mathbf{0.0233\overline{3}},
+\qquad SE = \sqrt{T} = \mathbf{0.1528}
+</annotation></semantics></math></p>
+<p>The between-imputation term has <strong>inflated the standard error
+from 0.100 to 0.153</strong>, a 53% increase. The fraction of missing
+information is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mi>m</mi></mfrac></mstyle><mo stretchy="false" form="postfix">)</mo><mi>B</mi><mi>/</mi><mi>T</mi><mo>=</mo><mn>0.01</mn><mover><mn>3</mn><mo accent="true">¯</mo></mover><mi>/</mi><mn>0.023</mn><mover><mn>3</mn><mo accent="true">¯</mo></mover><mo>=</mo><mn mathvariant="bold">0.571</mn></mrow><annotation encoding="application/x-tex">\gamma = (1+\tfrac1m)B/T = 0.01\overline{3}/0.023\overline{3} =
+\mathbf{0.571}</annotation></semantics></math>, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ν</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mover><mi>U</mi><mo accent="true">‾</mo></mover><mi>/</mi><mo stretchy="false" form="prefix">[</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mi>m</mi></mfrac></mstyle><mo stretchy="false" form="postfix">)</mo><mi>B</mi><mo stretchy="false" form="postfix">]</mo><msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mn>2</mn></msup><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mn>0.75</mn><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo>=</mo><mn mathvariant="bold">6.125</mn></mrow><annotation encoding="application/x-tex">\nu = (m-1)\big(1 + \bar U/[(1+\tfrac1m)B]\big)^2 = 2(1+0.75)^2 =
+\mathbf{6.125}</annotation></semantics></math> – three imputations buy
+roughly six degrees of freedom, not three.</p>
+<blockquote>
+<p><strong>Why this cannot be done on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>a</mi><mo accent="true">̂</mo></mover><mover><mi>b</mi><mo accent="true">̂</mo></mover></mrow><annotation encoding="application/x-tex">\hat a\hat b</annotation></semantics></math>
+directly.</strong> Every step above is linear in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>.
+The indirect effect
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">ab</annotation></semantics></math>
+is not, so <code><a href="../reference/pool.html">pool()</a></code> deliberately stops here: it pools
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(a, b)</annotation></semantics></math>
+and their covariance and hands the nonlinear step to
+<code>RMediation</code>. Pooling
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>a</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><msub><mover><mi>b</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\hat a_i \hat b_i</annotation></semantics></math>
+across imputations and attaching a normal interval commits two errors at
+once.</p>
+</blockquote>
 <p>The pooled <code>MediationData</code> is built by
 <strong>copy-modifying</strong> a per-imputation one (S7 is
 copy-on-write), replacing only
@@ -216,7 +313,7 @@ and
 — so all medfit metadata (roles, predictors, families) is inherited and
 the aliases stay name-addressable for
 <code><a href="https://data-wise.github.io/rmediation/reference/ci_mediation_data.html" class="external-link">ci_mediation_data()</a></code>.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md_mi</span><span class="op">)</span>            <span class="co"># m named MediationData</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>             <span class="co"># pooled named MediationData + within/between/total vcov</span></span>
 <span><span class="va">res</span><span class="op">@</span><span class="va">tidy_table</span>               <span class="co"># term, estimate, std_error, var_w, var_b, var_tot</span></span></code></pre></div>
@@ -254,6 +351,44 @@ d_S = \tfrac{\text{LRT(stacked data)}}{K},\quad
 r_4 = \max\!\Big(0, \tfrac{K+1}{k(K-1)}(\bar d - d_S)\Big),\quad
 D_4 = \tfrac{d_S}{k(1+r_4)} \sim F_{k,\nu}.
 </annotation></semantics></math></p>
+<p><strong>A hand-computable example.</strong> Take
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">K = 3</annotation></semantics></math>
+imputations testing a single constraint
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k = 1</annotation></semantics></math>),
+with per-imputation MBCO statistics and a stacked statistic:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mn>1</mn></msub><mo>=</mo><mn>6.0</mn><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>d</mi><mn>2</mn></msub><mo>=</mo><mn>7.5</mn><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>d</mi><mn>3</mn></msub><mo>=</mo><mn>9.0</mn><mspace width="0.278em"></mspace><mo>⇒</mo><mspace width="0.278em"></mspace><mover><mi>d</mi><mo accent="true">‾</mo></mover><mo>=</mo><mn mathvariant="bold">7.5</mn><mo>;</mo><mspace width="2.0em"></mspace><msub><mi>d</mi><mi>S</mi></msub><mo>=</mo><mn mathvariant="bold">6.0</mn></mrow><annotation encoding="application/x-tex">
+d_1 = 6.0,\quad d_2 = 7.5,\quad d_3 = 9.0
+\;\Rightarrow\; \bar d = \mathbf{7.5};
+\qquad d_S = \mathbf{6.0}
+</annotation></semantics></math><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mn>4</mn></msub><mo>=</mo><mrow><mi mathvariant="normal">max</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mo minsize="180%" maxsize="180%" stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mspace width="0.222em"></mspace><mstyle displaystyle="false"><mfrac><mrow><mi>K</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mstyle><mo stretchy="false" form="prefix">(</mo><mover><mi>d</mi><mo accent="true">‾</mo></mover><mo>−</mo><msub><mi>d</mi><mi>S</mi></msub><mo stretchy="false" form="postfix">)</mo><mo minsize="180%" maxsize="180%" stretchy="true" form="postfix">)</mo><mo>=</mo><mstyle displaystyle="false"><mfrac><mn>4</mn><mn>2</mn></mfrac></mstyle><mo stretchy="false" form="prefix">(</mo><mn>7.5</mn><mo>−</mo><mn>6.0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mo>×</mo><mn>1.5</mn><mo>=</mo><mn mathvariant="bold">3.0</mn></mrow><annotation encoding="application/x-tex">
+r_4 = \max\!\Big(0,\ \tfrac{K+1}{k(K-1)}(\bar d - d_S)\Big)
+    = \tfrac{4}{2}(7.5 - 6.0) = 2 \times 1.5 = \mathbf{3.0}
+</annotation></semantics></math><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>D</mi><mn>4</mn></msub><mo>=</mo><mfrac><msub><mi>d</mi><mi>S</mi></msub><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><msub><mi>r</mi><mn>4</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo>=</mo><mfrac><mn>6.0</mn><mrow><mn>1</mn><mo>×</mo><mn>4</mn></mrow></mfrac><mo>=</mo><mn mathvariant="bold">1.5</mn></mrow><annotation encoding="application/x-tex">
+D_4 = \frac{d_S}{k(1+r_4)} = \frac{6.0}{1 \times 4} = \mathbf{1.5}
+</annotation></semantics></math></p>
+<p>Since
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mo>≯</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">k(K-1) = 2 \not&gt; 4</annotation></semantics></math>,
+the small-sample branch for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ν</mi><annotation encoding="application/x-tex">\nu</annotation></semantics></math>
+applies:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ν</mi><mo>=</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>2</mn></mfrac></mstyle><mo>⋅</mo><mn>2</mn><mo>⋅</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>1</mn></mfrac></mstyle><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>3</mn></mfrac></mstyle><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mn>4</mn><mi>/</mi><mn>3</mn><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo>=</mo><mn mathvariant="bold">3.556</mn></mrow><annotation encoding="application/x-tex">\nu = \tfrac12 \cdot 2 \cdot (1 + \tfrac11)(1 + \tfrac13)^2
+= 2 (4/3)^2 = \mathbf{3.556}</annotation></semantics></math>, giving
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mrow><mi mathvariant="normal">Pr</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">[</mo><msub><mi>F</mi><mrow><mn>1</mn><mo>,</mo><mspace width="0.167em"></mspace><mn>3.556</mn></mrow></msub><mo>&gt;</mo><mn>1.5</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn mathvariant="bold">0.296</mn></mrow><annotation encoding="application/x-tex">p = \Pr[F_{1,\,3.556} &gt; 1.5] = \mathbf{0.296}</annotation></semantics></math>.</p>
+<p>The moral is in the arithmetic: the average statistic 7.5 would have
+looked significant, but the stacked statistic is only 6.0, and that
+<strong>gap is missing information</strong>. It sets
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mn>4</mn></msub><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">r_4 = 3</annotation></semantics></math>,
+which deflates the test to 1.5. Averaging the per-imputation statistics
+instead would have been anti-conservative by a factor of five.</p>
+<blockquote>
+<p>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mn>4</mn></msub><annotation encoding="application/x-tex">r_4</annotation></semantics></math>
+truncates to 0, the missing-information correction vanishes and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>D</mi><mn>4</mn></msub><mo>=</mo><msub><mi>d</mi><mi>S</mi></msub><mi>/</mi><mi>k</mi></mrow><annotation encoding="application/x-tex">D_4 = d_S/k</annotation></semantics></math>.
+Check <code>r4</code> in the returned object before trusting a
+borderline
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>.</p>
+</blockquote>
 </div>
 <div class="section level3">
 <h3 id="hosting-decision">4.3 Hosting decision<a class="anchor" aria-label="anchor" href="#hosting-decision"></a>
@@ -281,7 +416,7 @@ internal branch, <code>.ipw_run()</code>; <code><a href="../reference/pool.html"
 <div class="section level3">
 <h3 id="pipeline">5.1 Pipeline<a class="anchor" aria-label="anchor" href="#pipeline"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">md</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>, treatment <span class="op">=</span> <span class="st">"X"</span>,</span>
 <span>  mediator <span class="op">=</span> <span class="st">"M"</span>, method <span class="op">=</span> <span class="st">"ipw"</span>,</span>
 <span>  weight_formula <span class="op">=</span> <span class="cn">NULL</span>, weight_stabilize <span class="op">=</span> <span class="cn">TRUE</span>, weight_trim <span class="op">=</span> <span class="fl">0.99</span>,</span>
@@ -320,7 +455,74 @@ following the causal order
 numerator to reduce variance:
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>i</mi></msub><mo>=</mo><mfrac><mrow><mover><mi>P</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>=</mo><mn>1</mn><mo>∣</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mover><mi>P</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>=</mo><mn>1</mn><mo>∣</mo><msub><mi>Z</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
 w_i = \frac{\hat P(R=1\mid X_i)}{\hat P(R=1\mid Z_i)} .
-</annotation></semantics></math><strong>Trimming</strong>
+</annotation></semantics></math></p>
+<p><strong>A hand-computable example.</strong> Four complete cases, with
+fitted probabilities from the denominator model and a constant numerator
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>P</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>=</mo><mn>1</mn><mo>∣</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">\hat P(R=1\mid X_i) = 0.5</annotation></semantics></math>:</p>
+<table class="table">
+<colgroup>
+<col width="25%">
+<col width="25%">
+<col width="25%">
+<col width="25%">
+</colgroup>
+<thead><tr class="header">
+<th><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math></th>
+<th><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>P</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>=</mo><mn>1</mn><mo>∣</mo><msub><mi>Z</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat P(R=1\mid Z_i)</annotation></semantics></math></th>
+<th>unstabilized
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mover><mi>P</mi><mo accent="true">̂</mo></mover></mrow><annotation encoding="application/x-tex">1/\hat P</annotation></semantics></math>
+</th>
+<th>stabilized
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.5</mn><mi>/</mi><mover><mi>P</mi><mo accent="true">̂</mo></mover></mrow><annotation encoding="application/x-tex">0.5/\hat P</annotation></semantics></math>
+</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>0.80</td>
+<td>1.250</td>
+<td><strong>0.625</strong></td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>0.50</td>
+<td>2.000</td>
+<td><strong>1.000</strong></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>0.40</td>
+<td>2.500</td>
+<td><strong>1.250</strong></td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>0.25</td>
+<td>4.000</td>
+<td><strong>2.000</strong></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>mean</td>
+<td>2.4375</td>
+<td><strong>1.21875</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Two things to read off. First, with a constant numerator every
+stabilized weight is exactly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.5</mn><mo>×</mo></mrow><annotation encoding="application/x-tex">0.5\times</annotation></semantics></math>
+its unstabilized counterpart – a common rescaling, so <strong>the point
+estimate is unchanged</strong>; stabilization buys variance, never
+consistency. Second, <code>weight_trim = 0.75</code> caps at the 0.75
+quantile of the stabilized weights,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.25</mn><mo>+</mo><mn>0.25</mn><mo stretchy="false" form="prefix">(</mo><mn>2.00</mn><mo>−</mo><mn>1.25</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn mathvariant="bold">1.4375</mn></mrow><annotation encoding="application/x-tex">1.25 + 0.25(2.00-1.25) = \mathbf{1.4375}</annotation></semantics></math>,
+pulling case 4 from 2.000 down to 1.4375.</p>
+<p>That last row is the bias-variance trade in miniature: case 4 was the
+<em>most</em> under-represented (a 25% chance of being complete), so
+trimming it is precisely a decision to under-correct where correction
+matters most. <strong>Trimming changes the estimand; it does not merely
+stabilize the estimate.</strong> <strong>Trimming</strong>
 (<code>weight_trim</code>) caps weights at an upper quantile of the
 untrimmed complete-case weights; <code>1</code> disables it.</p>
 </div>
@@ -470,7 +672,7 @@ meaningless additive shift.</p>
 <code>call</code> — a <code>mids</code> built inside a function stores a
 call referencing that function’s local variables, which does not resolve
 anywhere else.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sens</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sensitivity_mnar.html">sensitivity_mnar</a></span><span class="op">(</span><span class="va">md</span>, delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1.5</span>, <span class="op">-</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">sens</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sens</span><span class="op">)</span>   <span class="co"># adds the tipping point, if the grid contains one</span></span></code></pre></div>
@@ -684,6 +886,118 @@ models, stabilized and trimmed; sandwich SE by default.</li>
 for one cycle.</li>
 </ul>
 <hr>
+</div>
+<div class="section level2">
+<h2 id="a--self-check">7A. Self-check<a class="anchor" aria-label="anchor" href="#a--self-check"></a>
+</h2>
+<p><strong>Procedural.</strong> With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">m = 5</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>U</mi><mo accent="true">‾</mo></mover><mo>=</mo><mn>0.04</mn></mrow><annotation encoding="application/x-tex">\bar U = 0.04</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>=</mo><mn>0.02</mn></mrow><annotation encoding="application/x-tex">B = 0.02</annotation></semantics></math>,
+compute
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+and the fraction of missing information.</p>
+<p><strong>Conceptual.</strong> Section 4.1 shows
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">[</mo><msub><mi>ℓ</mi><mtext mathvariant="normal">full</mtext></msub><mo>−</mo><mrow><mi mathvariant="normal">max</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>ℓ</mi><mrow><mi>a</mi><mo>=</mo><mn>0</mn></mrow></msub><mo>,</mo><msub><mi>ℓ</mi><mrow><mi>b</mi><mo>=</mo><mn>0</mn></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">T = 2[\ell_{\text{full}} - \max(\ell_{a=0}, \ell_{b=0})]</annotation></semantics></math>.
+Why does the <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max()</a></code> – rather than the product
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">ab</annotation></semantics></math>
+itself – prevent pooling before testing?</p>
+<p><strong>Critical.</strong> A colleague reports
+<code>sensitivity_mnar(delta = c(0, -1, -2))</code> with a tipping point
+at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mi>−</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">\delta = -2</annotation></semantics></math>
+and concludes: “the mediation effect is robust unless non-respondents
+score 2 points lower.” Name two things wrong with that sentence.</p>
+<p><strong>Transfer.</strong> You have a binary mediator with 30%
+missingness and want an MNAR sensitivity curve.
+<code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> errors. What is the obstacle, and what
+would a correct construction shift?</p>
+<div class="section level3">
+<h3 id="a-1-worked-answers">7A.1 Worked answers<a class="anchor" aria-label="anchor" href="#a-1-worked-answers"></a>
+</h3>
+<p><strong>Procedural.</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mover><mi>U</mi><mo accent="true">‾</mo></mover><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>5</mn></mfrac></mstyle><mo stretchy="false" form="postfix">)</mo><mi>B</mi><mo>=</mo><mn>0.04</mn><mo>+</mo><mn>1.2</mn><mo stretchy="false" form="prefix">(</mo><mn>0.02</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.04</mn><mo>+</mo><mn>0.024</mn><mo>=</mo><mn mathvariant="bold">0.064</mn></mrow><annotation encoding="application/x-tex">T = \bar U + (1+\tfrac15)B = 0.04 + 1.2(0.02) = 0.04 + 0.024
+= \mathbf{0.064}</annotation></semantics></math>. Then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>=</mo><mn>0.024</mn><mi>/</mi><mn>0.064</mn><mo>=</mo><mn mathvariant="bold">0.375</mn></mrow><annotation encoding="application/x-tex">\gamma = 0.024/0.064 = \mathbf{0.375}</annotation></semantics></math>:
+37.5% of the information about this parameter is missing.</p>
+<p><strong>Conceptual.</strong> Rubin’s rules are a linear operation –
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>Q</mi><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar Q</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+are averages of per-imputation quantities. <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max()</a></code> is not
+linear, so the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">max</mi><annotation encoding="application/x-tex">\max</annotation></semantics></math>
+of the pooled log-likelihoods is not the pool of the per-imputation
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">max</mi><annotation encoding="application/x-tex">\max</annotation></semantics></math>es:
+the constrained fit may select the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">a=0</annotation></semantics></math>
+branch in one imputation and the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">b=0</annotation></semantics></math>
+branch in another. That is why <code>MDMediationFit</code> retains the
+per-imputation list. The product
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">ab</annotation></semantics></math>
+is <em>also</em> nonlinear, but it is handled differently –
+<code><a href="../reference/pool.html">pool()</a></code> pools
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(a,b)</annotation></semantics></math>
+linearly and defers the product to <code>RMediation</code>. No such
+deferral is available for a branch selection.</p>
+<p><strong>Critical.</strong> (i)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>
+is a <strong>conditional</strong> parameter, while “non-respondents
+score 2 points lower” is a <strong>marginal</strong> claim; the realized
+<code>msp</code> at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mi>−</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">\delta = -2</annotation></semantics></math>
+will not be
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">-2</annotation></semantics></math>,
+so read it off the output rather than assuming it (section 5B.2). (ii) A
+grid of three points locates a tipping point no better than the grid
+spacing – the true crossing lies somewhere in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>1</mn><mo>,</mo><mi>−</mi><mn>2</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">(-1, -2]</annotation></semantics></math>.
+A third, if you want it: “robust” is a claim about
+<em>plausibility</em>, and nothing in the output speaks to whether
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mi>−</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">\delta = -2</annotation></semantics></math>
+is plausible here.</p>
+<p><strong>Transfer.</strong> The obstacle is that the implementation
+adds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>
+to the <strong>drawn value</strong> through <code>mice</code>’s
+<code>post</code>, and adding a constant to a drawn 0/1 is meaningless.
+A correct construction offsets the imputation model’s <strong>linear
+predictor</strong>, putting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>
+on the log-odds scale. <code>mice</code> ships this as
+<code>mice.impute.mnar.logreg()</code> via <code>blots</code>; see
+<code>docs/specs/SPEC-narfcs-delegation-2026-08-29.md</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="a-2-three-common-confusions">7A.2 Three common confusions<a class="anchor" aria-label="anchor" href="#a-2-three-common-confusions"></a>
+</h3>
+<p><strong>“<code>delta = 0</code> should give
+<code>msp = 0</code>.”</strong> No. Under MAR, imputed values
+legitimately differ from observed ones whenever missingness depends on
+covariates, because the imputed subgroup has a different covariate mix.
+What <code>delta = 0</code> guarantees is that the <em>analysis</em>
+reproduces the MAR result exactly, not that the marginal shift is zero.
+The table in section 5B.2 shows <code>msp = 0.244</code> at
+<code>delta = 0</code>.</p>
+<p><strong>“<code>se_type = \"sandwich\"</code> corrects for having
+estimated the weights.”</strong> It does not. The sandwich is
+heteroskedasticity-consistent and treats
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>π</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat\pi</annotation></semantics></math>
+as fixed. Robins, Rotnitzky and Zhao (1994) show that ignoring weight
+estimation makes the variance <strong>conservative</strong> – estimating
+the weights reduces variance relative to knowing them – so the intervals
+are honest but wider than necessary.</p>
+<p><strong>“IPW and MI should agree; if they disagree, one is
+broken.”</strong> They target the same estimand under MAR but use
+different information: MI uses partially observed rows, IPW discards
+them and reweights what remains. Disagreement beyond Monte-Carlo noise
+is diagnostic – usually of a weight model missing a MAR driver, or an
+imputation model incompatible with the substantive model – not of a
+bug.</p>
+<hr>
+</div>
 </div>
 <div class="section level2">
 <h2 id="references">8. References<a class="anchor" aria-label="anchor" href="#references"></a>
