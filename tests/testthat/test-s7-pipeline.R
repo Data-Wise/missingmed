@@ -127,3 +127,10 @@ test_that("MBCO D4 matches the prototype exactly on >= 3 cells", {
     expect_equal(unname(mine["d_S"]), unname(proto["d_S"]), tolerance = 1e-6)
   }
 })
+
+test_that("pool() falls through to mice::pool for non-missingmed objects", {
+  skip_if_not_installed("mice")
+  imp <- mice::mice(mice::nhanes, m = 2, maxit = 1, printFlag = FALSE, seed = 1)
+  res <- pool(with(imp, lm(bmi ~ age)))
+  expect_s3_class(res, "mipo")
+})

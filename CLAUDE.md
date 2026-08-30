@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this package is
 
-**missingmed** — "Mediation Analysis with Multiple Imputation for Missing Data" (**v0.2.0**). A **thin orchestration layer** (the missing-data middle): it runs mediation across incomplete data and pools with Rubin's rules — **delegating fitting to `medfit`** and **inference to `RMediation`**, with simulation in `medsim`. **S7-first.**
+**missingmed** — "Mediation Analysis with Multiple Imputation for Missing Data" (**v0.3.0**). A **thin orchestration layer** (the missing-data middle): it runs mediation across incomplete data and pools with Rubin's rules — **delegating fitting to `medfit`** and **inference to `RMediation`**, with simulation in `medsim`. **S7-first.**
 
-> **🟢 S7 migration COMPLETE + IPW shipped (v0.2.0, released 2026-06-12).** The S4→S7 rewrite (Phase 0) and the IPW estimator (Phase 1) are released on GitHub, the [pkgdown site](https://data-wise.github.io/missingmed/), and the [Data-Wise r-universe](https://data-wise.r-universe.dev). Next (un-gated, not manuscript-blocking): GLM models, MNAR sensitivity.
+> **🟢 Roadmap complete (v0.3.0).** S7 rewrite + IPW (v0.2.0, 2026-06-12), then GLM family coverage (PR #5) and MNAR sensitivity `sensitivity_mnar()` (PR #6) landed 2026-08. Released on GitHub, the [pkgdown site](https://data-wise.github.io/missingmed/), and the [Data-Wise r-universe](https://data-wise.r-universe.dev). Post-release backlog: `docs/specs/PLAN-pre-v0.3.0-review-fixes-2026-08-29.md` (parked section).
 
 ## Core workflow (S7)
 
@@ -30,7 +30,7 @@ The **S4 API is deprecated** (`set_sem`/`run_sem`/`pool_sem` + `SemImputedData`/
 
 ## Dependencies (gotchas)
 
-- Imports: `S7`, **`medfit (>= 0.3.1)`** (needs `weights=`/`se_type=`), **`RMediation (>= 1.4.0)`**, `mice`, `lavaan`, `OpenMx`, `dplyr`, `purrr`, `tibble`, `broom`, `rlang`.
+- Imports: `S7`, **`medfit (>= 0.3.1)`** (needs `weights=`/`se_type=`), **`RMediation (>= 1.5.0)`**, `mice`, `lavaan`, `OpenMx`, `dplyr`, `purrr`, `tibble`, `broom`, `rlang`.
 - `DESCRIPTION` `Remotes:` must **name-qualify RMediation**: `RMediation=data-wise/rmediation` (repo is `rmediation`, package is `RMediation` — plain form breaks pak). `Additional_repositories: https://data-wise.r-universe.dev` lets pak resolve the non-CRAN deps.
 - Inference namespace is **`RMediation`** (capital), not `rmediation`.
 

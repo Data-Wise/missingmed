@@ -31,3 +31,4 @@
 ^pkgdown$
 ^data-raw$
 ^pkgdown-site$
+^tests/testthat/testthat-problems\.rds$

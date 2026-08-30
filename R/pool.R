@@ -23,6 +23,12 @@
 #' @name pool
 pool <- S7::new_generic("pool", "object")
 
+# Anything that is not a missingmed fit (a mice::mira, for one) goes to
+# mice::pool, so attaching missingmed does not break the standard mice workflow.
+S7::method(pool, S7::class_any) <- function(object, ...) {
+  mice::pool(object, ...)
+}
+
 S7::method(pool, MDMediationFit) <- function(object, ...) {
   m <- object@m
   if (m < 1) stop("Nothing to pool: @m must be >= 1.", call. = FALSE)

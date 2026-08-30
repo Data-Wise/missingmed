@@ -85,7 +85,7 @@ contracts, and methodology.
 
 ```
 Tofighi, D. (2026). missingmed: Mediation Analysis with Multiple Imputation
-for Missing Data. R package version 0.2.0.
+for Missing Data. R package version 0.3.0.
 https://github.com/Data-Wise/missingmed
 ```
 
