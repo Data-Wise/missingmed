@@ -2,13 +2,13 @@ status: active
 priority: --
 progress: 100
 kind: package
-updated: 2026-08-29
-next: Every roadmap phase is landed (S7, IPW, GLM, MNAR). Nothing is blocking.
-  Options: (a) release v0.3.0 (dev -> main: NEWS already carries MNAR + GLM;
-  bump DESCRIPTION, tag, r-universe picks it up); (b) v2 MNAR candidates in
-  SPEC-mnar-sensitivity-2026-08-22.md 5: NARFCS delegation (makes categorical
-  targets free), CSP calibration, covariate-varying delta. Manuscript runs on
-  medsim, not missingmed.
+updated: 2026-08-30
+next: RELEASE v0.3.0 — dev is 20 commits ahead of main, CI green at e424b8d,
+  rforge cran-prep reports STATUS ready with no blockers. Open the dev->main PR
+  (merge commit, not squash), merge, tag v0.3.0, cut the GitHub release; the
+  r-universe picks it up from there. After that the v0.4.0 candidate is
+  SPEC-narfcs-delegation-2026-08-29.md (routes categorical targets to mice's
+  mnar.logreg, keeps post for pmm). Manuscript runs on medsim, not missingmed.
 type: r
 worktrees:
   ~/.git-worktrees/missingmed/feature-glm-phase — feature/glm-phase, MERGED as
@@ -31,6 +31,24 @@ worktrees:
   tests/test-all.sh (44 checks), not `pytest tests/` (599); and missingmed's
   pkgdown job reads _pkgdown.yml's explicit reference index, which R CMD check
   never opens — two new exports were missing from it. See CLAUDE.md.
+- 2026-08-30 (review + gate): PR #7 merged (3521d91). Two adversarial review
+  passes over the release candidate found 4 blockers, then 5 more in the fixes
+  themselves -- including a REGRESSION introduced by the first pass: passing
+  maxit = mids$iteration made a maxit = 0 baseline return a silently FLAT
+  sensitivity curve. Confirmed defects, all fixed: IPW weights misaligned to
+  rows (fitted() vs predict()); .mnar_reimpute() dropping maxit/blocks/formulas/
+  ignore; pool() masking mice::pool; mids$method being block-keyed not
+  variable-keyed; mice floor needing >= 3.18.0 for $calltype.
+  Then rforge cran-prep caught what R CMD check --as-cran cannot see:
+  VignetteBuilder declared knitr but the engine is knitr::rmarkdown, so the
+  CRAN noSuggests pass ERRORed on vignette rebuilding. Gate now STATUS ready.
+  148 tests pass; check --as-cran 0/0/0.
+- 2026-08-30 (research): prior-art scan (docs/specs/SPEC-narfcs-delegation-
+  2026-08-29.md). Every method component is already published; the package-level
+  gap is real -- no R package combines missing-data handling + mediation + MNAR
+  sensitivity. Verified empirically that the post-based delta and mice's native
+  mnar.norm produce IDENTICAL draws (8.9e-16) on the same seed, which retires
+  the old spec's open fork.
 - 2026-08-29 (merge): PR #6 MNAR sensitivity MERGED to dev (b9ac0ce). Before the
   merge an adversarial review of the diff found 3 real defects, fixed in 7aa2a9f:
   format() truncated the delta to 7 sig. digits inside the post expression
