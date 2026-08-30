@@ -2,7 +2,7 @@
 
 ## Authors
 
-- **Davood Tofighi**. Author, maintainer.
+- **Davood Tofighi**. Author, maintainer, copyright holder.
   [](https://orcid.org/0000-0001-8523-7776)
 
 ## Citation
