@@ -32,3 +32,7 @@
 ^data-raw$
 ^pkgdown-site$
 ^tests/testthat/testthat-problems\.rds$
+^cran-comments\.md$
+^CLAUDE\.md$
+^MIGRATION_NOTES\.md$
+^README\.dev\.md$

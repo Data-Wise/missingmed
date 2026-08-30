@@ -2,10 +2,10 @@ Package: missingmed
 Type: Package
 Title: Mediation Analysis with Multiple Imputation for Missing Data
 Version: 0.3.0
-Date: 2026-06-11
+Date: 2026-08-29
 Authors@R: person("Davood", "Tofighi",
         email = "dtofighi@gmail.com",
-        role = c("aut", "cre"),
+        role = c("aut", "cre", "cph"),
         comment= c(ORCID= "0000-0001-8523-7776")
         )
 Depends:
@@ -29,7 +29,9 @@ Suggests:
     rmarkdown,
     quarto,
     pkgdown
-VignetteBuilder: knitr
+VignetteBuilder: knitr, rmarkdown
+Language: en-US
+Config/testthat/edition: 3
 Remotes:
     data-wise/medfit,
     RMediation=data-wise/rmediation
