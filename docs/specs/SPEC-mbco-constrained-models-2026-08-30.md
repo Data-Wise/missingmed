@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | **IMPLEMENTED 2026-08-30** — §4 shipped as reading (iii) (refuse); the ruling is still open |
+| **Status** | **CLOSED 2026-08-30** — implemented; §4 ruled by the author as reading (i) |
 | **Created** | 2026-08-30 |
 | **Source** | adversarial `/code-review high main..dev`, finding 3; parked in `PLAN-pre-v0.3.0-review-fixes-2026-08-29.md` |
 | **Affects** | `R/mbco_mi.R:17-18` (`.mm_ll_med`) |
@@ -111,15 +111,18 @@ MBCO as published (Tofighi & Kelley 2020, *Psychological Methods* 25(4):
 (i) is a methodological question for the author, not an implementation detail,
 and this spec does not decide it.**
 
-**Recommendation, for the author to accept or overrule:** ship §3 for the
-unambiguous nonlinear cases now, and take reading (iii) for `X:M` — error with
-guidance — until (i) is confirmed. Rationale: (i) is almost certainly right, but
-"almost certainly" is the wrong standard for silently redefining a published
-test's null hypothesis. An error costs a user one message; a wrong null costs
-them a wrong inference they cannot see.
+**Recommendation was:** ship §3 now and take reading (iii) for `X:M` — error
+with guidance — until (i) is confirmed.
 
-If the author confirms (i), the error branch is deleted and §3 covers
-everything — a one-line change.
+> **RULED 2026-08-30 (author): reading (i).** MBCO's null is "the mediator has
+> no effect on the outcome at all", so the constrained outcome model drops the
+> mediator's main effect *and* every interaction carrying it. The interim error
+> branch was removed the same day; `.mm_drop_path()` implements (i) directly and
+> needs no special case. Rationale on the record: reading (ii) would let
+> mediation run through `X:M` under a hypothesis asserting there is none.
+>
+> This is the package's stated extension of MBCO to the interaction case, not a
+> result from Tofighi & Kelley (2020), and NEWS says so.
 
 ## 5. Second finding, incidental but worth recording
 
@@ -141,15 +144,11 @@ undocumented.
 ## 6a. What was actually implemented (2026-08-30)
 
 `.mm_drop_path()` replaces both `update()` calls; `.mm_check_no_xm_interaction()`
-guards `.mm_mbco_T()`. §4 shipped as the **recommended reading (iii)**: a
-treatment-by-mediator interaction in the outcome model errors, naming the reason
-and pointing at `infer(type = "mc")`. A mediator-by-covariate interaction
-(`Y ~ X + M * C`) is *not* ambiguous and still runs.
-
-**The §4 ruling remains open.** If the author confirms reading (i) — that MBCO's
-null means "M has no effect on Y at all" — delete the
-`.mm_check_no_xm_interaction()` call at the top of `.mm_mbco_T()`; `.mm_drop_path()`
-already implements (i) correctly, and the tests for it are written.
+guards `.mm_mbco_T()`. §4 was ruled by the author as **reading (i)** on the
+same day, so the interim guard shipped in `d82dbd6` was removed: an `X:M`
+interaction now nulls the mediator entirely rather than erroring. The ruling and
+its rationale are recorded as a comment at the top of `R/mbco_mi.R`, because it
+is a statement about the hypothesis being tested, not an implementation note.
 
 §6's `stats::glm()` limitation was **recorded as a comment**, not fixed: it is
 latent (`infer(type = "mbco")` errors on IPW fits by design, and the MI path is

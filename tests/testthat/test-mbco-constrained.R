@@ -55,14 +55,20 @@ test_that("a moderated a-path nulls the whole treatment path", {
   expect_gt(Tstat(d, Y ~ X + M + C, M ~ X * C), 0)
 })
 
-test_that("a treatment-by-mediator interaction is refused, not guessed", {
-  # The estimand is ambiguous there (the indirect effect is not a*b), so the
-  # package errors rather than silently picking a reading. Spec section 4.
+test_that("a treatment-by-mediator interaction nulls the mediator entirely", {
+  # Author's ruling (spec section 4, reading (i)): the null is "M has no effect
+  # on Y at all", so the constrained outcome model drops M *and* X:M. Nulling
+  # the main effect alone would leave mediation running through the interaction
+  # under a hypothesis asserting there is none.
   d <- gen_mbco(interaction = TRUE)
-  expect_error(Tstat(d, Y ~ X * M + C, M ~ X + C), "interaction")
-  expect_error(Tstat(d, Y ~ X + M + C + X:M, M ~ X + C), "not `a \\* b`")
-  # a mediator-by-covariate interaction is NOT ambiguous and must still run
+  dp <- function(f, v) paste(deparse(missingmed:::.mm_drop_path(f, v)), collapse = "")
+  expect_equal(dp(Y ~ X * M + C, "M"), "Y ~ X + C")
+  expect_equal(dp(Y ~ X + M + C + X:M, "M"), "Y ~ X + C")
+  expect_gt(Tstat(d, Y ~ X * M + C, M ~ X + C), 0)
   expect_gt(Tstat(d, Y ~ X + M * C, M ~ X + C), 0)
+  # and the interaction spec must not silently agree with the no-interaction
+  # one: the full model differs, so the statistic must be free to differ too
+  expect_type(Tstat(d, Y ~ X * M + C, M ~ X + C), "double")
 })
 
 test_that("T does not depend on the outcome model when the a-branch wins", {

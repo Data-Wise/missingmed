@@ -27,35 +27,14 @@
   )
 }
 
-# Terms carrying BOTH the treatment and the mediator (an exposure-mediator
-# interaction). Their presence makes "the b-path is zero" ambiguous -- see
-# .mm_check_no_xm_interaction().
-.mm_xm_terms <- function(formula_y, treatment, mediator) {
-  tl <- attr(stats::terms(formula_y), "term.labels")
-  tl[vapply(tl, function(t) {
-    v <- all.vars(str2lang(t))
-    treatment %in% v && mediator %in% v
-  }, logical(1))]
-}
-
-# With an exposure-mediator interaction the indirect effect is not a * b (the
-# natural indirect effect involves the interaction too), so "b = 0" has more
-# than one defensible reading and MBCO as published (Tofighi & Kelley 2020) is
-# stated for the no-interaction case. Refuse rather than silently pick one.
-.mm_check_no_xm_interaction <- function(formula_y, treatment, mediator) {
-  bad <- .mm_xm_terms(formula_y, treatment, mediator)
-  if (length(bad)) {
-    stop("MBCO is not defined here: the outcome model contains a ",
-      "treatment-by-mediator interaction (", paste(bad, collapse = ", "), "). ",
-      "With that interaction the indirect effect is not `a * b`, so the null ",
-      "`a * b = 0` has no single meaning -- nulling the mediator's main effect ",
-      "alone would leave mediation running through the interaction. Fit MBCO ",
-      "on a model without the interaction, or use `infer(type = \"mc\")`.",
-      call. = FALSE
-    )
-  }
-  invisible(TRUE)
-}
+# RULING (2026-08-30, author): when the outcome model contains a
+# treatment-by-mediator interaction, MBCO's null `a * b = 0` is read as "the
+# mediator has no effect on the outcome at all" -- so nulling the b-path drops
+# the mediator's main effect AND every interaction carrying it. The alternative
+# reading (null the main effect only, leaving X:M) would let mediation run
+# through the interaction under a hypothesis claiming there is none.
+# .mm_drop_path() implements this directly; no special case is needed. See
+# docs/specs/SPEC-mbco-constrained-models-2026-08-30.md section 4.
 
 # Mediation log-likelihood: full, or with the a-path (treatment -> mediator) or
 # the b-path (mediator -> outcome) dropped.
@@ -76,7 +55,6 @@
 # Complete-data MBCO likelihood-ratio statistic (branch-union constraint).
 .mm_mbco_T <- function(d, formula_y, formula_m, family_y, family_m,
                        treatment, mediator) {
-  .mm_check_no_xm_interaction(formula_y, treatment, mediator)
   # NB when the max() below selects the a-branch, the OUTCOME model appears in
   # both llF and llC and cancels exactly, so T does not depend on it at all.
   # That is correct, not a bug -- but a user who edits the outcome model and

@@ -19,14 +19,18 @@
   **unchanged to the digit**, so no previously reported analysis of that shape
   is affected.
 
-* `infer(type = "mbco")` now **errors** when the outcome model contains a
-  treatment-by-mediator interaction. With that interaction the indirect effect
-  is not `a * b` -- the natural indirect effect involves the interaction term
-  too -- so the null `a * b = 0` has no single meaning, and MBCO as published
-  (Tofighi & Kelley, 2020) is stated for the no-interaction case. Refusing is
-  deliberate: nulling the mediator's main effect alone would leave mediation
-  running through the interaction, and report a number for a hypothesis nobody
-  chose. Use `infer(type = "mc")`, or a model without the interaction. See
+* **What MBCO's null means under a treatment-by-mediator interaction is now
+  stated explicitly.** With that interaction the indirect effect is not `a * b`
+  -- the natural indirect effect involves the interaction term too -- so the
+  null needs a reading. `missingmed` takes the null to be **"the mediator has
+  no effect on the outcome at all"**: the constrained outcome model drops the
+  mediator's main effect *and* every interaction carrying it. The alternative
+  (null the main effect only, leaving `X:M`) would let mediation run through
+  the interaction under a hypothesis asserting there is none.
+
+  Note that MBCO as published (Tofighi & Kelley, 2020) is stated for the
+  no-interaction case; this is the package's stated extension of it, not a
+  result from that paper. See
   `docs/specs/SPEC-mbco-constrained-models-2026-08-30.md`.
 
 # missingmed 0.3.0
