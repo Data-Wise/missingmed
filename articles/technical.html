@@ -437,6 +437,152 @@ non-integer-response mistake still surfaces.</p>
 </div>
 </div>
 <div class="section level2">
+<h2 id="b--mnar-sensitivity-sensitivity_mnar">5B. MNAR sensitivity (<code>sensitivity_mnar()</code>)<a class="anchor" aria-label="anchor" href="#b--mnar-sensitivity-sensitivity_mnar"></a>
+</h2>
+<p>The pipeline estimates under <strong>MAR</strong> — <code>mice</code>
+imputes under MAR by construction. MAR versus MNAR is not testable from
+the observed data, so there is nothing to estimate without an assumption
+imported from outside it. <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> therefore
+produces a <strong>curve</strong>, not an estimate:</p>
+<blockquote>
+<p>if the unobserved values of the target sit <code>delta</code> units
+away from what MAR imputation implies, the indirect effect is
+<em>X</em>.</p>
+</blockquote>
+<p>No rung is “the MNAR estimate”. Each is conditional on its own
+delta.</p>
+<div class="section level3">
+<h3 id="b-1-method">5B.1 Method<a class="anchor" aria-label="anchor" href="#b-1-method"></a>
+</h3>
+<p>Delta-adjusted imputation in the pattern-mixture sense (van Buuren,
+<em>FIMD</em> §9.2; Leacy et al. 2017). Per rung: re-impute with the
+shift applied, then run the existing pipeline unchanged.</p>
+<p>For a <strong>continuous</strong> target the canonical procedure
+imputes under MAR and then adds the constant to the imputed values
+(Hayati Rezvan et al. 2018) — which is what <code>mice</code>’s
+<code>post</code> argument does, and what this implements. For a
+<strong>categorical</strong> target the shift instead belongs on the
+imputation model’s linear predictor, with delta on the odds-ratio scale;
+that is not implemented, and such targets error rather than receiving a
+meaningless additive shift.</p>
+<p>Re-imputation rebuilds from the <code>mids</code> object’s
+<strong>stored settings</strong>, never from its recorded
+<code>call</code> — a <code>mids</code> built inside a function stores a
+call referencing that function’s local variables, which does not resolve
+anywhere else.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sens</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sensitivity_mnar.html">sensitivity_mnar</a></span><span class="op">(</span><span class="va">md</span>, delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1.5</span>, <span class="op">-</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">sens</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sens</span><span class="op">)</span>   <span class="co"># adds the tipping point, if the grid contains one</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="b-2-what-delta-actually-is-read-before-choosing-a-value">5B.2 What <code>delta</code> actually is — read before choosing a
+value<a class="anchor" aria-label="anchor" href="#b-2-what-delta-actually-is-read-before-choosing-a-value"></a>
+</h3>
+<p><code>delta</code> is a <strong>conditional</strong> sensitivity
+parameter (CSP): a difference conditional on all remaining variables
+<em>and their missingness indicators</em>. The quantity an analyst can
+actually reason about — “non-respondents average half a point lower” —
+is a <strong>marginal</strong> one (MSP). They are different
+numbers.</p>
+<p>Supplying an elicited MSP where a CSP is expected is the standard
+failure mode of this method. Tompsett et al. (2018) measure it: coverage
+fell from 95% to <strong>49.3%</strong> when an elicited MSP was
+inserted directly as the CSP.</p>
+<p><code>missingmed</code> cannot make the specified parameter marginal,
+but it can show you the realized one. Every rung reports
+<code>msp</code>:</p>
+<table class="table">
+<thead><tr class="header">
+<th>delta (CSP)</th>
+<th>msp (realized)</th>
+<th>estimate</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>0.244</td>
+<td>0.323</td>
+</tr>
+<tr class="even">
+<td>−0.5</td>
+<td>−0.256</td>
+<td>0.278</td>
+</tr>
+<tr class="odd">
+<td>−2</td>
+<td>−1.76</td>
+<td>0.098</td>
+</tr>
+</tbody>
+</table>
+<p>Two things to read off that table. First, <code>msp</code> is
+<strong>non-zero at delta = 0</strong> — under MAR, imputed values
+legitimately differ from observed ones when missingness depends on
+covariates. Second, <code>msp</code> is not simply <code>delta</code>
+shifted: the gap is a chained-equations effect. With a single incomplete
+variable the increments coincide exactly; with more, part of the shift
+circulates back through the other imputation models.</p>
+</div>
+<div class="section level3">
+<h3 id="b-3-reading-a-tipping-point">5B.3 Reading a tipping point<a class="anchor" aria-label="anchor" href="#b-3-reading-a-tipping-point"></a>
+</h3>
+<p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> reports the delta at which the interval first
+includes zero. Judge plausibility on the <strong>realized
+<code>msp</code></strong>, not on the CSP: Tompsett et al. note a
+CSP-scale tipping point has no direct clinical interpretation.
+Resseguier et al. add the constraint that a tipping value must
+“correspond to reasonable hypotheses supported by epidemiologic
+evidences” — a tipping point that requires an implausible departure from
+MAR is <em>reassurance</em>, not a warning.</p>
+</div>
+<div class="section level3">
+<h3 id="b-4-limitations">5B.4 Limitations<a class="anchor" aria-label="anchor" href="#b-4-limitations"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Limitation</th>
+<th>Status</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>method = "ipw"</code></td>
+<td>Errors. IPW has no imputations to shift; a weighting analogue is a
+different method with a different parameter.</td>
+</tr>
+<tr class="even">
+<td>Categorical targets</td>
+<td>Errors. Needs a linear-predictor offset (§5B.1); v2.</td>
+</tr>
+<tr class="odd">
+<td>
+<code>pmm</code> targets</td>
+<td>Allowed, with a message: shifted values may leave the observed range
+<code>pmm</code> otherwise guarantees.</td>
+</tr>
+<tr class="even">
+<td>Imputation-model compatibility</td>
+<td>
+<strong>Assumed, not checked.</strong> The <code>mids</code> arrives
+pre-built; if its imputation model is incompatible with the mediation
+model, the curve confounds departure-from-MAR with misspecification.
+<code>smcfcs</code> is the upstream fix.</td>
+</tr>
+<tr class="odd">
+<td>CSP calibration</td>
+<td>Not implemented. Searching for the CSP that realizes a target MSP
+(Tompsett et al. §8) is the principled fix for §5B.2; v2.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+</div>
+<div class="section level2">
 <h2 id="cross-package-engineering-decisions">6. Cross-package engineering decisions<a class="anchor" aria-label="anchor" href="#cross-package-engineering-decisions"></a>
 </h2>
 <p>These changes were made upstream to satisfy missingmed’s contracts;
@@ -554,6 +700,23 @@ Methods</em>.</li>
 <li>Seaman, S. R., &amp; White, I. R. (2013). Review of inverse
 probability weighting for dealing with missing data. <em>Statistical
 Methods in Medical Research</em>.</li>
+<li>van Buuren, S. <em>Flexible Imputation of Missing Data</em>, 2nd
+ed., §9.2 (delta adjustment).</li>
+<li>Leacy, F. P., Floyd, S., Yates, T. A., &amp; White, I. R. (2017).
+Analyses of sensitivity to the missing-at-random assumption using
+multiple imputation with delta adjustment. <em>American Journal of
+Epidemiology</em>, 185(4), 304-315.</li>
+<li>Tompsett, D. M., Leacy, F., Moreno-Betancur, M., Heron, J., &amp;
+White, I. R. (2018). On the use of the not-at-random fully conditional
+specification (NARFCS) procedure in practice. <em>Statistics in
+Medicine</em>, 37(15), 2338-2353.</li>
+<li>Hayati Rezvan, P., Lee, K. J., &amp; Simpson, J. A. (2018).
+Sensitivity analysis within the multiple imputation framework using
+delta-adjustment. <em>Longitudinal and Life Course Studies</em>, 9(3),
+259-278.</li>
+<li>Resseguier, N., Giorgi, R., &amp; Paoletti, X. (2011). Sensitivity
+analysis when data are missing not-at-random. <em>Epidemiology</em>,
+22(2), 282-287.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

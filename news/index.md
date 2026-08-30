@@ -2,6 +2,35 @@
 
 ## missingmed (development version)
 
+- New
+  [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/reference/sensitivity_mnar.md)
+  and `MDSensitivityResult`: MNAR sensitivity analysis by delta-adjusted
+  imputation. Re-imputes across a grid of delta values and re-runs the
+  pipeline at each rung, producing a sensitivity **curve** for the
+  indirect effect. It is not an estimator – MAR versus MNAR is not
+  testable from observed data, so no rung is “the MNAR estimate”.
+
+- [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/reference/sensitivity_mnar.md)
+  reports the **realized marginal sensitivity parameter** (`msp`)
+  alongside the supplied `delta`. `delta` is a *conditional* sensitivity
+  parameter; the quantity analysts can actually reason about is
+  *marginal*, and supplying one for the other is the standard failure
+  mode of this method (Tompsett et al. 2018). The two coincide only when
+  a single variable is incomplete; with more, the shift feeds back
+  through the chained equations.
+
+- Documented refusals: IPW (no imputations to shift), categorical
+  targets (the correct construction offsets the imputation model’s
+  linear predictor, with delta on the odds-ratio scale – not yet
+  implemented), and targets with no missing values.
+
+- `set_md_mediation(mechanism = "mnar")` is **deprecated** and now
+  warns. It never changed behavior –
+  [`run()`](https://data-wise.github.io/missingmed/reference/run.md)
+  estimates under MAR either way. `mechanism` is now derived: only
+  [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/reference/sensitivity_mnar.md)
+  sets it to `"mnar"`.
+
 - Non-gaussian models (`family_y`, `family_m`) are now covered by tests
   and documented. GLM support was already plumbed –
   [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)

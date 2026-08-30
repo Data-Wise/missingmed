@@ -115,7 +115,10 @@ models. Default <code><a href="https://rdrr.io/r/stats/family.html" class="exter
 
 
 <dt id="arg-mechanism">mechanism<a class="anchor" aria-label="anchor" href="#arg-mechanism"></a></dt>
-<dd><p>Assumed missing-data mechanism: <code>"mar"</code> (default) or <code>"mnar"</code>.</p></dd>
+<dd><p><strong>Deprecated.</strong> The pipeline estimates under MAR regardless,
+so this argument never changed behavior. Passing <code>"mnar"</code> warns and is
+ignored. Use <code><a href="sensitivity_mnar.html">sensitivity_mnar()</a></code> to assess departures from MAR; it sets
+<code>mechanism = "mnar"</code> on the objects it creates.</p></dd>
 
 
 <dt id="arg-weight-formula">weight_formula<a class="anchor" aria-label="anchor" href="#arg-weight-formula"></a></dt>

@@ -11,6 +11,7 @@
 <url><loc>https://data-wise.github.io/missingmed/reference/MDMediationData.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/reference/MDMediationFit.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/reference/MDMediationResult.html</loc></url>
+<url><loc>https://data-wise.github.io/missingmed/reference/MDSensitivityResult.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/reference/PooledSEMResults-class.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/reference/SemImputedData.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/reference/SemResults.html</loc></url>
@@ -32,6 +33,7 @@
 <url><loc>https://data-wise.github.io/missingmed/reference/reexports.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/reference/run.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/reference/run_sem.html</loc></url>
+<url><loc>https://data-wise.github.io/missingmed/reference/sensitivity_mnar.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/reference/set_md_mediation.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/reference/set_sem.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/reference/show-SemImputedData-method.html</loc></url>

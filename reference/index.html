@@ -74,6 +74,22 @@
         </dt>
         <dd>Inference on the indirect effect under multiple imputation</dd>
       </dl></div><div class="section level2">
+      <h2 id="sensitivity-analysis">Sensitivity analysis<a class="anchor" aria-label="anchor" href="#sensitivity-analysis"></a></h2>
+
+      <div class="section-desc"><p>Departures from MAR. Produces a sensitivity curve, not an estimate – nothing here is identified.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="sensitivity_mnar.html">sensitivity_mnar()</a></code>
+
+        </dt>
+        <dd>MNAR sensitivity analysis by delta-adjusted imputation</dd>
+      </dl></div><div class="section level2">
       <h2 id="accessors">Accessors<a class="anchor" aria-label="anchor" href="#accessors"></a></h2>
 
 
@@ -99,7 +115,7 @@
       </dl></div><div class="section level2">
       <h2 id="classes">Classes<a class="anchor" aria-label="anchor" href="#classes"></a></h2>
 
-      <div class="section-desc"><p>The three S7 classes carrying data, fits, and pooled results.</p></div>
+      <div class="section-desc"><p>The S7 classes carrying data, fits, pooled results, and sensitivity curves.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -126,6 +142,13 @@
 
         </dt>
         <dd>MDMediationResult: pooled mediation result (S7)</dd>
+
+        <dt>
+
+          <code><a href="MDSensitivityResult.html">MDSensitivityResult()</a></code>
+
+        </dt>
+        <dd>MDSensitivityResult: MNAR sensitivity curve (S7)</dd>
       </dl></div><div class="section level2">
       <h2 id="tidiers">Tidiers<a class="anchor" aria-label="anchor" href="#tidiers"></a></h2>
 

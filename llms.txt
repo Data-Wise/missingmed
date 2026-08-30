@@ -107,6 +107,14 @@ The S7 mediation-with-missing-data workflow.
 - [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md)
   : Inference on the indirect effect under multiple imputation
 
+## Sensitivity analysis
+
+Departures from MAR. Produces a sensitivity curve, not an estimate –
+nothing here is identified.
+
+- [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/reference/sensitivity_mnar.md)
+  : MNAR sensitivity analysis by delta-adjusted imputation
+
 ## Accessors
 
 - [`per_imputation_list()`](https://data-wise.github.io/missingmed/reference/per_imputation_list.md)
@@ -116,7 +124,8 @@ The S7 mediation-with-missing-data workflow.
 
 ## Classes
 
-The three S7 classes carrying data, fits, and pooled results.
+The S7 classes carrying data, fits, pooled results, and sensitivity
+curves.
 
 - [`MDMediationData()`](https://data-wise.github.io/missingmed/reference/MDMediationData.md)
   : MDMediationData: imputed data + mediation specification (S7)
@@ -124,6 +133,8 @@ The three S7 classes carrying data, fits, and pooled results.
   : MDMediationFit: per-imputation mediation fits (S7)
 - [`MDMediationResult()`](https://data-wise.github.io/missingmed/reference/MDMediationResult.md)
   : MDMediationResult: pooled mediation result (S7)
+- [`MDSensitivityResult()`](https://data-wise.github.io/missingmed/reference/MDSensitivityResult.md)
+  : MDSensitivityResult: MNAR sensitivity curve (S7)
 
 ## Tidiers
 
