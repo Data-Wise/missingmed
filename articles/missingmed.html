@@ -119,8 +119,8 @@ formulas plus the treatment/mediator roles.</p>
 <h3 id="fit-each-imputation">2. Fit each imputation<a class="anchor" aria-label="anchor" href="#fit-each-imputation"></a>
 </h3>
 <p><code><a href="../reference/run.html">run()</a></code> fits every imputed dataset with
-<code><a href="https://rdrr.io/pkg/medfit/man/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code>, yielding a list of
-<strong>named</strong> <code><a href="https://rdrr.io/pkg/medfit/man/MediationData.html" class="external-link">medfit::MediationData</a></code> objects.</p>
+<code><a href="https://data-wise.github.io/medfit/reference/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code>, yielding a list of
+<strong>named</strong> <code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code> objects.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span></span>
 <span><span class="va">fit</span></span>
@@ -135,7 +135,7 @@ formulas plus the treatment/mediator roles.</p>
 </h3>
 <p><code><a href="../reference/pool.html">pool()</a></code> combines the per-imputation estimates and
 variance-covariance into a single <strong>named</strong> pooled
-<code><a href="https://rdrr.io/pkg/medfit/man/MediationData.html" class="external-link">medfit::MediationData</a></code>.</p>
+<code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
@@ -189,7 +189,7 @@ MBCO):</p>
 </h2>
 <p><code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> takes <code>family_m</code> and
 <code>family_y</code> and passes them to
-<code><a href="https://rdrr.io/pkg/medfit/man/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code>, whose engine is a GLM. Nothing
+<code><a href="https://data-wise.github.io/medfit/reference/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code>, whose engine is a GLM. Nothing
 else in the pipeline changes – the same four verbs handle a binary
 mediator:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">

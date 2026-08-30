@@ -61,9 +61,9 @@ md
 
 [`run()`](https://data-wise.github.io/missingmed/reference/run.md) fits
 every imputed dataset with
-[`medfit::fit_mediation()`](https://rdrr.io/pkg/medfit/man/fit_mediation.html),
+[`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html),
 yielding a list of **named**
-[`medfit::MediationData`](https://rdrr.io/pkg/medfit/man/MediationData.html)
+[`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html)
 objects.
 
 ``` r
@@ -82,7 +82,7 @@ fit
 [`pool()`](https://data-wise.github.io/missingmed/reference/pool.md)
 combines the per-imputation estimates and variance-covariance into a
 single **named** pooled
-[`medfit::MediationData`](https://rdrr.io/pkg/medfit/man/MediationData.html).
+[`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html).
 
 ``` r
 
@@ -143,7 +143,7 @@ infer(fit, type = "mbco")
 
 [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)
 takes `family_m` and `family_y` and passes them to
-[`medfit::fit_mediation()`](https://rdrr.io/pkg/medfit/man/fit_mediation.html),
+[`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html),
 whose engine is a GLM. Nothing else in the pipeline changes – the same
 four verbs handle a binary mediator:
 

@@ -19,7 +19,7 @@ the “missing-data middle” and delegates the statistics outward —
 **inference** to [RMediation](https://data-wise.github.io/rmediation/),
 and (later) simulation to medsim. It is written in **S7** to match the
 newer ecosystem packages and the shared
-[`medfit::MediationData`](https://rdrr.io/pkg/medfit/man/MediationData.html)
+[`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html)
 contract.
 
 The pipeline is four verbs over three classes:
@@ -52,8 +52,8 @@ R/mbco_mi.R”\] –\>
 | S7 class | Carries | S4 ancestor |
 |----|----|----|
 | `MDMediationData` | data (`mids` or `data.frame`) + mediation spec + estimator/mechanism axes | `SemImputedData` |
-| `MDMediationFit` | **list** of per-imputation named [`medfit::MediationData`](https://rdrr.io/pkg/medfit/man/MediationData.html) (+ IPW `weights`) | `SemResults` |
-| `MDMediationResult` | **pooled** named [`medfit::MediationData`](https://rdrr.io/pkg/medfit/man/MediationData.html) + within/between/total vcov | `PooledSEMResults` |
+| `MDMediationFit` | **list** of per-imputation named [`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html) (+ IPW `weights`) | `SemResults` |
+| `MDMediationResult` | **pooled** named [`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html) + within/between/total vcov | `PooledSEMResults` |
 
 **Orthogonal axes.** The estimator (`method = "mi" | "ipw"`) and the
 model (formulas + `engine`) are independent. The same
@@ -119,7 +119,7 @@ missingmed, so the graph is acyclic.
 Under multiple imputation,
 [`run()`](https://data-wise.github.io/missingmed/reference/run.md) fits
 **every** imputed dataset with
-[`medfit::fit_mediation()`](https://rdrr.io/pkg/medfit/man/fit_mediation.html),
+[`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html),
 yielding a list of `m` named `MediationData`.
 [`pool()`](https://data-wise.github.io/missingmed/reference/pool.md)
 applies Rubin’s (1987) rules on the **named** vectors so the path labels
@@ -470,7 +470,7 @@ missingmed just passes `se_type` through.
 
 [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)
 takes `engine`, `family_y` and `family_m` and forwards them to
-[`medfit::fit_mediation()`](https://rdrr.io/pkg/medfit/man/fit_mediation.html),
+[`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html),
 whose default engine already **is** `"glm"`. Both estimators and both
 inference types therefore accept non-gaussian families with no extra
 machinery: a binary mediator (`family_m = binomial()`), a binary outcome

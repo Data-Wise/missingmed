@@ -1,11 +1,11 @@
 # Pool per-imputation mediation fits with Rubin's rules
 
 Applies Rubin's (1987) rules to the list of per-imputation **named**
-[medfit::MediationData](https://rdrr.io/pkg/medfit/man/MediationData.html)
+[medfit::MediationData](https://data-wise.github.io/medfit/reference/MediationData.html)
 objects in an
 [MDMediationFit](https://data-wise.github.io/missingmed/reference/MDMediationFit.md),
 producing a single pooled named
-[medfit::MediationData](https://rdrr.io/pkg/medfit/man/MediationData.html)
+[medfit::MediationData](https://data-wise.github.io/medfit/reference/MediationData.html)
 (the `pooled` slot of the returned
 [MDMediationResult](https://data-wise.github.io/missingmed/reference/MDMediationResult.md)).
 Because the estimates and variance-covariance carry the mediation path

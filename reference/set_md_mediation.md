@@ -6,7 +6,7 @@ object: the entry point of the missingmed S7 pipeline. It records a
 **medfit-style mediation specification** (outcome and mediator formulas
 plus the treatment/mediator roles) together with the data. Fitting is
 delegated to
-[`medfit::fit_mediation()`](https://rdrr.io/pkg/medfit/man/fit_mediation.html)
+[`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html)
 downstream by
 [`run()`](https://data-wise.github.io/missingmed/reference/run.md). It
 is the S7 successor of the S4
@@ -136,7 +136,7 @@ Two estimators share the interface (`method`):
 [`run()`](https://data-wise.github.io/missingmed/reference/run.md),
 [`pool()`](https://data-wise.github.io/missingmed/reference/pool.md),
 [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md),
-[`medfit::fit_mediation()`](https://rdrr.io/pkg/medfit/man/fit_mediation.html)
+[`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html)
 
 ## Examples
 

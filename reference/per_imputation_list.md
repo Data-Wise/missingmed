@@ -1,7 +1,7 @@
 # Access the per-imputation mediation fits (for MBCO)
 
 Returns the list of per-imputation **named**
-[medfit::MediationData](https://rdrr.io/pkg/medfit/man/MediationData.html)
+[medfit::MediationData](https://data-wise.github.io/medfit/reference/MediationData.html)
 objects held in an
 [MDMediationFit](https://data-wise.github.io/missingmed/reference/MDMediationFit.md),
 together with the number of imputations `m`.
@@ -27,7 +27,7 @@ per_imputation_list(object, ...)
 ## Value
 
 A list with components `per_imputation` (a length-`m` list of named
-[medfit::MediationData](https://rdrr.io/pkg/medfit/man/MediationData.html))
+[medfit::MediationData](https://data-wise.github.io/medfit/reference/MediationData.html))
 and `m` (the number of imputations).
 
 ## Details

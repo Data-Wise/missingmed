@@ -22,15 +22,19 @@
   **unchanged to the digit**, so no previously reported analysis of that
   shape is affected.
 
-- `infer(type = "mbco")` now **errors** when the outcome model contains
-  a treatment-by-mediator interaction. With that interaction the
-  indirect effect is not `a * b` – the natural indirect effect involves
-  the interaction term too – so the null `a * b = 0` has no single
-  meaning, and MBCO as published (Tofighi & Kelley, 2020) is stated for
-  the no-interaction case. Refusing is deliberate: nulling the
-  mediator’s main effect alone would leave mediation running through the
-  interaction, and report a number for a hypothesis nobody chose. Use
-  `infer(type = "mc")`, or a model without the interaction. See
+- **What MBCO’s null means under a treatment-by-mediator interaction is
+  now stated explicitly.** With that interaction the indirect effect is
+  not `a * b` – the natural indirect effect involves the interaction
+  term too – so the null needs a reading. `missingmed` takes the null to
+  be **“the mediator has no effect on the outcome at all”**: the
+  constrained outcome model drops the mediator’s main effect *and* every
+  interaction carrying it. The alternative (null the main effect only,
+  leaving `X:M`) would let mediation run through the interaction under a
+  hypothesis asserting there is none.
+
+  Note that MBCO as published (Tofighi & Kelley, 2020) is stated for the
+  no-interaction case; this is the package’s stated extension of it, not
+  a result from that paper. See
   `docs/specs/SPEC-mbco-constrained-models-2026-08-30.md`.
 
 ## missingmed 0.3.0
@@ -64,7 +68,7 @@
   and documented. GLM support was already plumbed –
   [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)
   forwards `engine`/`family_y`/`family_m` to
-  [`medfit::fit_mediation()`](https://rdrr.io/pkg/medfit/man/fit_mediation.html),
+  [`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html),
   whose default engine is `"glm"` – but nothing exercised it. A binary
   mediator, a binary outcome and a count outcome are now tested through
   both estimators (`"mi"` and `"ipw"`) and through MBCO. No user-facing
@@ -169,13 +173,13 @@ Four verbs over three S7 classes:
   (outcome/mediator formulas + treatment/mediator roles).
 - [`run()`](https://data-wise.github.io/missingmed/reference/run.md) —
   fits each imputation via
-  [`medfit::fit_mediation()`](https://rdrr.io/pkg/medfit/man/fit_mediation.html),
+  [`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html),
   yielding a list of **named**
-  [`medfit::MediationData`](https://rdrr.io/pkg/medfit/man/MediationData.html).
+  [`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html).
 - [`pool()`](https://data-wise.github.io/missingmed/reference/pool.md) —
   Rubin’s-rules pooling of the named (estimates, vcov) into a single
   **named** pooled
-  [`medfit::MediationData`](https://rdrr.io/pkg/medfit/man/MediationData.html),
+  [`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html),
   valid input to
   [`RMediation::ci_mediation_data()`](https://data-wise.github.io/rmediation/reference/ci_mediation_data.html).
 - `infer(type = c("mc", "mbco"))` — Monte-Carlo /

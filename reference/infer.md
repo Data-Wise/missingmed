@@ -37,7 +37,7 @@ For `"mbco"`, a named numeric vector `c(D4, p, r4, nu, d_S)`.
   interval via
   [`RMediation::ci_mediation_data()`](https://data-wise.github.io/rmediation/reference/ci_mediation_data.html)
   applied to the **pooled** named
-  [medfit::MediationData](https://rdrr.io/pkg/medfit/man/MediationData.html).
+  [medfit::MediationData](https://data-wise.github.io/medfit/reference/MediationData.html).
 
 - `type = "mbco"` — **D4-stacked MBCO** likelihood-ratio test of \\H_0:
   a b = 0\\, computed from the per-imputation datasets (MBCO does not
