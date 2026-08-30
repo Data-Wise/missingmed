@@ -136,5 +136,16 @@
 # row (NA where a predictor is NA), unlike fitted(), which drops those rows and
 # silently misaligns the weights.
 .ipw_prob <- function(mod, dd) {
-  unname(stats::predict(mod, newdata = dd, type = "response"))
+  out <- tryCatch(
+    stats::predict(mod, newdata = dd, type = "response"),
+    error = function(e) {
+      stop("The missingness model could not be evaluated on the full data: ",
+        conditionMessage(e), ". This usually means a factor predictor has a ",
+        "level that appears only on rows the model dropped. Use a predictor ",
+        "that is observed across all rows, or collapse the rare level.",
+        call. = FALSE
+      )
+    }
+  )
+  unname(out)
 }

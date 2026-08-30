@@ -134,3 +134,9 @@ test_that("pool() falls through to mice::pool for non-missingmed objects", {
   res <- pool(with(imp, lm(bmi ~ age)))
   expect_s3_class(res, "mipo")
 })
+
+test_that("pool() names the right next step for missingmed's own classes", {
+  md <- make_md(3, 150, 0.4, 0.4, m = 2)
+  expect_error(pool(md), "run\\(\\)")
+  expect_error(pool(pool(run(md))), "already pooled")
+})

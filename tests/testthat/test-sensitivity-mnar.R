@@ -228,3 +228,39 @@ test_that("a target inside a multivariate block is refused", {
   )
   expect_error(sensitivity_mnar(md, delta = 1), "multivariate block")
 })
+
+# ── Second review pass (PR #7) ──────────────────────────────────────────────
+
+test_that("a maxit = 0 baseline is refused rather than returning a flat curve", {
+  d <- gen_mnar()
+  imp <- mice::mice(d, m = 3, maxit = 0, printFlag = FALSE, seed = 1)
+  md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M"
+  )
+  expect_error(sensitivity_mnar(md, delta = c(0, 2)), "maxit = 0")
+})
+
+test_that("a univariate block with a non-default name is accepted", {
+  d <- gen_mnar()
+  imp <- mice::mice(d, m = 2, maxit = 2, printFlag = FALSE, seed = 2,
+    blocks = list(BM = "M", BX = "X", BY = "Y", BC = "C")
+  )
+  md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M"
+  )
+  sens <- suppressMessages(sensitivity_mnar(md, delta = c(0, 1), type = "mbco"))
+  expect_length(sens@rungs, 2L)
+  expect_false(isTRUE(all.equal(sens@msp[1], sens@msp[2])))
+})
+
+test_that("a genuinely multivariate block is still refused, by block membership", {
+  d <- gen_mnar()
+  d$Y[runif(nrow(d)) < 0.2] <- NA
+  imp <- mice::mice(d, m = 2, maxit = 1, printFlag = FALSE, seed = 3,
+    blocks = list(M = c("M", "Y"), X = "X", C = "C"), method = c("norm", "", "")
+  )
+  md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M"
+  )
+  expect_error(sensitivity_mnar(md, delta = 1), "multivariate block")
+})
