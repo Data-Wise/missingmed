@@ -38,6 +38,37 @@ set_md_mediation()  ->  run()          ->  pool()             ->  infer()
                           named Med.Data)    Med.Data)              or hosted D4)
 ```
 
+The same pipeline as a diagram:
+
+```mermaid
+flowchart LR
+  D["data<br/>mids or data.frame"] --> A
+  A["set_md_mediation()<br/><b>MDMediationData</b>"] -->|"method = mi"| R1["run()<br/>fit each imputation"]
+  A -->|"method = ipw"| R2["run()<br/>reweight complete cases"]
+  R1 --> F["<b>MDMediationFit</b><br/>list of m named MediationData"]
+  R2 --> F
+  F -->|"pool()"| P["<b>MDMediationResult</b><br/>pooled named MediationData"]
+  P -->|"infer(type = mc)"| C1["RMediation::ci_mediation_data()"]
+  F -->|"infer(type = mbco)"| C2["hosted D4 stacking<br/>R/mbco_mi.R"]
+```
+
+Note the asymmetry the linear sketch above cannot show: `infer(type = "mc")`
+consumes the **pooled** result, while `infer(type = "mbco")` reaches back to the
+**per-imputation** fit. That is section 4.1's non-commutativity, drawn.
+
+<!-- LaTeX equivalent of the diagram above, for a PDF build:
+\begin{tikzpicture}[node distance=2.2cm, every node/.style={font=\small},
+  box/.style={draw, rounded corners, align=center, inner sep=4pt}]
+  \node[box] (A) {\texttt{set\_md\_mediation()}\\\textbf{MDMediationData}};
+  \node[box, right=of A] (F) {\texttt{run()}\\\textbf{MDMediationFit}};
+  \node[box, right=of F] (P) {\texttt{pool()}\\\textbf{MDMediationResult}};
+  \node[box, right=of P] (C) {\texttt{infer(type="mc")}\\RMediation};
+  \node[box, below=1.4cm of P] (M) {\texttt{infer(type="mbco")}\\hosted D4};
+  \draw[->] (A) -- (F); \draw[->] (F) -- (P); \draw[->] (P) -- (C);
+  \draw[->] (F) -- (M) node[midway, sloped, above, font=\tiny]{per-imputation};
+\end{tikzpicture}
+-->
+
 | S7 class | Carries | S4 ancestor |
 |---|---|---|
 | `MDMediationData` | data (`mids` or `data.frame`) + mediation spec + estimator/mechanism axes | `SemImputedData` |
@@ -115,6 +146,44 @@ B = \tfrac{1}{m-1}\sum_i (Q_i-\bar Q)(Q_i-\bar Q)^\top,\quad
 T = \bar U + \left(1+\tfrac1m\right)B .
 \]
 
+**A hand-computable example.** Take \(m = 3\) imputations of a single path
+\(a\), each with the same within-imputation variance \(U_i = 0.01\)
+(that is, \(SE = 0.10\)):
+
+| \(i\) | \(Q_i = \hat a_i\) | \(U_i\) | \(Q_i - \bar Q\) |
+|---|---|---|---|
+| 1 | 0.50 | 0.01 | -0.10 |
+| 2 | 0.60 | 0.01 | 0.00 |
+| 3 | 0.70 | 0.01 | +0.10 |
+
+\[
+\bar Q = \tfrac{0.50+0.60+0.70}{3} = \mathbf{0.60},\qquad
+\bar U = \tfrac{0.01+0.01+0.01}{3} = \mathbf{0.01}
+\]
+\[
+B = \tfrac{1}{3-1}\big[(-0.10)^2 + 0^2 + (0.10)^2\big]
+  = \tfrac{0.02}{2} = \mathbf{0.01}
+\]
+\[
+T = \bar U + \left(1+\tfrac13\right)B
+  = 0.01 + \tfrac43(0.01) = \mathbf{0.0233\overline{3}},
+\qquad SE = \sqrt{T} = \mathbf{0.1528}
+\]
+
+The between-imputation term has **inflated the standard error from 0.100 to
+0.153**, a 53% increase. The fraction of missing information is
+\(\gamma = (1+\tfrac1m)B/T = 0.01\overline{3}/0.023\overline{3} =
+\mathbf{0.571}\), and
+\(\nu = (m-1)\big(1 + \bar U/[(1+\tfrac1m)B]\big)^2 = 2(1+0.75)^2 =
+\mathbf{6.125}\) -- three imputations buy roughly six degrees of freedom,
+not three.
+
+> **Why this cannot be done on \(\hat a\hat b\) directly.** Every step above
+> is linear in \(Q\). The indirect effect \(ab\) is not, so `pool()`
+> deliberately stops here: it pools \((a, b)\) and their covariance and hands
+> the nonlinear step to `RMediation`. Pooling \(\hat a_i \hat b_i\) across
+> imputations and attaching a normal interval commits two errors at once.
+
 The pooled `MediationData` is built by **copy-modifying** a per-imputation one
 (S7 is copy-on-write), replacing only `@estimates = `\(\bar Q\) and
 `@vcov = `\(T\) — so all medfit metadata (roles, predictors, families) is
@@ -154,6 +223,38 @@ d_S = \tfrac{\text{LRT(stacked data)}}{K},\quad
 r_4 = \max\!\Big(0, \tfrac{K+1}{k(K-1)}(\bar d - d_S)\Big),\quad
 D_4 = \tfrac{d_S}{k(1+r_4)} \sim F_{k,\nu}.
 \]
+
+**A hand-computable example.** Take \(K = 3\) imputations testing a single
+constraint (\(k = 1\)), with per-imputation MBCO statistics and a stacked
+statistic:
+
+\[
+d_1 = 6.0,\quad d_2 = 7.5,\quad d_3 = 9.0
+\;\Rightarrow\; \bar d = \mathbf{7.5};
+\qquad d_S = \mathbf{6.0}
+\]
+\[
+r_4 = \max\!\Big(0,\ \tfrac{K+1}{k(K-1)}(\bar d - d_S)\Big)
+    = \tfrac{4}{2}(7.5 - 6.0) = 2 \times 1.5 = \mathbf{3.0}
+\]
+\[
+D_4 = \frac{d_S}{k(1+r_4)} = \frac{6.0}{1 \times 4} = \mathbf{1.5}
+\]
+
+Since \(k(K-1) = 2 \not> 4\), the small-sample branch for \(\nu\) applies:
+\(\nu = \tfrac12 \cdot 2 \cdot (1 + \tfrac11)(1 + \tfrac13)^2
+= 2 (4/3)^2 = \mathbf{3.556}\), giving
+\(p = \Pr[F_{1,\,3.556} > 1.5] = \mathbf{0.296}\).
+
+The moral is in the arithmetic: the average statistic 7.5 would have looked
+significant, but the stacked statistic is only 6.0, and that **gap is missing
+information**. It sets \(r_4 = 3\), which deflates the test to 1.5. Averaging
+the per-imputation statistics instead would have been anti-conservative by a
+factor of five.
+
+> If \(r_4\) truncates to 0, the missing-information correction vanishes and
+> \(D_4 = d_S/k\). Check `r4` in the returned object before trusting a
+> borderline \(p\).
 
 ## 4.3 Hosting decision
 
@@ -204,6 +305,30 @@ numerator to reduce variance:
 \[
 w_i = \frac{\hat P(R=1\mid X_i)}{\hat P(R=1\mid Z_i)} .
 \]
+
+**A hand-computable example.** Four complete cases, with fitted probabilities
+from the denominator model and a constant numerator
+\(\hat P(R=1\mid X_i) = 0.5\):
+
+| \(i\) | \(\hat P(R=1\mid Z_i)\) | unstabilized \(1/\hat P\) | stabilized \(0.5/\hat P\) |
+|---|---|---|---|
+| 1 | 0.80 | 1.250 | **0.625** |
+| 2 | 0.50 | 2.000 | **1.000** |
+| 3 | 0.40 | 2.500 | **1.250** |
+| 4 | 0.25 | 4.000 | **2.000** |
+| | mean | 2.4375 | **1.21875** |
+
+Two things to read off. First, with a constant numerator every stabilized weight
+is exactly \(0.5\times\) its unstabilized counterpart -- a common rescaling,
+so **the point estimate is unchanged**; stabilization buys variance, never
+consistency. Second, `weight_trim = 0.75` caps at the 0.75 quantile of the
+stabilized weights, \(1.25 + 0.25(2.00-1.25) = \mathbf{1.4375}\), pulling
+case 4 from 2.000 down to 1.4375.
+
+That last row is the bias-variance trade in miniature: case 4 was the *most*
+under-represented (a 25% chance of being complete), so trimming it is precisely
+a decision to under-correct where correction matters most. **Trimming changes
+the estimand; it does not merely stabilize the estimate.**
 **Trimming** (`weight_trim`) caps weights at an upper quantile of the untrimmed
 complete-case weights; `1` disables it.
 
@@ -380,6 +505,80 @@ These changes were made upstream to satisfy missingmed's contracts; each is the
 - **IPW = thin `run()` branch + passthrough `pool()`**; weights support both
   joint and sequential models, stabilized and trimmed; sandwich SE by default.
 - **S4 deprecated** with `.Deprecated()` shims for one cycle.
+
+---
+
+# 7A. Self-check
+
+**Procedural.** With \(m = 5\), \(\bar U = 0.04\) and \(B = 0.02\), compute
+\(T\) and the fraction of missing information.
+
+**Conceptual.** Section 4.1 shows
+\(T = 2[\ell_{\text{full}} - \max(\ell_{a=0}, \ell_{b=0})]\). Why does the
+`max()` -- rather than the product \(ab\) itself -- prevent pooling before
+testing?
+
+**Critical.** A colleague reports `sensitivity_mnar(delta = c(0, -1, -2))` with a
+tipping point at \(\delta = -2\) and concludes: "the mediation effect is robust
+unless non-respondents score 2 points lower." Name two things wrong with that
+sentence.
+
+**Transfer.** You have a binary mediator with 30% missingness and want an MNAR
+sensitivity curve. `sensitivity_mnar()` errors. What is the obstacle, and what
+would a correct construction shift?
+
+## 7A.1 Worked answers
+
+**Procedural.** \(T = \bar U + (1+\tfrac15)B = 0.04 + 1.2(0.02) = 0.04 + 0.024
+= \mathbf{0.064}\). Then \(\gamma = 0.024/0.064 = \mathbf{0.375}\): 37.5% of
+the information about this parameter is missing.
+
+**Conceptual.** Rubin's rules are a linear operation -- \(\bar Q\) and \(T\)
+are averages of per-imputation quantities. `max()` is not linear, so the
+\(\max\) of the pooled log-likelihoods is not the pool of the per-imputation
+\(\max\)es: the constrained fit may select the \(a=0\) branch in one
+imputation and the \(b=0\) branch in another. That is why `MDMediationFit`
+retains the per-imputation list. The product \(ab\) is *also* nonlinear, but it
+is handled differently -- `pool()` pools \((a,b)\) linearly and defers the
+product to `RMediation`. No such deferral is available for a branch selection.
+
+**Critical.** (i) \(\delta\) is a **conditional** parameter, while
+"non-respondents score 2 points lower" is a **marginal** claim; the realized
+`msp` at \(\delta = -2\) will not be \(-2\), so read it off the output rather
+than assuming it (section 5B.2). (ii) A grid of three points locates a tipping
+point no better than the grid spacing -- the true crossing lies somewhere in
+\((-1, -2]\). A third, if you want it: "robust" is a claim about *plausibility*,
+and nothing in the output speaks to whether \(\delta = -2\) is plausible here.
+
+**Transfer.** The obstacle is that the implementation adds \(\delta\) to the
+**drawn value** through `mice`'s `post`, and adding a constant to a drawn 0/1 is
+meaningless. A correct construction offsets the imputation model's **linear
+predictor**, putting \(\delta\) on the log-odds scale. `mice` ships this as
+`mice.impute.mnar.logreg()` via `blots`; see
+`docs/specs/SPEC-narfcs-delegation-2026-08-29.md`.
+
+## 7A.2 Three common confusions
+
+**"`delta = 0` should give `msp = 0`."** No. Under MAR, imputed values
+legitimately differ from observed ones whenever missingness depends on
+covariates, because the imputed subgroup has a different covariate mix. What
+`delta = 0` guarantees is that the *analysis* reproduces the MAR result exactly,
+not that the marginal shift is zero. The table in section 5B.2 shows
+`msp = 0.244` at `delta = 0`.
+
+**"`se_type = \"sandwich\"` corrects for having estimated the weights."** It does
+not. The sandwich is heteroskedasticity-consistent and treats \(\hat\pi\) as
+fixed. Robins, Rotnitzky and Zhao (1994) show that ignoring weight estimation
+makes the variance **conservative** -- estimating the weights reduces variance
+relative to knowing them -- so the intervals are honest but wider than
+necessary.
+
+**"IPW and MI should agree; if they disagree, one is broken."** They target the
+same estimand under MAR but use different information: MI uses partially observed
+rows, IPW discards them and reweights what remains. Disagreement beyond
+Monte-Carlo noise is diagnostic -- usually of a weight model missing a MAR
+driver, or an imputation model incompatible with the substantive model -- not of
+a bug.
 
 ---
 
