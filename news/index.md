@@ -1,6 +1,6 @@
 # Changelog
 
-## missingmed (development version)
+## missingmed 0.3.1
 
 ### Bug fixes
 

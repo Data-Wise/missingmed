@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,9 +38,9 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.1" id="missingmed-031">missingmed 0.3.1<a class="anchor" aria-label="anchor" href="#missingmed-031"></a></h2>
 <div class="section level3">
-<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<h3 id="bug-fixes-0-3-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-1"></a></h3>
 <ul><li>
 <p><strong>MBCO’s constrained models did not null the whole path.</strong> The constraint was imposed with <code>update(. ~ . - M)</code>, which removes only the term labelled exactly <code>M</code>; every other term carrying the mediator survived. <code>Y ~ X * M + C</code> kept <code>X:M</code>, and <code>Y ~ poly(M, 2) + X</code> was left <strong>completely unchanged</strong> – so the “constrained” model equalled the full model, the statistic was exactly 0, and the test could never reject, at any sample size, with no error or warning. The constraint now drops every term whose variables include the target, which covers <code>poly(M, 2)</code>, <code>I(M^2)</code>, <code>log(M)</code>, splines and interactions alike.</p>
 <p>The effect was <strong>conservative</strong> – an inflated constrained log-likelihood makes the statistic too small, so the test lost power. It did not produce false positives.</p>
