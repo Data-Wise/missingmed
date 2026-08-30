@@ -22,8 +22,10 @@ infer(object, ...)
 - ...:
 
   Method arguments: `type` (inference type, `"mc"` (default) or
-  `"mbco"`), `level` (confidence level for `"mc"`, default `0.95`), and
-  `n.mc` (Monte-Carlo draws for `"mc"`, default `1e5`).
+  `"mbco"`), `level` (confidence level for `"mc"`; defaults to the
+  object's `@conf_level`, itself `0.95` unless set in
+  [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)),
+  and `n.mc` (Monte-Carlo draws for `"mc"`, default `1e5`).
 
 ## Value
 

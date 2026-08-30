@@ -14,6 +14,7 @@ MDSensitivityResult(
   msp = numeric(),
   target = character(0),
   type = "mc",
+  level = 0.95,
   seed = integer(0),
   seed_source = "argument",
   method_target = NA_character_,
@@ -43,6 +44,13 @@ MDSensitivityResult(
 - type:
 
   Inference type used for each rung (`"mc"` or `"mbco"`).
+
+- level:
+
+  Numeric in (0, 1); the confidence level the rungs were built at.
+  Needed by [`summary()`](https://rdrr.io/r/base/summary.html) to decide
+  whether an `"mbco"` rung retains the null, since that test reports a
+  p-value rather than an interval.
 
 - seed:
 

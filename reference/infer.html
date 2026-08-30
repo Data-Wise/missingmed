@@ -61,7 +61,9 @@ missingmed pipeline, dispatching to one of two engines:</p>
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Method arguments: <code>type</code> (inference type, <code>"mc"</code> (default) or
-<code>"mbco"</code>), <code>level</code> (confidence level for <code>"mc"</code>, default <code>0.95</code>), and <code>n.mc</code>
+<code>"mbco"</code>), <code>level</code> (confidence level for <code>"mc"</code>; defaults to the
+object's <code>@conf_level</code>, itself <code>0.95</code> unless set in <code><a href="set_md_mediation.html">set_md_mediation()</a></code>),
+and <code>n.mc</code>
 (Monte-Carlo draws for <code>"mc"</code>, default <code>1e5</code>).</p></dd>
 
 </dl></div>

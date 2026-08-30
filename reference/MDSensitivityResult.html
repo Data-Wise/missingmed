@@ -56,6 +56,7 @@ sensitivity parameters.</p>
 <span>  msp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  target <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"mc"</span>,</span>
+<span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  seed_source <span class="op">=</span> <span class="st">"argument"</span>,</span>
 <span>  method_target <span class="op">=</span> <span class="cn">NA_character_</span>,</span>
@@ -86,6 +87,12 @@ rung, computed on the first target (<code>target[1]</code>).</p></dd>
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Inference type used for each rung (<code>"mc"</code> or <code>"mbco"</code>).</p></dd>
+
+
+<dt id="arg-level">level<a class="anchor" aria-label="anchor" href="#arg-level"></a></dt>
+<dd><p>Numeric in (0, 1); the confidence level the rungs were built
+at. Needed by <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> to decide whether an <code>"mbco"</code> rung retains the
+null, since that test reports a p-value rather than an interval.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
