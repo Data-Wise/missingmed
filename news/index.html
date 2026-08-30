@@ -38,6 +38,18 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<ul><li>
+<p><strong>MBCO’s constrained models did not null the whole path.</strong> The constraint was imposed with <code>update(. ~ . - M)</code>, which removes only the term labelled exactly <code>M</code>; every other term carrying the mediator survived. <code>Y ~ X * M + C</code> kept <code>X:M</code>, and <code>Y ~ poly(M, 2) + X</code> was left <strong>completely unchanged</strong> – so the “constrained” model equalled the full model, the statistic was exactly 0, and the test could never reject, at any sample size, with no error or warning. The constraint now drops every term whose variables include the target, which covers <code>poly(M, 2)</code>, <code>I(M^2)</code>, <code>log(M)</code>, splines and interactions alike.</p>
+<p>The effect was <strong>conservative</strong> – an inflated constrained log-likelihood makes the statistic too small, so the test lost power. It did not produce false positives.</p>
+<p>Results for the plain <code>Y ~ X + M + C</code> / <code>M ~ X + C</code> specification are <strong>unchanged to the digit</strong>, so no previously reported analysis of that shape is affected.</p>
+</li>
+<li><p><code>infer(type = "mbco")</code> now <strong>errors</strong> when the outcome model contains a treatment-by-mediator interaction. With that interaction the indirect effect is not <code>a * b</code> – the natural indirect effect involves the interaction term too – so the null <code>a * b = 0</code> has no single meaning, and MBCO as published (Tofighi &amp; Kelley, 2020) is stated for the no-interaction case. Refusing is deliberate: nulling the mediator’s main effect alone would leave mediation running through the interaction, and report a number for a hypothesis nobody chose. Use <code>infer(type = "mc")</code>, or a model without the interaction. See <code>docs/specs/SPEC-mbco-constrained-models-2026-08-30.md</code>.</p></li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="missingmed-030">missingmed 0.3.0<a class="anchor" aria-label="anchor" href="#missingmed-030"></a></h2>
 <ul><li>New <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> and <code>MDSensitivityResult</code>: MNAR sensitivity analysis by delta-adjusted imputation. Re-imputes across a grid of delta values and re-runs the pipeline at each rung, producing a sensitivity <strong>curve</strong> for the indirect effect. It is not an estimator – MAR versus MNAR is not testable from observed data, so no rung is “the MNAR estimate”.</li>
 <li>
@@ -45,7 +57,7 @@
 <li>Documented refusals: IPW (no imputations to shift), categorical targets (the correct construction offsets the imputation model’s linear predictor, with delta on the odds-ratio scale – not yet implemented), and targets with no missing values.</li>
 <li>
 <code>set_md_mediation(mechanism = "mnar")</code> is <strong>deprecated</strong> and now warns. It never changed behavior – <code><a href="../reference/run.html">run()</a></code> estimates under MAR either way. <code>mechanism</code> is now derived: only <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> sets it to <code>"mnar"</code>.</li>
-<li>Non-gaussian models (<code>family_y</code>, <code>family_m</code>) are now covered by tests and documented. GLM support was already plumbed – <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> forwards <code>engine</code>/<code>family_y</code>/<code>family_m</code> to <code><a href="https://data-wise.github.io/medfit/reference/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code>, whose default engine is <code>"glm"</code> – but nothing exercised it. A binary mediator, a binary outcome and a count outcome are now tested through both estimators (<code>"mi"</code> and <code>"ipw"</code>) and through MBCO. No user-facing behavior changed.</li>
+<li>Non-gaussian models (<code>family_y</code>, <code>family_m</code>) are now covered by tests and documented. GLM support was already plumbed – <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> forwards <code>engine</code>/<code>family_y</code>/<code>family_m</code> to <code><a href="https://rdrr.io/pkg/medfit/man/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code>, whose default engine is <code>"glm"</code> – but nothing exercised it. A binary mediator, a binary outcome and a count outcome are now tested through both estimators (<code>"mi"</code> and <code>"ipw"</code>) and through MBCO. No user-facing behavior changed.</li>
 <li>
 <code><a href="../articles/technical.html">vignette("technical")</a></code> gains a section on the <strong>scale</strong> of <code>a*b</code> under a non-identity link: the product is on the link scale (log-odds, log-rate), is not a risk difference or odds ratio, and <code>exp(a*b)</code> does not produce one. It also documents the benign <code>non-integer #successes</code> warning that <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">stats::glm()</a></code> emits for every IPW fit with a binomial family.</li>
 </ul><div class="section level3">
@@ -71,9 +83,9 @@
 <ul><li>
 <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> — entry point; records the data + a medfit-style mediation spec (outcome/mediator formulas + treatment/mediator roles).</li>
 <li>
-<code><a href="../reference/run.html">run()</a></code> — fits each imputation via <code><a href="https://data-wise.github.io/medfit/reference/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code>, yielding a list of <strong>named</strong> <code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code>.</li>
+<code><a href="../reference/run.html">run()</a></code> — fits each imputation via <code><a href="https://rdrr.io/pkg/medfit/man/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code>, yielding a list of <strong>named</strong> <code><a href="https://rdrr.io/pkg/medfit/man/MediationData.html" class="external-link">medfit::MediationData</a></code>.</li>
 <li>
-<code><a href="../reference/pool.html">pool()</a></code> — Rubin’s-rules pooling of the named (estimates, vcov) into a single <strong>named</strong> pooled <code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code>, valid input to <code><a href="https://data-wise.github.io/rmediation/reference/ci_mediation_data.html" class="external-link">RMediation::ci_mediation_data()</a></code>.</li>
+<code><a href="../reference/pool.html">pool()</a></code> — Rubin’s-rules pooling of the named (estimates, vcov) into a single <strong>named</strong> pooled <code><a href="https://rdrr.io/pkg/medfit/man/MediationData.html" class="external-link">medfit::MediationData</a></code>, valid input to <code><a href="https://data-wise.github.io/rmediation/reference/ci_mediation_data.html" class="external-link">RMediation::ci_mediation_data()</a></code>.</li>
 <li>
 <code>infer(type = c("mc", "mbco"))</code> — Monte-Carlo / distribution-of-the-product CI (<code>mc</code>), or <strong>D4-stacked MBCO</strong> likelihood-ratio test (<code>mbco</code>).</li>
 <li>

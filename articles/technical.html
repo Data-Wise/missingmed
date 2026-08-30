@@ -84,7 +84,7 @@ outward — <strong>fitting</strong> to <a href="https://data-wise.github.io/med
 <strong>inference</strong> to <a href="https://data-wise.github.io/rmediation/" class="external-link">RMediation</a>, and
 (later) simulation to medsim. It is written in <strong>S7</strong> to
 match the newer ecosystem packages and the shared
-<code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code> contract.</p>
+<code><a href="https://rdrr.io/pkg/medfit/man/MediationData.html" class="external-link">medfit::MediationData</a></code> contract.</p>
 <p>The pipeline is four verbs over three classes:</p>
 <pre><code>set_md_mediation()  -&gt;  run()          -&gt;  pool()             -&gt;  infer()
    MDMediationData       MDMediationFit     MDMediationResult      CI / MBCO
@@ -151,13 +151,13 @@ F[“MDMediationFit<br>list of m named MediationData”] R2 –&gt; F F
 <td><code>MDMediationFit</code></td>
 <td>
 <strong>list</strong> of per-imputation named
-<code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code> (+ IPW <code>weights</code>)</td>
+<code><a href="https://rdrr.io/pkg/medfit/man/MediationData.html" class="external-link">medfit::MediationData</a></code> (+ IPW <code>weights</code>)</td>
 <td><code>SemResults</code></td>
 </tr>
 <tr class="odd">
 <td><code>MDMediationResult</code></td>
 <td>
-<strong>pooled</strong> named <code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code> +
+<strong>pooled</strong> named <code><a href="https://rdrr.io/pkg/medfit/man/MediationData.html" class="external-link">medfit::MediationData</a></code> +
 within/between/total vcov</td>
 <td><code>PooledSEMResults</code></td>
 </tr>
@@ -236,7 +236,7 @@ on missingmed, so the graph is acyclic.</p>
 </h2>
 <p>Under multiple imputation, <code><a href="../reference/run.html">run()</a></code> fits
 <strong>every</strong> imputed dataset with
-<code><a href="https://data-wise.github.io/medfit/reference/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code>, yielding a list of <code>m</code>
+<code><a href="https://rdrr.io/pkg/medfit/man/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code>, yielding a list of <code>m</code>
 named <code>MediationData</code>. <code><a href="../reference/pool.html">pool()</a></code> applies Rubin’s
 (1987) rules on the <strong>named</strong> vectors so the path labels
 survive pooling:</p>
@@ -744,7 +744,7 @@ fit errors with guidance.</p>
 </h2>
 <p><code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> takes <code>engine</code>,
 <code>family_y</code> and <code>family_m</code> and forwards them to
-<code><a href="https://data-wise.github.io/medfit/reference/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code>, whose default engine already
+<code><a href="https://rdrr.io/pkg/medfit/man/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code>, whose default engine already
 <strong>is</strong> <code>"glm"</code>. Both estimators and both
 inference types therefore accept non-gaussian families with no extra
 machinery: a binary mediator (<code>family_m = binomial()</code>), a

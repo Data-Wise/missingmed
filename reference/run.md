@@ -3,11 +3,11 @@
 Runs the mediation specification held in an
 [MDMediationData](https://data-wise.github.io/missingmed/reference/MDMediationData.md)
 object on every imputed dataset, delegating each fit to
-[`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html).
+[`medfit::fit_mediation()`](https://rdrr.io/pkg/medfit/man/fit_mediation.html).
 The result is an
 [MDMediationFit](https://data-wise.github.io/missingmed/reference/MDMediationFit.md)
 whose `per_imputation` slot is a list of **named**
-[medfit::MediationData](https://data-wise.github.io/medfit/reference/MediationData.html)
+[medfit::MediationData](https://rdrr.io/pkg/medfit/man/MediationData.html)
 objects (one per imputation) — the shape consumed by both Rubin's-rules
 pooling
 ([`pool()`](https://data-wise.github.io/missingmed/reference/pool.md))
@@ -31,7 +31,7 @@ run(object, ...)
 - ...:
 
   Additional arguments forwarded to
-  [`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html).
+  [`medfit::fit_mediation()`](https://rdrr.io/pkg/medfit/man/fit_mediation.html).
 
 ## Value
 

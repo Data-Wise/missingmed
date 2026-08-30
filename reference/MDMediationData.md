@@ -98,7 +98,7 @@ MDMediationData(
 - se_type:
 
   (IPW) Variance estimator passed to
-  [`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html):
+  [`medfit::fit_mediation()`](https://rdrr.io/pkg/medfit/man/fit_mediation.html):
   `"sandwich"` (default for IPW, HC robust) or `"model"`. Ignored for
   MI.
 
@@ -126,7 +126,7 @@ An `MDMediationData` S7 object.
 ## Details
 
 Fitting is delegated to
-[`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html)
+[`medfit::fit_mediation()`](https://rdrr.io/pkg/medfit/man/fit_mediation.html)
 (one call per imputation), so the per-imputation fits carry **named**
 path coefficients (`a`, `b`, `c_prime`) ready for
 [RMediation](https://data-wise.github.io/rmediation/reference/RMediation-package.html)
@@ -137,5 +137,5 @@ formulas/engine select the model.
 ## See also
 
 [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md),
-[`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html),
+[`medfit::fit_mediation()`](https://rdrr.io/pkg/medfit/man/fit_mediation.html),
 [SemImputedData](https://data-wise.github.io/missingmed/reference/SemImputedData.md)

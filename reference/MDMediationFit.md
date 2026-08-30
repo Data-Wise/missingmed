@@ -3,7 +3,7 @@
 An S7 class holding the result of fitting a mediation model across all
 imputations. Its defining feature is `per_imputation`: a list of
 **named**
-[medfit::MediationData](https://data-wise.github.io/medfit/reference/MediationData.html)
+[medfit::MediationData](https://rdrr.io/pkg/medfit/man/MediationData.html)
 objects, one per imputation. This list is what the MBCO-MI path
 consumes, because MBCO does not commute with Rubin's rules (D4-stacked
 MBCO needs the per-imputation fits, not the pooled estimate).
@@ -28,7 +28,7 @@ MDMediationFit(
 - per_imputation:
 
   A list of named
-  [medfit::MediationData](https://data-wise.github.io/medfit/reference/MediationData.html)
+  [medfit::MediationData](https://rdrr.io/pkg/medfit/man/MediationData.html)
   objects (length `m`).
 
 - fits:

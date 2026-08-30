@@ -2,7 +2,7 @@
 
 An S7 class holding the Rubin's-rules pooled mediation result. Its
 defining feature is `pooled`: a single **named**
-[medfit::MediationData](https://data-wise.github.io/medfit/reference/MediationData.html)
+[medfit::MediationData](https://rdrr.io/pkg/medfit/man/MediationData.html)
 built from the pooled estimates and total variance-covariance, valid as
 input to
 [`RMediation::ci_mediation_data()`](https://data-wise.github.io/rmediation/reference/ci_mediation_data.html)
@@ -33,7 +33,7 @@ MDMediationResult(
 - pooled:
 
   A named
-  [medfit::MediationData](https://data-wise.github.io/medfit/reference/MediationData.html)
+  [medfit::MediationData](https://rdrr.io/pkg/medfit/man/MediationData.html)
   carrying the pooled estimates and total vcov (path labels `a`, `b`,
   `c_prime`, ...).
 
