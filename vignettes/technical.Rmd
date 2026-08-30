@@ -268,6 +268,89 @@ silenced, so that a genuine non-integer-response mistake still surfaces.
 
 ---
 
+# 5B. MNAR sensitivity (`sensitivity_mnar()`)
+
+The pipeline estimates under **MAR** — `mice` imputes under MAR by construction.
+MAR versus MNAR is not testable from the observed data, so there is nothing to
+estimate without an assumption imported from outside it. `sensitivity_mnar()`
+therefore produces a **curve**, not an estimate:
+
+> if the unobserved values of the target sit `delta` units away from what MAR
+> imputation implies, the indirect effect is *X*.
+
+No rung is "the MNAR estimate". Each is conditional on its own delta.
+
+## 5B.1 Method
+
+Delta-adjusted imputation in the pattern-mixture sense (van Buuren, *FIMD* §9.2;
+Leacy et al. 2017). Per rung: re-impute with the shift applied, then run the
+existing pipeline unchanged.
+
+For a **continuous** target the canonical procedure imputes under MAR and then
+adds the constant to the imputed values (Hayati Rezvan et al. 2018) — which is
+what `mice`'s `post` argument does, and what this implements. For a
+**categorical** target the shift instead belongs on the imputation model's
+linear predictor, with delta on the odds-ratio scale; that is not implemented,
+and such targets error rather than receiving a meaningless additive shift.
+
+Re-imputation rebuilds from the `mids` object's **stored settings**, never from
+its recorded `call` — a `mids` built inside a function stores a call referencing
+that function's local variables, which does not resolve anywhere else.
+
+```r
+sens <- sensitivity_mnar(md, delta = c(0, -0.5, -1, -1.5, -2))
+tidy(sens)
+summary(sens)   # adds the tipping point, if the grid contains one
+```
+
+## 5B.2 What `delta` actually is — read before choosing a value
+
+`delta` is a **conditional** sensitivity parameter (CSP): a difference
+conditional on all remaining variables *and their missingness indicators*. The
+quantity an analyst can actually reason about — "non-respondents average half a
+point lower" — is a **marginal** one (MSP). They are different numbers.
+
+Supplying an elicited MSP where a CSP is expected is the standard failure mode
+of this method. Tompsett et al. (2018) measure it: coverage fell from 95% to
+**49.3%** when an elicited MSP was inserted directly as the CSP.
+
+`missingmed` cannot make the specified parameter marginal, but it can show you
+the realized one. Every rung reports `msp`:
+
+| delta (CSP) | msp (realized) | estimate |
+|---|---|---|
+| 0 | 0.244 | 0.323 |
+| −0.5 | −0.256 | 0.278 |
+| −2 | −1.76 | 0.098 |
+
+Two things to read off that table. First, `msp` is **non-zero at delta = 0** —
+under MAR, imputed values legitimately differ from observed ones when
+missingness depends on covariates. Second, `msp` is not simply `delta` shifted:
+the gap is a chained-equations effect. With a single incomplete variable the
+increments coincide exactly; with more, part of the shift circulates back
+through the other imputation models.
+
+## 5B.3 Reading a tipping point
+
+`summary()` reports the delta at which the interval first includes zero. Judge
+plausibility on the **realized `msp`**, not on the CSP: Tompsett et al. note a
+CSP-scale tipping point has no direct clinical interpretation. Resseguier et al.
+add the constraint that a tipping value must "correspond to reasonable
+hypotheses supported by epidemiologic evidences" — a tipping point that requires
+an implausible departure from MAR is *reassurance*, not a warning.
+
+## 5B.4 Limitations
+
+| Limitation | Status |
+|---|---|
+| `method = "ipw"` | Errors. IPW has no imputations to shift; a weighting analogue is a different method with a different parameter. |
+| Categorical targets | Errors. Needs a linear-predictor offset (§5B.1); v2. |
+| `pmm` targets | Allowed, with a message: shifted values may leave the observed range `pmm` otherwise guarantees. |
+| Imputation-model compatibility | **Assumed, not checked.** The `mids` arrives pre-built; if its imputation model is incompatible with the mediation model, the curve confounds departure-from-MAR with misspecification. `smcfcs` is the upstream fix. |
+| CSP calibration | Not implemented. Searching for the CSP that realizes a target MSP (Tompsett et al. §8) is the principled fix for §5B.2; v2. |
+
+---
+
 # 6. Cross-package engineering decisions
 
 These changes were made upstream to satisfy missingmed's contracts; each is the
@@ -309,3 +392,16 @@ These changes were made upstream to satisfy missingmed's contracts; each is the
   likelihood-ratio tests with multiply imputed data. *Psychological Methods*.
 - Seaman, S. R., & White, I. R. (2013). Review of inverse probability weighting
   for dealing with missing data. *Statistical Methods in Medical Research*.
+- van Buuren, S. *Flexible Imputation of Missing Data*, 2nd ed., §9.2 (delta
+  adjustment).
+- Leacy, F. P., Floyd, S., Yates, T. A., & White, I. R. (2017). Analyses of
+  sensitivity to the missing-at-random assumption using multiple imputation with
+  delta adjustment. *American Journal of Epidemiology*, 185(4), 304-315.
+- Tompsett, D. M., Leacy, F., Moreno-Betancur, M., Heron, J., & White, I. R.
+  (2018). On the use of the not-at-random fully conditional specification
+  (NARFCS) procedure in practice. *Statistics in Medicine*, 37(15), 2338-2353.
+- Hayati Rezvan, P., Lee, K. J., & Simpson, J. A. (2018). Sensitivity analysis
+  within the multiple imputation framework using delta-adjustment.
+  *Longitudinal and Life Course Studies*, 9(3), 259-278.
+- Resseguier, N., Giorgi, R., & Paoletti, X. (2011). Sensitivity analysis when
+  data are missing not-at-random. *Epidemiology*, 22(2), 282-287.

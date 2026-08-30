@@ -34,16 +34,23 @@ reference:
   - run
   - pool
   - infer
+- title: Sensitivity analysis
+  desc: >
+    Departures from MAR. Produces a sensitivity curve, not an estimate --
+    nothing here is identified.
+  contents:
+  - sensitivity_mnar
 - title: Accessors
   contents:
   - per_imputation_list
   - n_imputations
 - title: Classes
-  desc: The three S7 classes carrying data, fits, and pooled results.
+  desc: The S7 classes carrying data, fits, pooled results, and sensitivity curves.
   contents:
   - MDMediationData
   - MDMediationFit
   - MDMediationResult
+  - MDSensitivityResult
 - title: Tidiers
   contents:
   - tidy.logLik
