@@ -264,3 +264,76 @@ test_that("a genuinely multivariate block is still refused, by block membership"
   )
   expect_error(sensitivity_mnar(md, delta = 1), "multivariate block")
 })
+
+# ── NARFCS delegation (SPEC-narfcs-delegation-2026-08-29) ───────────────────
+
+md_norm <- function(m = 4, seed = 11, blocks = NULL, blots = NULL) {
+  d <- gen_mnar()
+  args <- list(d, m = m, maxit = 4, printFlag = FALSE, seed = seed)
+  if (!is.null(blocks)) args$blocks <- blocks
+  meth <- mice::make.method(d, blocks = blocks %||% mice::make.blocks(d))
+  meth[meth != ""] <- "norm"
+  args$method <- meth
+  if (!is.null(blots)) args$blots <- blots
+  imp <- do.call(mice::mice, args)
+  set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M"
+  )
+}
+
+test_that("a norm target is routed to mnar.norm, and the draws equal the post shift", {
+  # The spec's central finding: for a constant delta on a norm target, NARFCS
+  # and the post shift give IDENTICAL draws. Pinned against a direct mice()
+  # post call, so the new route cannot drift from the old one unnoticed.
+  md <- md_norm()
+  mids <- md@data
+  expect_equal(missingmed:::.mnar_route(mids, "M"), "mnar.norm")
+  via_route <- missingmed:::.mnar_reimpute(mids, data.frame(M = 1.5), seed = 3)
+  expect_equal(unname(via_route$method[["M"]]), "mnar.norm")
+  post <- mids$post
+  post["M"] <- "imp[[j]][, i] <- imp[[j]][, i] + (1.5)"
+  via_post <- mice::mice(mids$data, m = mids$m, maxit = mids$iteration,
+    method = mids$method, predictorMatrix = mids$predictorMatrix,
+    post = post, seed = 3, printFlag = FALSE
+  )
+  expect_lt(max(abs(as.matrix(via_route$imp$M) - as.matrix(via_post$imp$M))), 1e-12)
+  # No double shift: the routed target carries no post line of ours.
+  expect_false(grepl("1.5", via_route$post[["M"]], fixed = TRUE))
+})
+
+test_that("delta = 0 on the mnar.norm route reproduces MAR exactly", {
+  md <- md_norm()
+  sens <- sensitivity_mnar(md, delta = 0, type = "mbco")
+  base <- infer(run(md), type = "mbco")
+  expect_equal(unname(sens@rungs[[1]][["D4"]]), unname(base[["D4"]]))
+})
+
+test_that("mnar.norm blots are keyed by block, and a user's entry survives", {
+  # mice keys blots by BLOCK: blots = list(M = ...) under a block named "BM"
+  # errors inside mice ("ums not found"). A pre-existing entry must be merged.
+  bl <- list(BM = "M", BX = "X", BY = "Y", BC = "C")
+  md <- md_norm(blocks = bl, blots = list(BM = list(ridge = 1e-4)))
+  imp <- missingmed:::.mnar_reimpute(md@data, data.frame(M = -0.5), seed = 2)
+  expect_equal(imp$blots$BM$ums, "-0.5")
+  expect_equal(imp$blots$BM$ridge, 1e-4)
+  expect_null(imp$blots$M)
+})
+
+test_that("a tiny delta is written without scientific notation", {
+  # parse.ums() reads "1e-05" as two intercept terms and errors.
+  expect_equal(missingmed:::.mnar_ums(1e-05), "0.00001")
+  expect_equal(missingmed:::.mnar_ums(-2.5e-07), "-0.00000025")
+  md <- md_norm(m = 2)
+  expect_no_error(missingmed:::.mnar_reimpute(md@data, data.frame(M = 1e-05), seed = 1))
+})
+
+test_that("norm variants that mnar.norm would replace stay on the post route", {
+  # Routing norm.nob/norm.boot/norm.predict to mnar.norm would change the
+  # imputation method itself, so delta = 0 would no longer reproduce MAR.
+  d <- gen_mnar()
+  meth <- mice::make.method(d)
+  meth["M"] <- "norm.nob"
+  imp <- mice::mice(d, m = 2, maxit = 2, method = meth, printFlag = FALSE, seed = 4)
+  expect_equal(missingmed:::.mnar_route(imp, "M"), "post")
+  expect_equal(missingmed:::.mnar_route(md_mi(m = 2)@data, "M"), "post") # pmm
+})

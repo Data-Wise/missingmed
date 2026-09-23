@@ -206,14 +206,45 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   invisible(TRUE)
 }
 
+# Which mechanism applies the delta to target `v`? Only an EXACT method match
+# is delegated to mice's NARFCS method: routing norm.nob/norm.boot/logreg.boot
+# to mnar.* would change the imputation method itself, and delta = 0 would stop
+# reproducing MAR. For a constant delta on a norm target the two mechanisms give
+# identical draws (the spec's verified finding), so delegation there is a
+# capability extension, not a correctness fix.
+.mnar_route <- function(mids, v) {
+  switch(unname(mids$method[[.mnar_block_of(mids, v)]]),
+    norm = "mnar.norm",
+    logreg = "mnar.logreg",
+    "post"
+  )
+}
+
+# A delta as a NARFCS `ums` string. Never scientific notation: parse.ums()
+# reads "1e-05" as two intercept terms and errors.
+.mnar_ums <- function(x) format(x, digits = 15, scientific = FALSE)
+
 # Re-impute from the mids object's STORED SETTINGS (never mids$call, which
-# references the caller's local symbols), composing the delta into any post
-# expressions the user already had.
+# references the caller's local symbols). A post-routed delta is composed into
+# any post expression the user already had; an mnar-routed one swaps the
+# block's method and merges `ums` into the block's blots -- never both, which
+# would shift twice. mice keys `method` and `blots` by BLOCK, `post` by variable.
 .mnar_reimpute <- function(mids, row, seed) {
   post <- mids$post
+  method <- mids$method
+  blots <- mids$blots
   for (v in names(row)) {
-    line <- sprintf("imp[[j]][, i] <- imp[[j]][, i] + (%s)", format(row[[v]], digits = 15))
-    post[v] <- if (nzchar(post[[v]])) paste(post[[v]], line, sep = "; ") else line
+    route <- .mnar_route(mids, v)
+    if (route == "post") {
+      line <- sprintf("imp[[j]][, i] <- imp[[j]][, i] + (%s)", format(row[[v]], digits = 15))
+      post[v] <- if (nzchar(post[[v]])) paste(post[[v]], line, sep = "; ") else line
+    } else {
+      blk <- .mnar_block_of(mids, v)
+      method[[blk]] <- route
+      blots[[blk]] <- utils::modifyList(
+        as.list(blots[[blk]]), list(ums = .mnar_ums(row[[v]]))
+      )
+    }
   }
   # Replay the spec the baseline actually used. A pred-mode mids also stores an
   # auto-generated `formulas`, and handing mice() both that and the
@@ -236,9 +267,9 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   do.call(mice::mice, c(
     list(
       mids$data,
-      m = mids$m, maxit = mids$iteration, method = mids$method,
+      m = mids$m, maxit = mids$iteration, method = method,
       blocks = mids$blocks, visitSequence = mids$visitSequence,
-      where = mids$where, blots = mids$blots, ignore = mids$ignore,
+      where = mids$where, blots = blots, ignore = mids$ignore,
       post = post, seed = seed, printFlag = FALSE
     ),
     spec
