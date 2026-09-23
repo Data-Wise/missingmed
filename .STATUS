@@ -2,37 +2,125 @@ status: active
 priority: --
 progress: 100
 kind: package
-updated: 2026-08-30
-next: RELEASE v0.3.1 — a patch of three user-visible correctness fixes sitting
-  unreleased on dev (8 commits ahead of main, CI green at 2815f50). Gate, open
-  the dev->main PR (merge commit), merge, tag, release. After that the two
-  candidates are SPEC-narfcs-delegation-2026-08-29.md (v0.4.0 feature: routes
-  categorical MNAR targets to mice's mnar.logreg, keeps post for pmm) and a
-  spec for the pooled tidy table's p_value/df/fmi columns, deferred with five
-  recorded reasons in PLAN-parked-findings-2026-08-30.md. Manuscript runs on
-  medsim, not missingmed.
+updated: 2026-09-23
+next: RELEASING v0.4.0 -- version bumped on dev (0.3.1.9000 -> 0.4.0); release
+  PR dev -> main open, then tag v0.4.0 + GitHub release + CI verify on main.
+  Contents: NARFCS delegation (#13), pooled tidy() Wald columns (#14), NARFCS
+  leftovers (#15), deps from CRAN (#16). After that: v0.5.0 S7 SEM engine
+  (docs/specs/SPEC-s7-sem-engine-2026-09-23.md; Q1-Q4 grilled, section 4
+  open) -> v0.6.0 remove the S4 API (drops OpenMx) -> 1.0.0 CRAN. Before CRAN:
+  DESCRIPTION's Description: still says "Provides S4 classes". OPEN QUESTION
+  for upstream: whether medfit's sandwich stacks the weight-model score (RRZ
+  1994). Manuscript runs on medsim, not missingmed.
 type: r
 worktrees:
-  ~/.git-worktrees/missingmed/feature-glm-phase — feature/glm-phase, MERGED as
-    PR #5 (24fffc3). Stale; left in place, not cleaned up.
-  ~/.git-worktrees/missingmed/feature-mnar-sensitivity — feature/mnar-sensitivity,
-    MERGED as PR #6 (b9ac0ce, squash). Remote branch deleted; local branch kept
-    because the worktree still holds it. Stale; left in place.
-  ~/.herdr/worktrees/missingmed/fix-minibook — branch fix-minibook @ 240544e.
-    NOT created by this work; left untouched, owner unknown.
+  2026-09-23: feature-narfcs-leftovers REMOVED after PR #15 merged (local tip
+    == remote tip == PR head fd75a3d; merge 65f8052 on dev). Local and remote
+    branch deleted.
+  2026-09-23: feature-pooled-inference REMOVED after PR #14 merged (local tip
+    == remote tip == PR head 6f919f3; merge 2f191d4 on dev). Local and remote
+    branch deleted.
+  2026-09-23: feature-drop-renv REMOVED after PR #12 merged (local tip
+    16c1bce == PR head == remote tip; merge e6662a5 on dev). Local and remote
+    branch deleted.
+  2026-09-23: feature-narfcs-delegation REMOVED after PR #13 merged (local tip
+    63e7f2f == PR head). Local branch deleted; origin/feature/narfcs-delegation
+    was gone from origin too by 21:47Z.
+  2026-09-23: pruned 4 dead entries whose /Users/dt/ directories no longer
+    existed (feature-glm-phase, feature-mnar-sensitivity, feature-review-fixes,
+    fix-minibook). Their 4 local branches and the 3 remote ones were then
+    DELETED, after checking each tip: feature/glm-phase = PR #5 head (merged 24fffc3),
+    feature/mnar-sensitivity = PR #6 head (b9ac0ce), feature/review-fixes =
+    PR #7 head (3521d91); fix-minibook @ 240544e had no PR and its commit was
+    already in dev's history. The three PR branches are restorable from their
+    merged PRs.
 
 # missingmed — Missing-data causal mediation (R package, mediationverse)
 # Scope decided 2026-06-04 (Data-Wise/missingmed#1): general CRAN-targeted toolkit —
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
-## Since v0.2.0 (unreleased work on dev)
+## v0.4.0 (bumped 2026-09-23 from 0.3.1.9000; release PR to main)
+- 2026-09-23 (merged): PR #16 feature/cran-deps -> dev (88b4f65, squash).
+  medfit 0.3.2 and RMediation 1.6.1 are on CRAN, so DESCRIPTION drops
+  Remotes: and Additional_repositories:. CI installed both from the CRAN mirror
+  (packagemanager.posit.co/cran), with no r-universe involved. CLAUDE.md,
+  README.dev.md and the missingmed vignette no longer call them non-CRAN.
+  Built by plumbing from a scratch tree, with no worktree. Remote branch deleted.
+- 2026-09-23 (merged): PR #15 feature/narfcs-leftovers -> dev (65f8052,
+  squash). (1) `...` into run() closed as NOT a bug: unknown args already
+  error ("unused argument"), because medfit forwards `...` to glm(). (2) C2
+  fixed: every rung's imputations are checked for NA/NaN/Inf after
+  re-imputation, so a rung can no longer silently run complete-case. (3) The
+  vignette's 5B.2 table and 5B.3 figure come from one live
+  sensitivity_mnar() run (the old figure used a constant se of 0.075), with
+  stopifnot() guards on the three claims the prose makes. check 0/0/0
+  including the vignette build, PASS 322, E2E 7/7, CI green.
+- 2026-09-23 (merged): PR #14 feature/pooled-inference -> dev (2f191d4,
+  squash). pool()'s tidy table gains statistic/df/riv/fmi/p_value per
+  coefficient (the p_value column was documented but never built). df is
+  Barnard-Rubin with each model's complete-data df (n_obs minus its m_*/y_*
+  count; Inf for binomial/poisson); a/b/c_prime alias rows repeat their
+  sources; m = 1 (IPW) is the single-fit Wald test. Hand-computed, not
+  mice::pool.scalar. E2E: identical to summary(mice::pool(with(imp, lm(...))))
+  to 1e-13 on all 7 terms. check 0/0/0, PASS 320 (was 283), CI green.
+  Spec: docs/specs/SPEC-pooled-inference-columns-2026-09-23.md.
+- 2026-09-23 (merged): PR #12 feature/drop-renv -> dev (e6662a5, squash).
+  renv REMOVED. renv/ had been deleted, uncommitted, in the main checkout
+  while .Rprofile still sourced renv/activate.R, so R failed at startup there.
+  renv.lock (2026-06-04, R 4.5.2) lacked S7, medfit and sandwich and pinned
+  RMediation 1.2.2, below the >= 1.5.0 floor; CI already disabled renv, and
+  medfit, RMediation and medsim use none. Removed renv/, renv.lock, .Rprofile,
+  the two .Rbuildignore lines and the CI env var; README.dev.md and CLAUDE.md
+  updated. check --as-cran 0/0/0 with tests, dev/e2e-narfcs.R 7/7, CI green,
+  all with no RENV_* variable set. #12 was first AUTO-CLOSED when dev was
+  deleted at 21:35:54Z (base_ref_deleted); the cause recorded by the session
+  that did it was a commit-tree push with an empty SHA, which became
+  :refs/heads/dev. dev was re-pushed at 02c921c with history intact, #12 was
+  reopened, and dev now has the protect-dev-from-deletion ruleset (23904111),
+  matching craft, savant, rforge and flow-cli.
+- 2026-09-23 (merged): PR #13 feature/narfcs-delegation -> dev (b37d882,
+  squash). sensitivity_mnar() hands deltas to mice NARFCS: norm + ums ->
+  mnar.norm, logreg -> mnar.logreg, else post; new `ums =`, @mechanism_used,
+  @scale. Refuses before any re-imputation: a typo'd ums coefficient (mice
+  only warns, imputations go NA, the rung silently runs complete-case), a
+  non-finite delta, a target named like a tidy() column, and a numeric 0/1
+  target whose baseline imputations are all 0/1 (D6, amends P1 -- norm*
+  imputations are continuous and allowed). Two adversarial reviews (R1-R3,
+  C1-C4; C3 fixed in-branch). Also fixed the 3 test WARNs: they were the
+  set_sem() deprecation notice from the S4 tests, not mice; now asserted.
+  check --as-cran 0/0/0, FAIL 0 | WARN 0 | PASS 283, dev/e2e-narfcs.R 7/7,
+  CI green. Ledger: docs/specs/GRILL-narfcs-delegation-2026-09-23.md.
+- 2026-09-23 (merged): PR #11 feature/testthat-runner -> dev (c9e5b2b, squash).
+  tests/testthat.R had NEVER existed, so R CMD check and CI had never run the
+  suite. Adding it exposed a real bug: --as-cran limits the test library to
+  declared deps, and the IPW default se_type = "sandwich" needs sandwich,
+  which missingmed never declared (medfit only Suggests it) — 8 IPW tests
+  errored (PASS 173/200). sandwich is now in Imports (importFrom vcovHC).
+  devtools::check() 0/0/0 and CI both report FAIL 0 | WARN 3 | PASS 200.
+  Version bumped to 0.3.1.9000. roxygen2 8.1.0 reformats all of NAMESPACE on
+  document(); that churn was reverted and is still owed as its own commit.
+- 2026-09-23 (merged, other session): PR #10 dropped LazyData (5c780a6).
+
+## Since v0.2.0 (released as v0.3.0 / v0.3.1)
 - 2026-08-22 (merged): PR #5 feature/glm-phase -> dev (24fffc3). Also merged
   rforge#75 (ac16b0a), the .STATUS frontmatter parser fix. Two CI failures were
   self-inflicted by running a SUBSET of what CI runs: rforge's gate is
   tests/test-all.sh (44 checks), not `pytest tests/` (599); and missingmed's
   pkgdown job reads _pkgdown.yml's explicit reference index, which R CMD check
   never opens — two new exports were missing from it. See CLAUDE.md.
+- 2026-08-30 (release): v0.3.1 SHIPPED — tag 2f466de, GitHub release published,
+  main CI green (R-CMD-check + pkgdown). Patch of 7 correctness fixes. Suite
+  128 -> 200 across the day; check --as-cran 0/0/0 throughout. r-universe still
+  served 0.3.0 at close: it polls main and the v0.3.0 cycle took ~96 min from
+  merge to published, so expect 0.3.1 within a couple of hours. Not a fault.
+- 2026-08-30 (process): THREE adversarial reviews ran, and two of them caught
+  regressions introduced by the PREVIOUS round of fixes — maxit = 0 returning a
+  silently flat sensitivity curve, and .mm_drop_path() turning log(Y) ~ . into
+  Y ~ . so the two log-likelihoods were on different scales and T was not a
+  likelihood ratio (measured 813.76, p = 1.3e-32, rejecting unconditionally).
+  Neither would have surfaced from a failing test. See memory
+  green-ci-is-not-evidence-of-a-correct-artifact.
 - 2026-08-30 (release): v0.3.0 SHIPPED — tag v0.3.0 on e482527, GitHub release
   published, main CI green, docs live. rforge cran-prep caught what
   R CMD check --as-cran cannot see: VignetteBuilder declared knitr while the

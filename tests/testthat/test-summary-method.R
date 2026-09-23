@@ -14,7 +14,7 @@
 fit <- lavaan::sem(model, hs)
 summary(fit)
 
-sem_imputed_data <- set_sem(imputed_data, model)
+expect_warning(sem_imputed_data <- set_sem(imputed_data, model), "set_sem\\(\\) is deprecated")
 summary(sem_imputed_data)
 
 test_that("summary method for SemImputedData objects provides comprehensive summary", {

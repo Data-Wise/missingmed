@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | draft |
+| **Status** | implemented on `feature/narfcs-delegation` (2026-09-23) — see *Implementation record* |
 | **Created** | 2026-08-29 |
 | **Supersedes** | `SPEC-mnar-sensitivity-2026-08-22.md` §3.0 (the OPEN FORK) |
 | **Blocks** | nothing — v0.3.0 ships without this |
@@ -157,6 +157,52 @@ which path ran without reading source.
   contribution is wiring the delta curve to an *indirect effect*, which remains
   the package-level gap — no R package combines missing-data handling, causal
   mediation, and MNAR sensitivity (prior-art scan, 2026-08-29).
+
+## Implementation record (2026-09-23)
+
+Probed against mice 3.19.0 before building; three places where the code departs
+from the text above:
+
+- **`blots` is keyed by block, not variable** (corrects note 1). Under a block
+  named `medblock`, `blots = list(M = list(ums = "3"))` errors "ums not found";
+  `blots$medblock` works. `method` and `blots` are resolved through
+  `.mnar_block_of()`; `post` stays keyed by variable.
+- **Only an exact `norm` / `logreg` is routed** (narrows the routing table).
+  Swapping `norm.nob`/`norm.boot`/`norm.predict` for `mnar.norm`, or
+  `logreg.boot` for `mnar.logreg`, changes the imputation method, so `delta = 0`
+  would no longer reproduce MAR — the same reason `pmm` keeps `post`. The
+  `norm.*` variants stay on `post`; `logreg.boot` is refused with guidance.
+- **Deltas are written without scientific notation.** `parse.ums()` reads
+  `"1e-05"` as two intercept terms and errors ("Only one intercept term
+  allowed"); `.mnar_ums()` uses `format(scientific = FALSE)`.
+
+Also verified: `mnar.norm`/`mnar.logreg` leave `maxit = 0` fill-in draws
+unshifted, so the maxit guard stays on every route; a **factor** mediator fails
+in `medfit` (coefficient `M1` vs `M`) independent of this work, so "binary
+target runs" means a numeric 0/1 target imputed by `logreg`. A `ums` grid gets
+no tipping point.
+
+### Post-grill revisions (GRILL-narfcs-delegation-2026-09-23.md)
+
+These supersede the text above where they differ:
+
+- **`norm` routes by delta kind (D2, `b219596`).** A numeric delta on `norm`
+  stays on `post`; only a `ums` string routes it to `mnar.norm`. `logreg` always
+  routes to `mnar.logreg`. The < 1e-12 equivalence is now pinned on `ums = "1.5"`.
+- **A 0/1 target whose imputations are themselves 0/1 is refused** outside the
+  `mnar.logreg` route (D1 `6af2224`, narrowed by D6): `pmm`/`cart`/`sample`
+  draw observed values, so an added delta gives 1s and 2s. `norm*` imputations
+  of a 0/1 variable are continuous and are allowed, with `delta` or `ums` alike.
+- **`ums` strings are probed before any rung (D3 + R1, `8e7b1ff`).** A
+  `parse.ums` warning (a typo'd coefficient) or an NA probe imputation is an
+  error naming `ums[i]`; other warnings are muffled.
+- **Non-finite deltas (R3) and target names that collide with `tidy()`
+  columns (R2)** are refused (`8e7b1ff`).
+- **No `scale` argument (D4/P3, `2889536`).** The API section's `scale` bullet
+  is withdrawn; `@scale`, `print()` and `tidy()` report the scale.
+- **The vignette 5B.4 table is generated live (D5, `15d9b1e`).**
+- **E2E gate:** `dev/e2e-narfcs.R` (P4/P5) — 4 negative controls must error and
+  3 routes must reproduce MAR at delta = 0.
 
 ## References
 

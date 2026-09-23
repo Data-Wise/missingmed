@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this package is
 
-**missingmed** — "Mediation Analysis with Multiple Imputation for Missing Data" (**v0.3.1**). A **thin orchestration layer** (the missing-data middle): it runs mediation across incomplete data and pools with Rubin's rules — **delegating fitting to `medfit`** and **inference to `RMediation`**, with simulation in `medsim`. **S7-first.**
+**missingmed** — "Mediation Analysis with Multiple Imputation for Missing Data" (**v0.4.0**). A **thin orchestration layer** (the missing-data middle): it runs mediation across incomplete data and pools with Rubin's rules — **delegating fitting to `medfit`** and **inference to `RMediation`**, with simulation in `medsim`. **S7-first.**
 
 > **🟢 Roadmap complete (v0.3.0).** S7 rewrite + IPW (v0.2.0, 2026-06-12), then GLM family coverage (PR #5) and MNAR sensitivity `sensitivity_mnar()` (PR #6) landed 2026-08. Released on GitHub, the [pkgdown site](https://data-wise.github.io/missingmed/), and the [Data-Wise r-universe](https://data-wise.r-universe.dev). Post-release backlog: `docs/specs/PLAN-pre-v0.3.0-review-fixes-2026-08-29.md` (parked section).
 
@@ -31,7 +31,7 @@ The **S4 API is deprecated** (`set_sem`/`run_sem`/`pool_sem` + `SemImputedData`/
 ## Dependencies (gotchas)
 
 - Imports: `S7`, **`medfit (>= 0.3.1)`** (needs `weights=`/`se_type=`), **`RMediation (>= 1.5.0)`**, `mice`, `lavaan`, `OpenMx`, `dplyr`, `purrr`, `tibble`, `broom`, `rlang`.
-- `DESCRIPTION` `Remotes:` must **name-qualify RMediation**: `RMediation=data-wise/rmediation` (repo is `rmediation`, package is `RMediation` — plain form breaks pak). `Additional_repositories: https://data-wise.r-universe.dev` lets pak resolve the non-CRAN deps.
+- **medfit and RMediation are on CRAN** (0.3.2 and 1.6.1, checked 2026-09-23), so `DESCRIPTION` has no `Remotes:` or `Additional_repositories:`, and pak resolves everything from CRAN. If an unreleased GitHub version is ever needed, `Remotes:` must **name-qualify RMediation**: `RMediation=data-wise/rmediation` (the repo is `rmediation`, the package `RMediation`, and the plain form breaks pak).
 - Inference namespace is **`RMediation`** (capital), not `rmediation`.
 
 ## Build / test / check
@@ -39,7 +39,7 @@ The **S4 API is deprecated** (`set_sem`/`run_sem`/`pool_sem` + `SemImputedData`/
 ```r
 devtools::load_all(); devtools::document(); devtools::test(); devtools::check()
 ```
-Needs medfit ≥ 0.3.1 + RMediation installed (from the r-universe). CI uses standard r-lib actions (`RENV_CONFIG_AUTOLOADER_ENABLED=FALSE` — the dev `renv.lock` is kept out of CI). pkgdown builds to **`pkgdown-site/`** (not `docs/`, which holds design specs) and deploys via the `gh-pages` branch. `_pkgdown.yml` carries an **explicit `reference:` index** — every new export must be added there or the pkgdown CI job fails; `R CMD check` does not read pkgdown config and will not catch it.
+Needs medfit ≥ 0.3.1 + RMediation ≥ 1.5.0 installed (both from CRAN). CI uses standard r-lib actions. **No renv** (removed 2026-09-23): the lockfile predated S7, medfit and sandwich and pinned RMediation 1.2.2, below the `>= 1.5.0` floor, so dependencies live in the normal R library, locally and in CI. pkgdown builds to **`pkgdown-site/`** (not `docs/`, which holds design specs) and deploys via the `gh-pages` branch. `_pkgdown.yml` carries an **explicit `reference:` index** — every new export must be added there or the pkgdown CI job fails; `R CMD check` does not read pkgdown config and will not catch it.
 
 ## Ecosystem & manuscript
 

@@ -1,3 +1,94 @@
+# missingmed 0.4.0
+
+## New features
+
+* **`pool()`'s tidy table now carries a Rubin-pooled Wald test per
+  coefficient**: `statistic`, `df`, `riv`, `fmi` and `p_value`. The `p_value`
+  column was documented but never built. `df` is the Barnard–Rubin (1999)
+  small-sample df with each model's own complete-data df (infinite for
+  binomial and poisson models). At `m = 1` (IPW) it is the ordinary single-fit
+  Wald test, matching `summary.glm()`. These test **one path at a time**, not
+  the indirect effect; use `infer()` for that. The S4 `pool_sem()`'s
+  `p_value` meant something else, a geometric mean of per-imputation p-values.
+
+* **`sensitivity_mnar()` delegates to `mice`'s NARFCS methods** (Tompsett et
+  al. 2018; Moreno-Betancur, van Buuren & White 2020). The route depends on the
+  target's imputation method:
+  * `norm` goes through `mnar.norm` when given a `ums` string (below). A
+    numeric `delta` on a `norm` target keeps the `post` shift -- for a constant
+    delta the two give identical draws (pinned by a regression test), so
+    existing results do not change.
+  * **A binary target imputed by `logreg` now runs** through `mnar.logreg`,
+    with delta on the **log-odds** scale; it used to be refused. `delta = 0`
+    reproduces the MAR analysis exactly, and `msp` is reported as a prevalence
+    difference.
+  * Every other method (`pmm`, `norm.nob`, `cart`, ...) keeps the `post` shift.
+    Only an exact `norm`/`logreg` match is delegated: swapping `norm.boot` or
+    `logreg.boot` would change the imputation method, so `delta = 0` would stop
+    reproducing MAR. `logreg.boot`, `polyreg`, `polr` and `lda` targets are
+    refused.
+
+* New `ums` argument: a **covariate-varying** delta for a delegated target, one
+  rung per string (e.g. `"1 + 0.5*C"`), passed verbatim to NARFCS. Every
+  string is checked with a one-iteration probe before any rung runs: a string
+  mice cannot parse, or one that yields NA imputations (a typo'd coefficient
+  only makes mice warn), is refused and named. `summary()`
+  does not compute a tipping point for a `ums` grid, because it has no numeric
+  ordering.
+
+* `MDSensitivityResult` gains `@mechanism_used` and `@scale`, one entry per
+  target. `print()` and `tidy()` show them.
+
+## Bug fixes
+
+* **`sensitivity_mnar()` refuses a rung whose imputations are not finite.**
+  If a delta or `ums` made the imputation chain produce NA, NaN or Inf, the
+  fit dropped those rows and reported a complete-case result as the rung. The
+  up-front `ums` check runs one iteration and cannot see failures that start
+  later, so every rung is now checked after it is re-imputed.
+
+* **A numeric 0/1 target is no longer shifted additively.** `mice` imputes a
+  numeric 0/1 column with `pmm` by default, so `sensitivity_mnar()` added the
+  delta to drawn 0/1 values: a gaussian mediator model then silently analyzed
+  imputed 1s and 2s, and a binomial one failed late inside `glm`. A 0/1 target
+  whose imputations are themselves all 0/1 (`pmm`, `cart`, `sample`, ...) is now
+  refused unless it is imputed by `logreg`, which routes it to `mnar.logreg`.
+  The rule reads the imputed values, not a list of methods: a normal-model
+  (`norm*`) imputation of a 0/1 variable is continuous and is still allowed,
+  with `delta` or `ums` alike. **Analyses that ran before now error**; that is
+  the intent.
+
+* **A non-finite `delta` is refused.** `delta = c(0, NA)` used to run, with
+  that rung's imputations all NA; NA, NaN and Inf are now errors, as is a
+  non-numeric column in a data-frame grid.
+
+* **A target named like a `tidy()` column is refused.** A target named `msp`
+  (or `estimate`, `conf_low`, `conf_high`, `D4`, `p_value`, `mechanism`,
+  `scale`) had its delta column silently overwritten in `tidy()`.
+
+* **`sensitivity_mnar()`'s categorical guard looked up the imputation method by
+  variable name.** `mids$method` is keyed by block, so a 0/1 target imputed by
+  `logreg` in a block with a non-default name slipped past the guard and got an
+  additive shift on its drawn 0/1 values. The method is now resolved through
+  the target's block, as the rest of the function already did.
+
+* **The default IPW path failed without `sandwich` installed.** `method = "ipw"`
+  defaults to `se_type = "sandwich"`, which `medfit` computes with
+  `sandwich::vcovHC()` -- but `sandwich` is only a Suggests of `medfit` and was
+  not declared by missingmed at all, so `run()` errored on a machine without it.
+  `sandwich` is now in Imports.
+
+* **`R CMD check` now runs the test suite.** `tests/testthat.R` never existed,
+  so neither `R CMD check` nor CI had ever run `tests/testthat/`; adding it is
+  what surfaced the `sandwich` bug above.
+
+## Dependencies
+
+* `medfit` and `RMediation` now install from **CRAN** (`medfit` 0.3.2,
+  `RMediation` 1.6.1). `DESCRIPTION` no longer carries `Remotes:` or
+  `Additional_repositories:`; missingmed itself is still served by the
+  Data-Wise r-universe.
+
 # missingmed 0.3.1
 
 ## Bug fixes

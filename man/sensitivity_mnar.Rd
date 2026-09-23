@@ -12,6 +12,7 @@ sensitivity_mnar(
   seed = NULL,
   level = NULL,
   n.mc = 1e+05,
+  ums = NULL,
   ...
 )
 }
@@ -19,7 +20,8 @@ sensitivity_mnar(
 \item{object}{An \link{MDMediationData} with \code{method = "mi"}.}
 
 \item{delta}{Numeric vector (one rung per value, applied to \code{target}), or a
-data frame (one rung per row, one column per target variable).}
+data frame (one rung per row, one column per target variable). Supply
+either \code{delta} or \code{ums}, not both.}
 
 \item{target}{Name of the variable to shift. Defaults to the mediator. Must
 be \code{NULL} when \code{delta} is a data frame.}
@@ -30,6 +32,13 @@ be \code{NULL} when \code{delta} is a data frame.}
 the \code{mids} object, or \code{20260822L} when that is \code{NA}.}
 
 \item{level, n.mc}{Passed to \code{\link[=infer]{infer()}}.}
+
+\item{ums}{Optional character vector for a \strong{covariate-varying} delta, one
+rung per string, passed verbatim to \code{mice}'s NARFCS \code{ums} (e.g.
+\code{"1 + 0.5*C"}: the offset is 1 + 0.5 C per row). Each string needs exactly
+one intercept term. Only for a single target routed to \code{mnar.norm} or
+\code{mnar.logreg}. A \code{ums} grid has no numeric ordering, so \code{summary()} does
+not compute a tipping point for it.}
 
 \item{...}{Passed to \code{\link[=run]{run()}}.}
 }
@@ -49,8 +58,21 @@ indirect effect is X".
 Delta-adjusted imputation in the pattern-mixture sense (van Buuren, \emph{FIMD}
 §9.2; Leacy et al. 2017). For a continuous target the canonical procedure
 imputes under MAR and then adds the constant to the imputed values (Hayati
-Rezvan et al. 2018), which is what this function does via \code{mice}'s \code{post}
-argument. Each rung re-imputes from the \code{mids} object's stored settings --
+Rezvan et al. 2018). How the delta enters depends on the target's imputation
+method:
+\itemize{
+\item \code{"norm"} with a \code{ums} string: delegated to \code{mice}'s NARFCS method
+\code{mnar.norm} (Tompsett et al. 2018; Moreno-Betancur, van Buuren & White
+2020), delta in raw units. A numeric \code{delta} on a \code{norm} target uses the
+\code{post} shift below -- for a constant delta the two give identical draws.
+\item \code{"logreg"} (a binary target): delegated to \code{mnar.logreg}, which offsets
+the imputation model's linear predictor -- delta on the \strong{log-odds} scale.
+\item anything else continuous (\code{pmm}, \code{norm.nob}, \code{cart}, ...), and \code{norm} with
+a numeric \code{delta}: the drawn values are shifted through \code{mice}'s \code{post}
+argument, delta in raw units.
+}
+
+Each rung re-imputes from the \code{mids} object's stored settings --
 never from its recorded \code{call}, which does not resolve outside the function
 that built it.
 }
@@ -71,7 +93,14 @@ at every rung; compare it against what you meant.
 
 \itemize{
 \item Only \code{method = "mi"}. IPW has no imputations to shift.
-\item Continuous targets only; see Details for categorical.
+\item A numeric 0/1 target whose imputations are themselves 0/1 (\code{pmm}, \code{cart},
+\code{sample}, ...) is refused unless it is imputed by \code{logreg}: an added delta
+would turn its values into 1s and 2s. A normal-model (\verb{norm*}) imputation
+of a 0/1 variable is continuous and is allowed; its delta is on the raw
+(probability) scale, so keep it small and check the realized \code{msp}.
+\item Categorical targets: binary via \code{logreg} only. Multinomial and ordinal
+targets (\code{polyreg}, \code{polr}, \code{lda}) are refused -- \code{mice} has no NARFCS
+method for them -- and so is \code{logreg.boot}, which has no counterpart.
 \item With \code{pmm} (mice's default), shifted values may fall outside the observed
 range that \code{pmm} otherwise guarantees. A message is emitted once.
 \item The curve assumes the supplied imputation model is compatible with the
