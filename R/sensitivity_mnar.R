@@ -11,8 +11,18 @@
 #' Delta-adjusted imputation in the pattern-mixture sense (van Buuren, *FIMD*
 #' §9.2; Leacy et al. 2017). For a continuous target the canonical procedure
 #' imputes under MAR and then adds the constant to the imputed values (Hayati
-#' Rezvan et al. 2018), which is what this function does via `mice`'s `post`
-#' argument. Each rung re-imputes from the `mids` object's stored settings --
+#' Rezvan et al. 2018). How the delta enters depends on the target's imputation
+#' method:
+#'
+#' * `"norm"`: delegated to `mice`'s NARFCS method `mnar.norm` (Tompsett et al.
+#'   2018; Moreno-Betancur, van Buuren & White 2020), delta in raw units. For a
+#'   constant delta this gives exactly the same draws as shifting them.
+#' * `"logreg"` (a binary target): delegated to `mnar.logreg`, which offsets
+#'   the imputation model's linear predictor -- delta on the **log-odds** scale.
+#' * anything else continuous (`pmm`, `norm.nob`, `cart`, ...): the drawn values
+#'   are shifted through `mice`'s `post` argument, delta in raw units.
+#'
+#' Each rung re-imputes from the `mids` object's stored settings --
 #' never from its recorded `call`, which does not resolve outside the function
 #' that built it.
 #'
@@ -28,7 +38,9 @@
 #'
 #' @section Limitations:
 #' * Only `method = "mi"`. IPW has no imputations to shift.
-#' * Continuous targets only; see Details for categorical.
+#' * Categorical targets: binary via `logreg` only. Multinomial and ordinal
+#'   targets (`polyreg`, `polr`, `lda`) are refused -- `mice` has no NARFCS
+#'   method for them -- and so is `logreg.boot`, which has no counterpart.
 #' * With `pmm` (mice's default), shifted values may fall outside the observed
 #'   range that `pmm` otherwise guarantees. A message is emitted once.
 #' * The curve assumes the supplied imputation model is compatible with the
@@ -72,8 +84,9 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     )
   }
 
-  # The delta is applied through mice's `post`, which only runs inside the
-  # sampler. A maxit = 0 baseline (the standard "set up, then edit" idiom) has
+  # Every route enters only inside the sampler: `post` runs per iteration, and
+  # mnar.norm/mnar.logreg leave the fill-in draws unshifted too (verified,
+  # mice 3.19.0). A maxit = 0 baseline (the standard "set up, then edit" idiom) has
   # fill-in draws but no chain, so every rung would silently return the
   # unshifted imputation and the sensitivity curve would be flat.
   if (isTRUE(mids$iteration == 0)) {
@@ -193,12 +206,27 @@ sensitivity_mnar <- function(object, delta, target = NULL,
         call. = FALSE
       )
     }
-    if (is.factor(d[[v]]) || is.logical(d[[v]]) || is.character(d[[v]]) ||
-      unname(mids$method[v]) %in% c("logreg", "polyreg", "polr", "lda")) {
-      stop("Target '", v, "' is categorical (or imputed by a categorical ",
-        "method). An additive shift on drawn 0/1 values is not meaningful. ",
-        "The correct construction offsets the imputation model's linear ",
-        "predictor, with delta on the odds-ratio scale -- not yet implemented.",
+    # A binary target imputed by exactly "logreg" is delegated to mnar.logreg,
+    # which offsets the linear predictor (delta on the log-odds scale). Every
+    # other categorical case stays refused: an additive shift on drawn category
+    # values is not meaningful, and mice ships no NARFCS method for them.
+    meth <- unname(mids$method[[blk]])
+    categorical <- is.factor(d[[v]]) || is.logical(d[[v]]) ||
+      is.character(d[[v]]) || meth %in% c("logreg", "logreg.boot", "polyreg", "polr", "lda")
+    if (categorical && !identical(meth, "logreg")) {
+      if (identical(meth, "logreg.boot")) {
+        stop("Target '", v, "' is imputed by 'logreg.boot', which has no NARFCS ",
+          "counterpart; swapping it for mnar.logreg would change the imputation ",
+          "method, so delta = 0 would no longer reproduce MAR. Re-impute with ",
+          "method = 'logreg'.",
+          call. = FALSE
+        )
+      }
+      stop("Target '", v, "' is categorical and imputed by '", meth, "'. An ",
+        "additive shift on drawn category values is not meaningful, and mice ",
+        "has no NARFCS method for multinomial or ordinal targets. Supported: a ",
+        "continuous target, or a binary target imputed by 'logreg' (delta on ",
+        "the log-odds scale).",
         call. = FALSE
       )
     }
@@ -279,15 +307,24 @@ sensitivity_mnar <- function(object, delta, target = NULL,
 # Realized MARGINAL sensitivity parameter: mean(imputed) - mean(observed) for
 # the target, averaged over imputations. This is what the user probably thought
 # `delta` was; reporting it exposes the CSP/MSP gap instead of hiding it.
+# A binary FACTOR target is scored 0/1 (its second level = 1), so msp is then a
+# prevalence difference on the probability scale -- as.numeric() on a factor
+# would average level codes 1/2, and mean() of the observed factor is NA.
 .mnar_realized_msp <- function(imp, target) {
   obs <- imp$data[[target]]
-  obs_mean <- mean(obs[!is.na(obs)])
+  score <- if (is.factor(obs)) {
+    lev <- levels(obs)[2L]
+    function(x) as.numeric(as.character(x) == lev)
+  } else {
+    as.numeric
+  }
+  obs_mean <- mean(score(obs[!is.na(obs)]))
   imp_cells <- imp$imp[[target]]
   if (is.null(imp_cells) || !length(imp_cells)) {
     return(NA_real_)
   }
   mean(vapply(seq_len(ncol(imp_cells)), function(k) {
-    mean(as.numeric(imp_cells[[k]]))
+    mean(score(imp_cells[[k]]))
   }, numeric(1))) - obs_mean
 }
 

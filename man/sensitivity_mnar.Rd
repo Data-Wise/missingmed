@@ -49,8 +49,19 @@ indirect effect is X".
 Delta-adjusted imputation in the pattern-mixture sense (van Buuren, \emph{FIMD}
 §9.2; Leacy et al. 2017). For a continuous target the canonical procedure
 imputes under MAR and then adds the constant to the imputed values (Hayati
-Rezvan et al. 2018), which is what this function does via \code{mice}'s \code{post}
-argument. Each rung re-imputes from the \code{mids} object's stored settings --
+Rezvan et al. 2018). How the delta enters depends on the target's imputation
+method:
+\itemize{
+\item \code{"norm"}: delegated to \code{mice}'s NARFCS method \code{mnar.norm} (Tompsett et al.
+2018; Moreno-Betancur, van Buuren & White 2020), delta in raw units. For a
+constant delta this gives exactly the same draws as shifting them.
+\item \code{"logreg"} (a binary target): delegated to \code{mnar.logreg}, which offsets
+the imputation model's linear predictor -- delta on the \strong{log-odds} scale.
+\item anything else continuous (\code{pmm}, \code{norm.nob}, \code{cart}, ...): the drawn values
+are shifted through \code{mice}'s \code{post} argument, delta in raw units.
+}
+
+Each rung re-imputes from the \code{mids} object's stored settings --
 never from its recorded \code{call}, which does not resolve outside the function
 that built it.
 }
@@ -71,7 +82,9 @@ at every rung; compare it against what you meant.
 
 \itemize{
 \item Only \code{method = "mi"}. IPW has no imputations to shift.
-\item Continuous targets only; see Details for categorical.
+\item Categorical targets: binary via \code{logreg} only. Multinomial and ordinal
+targets (\code{polyreg}, \code{polr}, \code{lda}) are refused -- \code{mice} has no NARFCS
+method for them -- and so is \code{logreg.boot}, which has no counterpart.
 \item With \code{pmm} (mice's default), shifted values may fall outside the observed
 range that \code{pmm} otherwise guarantees. A message is emitted once.
 \item The curve assumes the supplied imputation model is compatible with the

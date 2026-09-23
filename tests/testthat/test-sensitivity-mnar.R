@@ -131,20 +131,23 @@ test_that("an unknown target is refused", {
   expect_error(sensitivity_mnar(md, delta = 1, target = "nope"), "not a column")
 })
 
-test_that("a categorical target is refused, naming the reason", {
+test_that("a multinomial target is refused, naming the binary alternative", {
+  # mice ships no NARFCS method for polyreg/polr/lda, so these stay refused.
+  # Before NARFCS delegation, binary targets were refused here too.
   set.seed(8)
   n <- 300
-  C <- rnorm(n)
-  X <- rbinom(n, 1, plogis(0.3 * C))
-  Mb <- rbinom(n, 1, plogis(-0.2 + 1.2 * X + 0.3 * C))
-  Y <- 0.2 * X + 1.0 * Mb + 0.3 * C + rnorm(n)
-  d <- data.frame(X = X, M = factor(Mb), Y = Y, C = C)
-  d$M[sample(n, 60)] <- NA
-  imp <- mice::mice(d, m = 3, printFlag = FALSE, seed = 8)
+  d <- gen_mnar(n)
+  d$K <- factor(sample(c("a", "b", "c"), n, replace = TRUE))
+  d$K[sample(n, 60)] <- NA
+  imp <- mice::mice(d, m = 2, maxit = 2, printFlag = FALSE, seed = 8)
+  expect_equal(unname(imp$method[["K"]]), "polyreg")
   md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
-    treatment = "X", mediator = "M", family_m = stats::binomial()
+    treatment = "X", mediator = "M"
   )
-  expect_error(sensitivity_mnar(md, delta = 1), "not yet implemented")
+  expect_error(
+    sensitivity_mnar(md, delta = 1, target = "K"),
+    "polyreg.*binary target imputed by 'logreg'"
+  )
 })
 
 test_that("target must be NULL when delta is a data frame", {
@@ -336,4 +339,70 @@ test_that("norm variants that mnar.norm would replace stay on the post route", {
   imp <- mice::mice(d, m = 2, maxit = 2, method = meth, printFlag = FALSE, seed = 4)
   expect_equal(missingmed:::.mnar_route(imp, "M"), "post")
   expect_equal(missingmed:::.mnar_route(md_mi(m = 2)@data, "M"), "post") # pmm
+})
+
+gen_binary_m <- function(n = 600, seed = 7) {
+  set.seed(seed)
+  C <- rnorm(n)
+  X <- rbinom(n, 1, plogis(0.3 * C))
+  M <- rbinom(n, 1, plogis(-0.2 + 1.2 * X + 0.3 * C))
+  Y <- 0.2 * X + 1.0 * M + 0.3 * C + rnorm(n)
+  d <- data.frame(X = X, M = M, Y = Y, C = C)
+  d$M[runif(n) < plogis(-1.2 + 0.5 * X + 0.5 * C)] <- NA
+  d
+}
+md_binary <- function(method = "logreg", m = 4, seed = 7) {
+  d <- gen_binary_m()
+  meth <- mice::make.method(d)
+  meth["M"] <- method
+  # logreg on a numeric 0/1 column warns "Type mismatch" -- benign here.
+  imp <- suppressWarnings(
+    mice::mice(d, m = m, maxit = 4, method = meth, printFlag = FALSE, seed = seed)
+  )
+  set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M", family_m = stats::binomial()
+  )
+}
+
+test_that("a binary logreg target runs through mnar.logreg; delta = 0 is MAR", {
+  md <- md_binary()
+  expect_equal(missingmed:::.mnar_route(md@data, "M"), "mnar.logreg")
+  sens <- suppressWarnings(sensitivity_mnar(md, delta = c(0, 1, 2), type = "mbco"))
+  base <- infer(run(md), type = "mbco")
+  expect_equal(unname(sens@rungs[[1]][["D4"]]), unname(base[["D4"]]))
+  # msp is a prevalence difference on the 0/1 scale, and it matches the MAR
+  # baseline's exactly at delta = 0.
+  expect_equal(sens@msp[1], missingmed:::.mnar_realized_msp(md@data, "M"))
+  # A log-odds delta raises the imputed prevalence, monotonically.
+  expect_true(all(diff(sens@msp) > 0))
+  expect_true(all(abs(sens@msp) < 1))
+})
+
+test_that("mnar.logreg imputes 0/1 values only -- no additive shift on draws", {
+  md <- md_binary(m = 2)
+  imp <- suppressWarnings(
+    missingmed:::.mnar_reimpute(md@data, data.frame(M = 2), seed = 1)
+  )
+  vals <- unique(unlist(imp$imp$M))
+  expect_true(all(vals %in% c(0, 1)))
+  expect_equal(imp$blots$M$ums, "2")
+})
+
+test_that("msp for a binary factor target is on the probability scale", {
+  set.seed(3)
+  d <- gen_mnar()
+  d$B <- factor(rbinom(nrow(d), 1, 0.4), labels = c("no", "yes"))
+  d$B[sample(nrow(d), 80)] <- NA
+  imp <- mice::mice(d, m = 2, maxit = 2, printFlag = FALSE, seed = 3)
+  expect_equal(unname(imp$method[["B"]]), "logreg")
+  msp <- missingmed:::.mnar_realized_msp(imp, "B")
+  expect_true(is.finite(msp))
+  prev_obs <- mean(d$B[!is.na(d$B)] == "yes")
+  prev_imp <- mean(unlist(lapply(imp$imp$B, function(x) x == "yes")))
+  expect_equal(msp, prev_imp - prev_obs)
+})
+
+test_that("logreg.boot is refused with guidance rather than silently swapped", {
+  md <- md_binary(method = "logreg.boot", m = 2)
+  expect_error(sensitivity_mnar(md, delta = 1), "logreg.boot.*method = 'logreg'")
 })
