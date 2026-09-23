@@ -3,19 +3,20 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-09-23
-next: NARFCS delegation MERGED (PR #13, b37d882) -- the v0.4.0 feature is on
-  dev (0.3.1.9000). Remaining before a v0.4.0 release: (1) implement
-  SPEC-pooled-inference-columns-2026-09-23.md (pooled tidy p_value/df/riv/fmi,
-  Barnard-Rubin df per model; Q1-Q4 grilled, not implemented -- item 3 of
-  PLAN-parked-findings-2026-08-30.md; items 1, 2, 4 shipped in 0.3.1, item 5 is
-  a policy choice left as-is); (2) NARFCS leftovers: `...` silently passes unknown
-  args into run(), the probe cannot see iteration-2+ NaN (review C2), 5B.2
-  table + figure still hard-coded. OPEN QUESTION for upstream, more pressing now
-  that sandwich is a hard dependency: whether medfit's sandwich stacks the
-  weight-model score (correct-and-efficient vs merely conservative IPW SEs,
-  RRZ 1994). Manuscript runs on medsim, not missingmed.
+next: v0.4.0 feature work is ON DEV (0.3.1.9000): NARFCS delegation (PR #13,
+  b37d882) and pooled tidy() Wald columns (PR #14, 2f191d4). Candidate next:
+  cut v0.4.0 (dev -> main, version bump, tag, r-universe). Optional first --
+  NARFCS leftovers: `...` silently passes unknown args into run(), the probe
+  cannot see iteration-2+ NaN (review C2), 5B.2 table + figure still
+  hard-coded. OPEN QUESTION for upstream, more pressing now that sandwich is a
+  hard dependency: whether medfit's sandwich stacks the weight-model score
+  (correct-and-efficient vs merely conservative IPW SEs, RRZ 1994). Manuscript
+  runs on medsim, not missingmed.
 type: r
 worktrees:
+  2026-09-23: feature-pooled-inference REMOVED after PR #14 merged (local tip
+    == remote tip == PR head 6f919f3; merge 2f191d4 on dev). Local and remote
+    branch deleted.
   2026-09-23: feature-drop-renv REMOVED after PR #12 merged (local tip
     16c1bce == PR head == remote tip; merge e6662a5 on dev). Local and remote
     branch deleted.
@@ -37,6 +38,15 @@ worktrees:
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
 ## Since v0.3.1 (unreleased work on dev, 0.3.1.9000)
+- 2026-09-23 (merged): PR #14 feature/pooled-inference -> dev (2f191d4,
+  squash). pool()'s tidy table gains statistic/df/riv/fmi/p_value per
+  coefficient (the p_value column was documented but never built). df is
+  Barnard-Rubin with each model's complete-data df (n_obs minus its m_*/y_*
+  count; Inf for binomial/poisson); a/b/c_prime alias rows repeat their
+  sources; m = 1 (IPW) is the single-fit Wald test. Hand-computed, not
+  mice::pool.scalar. E2E: identical to summary(mice::pool(with(imp, lm(...))))
+  to 1e-13 on all 7 terms. check 0/0/0, PASS 320 (was 283), CI green.
+  Spec: docs/specs/SPEC-pooled-inference-columns-2026-09-23.md.
 - 2026-09-23 (merged): PR #12 feature/drop-renv -> dev (e6662a5, squash).
   renv REMOVED. renv/ had been deleted, uncommitted, in the main checkout
   while .Rprofile still sourced renv/activate.R, so R failed at startup there.
