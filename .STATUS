@@ -3,19 +3,23 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-09-23
-next: IN PROGRESS — SPEC-narfcs-delegation-2026-08-29.md (v0.4.0), on
-  feature/narfcs-delegation in ~/.git-worktrees/missingmed/feature-narfcs-delegation:
-  route norm targets to mnar.norm and logreg targets to mnar.logreg via blots,
-  keep post for pmm and the rest. dev is 0.3.1.9000 at c9e5b2b, CI green.
-  Deferred: a spec for the pooled tidy table's p_value/df/fmi columns
-  (PLAN-parked-findings-2026-08-30.md). OPEN QUESTION for upstream, now more
-  pressing because sandwich is a hard dependency: whether medfit's sandwich
-  stacks the weight-model score (correct-and-efficient vs merely conservative
-  IPW SEs, RRZ 1994). Manuscript runs on medsim, not missingmed.
+next: NARFCS delegation MERGED (PR #13, b37d882) -- the v0.4.0 feature is on
+  dev (0.3.1.9000). Remaining before a v0.4.0 release: (1) a spec for the pooled
+  tidy table's p_value/df/fmi (item 3 of PLAN-parked-findings-2026-08-30.md,
+  deferred with five blockers; items 1, 2, 4 shipped in 0.3.1, item 5 is a
+  policy choice left as-is); (2) NARFCS leftovers: `...` silently passes unknown
+  args into run(), the probe cannot see iteration-2+ NaN (review C2), 5B.2
+  table + figure still hard-coded. OPEN QUESTION for upstream, more pressing now
+  that sandwich is a hard dependency: whether medfit's sandwich stacks the
+  weight-model score (correct-and-efficient vs merely conservative IPW SEs,
+  RRZ 1994). Manuscript runs on medsim, not missingmed.
 type: r
 worktrees:
-  ~/.git-worktrees/missingmed/feature-narfcs-delegation — the v0.4.0 work named
-    in next:.
+  ~/.git-worktrees/missingmed/feature-drop-renv -- another session's work
+    (a717da2); not this session's.
+  2026-09-23: feature-narfcs-delegation REMOVED after PR #13 merged (local tip
+    63e7f2f == PR head). Local branch deleted; origin/feature/narfcs-delegation
+    still exists (no auto-delete).
   2026-09-23: pruned 4 dead entries whose /Users/dt/ directories no longer
     existed (feature-glm-phase, feature-mnar-sensitivity, feature-review-fixes,
     fix-minibook). Their 4 local branches and the 3 remote ones were then
@@ -31,6 +35,18 @@ worktrees:
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
 ## Since v0.3.1 (unreleased work on dev, 0.3.1.9000)
+- 2026-09-23 (merged): PR #13 feature/narfcs-delegation -> dev (b37d882,
+  squash). sensitivity_mnar() hands deltas to mice NARFCS: norm + ums ->
+  mnar.norm, logreg -> mnar.logreg, else post; new `ums =`, @mechanism_used,
+  @scale. Refuses before any re-imputation: a typo'd ums coefficient (mice
+  only warns, imputations go NA, the rung silently runs complete-case), a
+  non-finite delta, a target named like a tidy() column, and a numeric 0/1
+  target whose baseline imputations are all 0/1 (D6, amends P1 -- norm*
+  imputations are continuous and allowed). Two adversarial reviews (R1-R3,
+  C1-C4; C3 fixed in-branch). Also fixed the 3 test WARNs: they were the
+  set_sem() deprecation notice from the S4 tests, not mice; now asserted.
+  check --as-cran 0/0/0, FAIL 0 | WARN 0 | PASS 283, dev/e2e-narfcs.R 7/7,
+  CI green. Ledger: docs/specs/GRILL-narfcs-delegation-2026-09-23.md.
 - 2026-09-23 (merged): PR #11 feature/testthat-runner -> dev (c9e5b2b, squash).
   tests/testthat.R had NEVER existed, so R CMD check and CI had never run the
   suite. Adding it exposed a real bug: --as-cran limits the test library to
