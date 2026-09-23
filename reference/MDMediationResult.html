@@ -79,8 +79,18 @@ and total vcov (path labels <code>a</code>, <code>b</code>, <code>c_prime</code>
 
 
 <dt id="arg-tidy-table">tidy_table<a class="anchor" aria-label="anchor" href="#arg-tidy-table"></a></dt>
-<dd><p>A data frame of pooled estimates (term, estimate, std_error,
-p_value, var_w, var_b, var_tot).</p></dd>
+<dd><p>A data frame of pooled estimates, one row per coefficient:
+<code>term</code>, <code>estimate</code>, <code>std_error</code>, <code>var_w</code>, <code>var_b</code>, <code>var_tot</code>, and the
+Rubin-pooled Wald test <code>statistic</code>, <code>df</code> (Barnard &amp; Rubin, 1999, using each
+model's complete-data df; infinite for binomial and poisson models),
+<code>riv</code> (relative increase in variance), <code>fmi</code> (fraction of missing
+information) and <code>p_value</code>. At <code>m = 1</code> (IPW, or a single imputation) this
+is the ordinary single-fit Wald test, with <code>riv = fmi = 0</code>. The rows <code>a</code>,
+<code>b</code> and <code>c_prime</code> are aliases of <code>m_&lt;treatment&gt;</code>, <code>y_&lt;mediator&gt;</code> and
+<code>y_&lt;treatment&gt;</code>, and repeat their values. <strong>These are tests of the
+individual paths, not of the indirect effect</strong>: <code>a * b</code> is nonlinear and
+its null is non-regular, so test mediation with <code><a href="infer.html">infer()</a></code> (Monte Carlo CI
+or MBCO) instead.</p></dd>
 
 
 <dt id="arg-cov-total-cov-between-cov-within">cov_total, cov_between, cov_within<a class="anchor" aria-label="anchor" href="#arg-cov-total-cov-between-cov-within"></a></dt>

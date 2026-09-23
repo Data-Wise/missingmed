@@ -41,7 +41,8 @@
 <h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
 <div class="section level3">
 <h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
-<ul><li>
+<ul><li><p><strong><code><a href="../reference/pool.html">pool()</a></code>’s tidy table now carries a Rubin-pooled Wald test per coefficient</strong>: <code>statistic</code>, <code>df</code>, <code>riv</code>, <code>fmi</code> and <code>p_value</code>. The <code>p_value</code> column was documented but never built. <code>df</code> is the Barnard–Rubin (1999) small-sample df with each model’s own complete-data df (infinite for binomial and poisson models). At <code>m = 1</code> (IPW) it is the ordinary single-fit Wald test, matching <code><a href="https://rdrr.io/r/stats/summary.glm.html" class="external-link">summary.glm()</a></code>. These test <strong>one path at a time</strong>, not the indirect effect; use <code><a href="../reference/infer.html">infer()</a></code> for that. The S4 <code><a href="../reference/pool_sem.html">pool_sem()</a></code>’s <code>p_value</code> meant something else, a geometric mean of per-imputation p-values.</p></li>
+<li>
 <p><strong><code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> delegates to <code>mice</code>’s NARFCS methods</strong> (Tompsett et al. 2018; Moreno-Betancur, van Buuren &amp; White 2020). The route depends on the target’s imputation method:</p>
 <ul><li>
 <code>norm</code> goes through <code>mnar.norm</code> when given a <code>ums</code> string (below). A numeric <code>delta</code> on a <code>norm</code> target keeps the <code>post</code> shift – for a constant delta the two give identical draws (pinned by a regression test), so existing results do not change.</li>

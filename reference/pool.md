@@ -57,8 +57,15 @@ method.
 Rubin, D. B. (1987). *Multiple Imputation for Nonresponse in Surveys*.
 Wiley.
 
+Barnard, J., & Rubin, D. B. (1999). Small-sample degrees of freedom with
+multiple imputation. *Biometrika*, 86(4), 948–955.
+
 ## See also
 
 [`run()`](https://data-wise.github.io/missingmed/reference/run.md),
 [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md),
 [`pool_sem()`](https://data-wise.github.io/missingmed/reference/pool_sem.md)
+The returned tidy table also carries a per-coefficient Wald test
+(`statistic`, `df`, `riv`, `fmi`, `p_value`); see
+[MDMediationResult](https://data-wise.github.io/missingmed/reference/MDMediationResult.md)
+for the columns and why they do not test the indirect effect.

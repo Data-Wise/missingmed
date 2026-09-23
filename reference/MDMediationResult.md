@@ -39,8 +39,20 @@ MDMediationResult(
 
 - tidy_table:
 
-  A data frame of pooled estimates (term, estimate, std_error, p_value,
-  var_w, var_b, var_tot).
+  A data frame of pooled estimates, one row per coefficient: `term`,
+  `estimate`, `std_error`, `var_w`, `var_b`, `var_tot`, and the
+  Rubin-pooled Wald test `statistic`, `df` (Barnard & Rubin, 1999, using
+  each model's complete-data df; infinite for binomial and poisson
+  models), `riv` (relative increase in variance), `fmi` (fraction of
+  missing information) and `p_value`. At `m = 1` (IPW, or a single
+  imputation) this is the ordinary single-fit Wald test, with
+  `riv = fmi = 0`. The rows `a`, `b` and `c_prime` are aliases of
+  `m_<treatment>`, `y_<mediator>` and `y_<treatment>`, and repeat their
+  values. **These are tests of the individual paths, not of the indirect
+  effect**: `a * b` is nonlinear and its null is non-regular, so test
+  mediation with
+  [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md)
+  (Monte Carlo CI or MBCO) instead.
 
 - cov_total, cov_between, cov_within:
 

@@ -429,6 +429,20 @@ once.</p>
 <p><strong>You can now</strong> read <code>res@tidy_table</code>’s
 <code>var_w</code>, <code>var_b</code> and <code>var_tot</code> columns
 as steps 2, 3 and 4 of the arithmetic above.</p>
+<p>The table also carries a Rubin-pooled Wald test for each coefficient:
+<code>statistic</code>, <code>df</code>, <code>riv</code>,
+<code>fmi</code> and <code>p_value</code>. <code>df</code> is the
+Barnard–Rubin (1999) small-sample df, using each model’s complete-data
+df. The mediator model’s df applies to the <code>m_*</code> rows and the
+outcome model’s to the <code>y_*</code> rows, and it is infinite for a
+binomial or poisson model. With a single fit (<code>m = 1</code>, as
+under IPW) the test is the ordinary one, with
+<code>riv = fmi = 0</code>. <strong>These p-values test one path at a
+time.</strong> A small <code>p_value</code> on <code>a</code> and on
+<code>b</code> is not a test of mediation:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">ab</annotation></semantics></math>
+is nonlinear and its null is non-regular, which is the reason
+<code><a href="../reference/infer.html">infer()</a></code> exists (Section 4).</p>
 <p>The pooled <code>MediationData</code> is built by
 <strong>copy-modifying</strong> a per-imputation one (S7 is
 copy-on-write), replacing only
@@ -441,7 +455,7 @@ the aliases stay name-addressable for
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md_mi</span><span class="op">)</span>            <span class="co"># m named MediationData</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>             <span class="co"># pooled named MediationData + within/between/total vcov</span></span>
-<span><span class="va">res</span><span class="op">@</span><span class="va">tidy_table</span>               <span class="co"># term, estimate, std_error, var_w, var_b, var_tot</span></span></code></pre></div>
+<span><span class="va">res</span><span class="op">@</span><span class="va">tidy_table</span>               <span class="co"># + statistic, df, riv, fmi, p_value (per path)</span></span></code></pre></div>
 <hr>
 </div>
 </div>
