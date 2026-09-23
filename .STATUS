@@ -3,15 +3,16 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-09-23
-next: RELEASING v0.4.0 -- version bumped on dev (0.3.1.9000 -> 0.4.0); release
-  PR dev -> main open, then tag v0.4.0 + GitHub release + CI verify on main.
-  Contents: NARFCS delegation (#13), pooled tidy() Wald columns (#14), NARFCS
-  leftovers (#15), deps from CRAN (#16). After that: v0.5.0 S7 SEM engine
-  (docs/specs/SPEC-s7-sem-engine-2026-09-23.md; Q1-Q4 grilled, section 4
+next: v0.4.0 SHIPPED 2026-09-23 -- release PR #17 merged to main (adb6259,
+  merge commit), CI green on main (R-CMD-check + pkgdown), tag v0.4.0, GitHub
+  release published. r-universe still served 0.3.1 at 22:53Z (it polls main;
+  last cycle took ~96 min) -- confirm it reaches 0.4.0. Next: v0.5.0 S7 SEM
+  engine (docs/specs/SPEC-s7-sem-engine-2026-09-23.md; Q1-Q4 grilled, section 4
   open) -> v0.6.0 remove the S4 API (drops OpenMx) -> 1.0.0 CRAN. Before CRAN:
-  DESCRIPTION's Description: still says "Provides S4 classes". OPEN QUESTION
-  for upstream: whether medfit's sandwich stacks the weight-model score (RRZ
-  1994). Manuscript runs on medsim, not missingmed.
+  DESCRIPTION's Description: still says "Provides S4 classes". Consider a
+  0.4.0.9000 dev bump on dev before new feature work. OPEN QUESTION for
+  upstream: whether medfit's sandwich stacks the weight-model score (RRZ 1994).
+  Manuscript runs on medsim, not missingmed.
 type: r
 worktrees:
   2026-09-23: feature-narfcs-leftovers REMOVED after PR #15 merged (local tip
@@ -40,7 +41,13 @@ worktrees:
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
-## v0.4.0 (bumped 2026-09-23 from 0.3.1.9000; release PR to main)
+## v0.4.0 RELEASED -- 2026-09-23
+- 2026-09-23 (release): PR #17 dev -> main (adb6259, merge commit). Tag
+  v0.4.0 on adb6259; GitHub release "missingmed 0.4.0" published 22:53Z and
+  marked latest. Release gate on dev 927402b: check --as-cran 0/0/0, FAIL 0 |
+  WARN 0 | PASS 322 (v0.3.1 shipped with 200), dev/e2e-narfcs.R 7/7. The bump
+  commit merged the dev NEWS section's two "## Bug fixes" headings (left by
+  separate PRs) and added a Dependencies note.
 - 2026-09-23 (merged): PR #16 feature/cran-deps -> dev (88b4f65, squash).
   medfit 0.3.2 and RMediation 1.6.1 are on CRAN, so DESCRIPTION drops
   Remotes: and Additional_repositories:. CI installed both from the CRAN mirror
