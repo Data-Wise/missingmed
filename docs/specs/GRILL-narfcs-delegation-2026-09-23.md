@@ -66,12 +66,37 @@
   keep hard-coded (silent staleness).
 - **Consequence:** ~1 s more vignette build, including on CRAN.
 
+## Adversarial review (2026-09-23, OpenCode `big-pickle`, plan agent, read-only)
+
+Findings re-verified locally (mice 3.19.0) before being recorded here:
+
+- **R1 (amends D3) — a `ums` coefficient typo yields NA imputations, silently.**
+  `ums = c("0", "0.5 + garbageZZ*C")`: `parse.ums()` coerces `" garbageZZ"` to
+  NA with only a *warning*, every imputed value in that rung is NA, and the rung
+  still reports a finite D4 = 16.2 (p = 5.6e-5) — the fit drops the NA rows, so
+  the rung is silently a complete-case analysis. `msp = NA` is the only tell.
+  A dry run alone would **pass** this string. **D3 must also treat a `parse.ums`
+  warning as an error and reject any NA in the probe's imputations.**
+- **R2 — `tidy()` overwrites grid columns named `msp`, `mechanism` or `scale`.**
+  Target named `msp`, `delta = c(0, 2)`: the delta column is gone from `tidy()`,
+  replaced by the realized msp. Needs a guard (refuse such target names, or
+  build the table without name collisions).
+- **R3 — an NA `delta` is accepted.** `delta = c(0, NA)` runs; rung 2 gets
+  `msp = NA`. `.mnar_grid()` must reject non-finite deltas (it already rejects
+  NA in `ums`).
+- Confirmed as already decided: D1 (reviewer reproduced 1/2 imputations under
+  gaussian), D2 (RNG-parity dependence), D5 (hard-coded table).
+- Latent, not acted on: a >2-level factor imputed by `logreg` passes the guard,
+  but mice itself errors at baseline, so it needs a hand-edited `mids`.
+
 ## Implementation order (for /craft:plan)
 
 1. D2 routing change (constant-delta `norm` → `post`) + update equivalence test and
    `@mechanism_used` expectations.
 2. D1 refusal for `post`-routed 0/1 targets + test + NEWS + self-check 4.
-3. D3 `ums` dry-run validation + test (bad 2nd string fails before any rung).
+3. D3 + R1 `ums` dry-run validation — `parse.ums` warnings are errors, NA probe
+   imputations are errors — + tests (bad 2nd string, NA-coefficient string).
+3a. R3 reject non-finite `delta`; R2 tidy column-collision guard + tests.
 4. D4 drop `scale` argument + tests/roxygen/NEWS.
 5. D5 live chunk in 5B.4.
 6. Spec implementation notes updated for D2/D4; `devtools::check()` 0/0/0.
