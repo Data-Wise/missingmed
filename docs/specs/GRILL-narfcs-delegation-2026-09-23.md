@@ -89,6 +89,34 @@ Findings re-verified locally (mice 3.19.0) before being recorded here:
 - Latent, not acted on: a >2-level factor imputed by `logreg` passes the guard,
   but mice itself errors at baseline, so it needs a hand-edited `mids`.
 
+## Checkpoint C re-review (2026-09-23, OpenCode `big-pickle`, plan agent, read-only)
+
+Scope: `8e7b1ff` (ums probe, non-finite delta, reserved names) and `5cbf9e2`
+(D6), the two commits the first review never saw. **No HIGH findings, and no
+regression introduced by either commit.** Items C3 and C4 were reproduced locally.
+
+- **C1 (MED, forward-compat).** The probe promotes a warning only when
+  `deparse(conditionCall(w))` names `parse.ums`, which is correct for mice 3.19.0.
+  If a future mice moves the coercion, the NA-imputation check still catches it.
+- **C2 (MED, coverage boundary, predates these commits).** The `maxit = 1`
+  probe cannot see NaN/Inf that only appear from iteration 2 onward.
+- **C3 (LOW, reproduced).** The reserved-name check runs before
+  `.mnar_check_targets()`. As a result `delta = data.frame(msp = ...)` on data
+  with no `msp` column reports a tidy() clash, not "not a column". The check
+  also refuses `D4` or `p_value` under `type = "mc"`, where nothing is
+  overwritten. That second behavior is intended: P2 chose one fixed list.
+- **C4 (LOW, reproduced, intended by D6).** A 0/1 target imputed by `mean` has
+  continuous support, so D6 allows it on `post` (`@mechanism_used = "post"`),
+  where D1 used to refuse it.
+- **Verified not real:**
+  - probe RNG and seed (mice re-seeds on every call);
+  - probe vs. rung `blots` merge;
+  - `imp` keyed by variable, not block;
+  - empty `imp` (refused upstream when nmis = 0);
+  - integer vs. double;
+  - zero-row and list-column grids;
+  - the probe muffling warnings (the real rungs re-emit them).
+
 ## Plan grill (2026-09-23, against `tasks/plan.md`)
 
 | # | Question | Decision | Rejected |
