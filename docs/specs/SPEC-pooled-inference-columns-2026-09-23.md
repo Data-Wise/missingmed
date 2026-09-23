@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | DRAFT: decisions grilled 2026-09-23 (Q1–Q4), not implemented |
+| **Status** | IMPLEMENTED 2026-09-23 on `feature/pooled-inference` (decisions Q1–Q4 grilled the same day) |
 | **Source** | Item 3 of `PLAN-parked-findings-2026-08-30.md` (deferred with five blockers) |
 | **Affects** | `R/pool.R` (`pool()` for `MDMediationFit`), `R/MDMediationResult.R` roxygen, NEWS |
 | **Target** | v0.4.0 |
@@ -67,13 +67,26 @@ cross-check against `mice::pool.scalar(Q, U, n = dfcom + k, k = k)` for `m > 1`.
 
 ## 6. Acceptance criteria
 
-- [ ] At `m > 1` with gaussian models, `df`, `riv` and `fmi` match
+- [x] At `m > 1` with gaussian models, `df`, `riv` and `fmi` match
       `mice::pool.scalar` to 1e-10 for every term.
-- [ ] `m_*` rows use the mediator model's `dfcom`, and `y_*` rows the outcome model's.
-- [ ] With a binomial `family_m`, the `m_*` rows have `dfcom = Inf`, and `df`
+- [x] `m_*` rows use the mediator model's `dfcom`, and `y_*` rows the outcome model's.
+- [x] With a binomial `family_m`, the `m_*` rows have `dfcom = Inf`, and `df`
       equals Rubin's 1987 df.
-- [ ] At `m = 1`, the p-values match `summary.glm()` for a gaussian fit on the
+- [x] At `m = 1`, the p-values match `summary.glm()` for a gaussian fit on the
       same data, with `riv = fmi = 0`.
-- [ ] The alias rows equal their source rows in every column.
-- [ ] n = 200: `df` is at most `dfcom`, which is the regression test for `df = 4802`.
-- [ ] `R CMD check --as-cran` 0/0/0, and the suite is green with strictly more tests.
+- [x] The alias rows equal their source rows in every column.
+- [x] n = 200: `df` is at most `dfcom`, which is the regression test for `df = 4802`.
+- [x] `R CMD check --as-cran` 0/0/0, and the suite is green with strictly more tests.
+
+## 7. Implementation record (2026-09-23)
+
+- `R/pool.R`: `.pool_wald()`, which uses the formulas in section 3 (mice's
+  `barnard.rubin()` form) and derives `dfcom` from the prefixes as in section 4.
+- `tests/testthat/test-pool-inference.R`: 8 blocks, 37 expectations. All 8
+  failed on `da3f019`. Three had first passed vacuously because `all()` of an
+  empty vector is TRUE, and were tightened to require the new columns.
+- E2E against the standard mice workflow: `summary(mice::pool(with(imp,
+  lm(...))))` on the same imputations gives the same df and p-values within
+  1e-13 on all 7 coefficients. That independently confirms that
+  `n_obs - k` matches `lm`'s residual df.
+- `devtools::check()` 0/0/0; `[ FAIL 0 | WARN 0 | SKIP 0 | PASS 320 ]`, up from 283.

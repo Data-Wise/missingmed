@@ -2,6 +2,15 @@
 
 ## New features
 
+* **`pool()`'s tidy table now carries a Rubin-pooled Wald test per
+  coefficient**: `statistic`, `df`, `riv`, `fmi` and `p_value`. The `p_value`
+  column was documented but never built. `df` is the Barnard–Rubin (1999)
+  small-sample df with each model's own complete-data df (infinite for
+  binomial and poisson models). At `m = 1` (IPW) it is the ordinary single-fit
+  Wald test, matching `summary.glm()`. These test **one path at a time**, not
+  the indirect effect; use `infer()` for that. The S4 `pool_sem()`'s
+  `p_value` meant something else, a geometric mean of per-imputation p-values.
+
 * **`sensitivity_mnar()` delegates to `mice`'s NARFCS methods** (Tompsett et
   al. 2018; Moreno-Betancur, van Buuren & White 2020). The route depends on the
   target's imputation method:

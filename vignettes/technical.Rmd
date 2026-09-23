@@ -297,6 +297,16 @@ never on their level.**
 **You can now** read `res@tidy_table`'s `var_w`, `var_b` and `var_tot` columns
 as steps 2, 3 and 4 of the arithmetic above.
 
+The table also carries a Rubin-pooled Wald test for each coefficient:
+`statistic`, `df`, `riv`, `fmi` and `p_value`. `df` is the Barnard–Rubin
+(1999) small-sample df, using each model's complete-data df. The mediator
+model's df applies to the `m_*` rows and the outcome model's to the `y_*` rows,
+and it is infinite for a binomial or poisson model. With a single fit (`m = 1`,
+as under IPW) the test is the ordinary one, with `riv = fmi = 0`. **These
+p-values test one path at a time.** A small `p_value` on `a` and on `b` is not a
+test of mediation: \(ab\) is nonlinear and its null is non-regular, which is the
+reason `infer()` exists (Section 4).
+
 The pooled `MediationData` is built by **copy-modifying** a per-imputation one
 (S7 is copy-on-write), replacing only `@estimates = `\(\bar Q\) and
 `@vcov = `\(T\) — so all medfit metadata (roles, predictors, families) is
@@ -305,7 +315,7 @@ inherited and the aliases stay name-addressable for `ci_mediation_data()`.
 ```{r}
 fit <- run(md_mi)            # m named MediationData
 res <- pool(fit)             # pooled named MediationData + within/between/total vcov
-res@tidy_table               # term, estimate, std_error, var_w, var_b, var_tot
+res@tidy_table               # + statistic, df, riv, fmi, p_value (per path)
 ```
 
 ---
