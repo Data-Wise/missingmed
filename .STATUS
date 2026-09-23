@@ -4,10 +4,11 @@ progress: 100
 kind: package
 updated: 2026-09-23
 next: NARFCS delegation MERGED (PR #13, b37d882) -- the v0.4.0 feature is on
-  dev (0.3.1.9000). Remaining before a v0.4.0 release: (1) a spec for the pooled
-  tidy table's p_value/df/fmi (item 3 of PLAN-parked-findings-2026-08-30.md,
-  deferred with five blockers; items 1, 2, 4 shipped in 0.3.1, item 5 is a
-  policy choice left as-is); (2) NARFCS leftovers: `...` silently passes unknown
+  dev (0.3.1.9000). Remaining before a v0.4.0 release: (1) implement
+  SPEC-pooled-inference-columns-2026-09-23.md (pooled tidy p_value/df/riv/fmi,
+  Barnard-Rubin df per model; Q1-Q4 grilled, not implemented -- item 3 of
+  PLAN-parked-findings-2026-08-30.md; items 1, 2, 4 shipped in 0.3.1, item 5 is
+  a policy choice left as-is); (2) NARFCS leftovers: `...` silently passes unknown
   args into run(), the probe cannot see iteration-2+ NaN (review C2), 5B.2
   table + figure still hard-coded. OPEN QUESTION for upstream, more pressing now
   that sandwich is a hard dependency: whether medfit's sandwich stacks the
