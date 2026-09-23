@@ -24,6 +24,11 @@
 #' @param seed_source `"mids"` if taken from the supplied `mids`, `"argument"` if
 #'   passed explicitly, `"default"` if neither was available.
 #' @param method_target The `mice` imputation method(s) used for the target variable(s).
+#' @param mechanism_used How the delta was applied, one entry per target:
+#'   `"post"` (drawn values shifted), `"mnar.norm"` or `"mnar.logreg"` (mice's
+#'   NARFCS methods).
+#' @param scale The delta scale, one entry per target: `"raw"` (units of the
+#'   target) or `"logodds"` (the `mnar.logreg` route).
 #' @param source The originating [MDMediationData].
 #'
 #' @return An `MDSensitivityResult` S7 object.
@@ -43,6 +48,8 @@ MDSensitivityResult <- S7::new_class(
     seed = S7::class_numeric,
     seed_source = S7::new_property(S7::class_character, default = "argument"),
     method_target = S7::new_property(S7::class_character, default = NA_character_),
+    mechanism_used = S7::new_property(S7::class_character, default = NA_character_),
+    scale = S7::new_property(S7::class_character, default = NA_character_),
     source = S7::class_any
   ),
   validator = function(self) {
@@ -54,6 +61,13 @@ MDSensitivityResult <- S7::new_class(
     }
     if (length(self@type) != 1L || !self@type %in% c("mc", "mbco")) {
       return("@type must be a single string: 'mc' or 'mbco'.")
+    }
+    if (!all(is.na(self@mechanism_used) |
+      self@mechanism_used %in% c("post", "mnar.norm", "mnar.logreg"))) {
+      return("@mechanism_used entries must be 'post', 'mnar.norm' or 'mnar.logreg'.")
+    }
+    if (!all(is.na(self@scale) | self@scale %in% c("raw", "logodds"))) {
+      return("@scale entries must be 'raw' or 'logodds'.")
     }
     NULL
   }

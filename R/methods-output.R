@@ -67,11 +67,17 @@ S7::method(print, MDSensitivityResult) <- function(x, ...) {
   cat("  seed:", x@seed, paste0("(from ", x@seed_source, ")"),
     "| target imputed by:", x@method_target, "\n"
   )
+  cat("  delta applied by:", paste0(x@mechanism_used, " (",
+    ifelse(x@scale == "logodds", "log-odds", "raw units"), ")", collapse = ", "), "\n")
   tb <- tidy(x)
   print(utils::head(tb, 10L), row.names = FALSE)
   if (nrow(tb) > 10L) cat("  ...", nrow(tb) - 10L, "more rung(s)\n")
   cat("\n  delta is a CONDITIONAL sensitivity parameter; `msp` is the marginal\n")
   cat("  difference actually realized. Compare msp against what you intended.\n")
+  if (isTRUE(x@scale[1] == "logodds")) {
+    cat("  Here delta is on the log-odds scale, while msp is a prevalence\n")
+    cat("  difference on the probability scale.\n")
+  }
   cat("  Assumes the supplied imputation model is compatible with the\n")
   cat("  mediation model; this is not verifiable from here.\n")
   invisible(x)
@@ -155,5 +161,7 @@ S7::method(tidy, MDSensitivityResult) <- function(x, ...) {
     base$D4 <- vapply(x@rungs, function(r) unname(r[["D4"]]), numeric(1))
     base$p_value <- vapply(x@rungs, function(r) unname(r[["p"]]), numeric(1))
   }
+  base$mechanism <- paste(x@mechanism_used, collapse = ",")
+  base$scale <- paste(x@scale, collapse = ",")
   tibble::as_tibble(base)
 }

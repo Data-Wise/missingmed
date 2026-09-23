@@ -12,6 +12,7 @@ sensitivity_mnar(
   seed = NULL,
   level = NULL,
   n.mc = 1e+05,
+  scale = c("auto", "raw", "logodds"),
   ...
 )
 }
@@ -30,6 +31,11 @@ be \code{NULL} when \code{delta} is a data frame.}
 the \code{mids} object, or \code{20260822L} when that is \code{NA}.}
 
 \item{level, n.mc}{Passed to \code{\link[=infer]{infer()}}.}
+
+\item{scale}{The delta scale you intend: \code{"auto"} (default) takes it from
+the routed mechanism -- \code{"logodds"} for a \code{logreg} target, \code{"raw"}
+otherwise. Supplying \code{"raw"} or \code{"logodds"} asserts it, and a mismatch with
+the routed mechanism is an error rather than a relabeling.}
 
 \item{...}{Passed to \code{\link[=run]{run()}}.}
 }

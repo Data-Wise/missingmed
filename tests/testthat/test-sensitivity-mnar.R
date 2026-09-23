@@ -406,3 +406,50 @@ test_that("logreg.boot is refused with guidance rather than silently swapped", {
   md <- md_binary(method = "logreg.boot", m = 2)
   expect_error(sensitivity_mnar(md, delta = 1), "logreg.boot.*method = 'logreg'")
 })
+
+test_that("@mechanism_used and @scale record which path ran, per target", {
+  s_pmm <- suppressMessages(sensitivity_mnar(md_mi(m = 2), delta = 0, type = "mbco"))
+  expect_equal(s_pmm@mechanism_used, "post")
+  expect_equal(s_pmm@scale, "raw")
+  s_norm <- sensitivity_mnar(md_norm(m = 2), delta = 0, type = "mbco")
+  expect_equal(s_norm@mechanism_used, "mnar.norm")
+  expect_equal(s_norm@scale, "raw")
+  s_bin <- suppressWarnings(sensitivity_mnar(md_binary(m = 2), delta = 0, type = "mbco"))
+  expect_equal(s_bin@mechanism_used, "mnar.logreg")
+  expect_equal(s_bin@scale, "logodds")
+  # A multi-target grid can mix routes; one entry per target.
+  d <- gen_mnar()
+  d$Y[runif(nrow(d)) < 0.2] <- NA
+  meth <- mice::make.method(d)
+  meth["Y"] <- "norm"
+  imp <- mice::mice(d, m = 2, maxit = 2, method = meth, printFlag = FALSE, seed = 7)
+  md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C, treatment = "X", mediator = "M")
+  s_mix <- suppressMessages(sensitivity_mnar(md, delta = data.frame(M = 0, Y = 0), type = "mbco"))
+  expect_equal(s_mix@mechanism_used, c("post", "mnar.norm"))
+})
+
+test_that("print() and tidy() state the mechanism and the delta scale", {
+  s_bin <- suppressWarnings(sensitivity_mnar(md_binary(m = 2), delta = c(0, 1), type = "mbco"))
+  out <- capture.output(print(s_bin))
+  expect_true(any(grepl("mnar.logreg", out, fixed = TRUE)))
+  expect_true(any(grepl("log-odds", out, fixed = TRUE)))
+  expect_true(any(grepl("probability scale", out, fixed = TRUE)))
+  tb <- tidy(s_bin)
+  expect_equal(unique(tb$mechanism), "mnar.logreg")
+  expect_equal(unique(tb$scale), "logodds")
+})
+
+test_that("a supplied scale that contradicts the routed mechanism is an error", {
+  md <- md_binary(m = 2)
+  expect_error(
+    suppressWarnings(sensitivity_mnar(md, delta = 1, scale = "raw")),
+    "log-odds"
+  )
+  expect_no_error(suppressWarnings(
+    sensitivity_mnar(md, delta = 0, type = "mbco", scale = "logodds")
+  ))
+  expect_error(
+    suppressMessages(sensitivity_mnar(md_mi(m = 2), delta = 1, scale = "logodds")),
+    "raw"
+  )
+})
