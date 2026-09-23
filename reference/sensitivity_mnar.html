@@ -67,6 +67,7 @@ indirect effect is X".</p>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  level <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n.mc <span class="op">=</span> <span class="fl">1e+05</span>,</span>
+<span>  ums <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -81,7 +82,8 @@ indirect effect is X".</p>
 
 <dt id="arg-delta">delta<a class="anchor" aria-label="anchor" href="#arg-delta"></a></dt>
 <dd><p>Numeric vector (one rung per value, applied to <code>target</code>), or a
-data frame (one rung per row, one column per target variable).</p></dd>
+data frame (one rung per row, one column per target variable). Supply
+either <code>delta</code> or <code>ums</code>, not both.</p></dd>
 
 
 <dt id="arg-target">target<a class="anchor" aria-label="anchor" href="#arg-target"></a></dt>
@@ -102,6 +104,15 @@ the <code>mids</code> object, or <code>20260822L</code> when that is <code>NA</c
 <dd><p>Passed to <code><a href="infer.html">infer()</a></code>.</p></dd>
 
 
+<dt id="arg-ums">ums<a class="anchor" aria-label="anchor" href="#arg-ums"></a></dt>
+<dd><p>Optional character vector for a <strong>covariate-varying</strong> delta, one
+rung per string, passed verbatim to <code>mice</code>'s NARFCS <code>ums</code> (e.g.
+<code>"1 + 0.5*C"</code>: the offset is 1 + 0.5 C per row). Each string needs exactly
+one intercept term. Only for a single target routed to <code>mnar.norm</code> or
+<code>mnar.logreg</code>. A <code>ums</code> grid has no numeric ordering, so <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> does
+not compute a tipping point for it.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Passed to <code><a href="run.html">run()</a></code>.</p></dd>
 
@@ -117,8 +128,17 @@ the <code>mids</code> object, or <code>20260822L</code> when that is <code>NA</c
 <p>Delta-adjusted imputation in the pattern-mixture sense (van Buuren, <em>FIMD</em>
 §9.2; Leacy et al. 2017). For a continuous target the canonical procedure
 imputes under MAR and then adds the constant to the imputed values (Hayati
-Rezvan et al. 2018), which is what this function does via <code>mice</code>'s <code>post</code>
-argument. Each rung re-imputes from the <code>mids</code> object's stored settings –
+Rezvan et al. 2018). How the delta enters depends on the target's imputation
+method:</p><ul><li><p><code>"norm"</code> with a <code>ums</code> string: delegated to <code>mice</code>'s NARFCS method
+<code>mnar.norm</code> (Tompsett et al. 2018; Moreno-Betancur, van Buuren &amp; White
+2020), delta in raw units. A numeric <code>delta</code> on a <code>norm</code> target uses the
+<code>post</code> shift below – for a constant delta the two give identical draws.</p></li>
+<li><p><code>"logreg"</code> (a binary target): delegated to <code>mnar.logreg</code>, which offsets
+the imputation model's linear predictor – delta on the <strong>log-odds</strong> scale.</p></li>
+<li><p>anything else continuous (<code>pmm</code>, <code>norm.nob</code>, <code>cart</code>, ...), and <code>norm</code> with
+a numeric <code>delta</code>: the drawn values are shifted through <code>mice</code>'s <code>post</code>
+argument, delta in raw units.</p></li>
+</ul><p>Each rung re-imputes from the <code>mids</code> object's stored settings –
 never from its recorded <code>call</code>, which does not resolve outside the function
 that built it.</p>
     </div>
@@ -140,7 +160,14 @@ at every rung; compare it against what you meant.</p>
 
 
 <ul><li><p>Only <code>method = "mi"</code>. IPW has no imputations to shift.</p></li>
-<li><p>Continuous targets only; see Details for categorical.</p></li>
+<li><p>A numeric 0/1 target whose imputations are themselves 0/1 (<code>pmm</code>, <code>cart</code>,
+<code>sample</code>, ...) is refused unless it is imputed by <code>logreg</code>: an added delta
+would turn its values into 1s and 2s. A normal-model (<code>norm*</code>) imputation
+of a 0/1 variable is continuous and is allowed; its delta is on the raw
+(probability) scale, so keep it small and check the realized <code>msp</code>.</p></li>
+<li><p>Categorical targets: binary via <code>logreg</code> only. Multinomial and ordinal
+targets (<code>polyreg</code>, <code>polr</code>, <code>lda</code>) are refused – <code>mice</code> has no NARFCS
+method for them – and so is <code>logreg.boot</code>, which has no counterpart.</p></li>
 <li><p>With <code>pmm</code> (mice's default), shifted values may fall outside the observed
 range that <code>pmm</code> otherwise guarantees. A message is emitted once.</p></li>
 <li><p>The curve assumes the supplied imputation model is compatible with the

@@ -18,6 +18,8 @@ MDSensitivityResult(
   seed = integer(0),
   seed_source = "argument",
   method_target = NA_character_,
+  mechanism_used = NA_character_,
+  scale = NA_character_,
   source = NULL
 )
 ```
@@ -64,6 +66,17 @@ MDSensitivityResult(
 - method_target:
 
   The `mice` imputation method(s) used for the target variable(s).
+
+- mechanism_used:
+
+  How the delta was applied, one entry per target: `"post"` (drawn
+  values shifted), `"mnar.norm"` or `"mnar.logreg"` (mice's NARFCS
+  methods).
+
+- scale:
+
+  The delta scale, one entry per target: `"raw"` (units of the target)
+  or `"logodds"` (the `mnar.logreg` route).
 
 - source:
 
