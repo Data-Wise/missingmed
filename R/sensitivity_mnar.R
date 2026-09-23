@@ -126,8 +126,10 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     grid <- .mnar_grid(delta, target, object)
   }
   targets <- names(grid)
+  .mnar_check_targets(targets, mids)
   # tidy() appends these columns to the grid, so a target with one of these
-  # names would have its delta column silently overwritten (review R2).
+  # names would have its delta column silently overwritten (review R2). Checked
+  # after .mnar_check_targets() so a name that is not a column says so (C3).
   clash <- intersect(targets, .mnar_tidy_reserved)
   if (length(clash)) {
     stop("Target ", paste0("'", clash, "'", collapse = ", "), " shares a name ",
@@ -137,7 +139,6 @@ sensitivity_mnar <- function(object, delta, target = NULL,
       call. = FALSE
     )
   }
-  .mnar_check_targets(targets, mids)
   if (!is.null(ums) && .mnar_route(mids, targets, ums = TRUE) == "post") {
     stop("`ums` needs a target delegated to mice's NARFCS methods (mnar.norm ",
       "for 'norm', mnar.logreg for 'logreg'); '", targets, "' is imputed by '",

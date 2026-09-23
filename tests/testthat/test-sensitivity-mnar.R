@@ -648,3 +648,11 @@ test_that("a target named like a tidy() column is refused before re-imputation",
   expect_true(all(c("msp", "mechanism", "scale", "estimate", "conf_low",
     "conf_high", "D4", "p_value") %in% missingmed:::.mnar_tidy_reserved))
 })
+
+test_that("a reserved name that is not a data column reports 'not a column'", {
+  # Review C3: the column check runs first, so the error names the real cause.
+  expect_error(
+    sensitivity_mnar(md_norm(), delta = data.frame(msp = c(0, 1))),
+    "not a column"
+  )
+})
