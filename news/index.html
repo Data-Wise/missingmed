@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,14 @@
       <small>Source: <a href="https://github.com/Data-Wise/missingmed/blob/dev/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<ul><li><p><strong>The default IPW path failed without <code>sandwich</code> installed.</strong> <code>method = "ipw"</code> defaults to <code>se_type = "sandwich"</code>, which <code>medfit</code> computes with <code><a href="https://zeileis.codeberg.page/sandwich/reference/vcovHC.html" class="external-link">sandwich::vcovHC()</a></code> – but <code>sandwich</code> is only a Suggests of <code>medfit</code> and was not declared by missingmed at all, so <code><a href="../reference/run.html">run()</a></code> errored on a machine without it. <code>sandwich</code> is now in Imports.</p></li>
+<li><p><strong><code>R CMD check</code> now runs the test suite.</strong> <code>tests/testthat.R</code> never existed, so neither <code>R CMD check</code> nor CI had ever run <code>tests/testthat/</code>; adding it is what surfaced the <code>sandwich</code> bug above.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.1" id="missingmed-031">missingmed 0.3.1<a class="anchor" aria-label="anchor" href="#missingmed-031"></a></h2>
 <div class="section level3">

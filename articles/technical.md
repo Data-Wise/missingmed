@@ -455,10 +455,11 @@ untrimmed complete-case weights; `1` disables it.
 
 IPW’s weighted-GLM model-based vcov is optimistic (it ignores that
 weights were estimated). `se_type = "sandwich"` (the IPW default) uses
-heteroskedasticity-consistent `sandwich::vcovHC` instead. This is
-implemented **in medfit** via an injectable `vcov_fun` threaded through
-`extract_mediation()` (so the named-vcov assembly stays in one place);
-missingmed just passes `se_type` through.
+heteroskedasticity-consistent
+[`sandwich::vcovHC`](https://zeileis.codeberg.page/sandwich/reference/vcovHC.html)
+instead. This is implemented **in medfit** via an injectable `vcov_fun`
+threaded through `extract_mediation()` (so the named-vcov assembly stays
+in one place); missingmed just passes `se_type` through.
 
 > MBCO for IPW is **not** implemented (a weighted LRT is
 > methodologically distinct); `infer(type = "mbco")` on an IPW fit
@@ -631,7 +632,7 @@ is the “small upstream fix” that a new capability turned out to need.
 | Decision | Where | Why |
 |----|----|----|
 | `fit_mediation(weights=)` via `do.call` (value inlined), added only when non-NULL | medfit | `glm` evaluates `weights` by NSE in the **formula’s** environment; passing it through `...` resolves to [`stats::weights`](https://rdrr.io/r/stats/weights.html) (a function). `do.call` inlines the vector; gating on non-NULL keeps the unweighted path byte-identical. |
-| `se_type` -\> injectable `vcov_fun` in `extract_mediation` | medfit | Keeps named-vcov assembly in one place; `sandwich::vcovHC` swaps in for [`stats::vcov`](https://rdrr.io/r/stats/vcov.html) without missingmed re-implementing medfit’s alias expansion. |
+| `se_type` -\> injectable `vcov_fun` in `extract_mediation` | medfit | Keeps named-vcov assembly in one place; [`sandwich::vcovHC`](https://zeileis.codeberg.page/sandwich/reference/vcovHC.html) swaps in for [`stats::vcov`](https://rdrr.io/r/stats/vcov.html) without missingmed re-implementing medfit’s alias expansion. |
 | Tidiers exported with `@exportS3Method broom::tidy` | missingmed | Plain `@export` registers `S3method(tidy, *)` against the wrong generic; the package-qualified form binds to broom’s generic so [`tidy()`](https://generics.r-lib.org/reference/tidy.html)/[`broom::tidy()`](https://generics.r-lib.org/reference/tidy.html) dispatch. |
 | [`S7::S4_register()`](https://rconsortium.github.io/S7/reference/S4_register.html) per S7 class | missingmed | The legacy S4 generics (`print`/`summary`) require S7 classes to be S4-registered before S7 methods can attach. |
 | `namespace` roclet enabled | missingmed | Lets roxygen regenerate NAMESPACE for the many new S7 exports (surfaced + fixed a latent `generics`/`broom` `tidy` import clash). |

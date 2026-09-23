@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -726,7 +726,7 @@ disables it.</p>
 <p>IPW’s weighted-GLM model-based vcov is optimistic (it ignores that
 weights were estimated). <code>se_type = "sandwich"</code> (the IPW
 default) uses heteroskedasticity-consistent
-<code>sandwich::vcovHC</code> instead. This is implemented <strong>in
+<code><a href="https://zeileis.codeberg.page/sandwich/reference/vcovHC.html" class="external-link">sandwich::vcovHC</a></code> instead. This is implemented <strong>in
 medfit</strong> via an injectable <code>vcov_fun</code> threaded through
 <code>extract_mediation()</code> (so the named-vcov assembly stays in
 one place); missingmed just passes <code>se_type</code> through.</p>
@@ -1021,7 +1021,7 @@ unweighted path byte-identical.</td>
 </td>
 <td>medfit</td>
 <td>Keeps named-vcov assembly in one place;
-<code>sandwich::vcovHC</code> swaps in for <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">stats::vcov</a></code>
+<code><a href="https://zeileis.codeberg.page/sandwich/reference/vcovHC.html" class="external-link">sandwich::vcovHC</a></code> swaps in for <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">stats::vcov</a></code>
 without missingmed re-implementing medfit’s alias expansion.</td>
 </tr>
 <tr class="odd">
