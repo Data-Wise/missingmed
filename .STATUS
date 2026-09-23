@@ -2,16 +2,16 @@ status: active
 priority: --
 progress: 100
 kind: package
-updated: 2026-08-30
-next: Nothing pending — v0.3.1 released (tag 2f466de), main CI green, dev ==
-  main, tree clean. Two candidates, in order: (1) SPEC-narfcs-delegation-
-  2026-08-29.md, the v0.4.0 feature — route categorical MNAR targets to mice's
-  mnar.logreg, keep post for pmm; spec is written and ready. (2) a spec for the
-  pooled tidy table's p_value/df/fmi columns, deferred with five recorded
-  reasons in PLAN-parked-findings-2026-08-30.md. OPEN QUESTION for upstream:
-  whether medfit's sandwich stacks the weight-model score — it decides whether
-  IPW SEs are correct-and-efficient or merely conservative (RRZ 1994). Raised
-  twice on 2026-08-30, never settled. Manuscript runs on medsim, not missingmed.
+updated: 2026-09-23
+next: IN PROGRESS — SPEC-narfcs-delegation-2026-08-29.md (v0.4.0), on
+  feature/narfcs-delegation in ~/.git-worktrees/missingmed/feature-narfcs-delegation:
+  route norm targets to mnar.norm and logreg targets to mnar.logreg via blots,
+  keep post for pmm and the rest. dev is 0.3.1.9000 at c9e5b2b, CI green.
+  Deferred: a spec for the pooled tidy table's p_value/df/fmi columns
+  (PLAN-parked-findings-2026-08-30.md). OPEN QUESTION for upstream, now more
+  pressing because sandwich is a hard dependency: whether medfit's sandwich
+  stacks the weight-model score (correct-and-efficient vs merely conservative
+  IPW SEs, RRZ 1994). Manuscript runs on medsim, not missingmed.
 type: r
 worktrees:
   ~/.git-worktrees/missingmed/feature-glm-phase — feature/glm-phase, MERGED as
@@ -27,7 +27,19 @@ worktrees:
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
-## Since v0.2.0 (unreleased work on dev)
+## Since v0.3.1 (unreleased work on dev, 0.3.1.9000)
+- 2026-09-23 (merged): PR #11 feature/testthat-runner -> dev (c9e5b2b, squash).
+  tests/testthat.R had NEVER existed, so R CMD check and CI had never run the
+  suite. Adding it exposed a real bug: --as-cran limits the test library to
+  declared deps, and the IPW default se_type = "sandwich" needs sandwich,
+  which missingmed never declared (medfit only Suggests it) — 8 IPW tests
+  errored (PASS 173/200). sandwich is now in Imports (importFrom vcovHC).
+  devtools::check() 0/0/0 and CI both report FAIL 0 | WARN 3 | PASS 200.
+  Version bumped to 0.3.1.9000. roxygen2 8.1.0 reformats all of NAMESPACE on
+  document(); that churn was reverted and is still owed as its own commit.
+- 2026-09-23 (merged, other session): PR #10 dropped LazyData (5c780a6).
+
+## Since v0.2.0 (released as v0.3.0 / v0.3.1)
 - 2026-08-22 (merged): PR #5 feature/glm-phase -> dev (24fffc3). Also merged
   rforge#75 (ac16b0a), the .STATUS frontmatter parser fix. Two CI failures were
   self-inflicted by running a SUBSET of what CI runs: rforge's gate is
