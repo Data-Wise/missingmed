@@ -36,7 +36,6 @@ Remotes:
     data-wise/medfit,
     RMediation=data-wise/rmediation
 Additional_repositories: https://data-wise.r-universe.dev
-LazyData: true
 Description: Provides S4 classes and methods for conducting mediation analysis with multiply imputed datasets.
     Integrates with the 'mice' package for multiple imputation and supports structural equation modeling (SEM)
     using either 'lavaan' or 'OpenMx'. Implements Rubin's rules for pooling parameter estimates and standard
