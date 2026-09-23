@@ -12,3 +12,6 @@ ORCHESTRATE-*.md
 tests/testthat/_problems/
 pkgdown-site/
 tests/testthat/testthat-problems.rds
+
+# Local planning artifacts (tasks/plan.md, tasks/todo.md)
+tasks/
