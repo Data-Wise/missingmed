@@ -15,11 +15,12 @@ next: NARFCS delegation MERGED (PR #13, b37d882) -- the v0.4.0 feature is on
   RRZ 1994). Manuscript runs on medsim, not missingmed.
 type: r
 worktrees:
-  ~/.git-worktrees/missingmed/feature-drop-renv -- another session's work
-    (a717da2); not this session's.
+  2026-09-23: feature-drop-renv REMOVED after PR #12 merged (local tip
+    16c1bce == PR head == remote tip; merge e6662a5 on dev). Local and remote
+    branch deleted.
   2026-09-23: feature-narfcs-delegation REMOVED after PR #13 merged (local tip
     63e7f2f == PR head). Local branch deleted; origin/feature/narfcs-delegation
-    still exists (no auto-delete).
+    was gone from origin too by 21:47Z.
   2026-09-23: pruned 4 dead entries whose /Users/dt/ directories no longer
     existed (feature-glm-phase, feature-mnar-sensitivity, feature-review-fixes,
     fix-minibook). Their 4 local branches and the 3 remote ones were then
@@ -35,6 +36,20 @@ worktrees:
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
 ## Since v0.3.1 (unreleased work on dev, 0.3.1.9000)
+- 2026-09-23 (merged): PR #12 feature/drop-renv -> dev (e6662a5, squash).
+  renv REMOVED. renv/ had been deleted, uncommitted, in the main checkout
+  while .Rprofile still sourced renv/activate.R, so R failed at startup there.
+  renv.lock (2026-06-04, R 4.5.2) lacked S7, medfit and sandwich and pinned
+  RMediation 1.2.2, below the >= 1.5.0 floor; CI already disabled renv, and
+  medfit, RMediation and medsim use none. Removed renv/, renv.lock, .Rprofile,
+  the two .Rbuildignore lines and the CI env var; README.dev.md and CLAUDE.md
+  updated. check --as-cran 0/0/0 with tests, dev/e2e-narfcs.R 7/7, CI green,
+  all with no RENV_* variable set. #12 was first AUTO-CLOSED when dev was
+  deleted at 21:35:54Z (base_ref_deleted); the cause recorded by the session
+  that did it was a commit-tree push with an empty SHA, which became
+  :refs/heads/dev. dev was re-pushed at 02c921c with history intact, #12 was
+  reopened, and dev now has the protect-dev-from-deletion ruleset (23904111),
+  matching craft, savant, rforge and flow-cli.
 - 2026-09-23 (merged): PR #13 feature/narfcs-delegation -> dev (b37d882,
   squash). sensitivity_mnar() hands deltas to mice NARFCS: norm + ums ->
   mnar.norm, logreg -> mnar.logreg, else post; new `ums =`, @mechanism_used,
