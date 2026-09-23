@@ -721,17 +721,36 @@ scales**. `delta` is log-odds; the reported `msp` is a prevalence difference on
 the probability scale.
 
 The same log-odds step moves prevalence by different amounts depending on where
-it starts. In one run (n = 600; \(M \sim \text{Bernoulli}(\text{logit}^{-1}(-0.3 + 0.8X + 0.3C))\);
-34% of \(M\) missing completely at random; `mnar.logreg`, m = 5, maxit = 5,
-seed 7, `mice` 3.19.0) the mean imputed prevalence was:
+it starts. The chunk below imputes a binary mediator with `mnar.logreg` at three
+log-odds deltas and reports the mean imputed prevalence (it runs when the
+vignette is built, so the numbers always come from the code shown):
 
-| log-odds delta | imputed prevalence |
-|---|---|
-| 0 (MAR) | 0.438 |
-| 1 | 0.683 |
-| 2 | 0.845 |
+```{r binary-prevalence, eval = TRUE}
+set.seed(7)
+n <- 600
+C <- rnorm(n)
+X <- rbinom(n, 1, 0.5)
+M <- rbinom(n, 1, plogis(-0.3 + 0.8 * X + 0.3 * C))
+Y <- 0.5 * M + 0.2 * X + 0.3 * C + rnorm(n)
+d <- data.frame(X, M, Y, C)
+d$M[runif(n) < 0.35] <- NA # missing completely at random
+meth <- mice::make.method(d)
+meth["M"] <- "mnar.logreg"
+prev <- vapply(c(0, 1, 2), function(delta) {
+  imp <- suppressWarnings(mice::mice(d,
+    m = 5, maxit = 5, method = meth, seed = 7, printFlag = FALSE,
+    blots = list(M = list(ums = as.character(delta)))
+  ))
+  mean(unlist(imp$imp$M))
+}, numeric(1))
+knitr::kable(
+  data.frame(`log-odds delta` = c("0 (MAR)", "1", "2"),
+    `imputed prevalence` = round(prev, 3), check.names = FALSE)
+)
+```
 
-The first step added 24.5 points, the second 16.2 — the logistic curve flattens
+The first step added `r round(100 * (prev[2] - prev[1]), 1)` points, the
+second `r round(100 * (prev[3] - prev[2]), 1)` — the logistic curve flattens
 toward 1. So:
 
 - **A delta of 1 is plausible** when external evidence — a follow-up of
