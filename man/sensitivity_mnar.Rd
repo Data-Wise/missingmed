@@ -99,6 +99,8 @@ at every rung; compare it against what you meant.
 
 \itemize{
 \item Only \code{method = "mi"}. IPW has no imputations to shift.
+\item A numeric 0/1 target is refused unless it is imputed by \code{logreg}: on the
+\code{post} route its delta would be added to drawn 0/1 values.
 \item Categorical targets: binary via \code{logreg} only. Multinomial and ordinal
 targets (\code{polyreg}, \code{polr}, \code{lda}) are refused -- \code{mice} has no NARFCS
 method for them -- and so is \code{logreg.boot}, which has no counterpart.

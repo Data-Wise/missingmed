@@ -32,6 +32,14 @@
 
 ## Bug fixes
 
+* **A numeric 0/1 target is no longer shifted additively.** `mice` imputes a
+  numeric 0/1 column with `pmm` by default, so `sensitivity_mnar()` added the
+  delta to drawn 0/1 values: a gaussian mediator model then silently analyzed
+  imputed 1s and 2s, and a binomial one failed late inside `glm`. A 0/1 target
+  whose delta would be applied by the `post` shift -- under any imputation
+  method -- is now refused, pointing to `method = "logreg"`, which routes it to
+  `mnar.logreg`. **Analyses that ran before now error**; that is the intent.
+
 * **`sensitivity_mnar()`'s categorical guard looked up the imputation method by
   variable name.** `mids$method` is keyed by block, so a 0/1 target imputed by
   `logreg` in a block with a non-default name slipped past the guard and got an

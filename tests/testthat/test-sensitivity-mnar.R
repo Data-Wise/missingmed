@@ -522,3 +522,52 @@ test_that("the categorical guard reads the method through a renamed block", {
   )
   expect_error(sensitivity_mnar(md, delta = 1), "logreg.boot")
 })
+
+# ── GRILL D1 / P1: a 0/1 target on the post route is refused ────────────────
+
+md_binary_post <- function(method = NULL, family_m = stats::gaussian()) {
+  d <- gen_binary_m()
+  meth <- mice::make.method(d)
+  if (!is.null(method)) meth["M"] <- method
+  imp <- suppressWarnings(
+    mice::mice(d, m = 2, maxit = 2, method = meth, printFlag = FALSE, seed = 7)
+  )
+  set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M", family_m = family_m
+  )
+}
+
+test_that("a numeric 0/1 target under pmm is refused, under either mediator family", {
+  # Before: a gaussian mediator model silently analyzed imputed 1s and 2s; a
+  # binomial one failed late in glm ("y values must be 0 <= y <= 1").
+  md <- md_binary_post()
+  expect_equal(unname(md@data$method[["M"]]), "pmm")
+  expect_error(sensitivity_mnar(md, delta = 1), "binary.*method = 'logreg'")
+  expect_error(
+    sensitivity_mnar(md_binary_post(family_m = stats::binomial()), delta = 1),
+    "binary.*method = 'logreg'"
+  )
+})
+
+test_that("the 0/1 refusal covers every post-routed method, not only pmm", {
+  for (m in c("norm", "norm.nob", "cart")) {
+    expect_error(
+      sensitivity_mnar(md_binary_post(method = m), delta = 1),
+      paste0("'", m, "'"),
+      info = m
+    )
+  }
+})
+
+test_that("the refusal happens before any re-imputation", {
+  md <- md_binary_post()
+  called <- FALSE
+  testthat::local_mocked_bindings(
+    .mnar_reimpute = function(...) {
+      called <<- TRUE
+      stop("reached")
+    }
+  )
+  expect_error(sensitivity_mnar(md, delta = 1), "binary")
+  expect_false(called)
+})

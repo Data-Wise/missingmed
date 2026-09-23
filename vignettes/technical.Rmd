@@ -751,6 +751,7 @@ toward 1. So:
 | Limitation | Status |
 |---|---|
 | `method = "ipw"` | Errors. IPW has no imputations to shift; a weighting analogue is a different method with a different parameter. |
+| Binary 0/1 targets on the `post` route | Errors, whatever method drew them (`pmm`, `norm`, `cart`, …): an added delta turns 0/1 into 1/2. Re-impute with `logreg`. |
 | Categorical targets | Binary via `logreg` only (§5B.1). `polyreg`/`polr`/`lda` error — `mice` has no NARFCS method for them — and so does `logreg.boot`. A binary *factor* mediator is not yet supported by the mediation fit itself. |
 | `pmm` targets | Allowed, with a message: shifted values may leave the observed range `pmm` otherwise guarantees. |
 | Imputation-model compatibility | **Assumed, not checked.** The `mids` arrives pre-built; if its imputation model is incompatible with the mediation model, the curve confounds departure-from-MAR with misspecification. `smcfcs` is the upstream fix. |
@@ -862,23 +863,28 @@ whether that is a lot.
 </details>
 
 **4. Transfer** *(4 min)*
-You have a binary 0/1 mediator with 30% missingness, imputed by `mice`'s
-default for a numeric column. You run `sensitivity_mnar(md, delta = 1)` and it
-works. Why should you be suspicious, and what would you change?
+You have a binary 0/1 mediator with 30% missingness, imputed with `mice`'s
+default for a numeric column. `sensitivity_mnar(md, delta = 1)` stops with an
+error saying the target is binary. Why does the package refuse, and what do you
+change?
 
 <details>
 <summary>Answer</summary>
 
-**Why suspicious.** `mice` imputes a *numeric* 0/1 column with `pmm`, not
+**Why it refuses.** `mice` imputes a *numeric* 0/1 column with `pmm`, not
 `logreg`, so the routing table in 5B.1 sends it down the `post` route: the delta
-is **added to the drawn value**, and a drawn 0 or 1 becomes 1 or 2. The printout
-says so -- `delta applied by: post (raw units)` -- which is the line to check.
+would be **added to the drawn values**, and a drawn 0 or 1 would become 1 or 2.
+Under a gaussian mediator model that runs without complaint and analyzes a
+variable that no longer means anything; under a binomial one it fails late,
+inside `glm`. The package refuses every 0/1 target on the `post` route, whatever
+method drew it, rather than let either happen.
 
-**The change.** Re-impute with `method["M"] <- "logreg"`. The target then routes to
-`mnar.logreg`, which shifts the imputation model's **linear predictor**, puts
-\(\delta\) on the log-odds scale, and keeps every imputed value 0 or 1.
+**The change.** Re-impute with `method["M"] <- "logreg"`. The target then routes
+to `mnar.logreg`, which shifts the imputation model's **linear predictor**, puts
+\(\delta\) on the log-odds scale, and keeps every imputed value 0 or 1. Check
+the printed `delta applied by:` line: it should read `mnar.logreg (log-odds)`.
 
-*Stuck?* Section 5B.1's routing table, and the printed `delta applied by:` line.
+*Stuck?* Section 5B.1's routing table.
 
 </details>
 
