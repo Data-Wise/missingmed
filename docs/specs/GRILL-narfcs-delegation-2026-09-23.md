@@ -89,6 +89,20 @@ Findings re-verified locally (mice 3.19.0) before being recorded here:
 - Latent, not acted on: a >2-level factor imputed by `logreg` passes the guard,
   but mice itself errors at baseline, so it needs a hand-edited `mids`.
 
+## Plan grill (2026-09-23, against `tasks/plan.md`)
+
+| # | Question | Decision | Rejected |
+|---|---|---|---|
+| P1 | D1 scope | Refuse **any** `post`-routed 0/1 target (pmm, norm, norm.nob, cart, ...) | a pmm/cart/sample list (drifts); pmm only |
+| P2 | R2 fix | **Refuse** target names that collide with `tidy()` columns | `delta_<target>` prefix (schema break); suffix on collision |
+| P3 | `scale` removal | **Delete, no stub** — it was never released | explicit refusal in `...`; validating all of `...` (out of scope) |
+| P4 | E2E form | **Planted defects + known answers**: the 4 reproductions must error; 3 routes reproduce MAR at delta = 0 | route transcript only (can't fail); fresh-context agent trial (later) |
+| P5 | E2E home | Committed **`dev/e2e-narfcs.R`** (`^dev$` already build-ignored) | testthat only; leave in the session scratchpad |
+| P6 | `tasks/` | **gitignore + `^tasks$` in .Rbuildignore**, like ORCHESTRATE | commit and delete before merge; move to docs/specs |
+
+Open (not decided here): whether `sensitivity_mnar()`'s `...` silently swallows
+unknown arguments on their way into `run()` — a pre-existing, general question.
+
 ## Implementation order (for /craft:plan)
 
 1. D2 routing change (constant-delta `norm` → `post`) + update equivalence test and
