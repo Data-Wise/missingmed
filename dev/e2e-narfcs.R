@@ -1,7 +1,7 @@
 # End-to-end gate for NARFCS delegation in sensitivity_mnar().
 #
 # Run from the package root:
-#   RENV_CONFIG_AUTOLOADER_ENABLED=FALSE Rscript dev/e2e-narfcs.R
+#   Rscript dev/e2e-narfcs.R
 #
 # Two kinds of case, both able to fail (docs/specs/GRILL-narfcs-delegation-2026-09-23.md, P4):
 # * NEGATIVE CONTROLS -- inputs that once produced a silent wrong result. Each
