@@ -1,5 +1,34 @@
 # missingmed (development version)
 
+## New features
+
+* **`sensitivity_mnar()` delegates to `mice`'s NARFCS methods** (Tompsett et
+  al. 2018; Moreno-Betancur, van Buuren & White 2020). The route depends on the
+  target's imputation method:
+  * `norm` goes through `mnar.norm`. For a constant delta the draws are
+    identical to the previous shift, pinned by a regression test, so existing
+    results do not change.
+  * **A binary target imputed by `logreg` now runs** through `mnar.logreg`,
+    with delta on the **log-odds** scale; it used to be refused. `delta = 0`
+    reproduces the MAR analysis exactly, and `msp` is reported as a prevalence
+    difference.
+  * Every other method (`pmm`, `norm.nob`, `cart`, ...) keeps the `post` shift.
+    Only an exact `norm`/`logreg` match is delegated: swapping `norm.boot` or
+    `logreg.boot` would change the imputation method, so `delta = 0` would stop
+    reproducing MAR. `logreg.boot`, `polyreg`, `polr` and `lda` targets are
+    refused.
+
+* New `ums` argument: a **covariate-varying** delta for a delegated target, one
+  rung per string (e.g. `"1 + 0.5*C"`), passed verbatim to NARFCS. `summary()`
+  does not compute a tipping point for a `ums` grid, because it has no numeric
+  ordering.
+
+* New `scale` argument (`"auto"`, `"raw"`, `"logodds"`). A supplied scale is an
+  assertion; one that disagrees with the routed mechanism is an error.
+
+* `MDSensitivityResult` gains `@mechanism_used` and `@scale`, one entry per
+  target. `print()` and `tidy()` show them.
+
 ## Bug fixes
 
 * **The default IPW path failed without `sandwich` installed.** `method = "ipw"`

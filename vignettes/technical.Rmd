@@ -612,11 +612,31 @@ Leacy et al. 2017). Per rung: re-impute with the shift applied, then run the
 existing pipeline unchanged.
 
 For a **continuous** target the canonical procedure imputes under MAR and then
-adds the constant to the imputed values (Hayati Rezvan et al. 2018) — which is
-what `mice`'s `post` argument does, and what this implements. For a
-**categorical** target the shift instead belongs on the imputation model's
-linear predictor, with delta on the odds-ratio scale; that is not implemented,
-and such targets error rather than receiving a meaningless additive shift.
+adds the constant to the imputed values (Hayati Rezvan et al. 2018). For a
+**binary** target an additive shift on a drawn 0 or 1 is meaningless; the shift
+belongs on the imputation model's linear predictor instead. Which construction
+runs depends on the target's imputation method:
+
+| Baseline method | Mechanism (`@mechanism_used`) | Delta scale |
+|---|---|---|
+| `norm` | `mnar.norm` — `mice`'s NARFCS method, via `blots` | raw units of the target |
+| `logreg` (binary) | `mnar.logreg`, via `blots` | **log-odds** |
+| `pmm`, `norm.nob`, `norm.boot`, `cart`, … | `post` — shift the drawn values | raw units of the target |
+| `logreg.boot`, `polyreg`, `polr`, `lda` | refused | — |
+
+NARFCS is Tompsett et al. (2018); the `mice` methods are Moreno-Betancur, van
+Buuren & White (2020). For a constant delta on a `norm` target the first and
+third rows give **identical draws** — the offset is a scalar added to a normal
+draw's linear predictor, which is arithmetically the same as adding it to the
+draw — so delegation there changes capability, not results. Only an *exact*
+method match is delegated: swapping `norm.boot` for `mnar.norm`, say, would
+change the imputation method itself, and `delta = 0` would stop reproducing the
+MAR analysis. `print()` and `tidy()` state the mechanism and scale that ran.
+
+A delegated target also accepts a **covariate-varying** delta through `ums`,
+passed verbatim to NARFCS: `ums = c("0", "1 + 0.5*C")` offsets each row by
+\(1 + 0.5\,C\). A string grid has no numeric ordering, so `summary()` does not
+compute a tipping point for it.
 
 Re-imputation rebuilds from the `mids` object's **stored settings**, never from
 its recorded `call` — a `mids` built inside a function stores a call referencing
@@ -690,12 +710,47 @@ text(true_tip, 0.30, sprintf("true crossing\n~ %.2f", true_tip), pos = 4, cex = 
 legend("bottomright", "CI lower bound", lty = 3, col = "#4a76a8", bty = "n", cex = 0.78)
 ```
 
-## 5B.4 Limitations
+## 5B.4 Binary targets: when is a log-odds delta of 1 plausible?
+
+On the `mnar.logreg` route `delta` is a **conditional log-odds** difference: at
+`delta = 1` the odds that a non-respondent's value is 1 are \(e \approx 2.72\)
+times what MAR imputation implies, *given every other variable*. The CSP/MSP
+caution of 5B.2 applies with an extra twist — the two sit on **different
+scales**. `delta` is log-odds; the reported `msp` is a prevalence difference on
+the probability scale.
+
+The same log-odds step moves prevalence by different amounts depending on where
+it starts. In one run (n = 600; \(M \sim \text{Bernoulli}(\text{logit}^{-1}(-0.3 + 0.8X + 0.3C))\);
+34% of \(M\) missing completely at random; `mnar.logreg`, m = 5, maxit = 5,
+seed 7, `mice` 3.19.0) the mean imputed prevalence was:
+
+| log-odds delta | imputed prevalence |
+|---|---|
+| 0 (MAR) | 0.438 |
+| 1 | 0.683 |
+| 2 | 0.845 |
+
+The first step added 24.5 points, the second 16.2 — the logistic curve flattens
+toward 1. So:
+
+- **A delta of 1 is plausible** when external evidence — a follow-up of
+  non-respondents, a validation subsample, a substantive account of *why* people
+  with the outcome stop responding — supports a conditional odds ratio of
+  roughly 2.7 among the missing. Judge that against the realized `msp`, not
+  against the delta.
+- **It is not plausible by default.** An odds ratio of 2.7 is a large
+  conditional effect. When the MAR prevalence is already near 0 or 1, even a
+  modest delta pushes the imputed values toward all-0 or all-1, and the curve
+  mostly reflects that the grid ran out of room.
+- **`delta = 0` still reproduces the MAR analysis exactly**, so the curve is
+  anchored at the analysis you would otherwise report.
+
+## 5B.5 Limitations
 
 | Limitation | Status |
 |---|---|
 | `method = "ipw"` | Errors. IPW has no imputations to shift; a weighting analogue is a different method with a different parameter. |
-| Categorical targets | Errors. Needs a linear-predictor offset (§5B.1); v2. |
+| Categorical targets | Binary via `logreg` only (§5B.1). `polyreg`/`polr`/`lda` error — `mice` has no NARFCS method for them — and so does `logreg.boot`. A binary *factor* mediator is not yet supported by the mediation fit itself. |
 | `pmm` targets | Allowed, with a message: shifted values may leave the observed range `pmm` otherwise guarantees. |
 | Imputation-model compatibility | **Assumed, not checked.** The `mids` arrives pre-built; if its imputation model is incompatible with the mediation model, the curve confounds departure-from-MAR with misspecification. `smcfcs` is the upstream fix. |
 | CSP calibration | Not implemented. Searching for the CSP that realizes a target MSP (Tompsett et al. §8) is the principled fix for §5B.2; v2. |
@@ -805,28 +860,25 @@ whether that is a lot.
 
 </details>
 
-**4. Transfer** *(4 min -- nothing in this vignette answers it directly)*
-You have a binary mediator with 30% missingness and want an MNAR sensitivity
-curve. `sensitivity_mnar()` errors. What is the obstacle, and what would a
-correct construction shift?
+**4. Transfer** *(4 min)*
+You have a binary 0/1 mediator with 30% missingness, imputed by `mice`'s
+default for a numeric column. You run `sensitivity_mnar(md, delta = 1)` and it
+works. Why should you be suspicious, and what would you change?
 
 <details>
 <summary>Answer</summary>
 
-**The obstacle.** The implementation adds \(\delta\) to the **drawn value**
-through `mice`'s `post`. Adding a constant to a drawn 0 or 1 produces something
-that is neither -- so the package refuses rather than returning a meaningless
-number.
+**Why suspicious.** `mice` imputes a *numeric* 0/1 column with `pmm`, not
+`logreg`, so the routing table in 5B.1 sends it down the `post` route: the delta
+is **added to the drawn value**, and a drawn 0 or 1 becomes 1 or 2. The printout
+says so -- `delta applied by: post (raw units)` -- which is the line to check.
 
-**The correct construction.** Shift the imputation model's **linear predictor**,
-which puts \(\delta\) on the log-odds scale. Concretely, a log-odds
-\(\delta = 1\) moves an imputed prevalence of about 0.55 to about 0.76.
+**The change.** Re-impute with `method["M"] <- "logreg"` (or store the mediator
+as a two-level factor for the imputation step). The target then routes to
+`mnar.logreg`, which shifts the imputation model's **linear predictor**, puts
+\(\delta\) on the log-odds scale, and keeps every imputed value 0 or 1.
 
-`mice` ships this as `mice.impute.mnar.logreg()` via `blots`; see
-`docs/specs/SPEC-narfcs-delegation-2026-08-29.md` for the routing design.
-
-*Stuck?* Section 5B.1's paragraph on categorical targets states the obstacle;
-the construction is the part you had to supply.
+*Stuck?* Section 5B.1's routing table, and the printed `delta applied by:` line.
 
 </details>
 
