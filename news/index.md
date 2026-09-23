@@ -1,6 +1,6 @@
 # Changelog
 
-## missingmed (development version)
+## missingmed 0.4.0
 
 ### New features
 
@@ -91,8 +91,6 @@
   additive shift on its drawn 0/1 values. The method is now resolved
   through the target’s block, as the rest of the function already did.
 
-### Bug fixes
-
 - **The default IPW path failed without `sandwich` installed.**
   `method = "ipw"` defaults to `se_type = "sandwich"`, which `medfit`
   computes with
@@ -106,6 +104,13 @@
   existed, so neither `R CMD check` nor CI had ever run
   `tests/testthat/`; adding it is what surfaced the `sandwich` bug
   above.
+
+### Dependencies
+
+- `medfit` and `RMediation` now install from **CRAN** (`medfit` 0.3.2,
+  `RMediation` 1.6.1). `DESCRIPTION` no longer carries `Remotes:` or
+  `Additional_repositories:`; missingmed itself is still served by the
+  Data-Wise r-universe.
 
 ## missingmed 0.3.1
 
