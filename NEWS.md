@@ -27,9 +27,6 @@
   does not compute a tipping point for a `ums` grid, because it has no numeric
   ordering.
 
-* New `scale` argument (`"auto"`, `"raw"`, `"logodds"`). A supplied scale is an
-  assertion; one that disagrees with the routed mechanism is an error.
-
 * `MDSensitivityResult` gains `@mechanism_used` and `@scale`, one entry per
   target. `print()` and `tidy()` show them.
 

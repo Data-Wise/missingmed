@@ -60,10 +60,6 @@
 #' @param seed Integer seed pinned across rungs. Defaults to the seed stored in
 #'   the `mids` object, or `20260822L` when that is `NA`.
 #' @param level,n.mc Passed to [infer()].
-#' @param scale The delta scale you intend: `"auto"` (default) takes it from
-#'   the routed mechanism -- `"logodds"` for a `logreg` target, `"raw"`
-#'   otherwise. Supplying `"raw"` or `"logodds"` asserts it, and a mismatch with
-#'   the routed mechanism is an error rather than a relabeling.
 #' @param ums Optional character vector for a **covariate-varying** delta, one
 #'   rung per string, passed verbatim to `mice`'s NARFCS `ums` (e.g.
 #'   `"1 + 0.5*C"`: the offset is 1 + 0.5 C per row). Each string needs exactly
@@ -78,10 +74,8 @@
 sensitivity_mnar <- function(object, delta, target = NULL,
                              type = c("mc", "mbco"), seed = NULL,
                              level = NULL, n.mc = 1e5,
-                             scale = c("auto", "raw", "logodds"), ums = NULL,
-                             ...) {
+                             ums = NULL, ...) {
   type <- match.arg(type)
-  scale <- match.arg(scale)
   if (!S7::S7_inherits(object, MDMediationData)) {
     stop("`object` must be an MDMediationData (from set_md_mediation()).",
       call. = FALSE
@@ -183,16 +177,6 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     }
   }
   scales <- ifelse(mechanism == "mnar.logreg", "logodds", "raw")
-  if (scale != "auto" && any(scales != scale)) {
-    bad <- targets[scales != scale]
-    stop("`scale = \"", scale, "\"` does not match how the delta on ",
-      paste0("'", bad, "'", collapse = ", "), " is applied: ",
-      paste0(mechanism[scales != scale], collapse = ", "), " puts it on the ",
-      ifelse(scales[scales != scale][1] == "logodds", "log-odds", "raw"),
-      " scale. Leave `scale = \"auto\"` or change the imputation method.",
-      call. = FALSE
-    )
-  }
   for (v in targets[meth == "pmm"]) {
     message(
       "sensitivity_mnar(): target '", v, "' is imputed by 'pmm'. ",

@@ -450,19 +450,10 @@ test_that("print() and tidy() state the mechanism and the delta scale", {
   expect_equal(unique(tb$scale), "logodds")
 })
 
-test_that("a supplied scale that contradicts the routed mechanism is an error", {
-  md <- md_binary(m = 2)
-  expect_error(
-    suppressWarnings(sensitivity_mnar(md, delta = 1, scale = "raw")),
-    "log-odds"
-  )
-  expect_no_error(suppressWarnings(
-    sensitivity_mnar(md, delta = 0, type = "mbco", scale = "logodds")
-  ))
-  expect_error(
-    suppressMessages(sensitivity_mnar(md_mi(m = 2), delta = 1, scale = "logodds")),
-    "raw"
-  )
+test_that("scale is reported, not an argument (GRILL D4)", {
+  # The scale is disclosed by @scale, print() and tidy(); an assertion-only
+  # argument was dropped before release.
+  expect_false("scale" %in% names(formals(sensitivity_mnar)))
 })
 
 test_that("ums drives a covariate-varying delta, one rung per string", {
