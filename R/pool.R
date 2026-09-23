@@ -18,8 +18,15 @@
 #' @param ... Unused.
 #' @return An [MDMediationResult] object.
 #' @seealso [run()], [infer()], [pool_sem()]
+#' The returned tidy table also carries a per-coefficient Wald test
+#' (`statistic`, `df`, `riv`, `fmi`, `p_value`); see [MDMediationResult] for the
+#' columns and why they do not test the indirect effect.
+#'
 #' @references Rubin, D. B. (1987). *Multiple Imputation for Nonresponse in
 #'   Surveys*. Wiley.
+#'
+#'   Barnard, J., & Rubin, D. B. (1999). Small-sample degrees of freedom with
+#'   multiple imputation. *Biometrika*, 86(4), 948--955.
 #' @export
 #' @name pool
 pool <- S7::new_generic("pool", "object")
@@ -101,6 +108,9 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
     row.names = NULL,
     stringsAsFactors = FALSE
   )
+  tidy_table <- cbind(tidy_table, .pool_wald(
+    tidy_table, m = m, fit = object@per_imputation[[1]]
+  ))
 
   MDMediationResult(
     pooled = pooled,
@@ -113,4 +123,53 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
     conf_int = object@conf_int,
     conf_level = object@conf_level
   )
+}
+
+# Per-term Rubin inference for the pooled tidy table: statistic, df, riv, fmi,
+# p_value (docs/specs/SPEC-pooled-inference-columns-2026-09-23.md).
+#
+# df is Barnard & Rubin (1999), written as mice:::barnard.rubin() writes it (no
+# Inf/Inf when B = 0). The complete-data df is per model: n_obs minus that
+# model's coefficient count, read off the m_* / y_* prefixes of the estimates,
+# which include the intercept. A binomial or poisson model has dfcom = Inf,
+# since summary.glm() uses z-tests there; with Inf, df reduces to Rubin (1987).
+# The alias rows a, b and c_prime take their source model's dfcom, so each
+# equals its m_X / y_M / y_X row. At m = 1 there is no between-imputation
+# variance to learn from: riv = fmi = 0 and df = dfcom, the single-fit Wald test.
+#
+# These are per-path Wald quantities, not a test of the indirect effect.
+.pool_wald <- function(tidy_table, m, fit) {
+  term <- tidy_table$term
+  n <- fit@n_obs
+  dfcom_of <- function(prefix, family) {
+    fam <- if (is.null(family)) "gaussian" else family$family
+    if (fam %in% c("binomial", "poisson")) Inf else n - sum(startsWith(term, prefix))
+  }
+  dfcom_m <- dfcom_of("m_", fit@family_m)
+  dfcom_y <- dfcom_of("y_", fit@family_y)
+  # Terms outside both models' prefixes and the three aliases get the smaller
+  # complete-data df, the conservative choice.
+  dfcom <- ifelse(startsWith(term, "m_") | term == "a", dfcom_m,
+    ifelse(startsWith(term, "y_") | term %in% c("b", "c_prime"), dfcom_y,
+      min(dfcom_m, dfcom_y)
+    )
+  )
+
+  statistic <- tidy_table$estimate / tidy_table$std_error
+  if (m == 1) {
+    riv <- fmi <- rep(0, length(term))
+    df <- dfcom
+  } else {
+    riv <- (1 + 1 / m) * tidy_table$var_b / tidy_table$var_w
+    lambda <- (1 + 1 / m) * tidy_table$var_b / tidy_table$var_tot
+    tmp <- (1 - lambda) * (1 + dfcom) * dfcom
+    df <- ifelse(is.infinite(dfcom), (m - 1) / lambda^2,
+      (m - 1) * tmp / ((dfcom + 3) * (m - 1) + lambda^2 * tmp)
+    )
+    fmi <- (riv + 2 / (df + 3)) / (riv + 1)
+  }
+  p_value <- ifelse(is.infinite(df), 2 * stats::pnorm(-abs(statistic)),
+    2 * stats::pt(-abs(statistic), df)
+  )
+  data.frame(statistic = statistic, df = df, riv = riv, fmi = fmi, p_value = p_value)
 }

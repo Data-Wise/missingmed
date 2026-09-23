@@ -20,8 +20,18 @@ MDMediationResult(
 \item{pooled}{A named \link[medfit:MediationData]{medfit::MediationData} carrying the pooled estimates
 and total vcov (path labels \code{a}, \code{b}, \code{c_prime}, ...).}
 
-\item{tidy_table}{A data frame of pooled estimates (term, estimate, std_error,
-p_value, var_w, var_b, var_tot).}
+\item{tidy_table}{A data frame of pooled estimates, one row per coefficient:
+\code{term}, \code{estimate}, \code{std_error}, \code{var_w}, \code{var_b}, \code{var_tot}, and the
+Rubin-pooled Wald test \code{statistic}, \code{df} (Barnard & Rubin, 1999, using each
+model's complete-data df; infinite for binomial and poisson models),
+\code{riv} (relative increase in variance), \code{fmi} (fraction of missing
+information) and \code{p_value}. At \code{m = 1} (IPW, or a single imputation) this
+is the ordinary single-fit Wald test, with \code{riv = fmi = 0}. The rows \code{a},
+\code{b} and \code{c_prime} are aliases of \verb{m_<treatment>}, \verb{y_<mediator>} and
+\verb{y_<treatment>}, and repeat their values. \strong{These are tests of the
+individual paths, not of the indirect effect}: \code{a * b} is nonlinear and
+its null is non-regular, so test mediation with \code{\link[=infer]{infer()}} (Monte Carlo CI
+or MBCO) instead.}
 
 \item{cov_total, cov_between, cov_within}{The Rubin's-rules total, between-, and
 within-imputation covariance matrices.}

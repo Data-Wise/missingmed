@@ -33,7 +33,13 @@ It is the S7 successor of the S4 \code{\link[=pool_sem]{pool_sem()}} method.
 \references{
 Rubin, D. B. (1987). \emph{Multiple Imputation for Nonresponse in
 Surveys}. Wiley.
+
+Barnard, J., & Rubin, D. B. (1999). Small-sample degrees of freedom with
+multiple imputation. \emph{Biometrika}, 86(4), 948--955.
 }
 \seealso{
 \code{\link[=run]{run()}}, \code{\link[=infer]{infer()}}, \code{\link[=pool_sem]{pool_sem()}}
+The returned tidy table also carries a per-coefficient Wald test
+(\code{statistic}, \code{df}, \code{riv}, \code{fmi}, \code{p_value}); see \link{MDMediationResult} for the
+columns and why they do not test the indirect effect.
 }
