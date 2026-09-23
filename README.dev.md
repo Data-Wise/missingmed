@@ -27,19 +27,11 @@ make test
 make check
 ```
 
-Reproducible environment
+Dependencies
 
-If you want reproducible dependency management, initialize `renv` in the project and commit the lockfile:
-
-```r
-install.packages('renv')
-renv::init()
-renv::snapshot()
-```
-
-On CI we attempt to restore `renv` if a `renv.lock` file is present; otherwise the workflow installs dependencies via `remotes::install_deps()`.
+The package does not use `renv`; dependencies install into your normal R library. `DESCRIPTION`'s `Additional_repositories` field points at the Data-Wise r-universe, which serves the non-CRAN `medfit` and `RMediation`, so a pak-based install such as `pak::local_install_deps()` resolves them. CI installs the same way, through `r-lib/actions/setup-r-dependencies`.
 
 Notes
 
-- The `dev_agent.R` script will attempt to install missing helper packages automatically. For interactive development you may prefer to install dependencies manually and use `renv`.
+- The `dev_agent.R` script will attempt to install missing helper packages automatically. For interactive development you may prefer to install dependencies manually.
 - `dev_agent.R` is intentionally small — feel free to extend it with more commands (release, covr, etc.).

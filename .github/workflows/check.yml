@@ -1,6 +1,6 @@
 # Standard r-lib/actions R-CMD-check. Installs current deps via pak (honors
 # DESCRIPTION Additional_repositories -> the Data-Wise r-universe for the
-# non-CRAN deps medfit/RMediation), instead of restoring the dev renv.lock.
+# non-CRAN deps medfit/RMediation).
 name: R-CMD-check
 
 on:
@@ -17,9 +17,6 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      # The repo carries a renv setup for local dev; keep it out of CI so deps
-      # resolve from CRAN + Additional_repositories rather than the lockfile.
-      RENV_CONFIG_AUTOLOADER_ENABLED: "FALSE"
     steps:
       - uses: actions/checkout@v4
 
