@@ -18,9 +18,12 @@ worktrees:
     in next:.
   2026-09-23: pruned 4 dead entries whose /Users/dt/ directories no longer
     existed (feature-glm-phase, feature-mnar-sensitivity, feature-review-fixes,
-    fix-minibook). Their local branches were KEPT: feature/glm-phase (PR #5),
-    feature/mnar-sensitivity (PR #6), feature/review-fixes, and fix-minibook
-    @ 240544e (owner unknown). Check each against its PR before deleting.
+    fix-minibook). Their branches were then DELETED, local and remote, after
+    checking each tip: feature/glm-phase = PR #5 head (merged 24fffc3),
+    feature/mnar-sensitivity = PR #6 head (b9ac0ce), feature/review-fixes =
+    PR #7 head (3521d91); fix-minibook @ 240544e had no PR and its commit was
+    already in dev's history. The three PR branches are restorable from their
+    merged PRs.
 
 # missingmed — Missing-data causal mediation (R package, mediationverse)
 # Scope decided 2026-06-04 (Data-Wise/missingmed#1): general CRAN-targeted toolkit —
