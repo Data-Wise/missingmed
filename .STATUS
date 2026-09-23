@@ -14,13 +14,13 @@ next: IN PROGRESS — SPEC-narfcs-delegation-2026-08-29.md (v0.4.0), on
   IPW SEs, RRZ 1994). Manuscript runs on medsim, not missingmed.
 type: r
 worktrees:
-  ~/.git-worktrees/missingmed/feature-glm-phase — feature/glm-phase, MERGED as
-    PR #5 (24fffc3). Stale; left in place, not cleaned up.
-  ~/.git-worktrees/missingmed/feature-mnar-sensitivity — feature/mnar-sensitivity,
-    MERGED as PR #6 (b9ac0ce, squash). Remote branch deleted; local branch kept
-    because the worktree still holds it. Stale; left in place.
-  ~/.herdr/worktrees/missingmed/fix-minibook — branch fix-minibook @ 240544e.
-    NOT created by this work; left untouched, owner unknown.
+  ~/.git-worktrees/missingmed/feature-narfcs-delegation — the v0.4.0 work named
+    in next:.
+  2026-09-23: pruned 4 dead entries whose /Users/dt/ directories no longer
+    existed (feature-glm-phase, feature-mnar-sensitivity, feature-review-fixes,
+    fix-minibook). Their local branches were KEPT: feature/glm-phase (PR #5),
+    feature/mnar-sensitivity (PR #6), feature/review-fixes, and fix-minibook
+    @ 240544e (owner unknown). Check each against its PR before deleting.
 
 # missingmed — Missing-data causal mediation (R package, mediationverse)
 # Scope decided 2026-06-04 (Data-Wise/missingmed#1): general CRAN-targeted toolkit —
