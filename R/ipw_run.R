@@ -97,6 +97,7 @@
 }
 
 #' IPW run path
+#' @importFrom sandwich vcovHC
 #' @keywords internal
 #' @noRd
 .ipw_run <- function(object, ...) {
