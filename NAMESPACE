@@ -42,44 +42,60 @@ import(OpenMx)
 import(methods)
 import(mice)
 importClassesFrom(methods,S4)
-importFrom(OpenMx,imxVerifyModel)
-importFrom(OpenMx,mxData)
-importFrom(OpenMx,mxModel)
-importFrom(OpenMx,mxRun)
-importFrom(OpenMx,omxLapply)
+importFrom(OpenMx,
+  imxVerifyModel,
+  mxData,
+  mxModel,
+  mxRun,
+  omxLapply
+)
 importFrom(RMediation,ci_mediation_data)
 importFrom(broom,tidy)
-importFrom(dplyr,contains)
-importFrom(dplyr,group_by)
-importFrom(dplyr,mutate)
-importFrom(dplyr,rename)
-importFrom(dplyr,select)
-importFrom(dplyr,summarise)
-importFrom(dplyr,ungroup)
-importFrom(lavaan,lavTech)
-importFrom(lavaan,lavaan)
-importFrom(lavaan,lavaanify)
-importFrom(lavaan,sem)
+importFrom(dplyr,
+  contains,
+  group_by,
+  mutate,
+  rename,
+  select,
+  summarise,
+  ungroup
+)
+importFrom(lavaan,
+  lavTech,
+  lavaan,
+  lavaanify,
+  sem
+)
 importFrom(medfit,fit_mediation)
-importFrom(methods,setClass)
-importFrom(methods,setGeneric)
-importFrom(methods,setMethod)
-importFrom(methods,setValidity)
-importFrom(methods,validObject)
-importFrom(mice,complete)
-importFrom(mice,convergence)
-importFrom(mice,mice)
+importFrom(methods,
+  setClass,
+  setGeneric,
+  setMethod,
+  setValidity,
+  validObject
+)
+importFrom(mice,
+  complete,
+  convergence,
+  mice
+)
 importFrom(purrr,map_dfr)
-importFrom(rlang,"%||%")
-importFrom(rlang,.data)
+importFrom(rlang,
+  "%||%",
+  .data
+)
 importFrom(sandwich,vcovHC)
-importFrom(stats,coef)
-importFrom(stats,cov)
-importFrom(stats,logLik)
-importFrom(stats,pnorm)
-importFrom(stats,qnorm)
-importFrom(stats,update)
-importFrom(stats,var)
-importFrom(stats,vcov)
-importFrom(tibble,as_tibble)
-importFrom(tibble,tibble)
+importFrom(stats,
+  coef,
+  cov,
+  logLik,
+  pnorm,
+  qnorm,
+  update,
+  var,
+  vcov
+)
+importFrom(tibble,
+  as_tibble,
+  tibble
+)

@@ -11,8 +11,20 @@
 #' Delta-adjusted imputation in the pattern-mixture sense (van Buuren, *FIMD*
 #' §9.2; Leacy et al. 2017). For a continuous target the canonical procedure
 #' imputes under MAR and then adds the constant to the imputed values (Hayati
-#' Rezvan et al. 2018), which is what this function does via `mice`'s `post`
-#' argument. Each rung re-imputes from the `mids` object's stored settings --
+#' Rezvan et al. 2018). How the delta enters depends on the target's imputation
+#' method:
+#'
+#' * `"norm"` with a `ums` string: delegated to `mice`'s NARFCS method
+#'   `mnar.norm` (Tompsett et al. 2018; Moreno-Betancur, van Buuren & White
+#'   2020), delta in raw units. A numeric `delta` on a `norm` target uses the
+#'   `post` shift below -- for a constant delta the two give identical draws.
+#' * `"logreg"` (a binary target): delegated to `mnar.logreg`, which offsets
+#'   the imputation model's linear predictor -- delta on the **log-odds** scale.
+#' * anything else continuous (`pmm`, `norm.nob`, `cart`, ...), and `norm` with
+#'   a numeric `delta`: the drawn values are shifted through `mice`'s `post`
+#'   argument, delta in raw units.
+#'
+#' Each rung re-imputes from the `mids` object's stored settings --
 #' never from its recorded `call`, which does not resolve outside the function
 #' that built it.
 #'
@@ -28,7 +40,14 @@
 #'
 #' @section Limitations:
 #' * Only `method = "mi"`. IPW has no imputations to shift.
-#' * Continuous targets only; see Details for categorical.
+#' * A numeric 0/1 target whose imputations are themselves 0/1 (`pmm`, `cart`,
+#'   `sample`, ...) is refused unless it is imputed by `logreg`: an added delta
+#'   would turn its values into 1s and 2s. A normal-model (`norm*`) imputation
+#'   of a 0/1 variable is continuous and is allowed; its delta is on the raw
+#'   (probability) scale, so keep it small and check the realized `msp`.
+#' * Categorical targets: binary via `logreg` only. Multinomial and ordinal
+#'   targets (`polyreg`, `polr`, `lda`) are refused -- `mice` has no NARFCS
+#'   method for them -- and so is `logreg.boot`, which has no counterpart.
 #' * With `pmm` (mice's default), shifted values may fall outside the observed
 #'   range that `pmm` otherwise guarantees. A message is emitted once.
 #' * The curve assumes the supplied imputation model is compatible with the
@@ -36,13 +55,20 @@
 #'
 #' @param object An [MDMediationData] with `method = "mi"`.
 #' @param delta Numeric vector (one rung per value, applied to `target`), or a
-#'   data frame (one rung per row, one column per target variable).
+#'   data frame (one rung per row, one column per target variable). Supply
+#'   either `delta` or `ums`, not both.
 #' @param target Name of the variable to shift. Defaults to the mediator. Must
 #'   be `NULL` when `delta` is a data frame.
 #' @param type Inference per rung: `"mc"` (default) or `"mbco"`.
 #' @param seed Integer seed pinned across rungs. Defaults to the seed stored in
 #'   the `mids` object, or `20260822L` when that is `NA`.
 #' @param level,n.mc Passed to [infer()].
+#' @param ums Optional character vector for a **covariate-varying** delta, one
+#'   rung per string, passed verbatim to `mice`'s NARFCS `ums` (e.g.
+#'   `"1 + 0.5*C"`: the offset is 1 + 0.5 C per row). Each string needs exactly
+#'   one intercept term. Only for a single target routed to `mnar.norm` or
+#'   `mnar.logreg`. A `ums` grid has no numeric ordering, so `summary()` does
+#'   not compute a tipping point for it.
 #' @param ... Passed to [run()].
 #'
 #' @return An [MDSensitivityResult].
@@ -50,7 +76,8 @@
 #' @export
 sensitivity_mnar <- function(object, delta, target = NULL,
                              type = c("mc", "mbco"), seed = NULL,
-                             level = NULL, n.mc = 1e5, ...) {
+                             level = NULL, n.mc = 1e5,
+                             ums = NULL, ...) {
   type <- match.arg(type)
   if (!S7::S7_inherits(object, MDMediationData)) {
     stop("`object` must be an MDMediationData (from set_md_mediation()).",
@@ -72,8 +99,9 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     )
   }
 
-  # The delta is applied through mice's `post`, which only runs inside the
-  # sampler. A maxit = 0 baseline (the standard "set up, then edit" idiom) has
+  # Every route enters only inside the sampler: `post` runs per iteration, and
+  # mnar.norm/mnar.logreg leave the fill-in draws unshifted too (verified,
+  # mice 3.19.0). A maxit = 0 baseline (the standard "set up, then edit" idiom) has
   # fill-in draws but no chain, so every rung would silently return the
   # unshifted imputation and the sensitivity curve would be flat.
   if (isTRUE(mids$iteration == 0)) {
@@ -86,9 +114,39 @@ sensitivity_mnar <- function(object, delta, target = NULL,
 
   level <- level %||% object@conf_level
 
-  grid <- .mnar_grid(delta, target, object)
+  if (!is.null(ums)) {
+    if (!missing(delta)) {
+      stop("Supply `delta` or `ums`, not both.", call. = FALSE)
+    }
+    grid <- .mnar_ums_grid(ums, target, object)
+  } else {
+    if (missing(delta)) {
+      stop("Supply `delta` or `ums`.", call. = FALSE)
+    }
+    grid <- .mnar_grid(delta, target, object)
+  }
   targets <- names(grid)
   .mnar_check_targets(targets, mids)
+  # tidy() appends these columns to the grid, so a target with one of these
+  # names would have its delta column silently overwritten (review R2). Checked
+  # after .mnar_check_targets() so a name that is not a column says so (C3).
+  clash <- intersect(targets, .mnar_tidy_reserved)
+  if (length(clash)) {
+    stop("Target ", paste0("'", clash, "'", collapse = ", "), " shares a name ",
+      "with a column tidy() adds to the sensitivity table (",
+      paste(.mnar_tidy_reserved, collapse = ", "), "), which would overwrite ",
+      "its delta values. Rename the variable before imputing.",
+      call. = FALSE
+    )
+  }
+  if (!is.null(ums) && .mnar_route(mids, targets, ums = TRUE) == "post") {
+    stop("`ums` needs a target delegated to mice's NARFCS methods (mnar.norm ",
+      "for 'norm', mnar.logreg for 'logreg'); '", targets, "' is imputed by '",
+      unname(mids$method[[.mnar_block_of(mids, targets)]]), "', whose delta is ",
+      "a post shift. Re-impute it with method 'norm', or use `delta`.",
+      call. = FALSE
+    )
+  }
 
   seed_source <- "argument"
   if (is.null(seed)) {
@@ -102,6 +160,32 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   }
 
   meth <- unname(mids$method[vapply(targets, .mnar_block_of, character(1), mids = mids)])
+  mechanism <- vapply(targets, .mnar_route, character(1),
+    mids = mids, ums = !is.null(ums), USE.NAMES = FALSE
+  )
+  # An additive delta on a 0/1 target whose IMPUTATIONS are 0/1 (pmm, cart,
+  # sample, ... draw observed values) turns them into 1s and 2s -- silently
+  # analyzed under a gaussian mediator model, a late glm error under a binomial
+  # one. The rule reads the support of the baseline imputations, not a method
+  # list (GRILL D6): a normal-model imputation of a 0/1 variable is already
+  # continuous, a documented practice (Wu, Jia & Enders 2015), and is allowed on
+  # either route, so delta and ums treat it alike. The fix is logreg.
+  for (k in which(mechanism != "mnar.logreg")) {
+    obs <- mids$data[[targets[k]]]
+    obs <- obs[!is.na(obs)]
+    imputed <- unlist(mids$imp[[targets[k]]], use.names = FALSE)
+    if (is.numeric(obs) && length(obs) && all(obs %in% c(0, 1)) &&
+      length(imputed) && all(imputed %in% c(0, 1))) {
+      stop("Target '", targets[k], "' is binary: its observed and imputed ",
+        "values are all 0/1 (method '", meth[k], "'), so an added delta would ",
+        "give values such as 1 or 2. Re-impute it with method = 'logreg': the ",
+        "delta then offsets the imputation model's linear predictor on the ",
+        "log-odds scale (mnar.logreg).",
+        call. = FALSE
+      )
+    }
+  }
+  scales <- ifelse(mechanism == "mnar.logreg", "logodds", "raw")
   for (v in targets[meth == "pmm"]) {
     message(
       "sensitivity_mnar(): target '", v, "' is imputed by 'pmm'. ",
@@ -109,6 +193,8 @@ sensitivity_mnar <- function(object, delta, target = NULL,
       "the observed range that pmm otherwise guarantees."
     )
   }
+
+  if (!is.null(ums)) .mnar_probe_ums(mids, targets, ums, seed)
 
   rungs <- vector("list", nrow(grid))
   msp <- numeric(nrow(grid))
@@ -131,7 +217,8 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   MDSensitivityResult(
     rungs = rungs, grid = grid, msp = msp, target = targets,
     type = type, level = level, seed = seed, seed_source = seed_source,
-    method_target = meth, source = object
+    method_target = meth, mechanism_used = mechanism, scale = scales,
+    source = object
   )
 }
 
@@ -150,10 +237,30 @@ sensitivity_mnar <- function(object, delta, target = NULL,
         call. = FALSE
       )
     }
+    for (v in names(delta)) {
+      if (!is.numeric(delta[[v]])) {
+        stop("`delta` column '", v, "' must be numeric; for a covariate-varying ",
+          "delta use `ums`.",
+          call. = FALSE
+        )
+      }
+      if (!all(is.finite(delta[[v]]))) {
+        stop("`delta` column '", v, "' must be finite (no NA, NaN or Inf): a ",
+          "non-finite shift makes that rung's imputations NA.",
+          call. = FALSE
+        )
+      }
+    }
     return(as.data.frame(delta))
   }
   if (!is.numeric(delta) || !length(delta)) {
     stop("`delta` must be a non-empty numeric vector or a data frame.",
+      call. = FALSE
+    )
+  }
+  if (!all(is.finite(delta))) {
+    stop("`delta` must be finite (no NA, NaN or Inf): a non-finite shift makes ",
+      "that rung's imputations NA.",
       call. = FALSE
     )
   }
@@ -164,6 +271,62 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     )
   }
   out <- data.frame(delta)
+  names(out) <- target
+  out
+}
+
+# Probe every ums string with a one-imputation, one-iteration re-imputation
+# BEFORE any rung runs (GRILL D3). mice parses ums only inside the sampler, so a
+# bad string would otherwise fail -- or worse, succeed -- after the earlier rungs
+# are fitted. Review R1: a non-numeric coefficient ("0.5 + garbageZZ*C") only
+# WARNS in parse.ums(), and every imputed value becomes NA; the fit then drops
+# those rows and reports a finite, wrong rung. So a parse.ums warning is an
+# error here, and so is any NA in the probe's imputations. Other warnings are
+# muffled -- logreg on a numeric 0/1 column always warns "Type mismatch", which
+# is benign and recurs in the real rungs anyway.
+.mnar_probe_ums <- function(mids, target, ums, seed) {
+  for (i in seq_along(ums)) {
+    fail <- function(why) {
+      stop("`ums[", i, "]` (\"", ums[i], "\") ", why, call. = FALSE)
+    }
+    row <- stats::setNames(data.frame(ums[i], stringsAsFactors = FALSE), target)
+    probe <- tryCatch(
+      withCallingHandlers(
+        .mnar_reimpute(mids, row, seed, m = 1L, maxit = 1L),
+        warning = function(w) {
+          if (grepl("parse.ums", paste(deparse(conditionCall(w)), collapse = ""), fixed = TRUE)) {
+            fail(paste0("could not be parsed: ", conditionMessage(w),
+              ". Each term must be <number>*<variable>, plus one intercept."))
+          }
+          invokeRestart("muffleWarning")
+        }
+      ),
+      error = function(e) {
+        if (startsWith(conditionMessage(e), "`ums[")) stop(e)
+        fail(paste0("was rejected by mice: ", conditionMessage(e)))
+      }
+    )
+    if (anyNA(unlist(probe$imp[[target]]))) {
+      fail("produced NA imputations; check its coefficients and variable names.")
+    }
+  }
+  invisible(TRUE)
+}
+
+# A ums grid: one character column named for the single target.
+.mnar_ums_grid <- function(ums, target, object) {
+  if (!is.character(ums) || !length(ums) || anyNA(ums) || !all(nzchar(ums))) {
+    stop("`ums` must be a non-empty character vector without NA or \"\".",
+      call. = FALSE
+    )
+  }
+  if (is.null(target)) target <- object@mediator
+  if (length(target) != 1L) {
+    stop("`target` must name exactly one variable when `ums` is given.",
+      call. = FALSE
+    )
+  }
+  out <- data.frame(ums, stringsAsFactors = FALSE)
   names(out) <- target
   out
 }
@@ -193,12 +356,27 @@ sensitivity_mnar <- function(object, delta, target = NULL,
         call. = FALSE
       )
     }
-    if (is.factor(d[[v]]) || is.logical(d[[v]]) || is.character(d[[v]]) ||
-      unname(mids$method[v]) %in% c("logreg", "polyreg", "polr", "lda")) {
-      stop("Target '", v, "' is categorical (or imputed by a categorical ",
-        "method). An additive shift on drawn 0/1 values is not meaningful. ",
-        "The correct construction offsets the imputation model's linear ",
-        "predictor, with delta on the odds-ratio scale -- not yet implemented.",
+    # A binary target imputed by exactly "logreg" is delegated to mnar.logreg,
+    # which offsets the linear predictor (delta on the log-odds scale). Every
+    # other categorical case stays refused: an additive shift on drawn category
+    # values is not meaningful, and mice ships no NARFCS method for them.
+    meth <- unname(mids$method[[blk]])
+    categorical <- is.factor(d[[v]]) || is.logical(d[[v]]) ||
+      is.character(d[[v]]) || meth %in% c("logreg", "logreg.boot", "polyreg", "polr", "lda")
+    if (categorical && !identical(meth, "logreg")) {
+      if (identical(meth, "logreg.boot")) {
+        stop("Target '", v, "' is imputed by 'logreg.boot', which has no NARFCS ",
+          "counterpart; swapping it for mnar.logreg would change the imputation ",
+          "method, so delta = 0 would no longer reproduce MAR. Re-impute with ",
+          "method = 'logreg'.",
+          call. = FALSE
+        )
+      }
+      stop("Target '", v, "' is categorical and imputed by '", meth, "'. An ",
+        "additive shift on drawn category values is not meaningful, and mice ",
+        "has no NARFCS method for multinomial or ordinal targets. Supported: a ",
+        "continuous target, or a binary target imputed by 'logreg' (delta on ",
+        "the log-odds scale).",
         call. = FALSE
       )
     }
@@ -206,14 +384,47 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   invisible(TRUE)
 }
 
+# Which mechanism applies the delta to target `v`? Only an EXACT method match
+# is delegated to mice's NARFCS methods: routing norm.nob/norm.boot/logreg.boot
+# to mnar.* would change the imputation method itself, and delta = 0 would stop
+# reproducing MAR. A `norm` target is delegated only for a `ums` string: for a
+# constant delta mnar.norm and the post shift give identical draws, so keeping
+# post there spares existing curves any dependence on mice keeping the two RNG
+# paths equal (GRILL D2). `logreg` always delegates -- its delta is log-odds.
+.mnar_route <- function(mids, v, ums = FALSE) {
+  switch(unname(mids$method[[.mnar_block_of(mids, v)]]),
+    norm = if (ums) "mnar.norm" else "post",
+    logreg = "mnar.logreg",
+    "post"
+  )
+}
+
+# A delta as a NARFCS `ums` string. Never scientific notation: parse.ums()
+# reads "1e-05" as two intercept terms and errors.
+.mnar_ums <- function(x) format(x, digits = 15, scientific = FALSE)
+
 # Re-impute from the mids object's STORED SETTINGS (never mids$call, which
-# references the caller's local symbols), composing the delta into any post
-# expressions the user already had.
-.mnar_reimpute <- function(mids, row, seed) {
+# references the caller's local symbols). A post-routed delta is composed into
+# any post expression the user already had; an mnar-routed one swaps the
+# block's method and merges `ums` into the block's blots -- never both, which
+# would shift twice. mice keys `method` and `blots` by BLOCK, `post` by variable.
+.mnar_reimpute <- function(mids, row, seed, m = mids$m, maxit = mids$iteration) {
   post <- mids$post
+  method <- mids$method
+  blots <- mids$blots
   for (v in names(row)) {
-    line <- sprintf("imp[[j]][, i] <- imp[[j]][, i] + (%s)", format(row[[v]], digits = 15))
-    post[v] <- if (nzchar(post[[v]])) paste(post[[v]], line, sep = "; ") else line
+    route <- .mnar_route(mids, v, ums = is.character(row[[v]]))
+    if (route == "post") {
+      line <- sprintf("imp[[j]][, i] <- imp[[j]][, i] + (%s)", format(row[[v]], digits = 15))
+      post[v] <- if (nzchar(post[[v]])) paste(post[[v]], line, sep = "; ") else line
+    } else {
+      blk <- .mnar_block_of(mids, v)
+      method[[blk]] <- route
+      blots[[blk]] <- utils::modifyList(
+        as.list(blots[[blk]]),
+        list(ums = if (is.character(row[[v]])) row[[v]] else .mnar_ums(row[[v]]))
+      )
+    }
   }
   # Replay the spec the baseline actually used. A pred-mode mids also stores an
   # auto-generated `formulas`, and handing mice() both that and the
@@ -236,9 +447,9 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   do.call(mice::mice, c(
     list(
       mids$data,
-      m = mids$m, maxit = mids$iteration, method = mids$method,
+      m = m, maxit = maxit, method = method,
       blocks = mids$blocks, visitSequence = mids$visitSequence,
-      where = mids$where, blots = mids$blots, ignore = mids$ignore,
+      where = mids$where, blots = blots, ignore = mids$ignore,
       post = post, seed = seed, printFlag = FALSE
     ),
     spec
@@ -248,15 +459,24 @@ sensitivity_mnar <- function(object, delta, target = NULL,
 # Realized MARGINAL sensitivity parameter: mean(imputed) - mean(observed) for
 # the target, averaged over imputations. This is what the user probably thought
 # `delta` was; reporting it exposes the CSP/MSP gap instead of hiding it.
+# A binary FACTOR target is scored 0/1 (its second level = 1), so msp is then a
+# prevalence difference on the probability scale -- as.numeric() on a factor
+# would average level codes 1/2, and mean() of the observed factor is NA.
 .mnar_realized_msp <- function(imp, target) {
   obs <- imp$data[[target]]
-  obs_mean <- mean(obs[!is.na(obs)])
+  score <- if (is.factor(obs)) {
+    lev <- levels(obs)[2L]
+    function(x) as.numeric(as.character(x) == lev)
+  } else {
+    as.numeric
+  }
+  obs_mean <- mean(score(obs[!is.na(obs)]))
   imp_cells <- imp$imp[[target]]
   if (is.null(imp_cells) || !length(imp_cells)) {
     return(NA_real_)
   }
   mean(vapply(seq_len(ncol(imp_cells)), function(k) {
-    mean(as.numeric(imp_cells[[k]]))
+    mean(score(imp_cells[[k]]))
   }, numeric(1))) - obs_mean
 }
 

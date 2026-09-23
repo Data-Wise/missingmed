@@ -14,6 +14,8 @@ MDSensitivityResult(
   seed = integer(0),
   seed_source = "argument",
   method_target = NA_character_,
+  mechanism_used = NA_character_,
+  scale = NA_character_,
   source = NULL
 )
 }
@@ -39,6 +41,13 @@ null, since that test reports a p-value rather than an interval.}
 passed explicitly, \code{"default"} if neither was available.}
 
 \item{method_target}{The \code{mice} imputation method(s) used for the target variable(s).}
+
+\item{mechanism_used}{How the delta was applied, one entry per target:
+\code{"post"} (drawn values shifted), \code{"mnar.norm"} or \code{"mnar.logreg"} (mice's
+NARFCS methods).}
+
+\item{scale}{The delta scale, one entry per target: \code{"raw"} (units of the
+target) or \code{"logodds"} (the \code{mnar.logreg} route).}
 
 \item{source}{The originating \link{MDMediationData}.}
 }

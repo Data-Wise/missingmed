@@ -67,11 +67,17 @@ S7::method(print, MDSensitivityResult) <- function(x, ...) {
   cat("  seed:", x@seed, paste0("(from ", x@seed_source, ")"),
     "| target imputed by:", x@method_target, "\n"
   )
+  cat("  delta applied by:", paste0(x@mechanism_used, " (",
+    ifelse(x@scale == "logodds", "log-odds", "raw units"), ")", collapse = ", "), "\n")
   tb <- tidy(x)
   print(utils::head(tb, 10L), row.names = FALSE)
   if (nrow(tb) > 10L) cat("  ...", nrow(tb) - 10L, "more rung(s)\n")
   cat("\n  delta is a CONDITIONAL sensitivity parameter; `msp` is the marginal\n")
   cat("  difference actually realized. Compare msp against what you intended.\n")
+  if (isTRUE(x@scale[1] == "logodds")) {
+    cat("  Here delta is on the log-odds scale, while msp is a prevalence\n")
+    cat("  difference on the probability scale.\n")
+  }
   cat("  Assumes the supplied imputation model is compatible with the\n")
   cat("  mediation model; this is not verifiable from here.\n")
   invisible(x)
@@ -80,9 +86,11 @@ S7::method(print, MDSensitivityResult) <- function(x, ...) {
 # summary(<MDSensitivityResult>) -- adds the tipping point
 S7::method(summary, MDSensitivityResult) <- function(object, ...) {
   tb <- tidy(object)
-  tp <- .mnar_tipping(object, tb)
+  ordered <- all(vapply(object@grid, is.numeric, logical(1)))
+  tp <- if (ordered) .mnar_tipping(object, tb) else NULL
   structure(
-    list(table = tb, tipping = tp, target = object@target, type = object@type),
+    list(table = tb, tipping = tp, target = object@target, type = object@type,
+      ordered = ordered),
     class = "summary.MDSensitivityResult"
   )
 }
@@ -128,7 +136,10 @@ print.summary.MDSensitivityResult <- function(x, ...) {
     paste(x$target, collapse = ", "), "\n\n"
   )
   print(x$table, row.names = FALSE)
-  if (is.null(x$tipping)) {
+  if (isFALSE(x$ordered)) {
+    cat("\nTipping point not computed: a `ums` grid has no numeric ordering of\n")
+    cat("departures from MAR, so \"smallest departure\" is undefined.\n")
+  } else if (is.null(x$tipping)) {
     cat("\nNo tipping point within the supplied grid.\n")
   } else {
     d <- x$tipping[[1L]]
@@ -143,6 +154,14 @@ print.summary.MDSensitivityResult <- function(x, ...) {
   invisible(x)
 }
 
+# Columns tidy(<MDSensitivityResult>) appends to the grid. A target may not
+# share one of these names (checked in sensitivity_mnar()), or its delta column
+# would be overwritten. Keep this list in step with the method below.
+.mnar_tidy_reserved <- c(
+  "msp", "estimate", "conf_low", "conf_high", "D4", "p_value",
+  "mechanism", "scale"
+)
+
 # tidy(<MDSensitivityResult>) -- one row per rung
 S7::method(tidy, MDSensitivityResult) <- function(x, ...) {
   base <- x@grid
@@ -155,5 +174,7 @@ S7::method(tidy, MDSensitivityResult) <- function(x, ...) {
     base$D4 <- vapply(x@rungs, function(r) unname(r[["D4"]]), numeric(1))
     base$p_value <- vapply(x@rungs, function(r) unname(r[["p"]]), numeric(1))
   }
+  base$mechanism <- paste(x@mechanism_used, collapse = ",")
+  base$scale <- paste(x@scale, collapse = ",")
   tibble::as_tibble(base)
 }

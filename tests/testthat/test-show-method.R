@@ -18,7 +18,7 @@ create_sem <- function(method = "lavaan") {
                textual =~ x4 + x5 + x6
                speed   =~ x7 + x8 + x9"
 
-  sem_data <- set_sem(imp_data, model_lav)
+  expect_warning(sem_data <- set_sem(imp_data, model_lav), "set_sem\\(\\) is deprecated")
   return(list(sem_imputed_data = sem_data))
 }
 
