@@ -200,6 +200,7 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   msp <- numeric(nrow(grid))
   for (i in seq_len(nrow(grid))) {
     imp_i <- .mnar_reimpute(mids, grid[i, , drop = FALSE], seed)
+    .mnar_check_finite(imp_i, targets, i, grid[i, , drop = FALSE])
     # msp is reported for the first target only; a multi-target grid shifts
     # every named column, but the marginal summary tracks targets[1].
     msp[i] <- .mnar_realized_msp(imp_i, targets[1])
@@ -490,4 +491,26 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     )
   }
   names(mids$blocks)[which(hit)[1L]]
+}
+
+# Refuse a rung whose imputations for a target are not all finite (review C2).
+# Such values are dropped by the fit, which silently turns the rung into a
+# complete-case analysis. The ums probe cannot see this, since it runs one
+# iteration and non-finite draws can first appear later in the chain, so the
+# check runs on every rung and every route.
+.mnar_check_finite <- function(imp, targets, i, row) {
+  for (v in targets) {
+    vals <- unlist(imp$imp[[v]], use.names = FALSE)
+    bad <- if (is.numeric(vals)) !is.finite(vals) else is.na(vals)
+    if (any(bad)) {
+      shift <- paste(names(row), vapply(row, format, ""), sep = " = ", collapse = ", ")
+      stop("Rung ", i, " (", shift, "): ", sum(bad), " imputed value(s) of '", v,
+        "' are not finite (NA, NaN or Inf). The fit would drop those rows and ",
+        "report a complete-case result as this rung. Use a smaller delta, or ",
+        "check the ums coefficients.",
+        call. = FALSE
+      )
+    }
+  }
+  invisible(NULL)
 }
