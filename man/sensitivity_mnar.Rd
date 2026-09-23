@@ -93,8 +93,11 @@ at every rung; compare it against what you meant.
 
 \itemize{
 \item Only \code{method = "mi"}. IPW has no imputations to shift.
-\item A numeric 0/1 target is refused unless it is imputed by \code{logreg}: on the
-\code{post} route its delta would be added to drawn 0/1 values.
+\item A numeric 0/1 target whose imputations are themselves 0/1 (\code{pmm}, \code{cart},
+\code{sample}, ...) is refused unless it is imputed by \code{logreg}: an added delta
+would turn its values into 1s and 2s. A normal-model (\verb{norm*}) imputation
+of a 0/1 variable is continuous and is allowed; its delta is on the raw
+(probability) scale, so keep it small and check the realized \code{msp}.
 \item Categorical targets: binary via \code{logreg} only. Multinomial and ordinal
 targets (\code{polyreg}, \code{polr}, \code{lda}) are refused -- \code{mice} has no NARFCS
 method for them -- and so is \code{logreg.boot}, which has no counterpart.

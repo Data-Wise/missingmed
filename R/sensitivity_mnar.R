@@ -40,8 +40,11 @@
 #'
 #' @section Limitations:
 #' * Only `method = "mi"`. IPW has no imputations to shift.
-#' * A numeric 0/1 target is refused unless it is imputed by `logreg`: on the
-#'   `post` route its delta would be added to drawn 0/1 values.
+#' * A numeric 0/1 target whose imputations are themselves 0/1 (`pmm`, `cart`,
+#'   `sample`, ...) is refused unless it is imputed by `logreg`: an added delta
+#'   would turn its values into 1s and 2s. A normal-model (`norm*`) imputation
+#'   of a 0/1 variable is continuous and is allowed; its delta is on the raw
+#'   (probability) scale, so keep it small and check the realized `msp`.
 #' * Categorical targets: binary via `logreg` only. Multinomial and ordinal
 #'   targets (`polyreg`, `polr`, `lda`) are refused -- `mice` has no NARFCS
 #'   method for them -- and so is `logreg.boot`, which has no counterpart.
@@ -159,19 +162,24 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   mechanism <- vapply(targets, .mnar_route, character(1),
     mids = mids, ums = !is.null(ums), USE.NAMES = FALSE
   )
-  # A numeric 0/1 target on the post route would have its delta ADDED to drawn
-  # 0/1 values, giving 1s and 2s -- silently analyzed under a gaussian mediator
-  # model, a late glm error under a binomial one. Refused whatever method drew
-  # the values (GRILL D1/P1): the fix is logreg, which routes to mnar.logreg.
-  for (k in which(mechanism == "post")) {
+  # An additive delta on a 0/1 target whose IMPUTATIONS are 0/1 (pmm, cart,
+  # sample, ... draw observed values) turns them into 1s and 2s -- silently
+  # analyzed under a gaussian mediator model, a late glm error under a binomial
+  # one. The rule reads the support of the baseline imputations, not a method
+  # list (GRILL D6): a normal-model imputation of a 0/1 variable is already
+  # continuous, a documented practice (Wu, Jia & Enders 2015), and is allowed on
+  # either route, so delta and ums treat it alike. The fix is logreg.
+  for (k in which(mechanism != "mnar.logreg")) {
     obs <- mids$data[[targets[k]]]
     obs <- obs[!is.na(obs)]
-    if (is.numeric(obs) && length(obs) && all(obs %in% c(0, 1))) {
-      stop("Target '", targets[k], "' is binary (observed values are all 0/1) ",
-        "but is imputed by '", meth[k], "', so its delta would be added to ",
-        "drawn 0/1 values, giving values such as 1 or 2. Re-impute it with ",
-        "method = 'logreg': the delta then offsets the imputation model's ",
-        "linear predictor on the log-odds scale (mnar.logreg).",
+    imputed <- unlist(mids$imp[[targets[k]]], use.names = FALSE)
+    if (is.numeric(obs) && length(obs) && all(obs %in% c(0, 1)) &&
+      length(imputed) && all(imputed %in% c(0, 1))) {
+      stop("Target '", targets[k], "' is binary: its observed and imputed ",
+        "values are all 0/1 (method '", meth[k], "'), so an added delta would ",
+        "give values such as 1 or 2. Re-impute it with method = 'logreg': the ",
+        "delta then offsets the imputation model's linear predictor on the ",
+        "log-odds scale (mnar.logreg).",
         call. = FALSE
       )
     }

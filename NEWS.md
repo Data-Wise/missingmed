@@ -36,9 +36,12 @@
   numeric 0/1 column with `pmm` by default, so `sensitivity_mnar()` added the
   delta to drawn 0/1 values: a gaussian mediator model then silently analyzed
   imputed 1s and 2s, and a binomial one failed late inside `glm`. A 0/1 target
-  whose delta would be applied by the `post` shift -- under any imputation
-  method -- is now refused, pointing to `method = "logreg"`, which routes it to
-  `mnar.logreg`. **Analyses that ran before now error**; that is the intent.
+  whose imputations are themselves all 0/1 (`pmm`, `cart`, `sample`, ...) is now
+  refused unless it is imputed by `logreg`, which routes it to `mnar.logreg`.
+  The rule reads the imputed values, not a list of methods: a normal-model
+  (`norm*`) imputation of a 0/1 variable is continuous and is still allowed,
+  with `delta` or `ums` alike. **Analyses that ran before now error**; that is
+  the intent.
 
 * **A non-finite `delta` is refused.** `delta = c(0, NA)` used to run, with
   that rung's imputations all NA; NA, NaN and Inf are now errors, as is a

@@ -189,8 +189,10 @@ These supersede the text above where they differ:
 - **`norm` routes by delta kind (D2, `b219596`).** A numeric delta on `norm`
   stays on `post`; only a `ums` string routes it to `mnar.norm`. `logreg` always
   routes to `mnar.logreg`. The < 1e-12 equivalence is now pinned on `ums = "1.5"`.
-- **A 0/1 target on the `post` route is refused** under any method (D1/P1,
-  `6af2224`), pointing to `method = "logreg"`.
+- **A 0/1 target whose imputations are themselves 0/1 is refused** outside the
+  `mnar.logreg` route (D1 `6af2224`, narrowed by D6): `pmm`/`cart`/`sample`
+  draw observed values, so an added delta gives 1s and 2s. `norm*` imputations
+  of a 0/1 variable are continuous and are allowed, with `delta` or `ums` alike.
 - **`ums` strings are probed before any rung (D3 + R1, `8e7b1ff`).** A
   `parse.ums` warning (a typo'd coefficient) or an NA probe imputation is an
   error naming `ums[i]`; other warnings are muffled.

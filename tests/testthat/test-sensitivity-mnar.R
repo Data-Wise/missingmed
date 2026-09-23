@@ -540,14 +540,37 @@ test_that("a numeric 0/1 target under pmm is refused, under either mediator fami
   )
 })
 
-test_that("the 0/1 refusal covers every post-routed method, not only pmm", {
-  for (m in c("norm", "norm.nob", "cart")) {
+test_that("the 0/1 refusal follows the imputations' support, not a method list", {
+  # GRILL D6: the failure is a shift that leaves {0, 1}. Methods that draw
+  # observed values (pmm, cart, sample, ...) keep a 0/1 target's imputations on
+  # {0, 1}, so an added delta produces 1s and 2s -- refused. Normal-model
+  # imputations of a 0/1 variable are already continuous (a documented practice:
+  # Wu, Jia & Enders 2015), so shifting them leaves the support no worse.
+  for (m in c("cart", "sample")) {
     expect_error(
       sensitivity_mnar(md_binary_post(method = m), delta = 1),
       paste0("'", m, "'"),
       info = m
     )
   }
+  for (m in c("norm", "norm.nob")) {
+    sens <- suppressMessages(
+      sensitivity_mnar(md_binary_post(method = m), delta = c(0, 0.1), type = "mbco")
+    )
+    expect_equal(sens@mechanism_used, "post", info = m)
+  }
+})
+
+test_that("a norm-imputed 0/1 target is treated the same with delta and ums", {
+  # Before D6: delta = 1 (post) was refused while ums = "1" (mnar.norm) ran,
+  # although the two give identical draws.
+  md <- md_binary_post(method = "norm")
+  via_delta <- sensitivity_mnar(md, delta = 1, type = "mbco")
+  via_ums <- sensitivity_mnar(md, ums = "1", type = "mbco")
+  expect_equal(via_delta@msp, via_ums@msp, tolerance = 1e-12)
+  expect_equal(unname(via_delta@rungs[[1]][["D4"]]), unname(via_ums@rungs[[1]][["D4"]]),
+    tolerance = 1e-10
+  )
 })
 
 test_that("the refusal happens before any re-imputation", {

@@ -113,6 +113,7 @@ unknown arguments on their way into `run()` — a pre-existing, general question
 | D3 + R1 `ums` probe; R3 non-finite delta; R2 tidy name clash | `8e7b1ff` |
 | D4 / P3 drop `scale` | `2889536` |
 | D5 live 5B.4 table | `15d9b1e` |
+| D6 0/1 guard reads the imputations' support (amends P1) | see NEWS / git log |
 
 ## Implementation order (for /craft:plan)
 
@@ -131,7 +132,7 @@ unknown arguments on their way into `run()` — a pre-existing, general question
 - The 5B.2 table and the sensitivity-curve figure are also hard-coded (predates
   this branch) — candidate for a separate pass.
 - A binary **factor** mediator fails in medfit (`M1` vs `M`) — upstream issue.
-- **D6 (open, researched 2026-09-23) — the 0/1 guard is inconsistent.** With a
+- **D6 (DECIDED 2026-09-23: data-driven support rule; amends P1) — the 0/1 guard was inconsistent.** With a
   `norm`-imputed 0/1 target, `delta = 1` (post) is refused but `ums = "1"`
   (mnar.norm) runs, though the draws are identical. `norm` + `ums` is the only
   0/1 path that reaches a route other than `post` or `mnar.logreg`. Evidence:
