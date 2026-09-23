@@ -656,3 +656,27 @@ test_that("a reserved name that is not a data column reports 'not a column'", {
     "not a column"
   )
 })
+
+# ── C2: a rung whose imputations are not finite is refused ──────────────────
+
+test_that("a rung with non-finite imputations errors, naming the rung", {
+  # Review C2: the ums probe runs one iteration, so NaN/Inf that first appears
+  # later reaches the real rung, whose fit then drops those rows and silently
+  # becomes a complete-case analysis. The check runs on every rung and route.
+  md <- md_norm()
+  orig <- missingmed:::.mnar_reimpute
+  n_call <- 0
+  testthat::local_mocked_bindings(
+    .mnar_reimpute = function(mids, row, seed, m = mids$m, maxit = mids$iteration) {
+      n_call <<- n_call + 1
+      out <- orig(mids, row, seed, m = m, maxit = maxit)
+      if (n_call == 2) out$imp$M[1, 1] <- NaN
+      out
+    }
+  )
+  expect_error(
+    sensitivity_mnar(md, delta = c(0, -0.5, -1), n.mc = 1e3, seed = 1),
+    "Rung 2 .*'M'.*not finite"
+  )
+  expect_equal(n_call, 2) # stopped at the bad rung, never reached rung 3
+})

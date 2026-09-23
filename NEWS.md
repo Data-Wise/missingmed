@@ -41,6 +41,12 @@
 
 ## Bug fixes
 
+* **`sensitivity_mnar()` refuses a rung whose imputations are not finite.**
+  If a delta or `ums` made the imputation chain produce NA, NaN or Inf, the
+  fit dropped those rows and reported a complete-case result as the rung. The
+  up-front `ums` check runs one iteration and cannot see failures that start
+  later, so every rung is now checked after it is re-imputed.
+
 * **A numeric 0/1 target is no longer shifted additively.** `mice` imputes a
   numeric 0/1 column with `pmm` by default, so `sensitivity_mnar()` added the
   delta to drawn 0/1 values: a gaussian mediator model then silently analyzed
