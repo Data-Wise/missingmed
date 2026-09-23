@@ -98,7 +98,7 @@ regression introduced by either commit.** Items C3 and C4 were reproduced locall
 - **C1 (MED, forward-compat).** The probe promotes a warning only when
   `deparse(conditionCall(w))` names `parse.ums`, which is correct for mice 3.19.0.
   If a future mice moves the coercion, the NA-imputation check still catches it.
-- **C2 (MED, coverage boundary, predates these commits).** The `maxit = 1`
+- **C2 (MED, coverage boundary, predates these commits; FIXED `e8de230`).** The `maxit = 1`
   probe cannot see NaN/Inf that only appear from iteration 2 onward.
 - **C3 (LOW, reproduced; FIXED `06fdfde`).** The reserved-name check ran before
   `.mnar_check_targets()`. As a result `delta = data.frame(msp = ...)` on data
@@ -128,8 +128,10 @@ regression introduced by either commit.** Items C3 and C4 were reproduced locall
 | P5 | E2E home | Committed **`dev/e2e-narfcs.R`** (`^dev$` already build-ignored) | testthat only; leave in the session scratchpad |
 | P6 | `tasks/` | **gitignore + `^tasks$` in .Rbuildignore**, like ORCHESTRATE | commit and delete before merge; move to docs/specs |
 
-Open (not decided here): whether `sensitivity_mnar()`'s `...` silently swallows
-unknown arguments on their way into `run()` — a pre-existing, general question.
+Closed 2026-09-23, not a bug: `sensitivity_mnar()`'s `...` does **not** swallow
+unknown arguments. A misspelled argument such as `levle = 0.9` errors with
+`unused argument` at the first rung, because medfit forwards `...` to `glm()`.
+Valid arguments such as `se_type` pass through.
 
 ## Status: implemented (2026-09-23)
 
