@@ -103,6 +103,17 @@ Findings re-verified locally (mice 3.19.0) before being recorded here:
 Open (not decided here): whether `sensitivity_mnar()`'s `...` silently swallows
 unknown arguments on their way into `run()` — a pre-existing, general question.
 
+## Status: implemented (2026-09-23)
+
+| Item | Commit |
+|---|---|
+| T0 E2E gate `dev/e2e-narfcs.R`, `tasks/` ignored (P5, P6) | `7399cef` |
+| D2 routing by delta kind | `b219596` |
+| D1 / P1 refuse `post`-routed 0/1 | `6af2224` |
+| D3 + R1 `ums` probe; R3 non-finite delta; R2 tidy name clash | `8e7b1ff` |
+| D4 / P3 drop `scale` | `2889536` |
+| D5 live 5B.4 table | `15d9b1e` |
+
 ## Implementation order (for /craft:plan)
 
 1. D2 routing change (constant-delta `norm` → `post`) + update equivalence test and

@@ -179,12 +179,28 @@ from the text above:
 Also verified: `mnar.norm`/`mnar.logreg` leave `maxit = 0` fill-in draws
 unshifted, so the maxit guard stays on every route; a **factor** mediator fails
 in `medfit` (coefficient `M1` vs `M`) independent of this work, so "binary
-target runs" means a numeric 0/1 target imputed by `logreg`. `scale` is an
-assertion (a mismatch errors); a `ums` grid gets no tipping point.
+target runs" means a numeric 0/1 target imputed by `logreg`. A `ums` grid gets
+no tipping point.
 
-Open: a numeric 0/1 target imputed by `pmm` stays on the `post` route and is
-shifted additively (imputed 1/2 under a gaussian mediator model; a binomial one
-fails in `glm`). Pending the author's ruling.
+### Post-grill revisions (GRILL-narfcs-delegation-2026-09-23.md)
+
+These supersede the text above where they differ:
+
+- **`norm` routes by delta kind (D2, `b219596`).** A numeric delta on `norm`
+  stays on `post`; only a `ums` string routes it to `mnar.norm`. `logreg` always
+  routes to `mnar.logreg`. The < 1e-12 equivalence is now pinned on `ums = "1.5"`.
+- **A 0/1 target on the `post` route is refused** under any method (D1/P1,
+  `6af2224`), pointing to `method = "logreg"`.
+- **`ums` strings are probed before any rung (D3 + R1, `8e7b1ff`).** A
+  `parse.ums` warning (a typo'd coefficient) or an NA probe imputation is an
+  error naming `ums[i]`; other warnings are muffled.
+- **Non-finite deltas (R3) and target names that collide with `tidy()`
+  columns (R2)** are refused (`8e7b1ff`).
+- **No `scale` argument (D4/P3, `2889536`).** The API section's `scale` bullet
+  is withdrawn; `@scale`, `print()` and `tidy()` report the scale.
+- **The vignette 5B.4 table is generated live (D5, `15d9b1e`).**
+- **E2E gate:** `dev/e2e-narfcs.R` (P4/P5) — 4 negative controls must error and
+  3 routes must reproduce MAR at delta = 0.
 
 ## References
 
