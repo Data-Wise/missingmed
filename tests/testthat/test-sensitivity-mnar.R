@@ -486,3 +486,28 @@ test_that("summary() of a ums curve declines to name a tipping point", {
   expect_true(any(grepl("not computed", out, fixed = TRUE)))
   expect_false(any(grepl("No tipping point within", out, fixed = TRUE)))
 })
+
+test_that("ums also drives the mnar.logreg route; ums = '0' is MAR", {
+  md <- md_binary(m = 2)
+  sens <- suppressWarnings(sensitivity_mnar(md, ums = c("0", "0.5 + 1*X"), type = "mbco"))
+  base <- infer(run(md), type = "mbco")
+  expect_equal(unname(sens@rungs[[1]][["D4"]]), unname(base[["D4"]]))
+  expect_equal(sens@mechanism_used, "mnar.logreg")
+  expect_equal(sens@scale, "logodds")
+  expect_gt(sens@msp[2], sens@msp[1])
+})
+
+test_that("the categorical guard reads the method through a renamed block", {
+  # Before: method[v] by variable name gave NA for block "BM", so a logreg.boot
+  # target slipped past the guard and got an additive post shift.
+  d <- gen_binary_m()
+  bl <- list(BM = "M", BX = "X", BY = "Y", BC = "C")
+  meth <- mice::make.method(d, blocks = bl)
+  meth["BM"] <- "logreg.boot"
+  imp <- suppressWarnings(mice::mice(d, m = 2, maxit = 2, blocks = bl,
+    method = meth, printFlag = FALSE, seed = 1))
+  md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M", family_m = stats::binomial()
+  )
+  expect_error(sensitivity_mnar(md, delta = 1), "logreg.boot")
+})

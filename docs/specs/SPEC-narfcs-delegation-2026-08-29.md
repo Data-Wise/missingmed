@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | draft |
+| **Status** | implemented on `feature/narfcs-delegation` (2026-09-23) — see *Implementation record* |
 | **Created** | 2026-08-29 |
 | **Supersedes** | `SPEC-mnar-sensitivity-2026-08-22.md` §3.0 (the OPEN FORK) |
 | **Blocks** | nothing — v0.3.0 ships without this |
@@ -157,6 +157,34 @@ which path ran without reading source.
   contribution is wiring the delta curve to an *indirect effect*, which remains
   the package-level gap — no R package combines missing-data handling, causal
   mediation, and MNAR sensitivity (prior-art scan, 2026-08-29).
+
+## Implementation record (2026-09-23)
+
+Probed against mice 3.19.0 before building; three places where the code departs
+from the text above:
+
+- **`blots` is keyed by block, not variable** (corrects note 1). Under a block
+  named `medblock`, `blots = list(M = list(ums = "3"))` errors "ums not found";
+  `blots$medblock` works. `method` and `blots` are resolved through
+  `.mnar_block_of()`; `post` stays keyed by variable.
+- **Only an exact `norm` / `logreg` is routed** (narrows the routing table).
+  Swapping `norm.nob`/`norm.boot`/`norm.predict` for `mnar.norm`, or
+  `logreg.boot` for `mnar.logreg`, changes the imputation method, so `delta = 0`
+  would no longer reproduce MAR — the same reason `pmm` keeps `post`. The
+  `norm.*` variants stay on `post`; `logreg.boot` is refused with guidance.
+- **Deltas are written without scientific notation.** `parse.ums()` reads
+  `"1e-05"` as two intercept terms and errors ("Only one intercept term
+  allowed"); `.mnar_ums()` uses `format(scientific = FALSE)`.
+
+Also verified: `mnar.norm`/`mnar.logreg` leave `maxit = 0` fill-in draws
+unshifted, so the maxit guard stays on every route; a **factor** mediator fails
+in `medfit` (coefficient `M1` vs `M`) independent of this work, so "binary
+target runs" means a numeric 0/1 target imputed by `logreg`. `scale` is an
+assertion (a mismatch errors); a `ums` grid gets no tipping point.
+
+Open: a numeric 0/1 target imputed by `pmm` stays on the `post` route and is
+shifted additively (imputed 1/2 under a gaussian mediator model; a binomial one
+fails in `glm`). Pending the author's ruling.
 
 ## References
 

@@ -31,6 +31,14 @@
 
 ## Bug fixes
 
+* **`sensitivity_mnar()`'s categorical guard looked up the imputation method by
+  variable name.** `mids$method` is keyed by block, so a 0/1 target imputed by
+  `logreg` in a block with a non-default name slipped past the guard and got an
+  additive shift on its drawn 0/1 values. The method is now resolved through
+  the target's block, as the rest of the function already did.
+
+## Bug fixes
+
 * **The default IPW path failed without `sandwich` installed.** `method = "ipw"`
   defaults to `se_type = "sandwich"`, which `medfit` computes with
   `sandwich::vcovHC()` -- but `sandwich` is only a Suggests of `medfit` and was
