@@ -1,0 +1,83 @@
+# GRILL: NARFCS delegation for `sensitivity_mnar()`
+
+| | |
+|---|---|
+| **Target** | `feature/narfcs-delegation` (dd88c94..06a48ef) against `SPEC-narfcs-delegation-2026-08-29.md` |
+| **Date** | 2026-09-23 |
+| **Spec** | [SPEC-narfcs-delegation-2026-08-29.md](SPEC-narfcs-delegation-2026-08-29.md) |
+
+## Decision ledger
+
+### D1 — numeric 0/1 target imputed by `pmm` (riskiest assumption)
+
+- **Finding:** such a target stays on the `post` route and is shifted additively.
+  A gaussian mediator model silently analyzes imputed 1/2; a binomial one fails
+  late in `glm` ("y values must be 0 <= y <= 1").
+- **Decision:** **Refuse.** Error when a `post`-routed target's observed values
+  are all 0/1, pointing to `method = "logreg"`.
+- **Rejected:** warn-and-run (silent case survives); auto-reroute to
+  `mnar.logreg` (changes the imputation method, breaks delta = 0 => MAR);
+  document only.
+- **Consequence:** behavior change — NEWS bullet; vignette self-check 4 rewritten
+  around the refusal.
+
+### D2 — which `norm` rungs go through `mnar.norm` (weakest recommendation)
+
+- **Finding:** for a constant delta, `mnar.norm` and `post` give identical draws,
+  so delegating constant deltas buys nothing and makes existing curves depend
+  on mice keeping `mnar.norm`'s RNG path equal to `norm`'s.
+- **Decision:** **`mnar.norm` only when `ums` is given.** A constant delta on a
+  `norm` target stays on `post` (`@mechanism_used` = `"post"`).
+- **Rejected:** always `mnar.norm` (as built; mice-internals dependency for no
+  result change); never delegate `norm` (drops covariate-varying delta for
+  continuous targets).
+- **Consequence:** the routing function needs to know whether `ums` was
+  supplied; spec's routing table and vignette 5B.1 updated to match.
+
+### D3 — when `ums` strings are validated (implementation regret)
+
+- **Finding:** mice parses each `ums` only when its rung runs; a bad later
+  string wastes every earlier rung's re-imputation and fit.
+- **Decision:** **dry-run each string first** — one `mice(m = 1, maxit = 1)`
+  per string before the rung loop, erroring with the offending string named.
+- **Rejected:** own parser (duplicates mice's grammar, would need `:::` or drift);
+  leave to mice (late failure, no rung named).
+- **Consequence:** small upfront cost per rung; test with a bad 2nd string that
+  must fail before any rung is fitted.
+
+### D4 — the `scale` argument (reversibility / scope creep)
+
+- **Finding:** `scale` is assertion-only; `@scale`, `print()` and `tidy()` already
+  disclose the scale. An exported argument is hard to remove after release,
+  easy to add.
+- **Decision:** **drop the argument**; keep `@scale` and its display.
+- **Rejected:** keep (permanent surface for a one-line user assertion); warn on
+  every log-odds run (noise for deliberate choices).
+- **Consequence:** deviation from the spec's API section — recorded in its
+  implementation notes; NEWS and roxygen drop the `scale` bullet.
+
+### D5 — source of the vignette 5B.4 prevalence table (benefit honesty)
+
+- **Finding:** the table (0.438 / 0.683 / 0.845) was pasted from a session probe;
+  nothing regenerates it.
+- **Decision:** **live chunk for 5B.4** (m = 5, ~1 s), table and the "added N
+  points" prose via inline R.
+- **Rejected:** convert 5B.2 + figure too (widens the branch — separate pass);
+  keep hard-coded (silent staleness).
+- **Consequence:** ~1 s more vignette build, including on CRAN.
+
+## Implementation order (for /craft:plan)
+
+1. D2 routing change (constant-delta `norm` → `post`) + update equivalence test and
+   `@mechanism_used` expectations.
+2. D1 refusal for `post`-routed 0/1 targets + test + NEWS + self-check 4.
+3. D3 `ums` dry-run validation + test (bad 2nd string fails before any rung).
+4. D4 drop `scale` argument + tests/roxygen/NEWS.
+5. D5 live chunk in 5B.4.
+6. Spec implementation notes updated for D2/D4; `devtools::check()` 0/0/0.
+
+## Open Questions
+
+- The 5B.2 table and the sensitivity-curve figure are also hard-coded (predates
+  this branch) — candidate for a separate pass.
+- A binary **factor** mediator fails in medfit (`M1` vs `M`) — upstream issue.
