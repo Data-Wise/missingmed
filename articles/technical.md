@@ -613,20 +613,51 @@ fell from 95% to **49.3%** when an elicited MSP was inserted directly as
 the CSP.
 
 `missingmed` cannot make the specified parameter marginal, but it can
-show you the realized one. Every rung reports `msp`:
+show you the realized one. Every rung reports `msp`. The run below uses
+a data set where `M` and `Y` are both incomplete and `M`’s missingness
+depends on `X`:
+
+``` r
+
+library(missingmed)
+set.seed(9)
+n <- 400
+C <- rnorm(n)
+X <- rbinom(n, 1, 0.5)
+M <- 0.5 * X + 0.4 * C + rnorm(n)
+Y <- 0.45 * M + 0.2 * X + 0.3 * C + rnorm(n)
+d <- data.frame(X, M, Y, C)
+d$M[runif(n) < plogis(-1.6 + 1.6 * X + 0.4 * C)] <- NA
+d$Y[runif(n) < plogis(-1.8 + 0.5 * X + 0.5 * C)] <- NA
+meth <- mice::make.method(d)
+meth["M"] <- "norm"
+imp <- mice::mice(d, m = 5, maxit = 5, method = meth, seed = 9, printFlag = FALSE)
+md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M"
+)
+grid <- c(0, -0.5, -1, -1.5, -2)
+sens_tab <- tidy(sensitivity_mnar(md, delta = grid, n.mc = 1e4, seed = 9))
+knitr::kable(
+  data.frame(`delta (CSP)` = grid, `msp (realized)` = round(sens_tab$msp, 3),
+    estimate = round(sens_tab$estimate, 3), check.names = FALSE)
+)
+```
 
 | delta (CSP) | msp (realized) | estimate |
-|-------------|----------------|----------|
-| 0           | 0.244          | 0.323    |
-| −0.5        | −0.256         | 0.278    |
-| −2          | −1.76          | 0.098    |
+|------------:|---------------:|---------:|
+|         0.0 |          0.237 |    0.269 |
+|        -0.5 |         -0.310 |    0.182 |
+|        -1.0 |         -0.813 |    0.105 |
+|        -1.5 |         -1.318 |    0.037 |
+|        -2.0 |         -1.829 |   -0.010 |
 
 Two things to read off that table. First, `msp` is **non-zero at delta =
-0** — under MAR, imputed values legitimately differ from observed ones
-when missingness depends on covariates. Second, `msp` is not simply
-`delta` shifted: the gap is a chained-equations effect. With a single
-incomplete variable the increments coincide exactly; with more, part of
-the shift circulates back through the other imputation models.
+0** (here 0.237): under MAR, imputed values legitimately differ from
+observed ones when missingness depends on covariates. Second, `msp` is
+not simply `delta` shifted: its increments differ from the grid’s by up
+to 0.047, a chained-equations effect. With a single incomplete variable
+the increments coincide exactly; with more, part of the shift circulates
+back through the other imputation models.
 
 ### 5B.3 Reading a tipping point
 
@@ -639,15 +670,14 @@ hypotheses supported by epidemiologic evidences” — a tipping point that
 requires an implausible departure from MAR is *reassurance*, not a
 warning.
 
-The figure below uses the same illustrative grid as the table in 5B.2.
-It shows why the resolution warning matters: the interval’s lower bound
-crosses zero near **-1.6**, but a grid of `c(0, -0.5, -1, -1.5, -2)` can
-only *report* **-2.0**.
+The figure below plots the run from 5B.2. It shows why the resolution
+warning matters: the interval’s lower bound crosses zero near **-1.12**,
+but the grid `c(0, -0.5, -1, -1.5, -2)` can only *report* **-1.5**.
 
-![Sensitivity curve of the indirect effect against delta with a
-confidence band; the reported tipping point at delta = -2 is marked
-alongside the interpolated true crossing near
--1.6.](technical_files/figure-html/sensitivity-curve-1.png)
+![Sensitivity curve of the indirect effect against delta with its
+confidence band, from the run in section 5B.2; the reported tipping
+point on the grid is marked alongside the interpolated crossing between
+two grid points.](technical_files/figure-html/sensitivity-curve-1.png)
 
 ### 5B.4 Binary targets: when is a log-odds delta of 1 plausible?
 
