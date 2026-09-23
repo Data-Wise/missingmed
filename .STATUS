@@ -3,17 +3,22 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-09-23
-next: v0.4.0 feature work is ON DEV (0.3.1.9000): NARFCS delegation (PR #13,
-  b37d882) and pooled tidy() Wald columns (PR #14, 2f191d4). Candidate next:
-  cut v0.4.0 (dev -> main, version bump, tag, r-universe). Optional first --
-  NARFCS leftovers: `...` silently passes unknown args into run(), the probe
-  cannot see iteration-2+ NaN (review C2), 5B.2 table + figure still
-  hard-coded. OPEN QUESTION for upstream, more pressing now that sandwich is a
-  hard dependency: whether medfit's sandwich stacks the weight-model score
-  (correct-and-efficient vs merely conservative IPW SEs, RRZ 1994). Manuscript
-  runs on medsim, not missingmed.
+next: all planned v0.4.0 work is ON DEV (0.3.1.9000): NARFCS delegation (#13),
+  pooled tidy() Wald columns (#14), NARFCS leftovers (#15, 65f8052). Candidate
+  next: cut v0.4.0 (dev -> main, version bump, tag, r-universe). After that:
+  v0.5.0 S7 SEM engine (engine = "lavaan" + model=, lavaan names + a/b/c_prime
+  aliases, dfcom = Inf, NA tests on ~~ rows, MBCO refused for lavaan; Q1-Q4
+  grilled 2026-09-23, spec drafted but NOT yet committed) -> v0.6.0 remove the
+  S4 API (drops OpenMx) -> 1.0.0 CRAN. medfit 0.3.2 and RMediation 1.6.1 are
+  now ON CRAN, so Remotes:/Additional_repositories: can go. Issue #2 looks
+  resolved by the D4 hosting; close it. OPEN QUESTION for upstream: whether
+  medfit's sandwich stacks the weight-model score (RRZ 1994). Manuscript runs
+  on medsim, not missingmed.
 type: r
 worktrees:
+  2026-09-23: feature-narfcs-leftovers REMOVED after PR #15 merged (local tip
+    == remote tip == PR head fd75a3d; merge 65f8052 on dev). Local and remote
+    branch deleted.
   2026-09-23: feature-pooled-inference REMOVED after PR #14 merged (local tip
     == remote tip == PR head 6f919f3; merge 2f191d4 on dev). Local and remote
     branch deleted.
@@ -38,6 +43,15 @@ worktrees:
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
 ## Since v0.3.1 (unreleased work on dev, 0.3.1.9000)
+- 2026-09-23 (merged): PR #15 feature/narfcs-leftovers -> dev (65f8052,
+  squash). (1) `...` into run() closed as NOT a bug: unknown args already
+  error ("unused argument"), because medfit forwards `...` to glm(). (2) C2
+  fixed: every rung's imputations are checked for NA/NaN/Inf after
+  re-imputation, so a rung can no longer silently run complete-case. (3) The
+  vignette's 5B.2 table and 5B.3 figure come from one live
+  sensitivity_mnar() run (the old figure used a constant se of 0.075), with
+  stopifnot() guards on the three claims the prose makes. check 0/0/0
+  including the vignette build, PASS 322, E2E 7/7, CI green.
 - 2026-09-23 (merged): PR #14 feature/pooled-inference -> dev (2f191d4,
   squash). pool()'s tidy table gains statistic/df/riv/fmi/p_value per
   coefficient (the p_value column was documented but never built). df is
