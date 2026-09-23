@@ -129,6 +129,17 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     grid <- .mnar_grid(delta, target, object)
   }
   targets <- names(grid)
+  # tidy() appends these columns to the grid, so a target with one of these
+  # names would have its delta column silently overwritten (review R2).
+  clash <- intersect(targets, .mnar_tidy_reserved)
+  if (length(clash)) {
+    stop("Target ", paste0("'", clash, "'", collapse = ", "), " shares a name ",
+      "with a column tidy() adds to the sensitivity table (",
+      paste(.mnar_tidy_reserved, collapse = ", "), "), which would overwrite ",
+      "its delta values. Rename the variable before imputing.",
+      call. = FALSE
+    )
+  }
   .mnar_check_targets(targets, mids)
   if (!is.null(ums) && .mnar_route(mids, targets, ums = TRUE) == "post") {
     stop("`ums` needs a target delegated to mice's NARFCS methods (mnar.norm ",
@@ -190,6 +201,8 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     )
   }
 
+  if (!is.null(ums)) .mnar_probe_ums(mids, targets, ums, seed)
+
   rungs <- vector("list", nrow(grid))
   msp <- numeric(nrow(grid))
   for (i in seq_len(nrow(grid))) {
@@ -231,10 +244,30 @@ sensitivity_mnar <- function(object, delta, target = NULL,
         call. = FALSE
       )
     }
+    for (v in names(delta)) {
+      if (!is.numeric(delta[[v]])) {
+        stop("`delta` column '", v, "' must be numeric; for a covariate-varying ",
+          "delta use `ums`.",
+          call. = FALSE
+        )
+      }
+      if (!all(is.finite(delta[[v]]))) {
+        stop("`delta` column '", v, "' must be finite (no NA, NaN or Inf): a ",
+          "non-finite shift makes that rung's imputations NA.",
+          call. = FALSE
+        )
+      }
+    }
     return(as.data.frame(delta))
   }
   if (!is.numeric(delta) || !length(delta)) {
     stop("`delta` must be a non-empty numeric vector or a data frame.",
+      call. = FALSE
+    )
+  }
+  if (!all(is.finite(delta))) {
+    stop("`delta` must be finite (no NA, NaN or Inf): a non-finite shift makes ",
+      "that rung's imputations NA.",
       call. = FALSE
     )
   }
@@ -247,6 +280,44 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   out <- data.frame(delta)
   names(out) <- target
   out
+}
+
+# Probe every ums string with a one-imputation, one-iteration re-imputation
+# BEFORE any rung runs (GRILL D3). mice parses ums only inside the sampler, so a
+# bad string would otherwise fail -- or worse, succeed -- after the earlier rungs
+# are fitted. Review R1: a non-numeric coefficient ("0.5 + garbageZZ*C") only
+# WARNS in parse.ums(), and every imputed value becomes NA; the fit then drops
+# those rows and reports a finite, wrong rung. So a parse.ums warning is an
+# error here, and so is any NA in the probe's imputations. Other warnings are
+# muffled -- logreg on a numeric 0/1 column always warns "Type mismatch", which
+# is benign and recurs in the real rungs anyway.
+.mnar_probe_ums <- function(mids, target, ums, seed) {
+  for (i in seq_along(ums)) {
+    fail <- function(why) {
+      stop("`ums[", i, "]` (\"", ums[i], "\") ", why, call. = FALSE)
+    }
+    row <- stats::setNames(data.frame(ums[i], stringsAsFactors = FALSE), target)
+    probe <- tryCatch(
+      withCallingHandlers(
+        .mnar_reimpute(mids, row, seed, m = 1L, maxit = 1L),
+        warning = function(w) {
+          if (grepl("parse.ums", paste(deparse(conditionCall(w)), collapse = ""), fixed = TRUE)) {
+            fail(paste0("could not be parsed: ", conditionMessage(w),
+              ". Each term must be <number>*<variable>, plus one intercept."))
+          }
+          invokeRestart("muffleWarning")
+        }
+      ),
+      error = function(e) {
+        if (startsWith(conditionMessage(e), "`ums[")) stop(e)
+        fail(paste0("was rejected by mice: ", conditionMessage(e)))
+      }
+    )
+    if (anyNA(unlist(probe$imp[[target]]))) {
+      fail("produced NA imputations; check its coefficients and variable names.")
+    }
+  }
+  invisible(TRUE)
 }
 
 # A ums grid: one character column named for the single target.
@@ -344,7 +415,7 @@ sensitivity_mnar <- function(object, delta, target = NULL,
 # any post expression the user already had; an mnar-routed one swaps the
 # block's method and merges `ums` into the block's blots -- never both, which
 # would shift twice. mice keys `method` and `blots` by BLOCK, `post` by variable.
-.mnar_reimpute <- function(mids, row, seed) {
+.mnar_reimpute <- function(mids, row, seed, m = mids$m, maxit = mids$iteration) {
   post <- mids$post
   method <- mids$method
   blots <- mids$blots
@@ -383,7 +454,7 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   do.call(mice::mice, c(
     list(
       mids$data,
-      m = mids$m, maxit = mids$iteration, method = method,
+      m = m, maxit = maxit, method = method,
       blocks = mids$blocks, visitSequence = mids$visitSequence,
       where = mids$where, blots = blots, ignore = mids$ignore,
       post = post, seed = seed, printFlag = FALSE

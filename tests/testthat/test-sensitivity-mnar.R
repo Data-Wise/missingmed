@@ -571,3 +571,66 @@ test_that("the refusal happens before any re-imputation", {
   expect_error(sensitivity_mnar(md, delta = 1), "binary")
   expect_false(called)
 })
+
+# ── GRILL D3 + R1: ums strings are probed before any rung ───────────────────
+
+test_that("a ums coefficient typo is refused before any rung, naming the string", {
+  # R1: parse.ums() coerces " garbageZZ" to NA with only a warning; every
+  # imputed value is NA and the rung silently becomes a complete-case analysis.
+  md <- md_norm(m = 2)
+  orig <- missingmed:::.mnar_reimpute
+  ms <- integer()
+  testthat::local_mocked_bindings(
+    .mnar_reimpute = function(mids, row, seed, m = mids$m, maxit = mids$iteration) {
+      ms <<- c(ms, m)
+      orig(mids, row, seed, m = m, maxit = maxit)
+    }
+  )
+  expect_error(
+    sensitivity_mnar(md, ums = c("0", "0.5 + garbageZZ*C"), type = "mbco"),
+    "ums\\[2\\].*garbageZZ"
+  )
+  expect_true(length(ms) > 0 && all(ms == 1L)) # only probes ran, no full rung
+})
+
+test_that("a ums string mice rejects outright is refused, naming the string", {
+  expect_error(
+    sensitivity_mnar(md_norm(m = 2), ums = c("0", "1 + 2 + 0.5*C"), type = "mbco"),
+    "ums\\[2\\].*1 \\+ 2 \\+ 0.5\\*C"
+  )
+})
+
+test_that("the probe does not promote mice's benign type-mismatch warning", {
+  # logreg on a numeric 0/1 column always warns "Type mismatch"; promoting every
+  # warning would refuse every valid binary ums.
+  md <- md_binary(m = 2)
+  sens <- withCallingHandlers(
+    sensitivity_mnar(md, ums = c("0", "0.5 + 0.5*X"), type = "mbco"),
+    warning = function(w) invokeRestart("muffleWarning")
+  )
+  expect_length(sens@rungs, 2L)
+})
+
+# ── R3: non-finite or non-numeric delta ─────────────────────────────────────
+
+test_that("a non-finite delta is refused", {
+  md <- md_mi(m = 2)
+  expect_error(sensitivity_mnar(md, delta = c(0, NA)), "`delta`.*finite")
+  expect_error(sensitivity_mnar(md, delta = c(0, Inf)), "`delta`.*finite")
+  expect_error(sensitivity_mnar(md, delta = data.frame(M = c(0, NA))), "'M'.*finite")
+  expect_error(sensitivity_mnar(md, delta = data.frame(M = c("0", "1"))), "'M'.*numeric")
+})
+
+# ── R2: target names that collide with tidy() columns ───────────────────────
+
+test_that("a target named like a tidy() column is refused before re-imputation", {
+  d <- gen_mnar()
+  names(d)[names(d) == "M"] <- "msp"
+  imp <- mice::mice(d, m = 2, maxit = 2, printFlag = FALSE, seed = 1)
+  md <- set_md_mediation(imp, Y ~ X + msp + C, msp ~ X + C,
+    treatment = "X", mediator = "msp"
+  )
+  expect_error(sensitivity_mnar(md, delta = c(0, 2)), "'msp'.*tidy\\(\\)")
+  expect_true(all(c("msp", "mechanism", "scale", "estimate", "conf_low",
+    "conf_high", "D4", "p_value") %in% missingmed:::.mnar_tidy_reserved))
+})

@@ -154,6 +154,14 @@ print.summary.MDSensitivityResult <- function(x, ...) {
   invisible(x)
 }
 
+# Columns tidy(<MDSensitivityResult>) appends to the grid. A target may not
+# share one of these names (checked in sensitivity_mnar()), or its delta column
+# would be overwritten. Keep this list in step with the method below.
+.mnar_tidy_reserved <- c(
+  "msp", "estimate", "conf_low", "conf_high", "D4", "p_value",
+  "mechanism", "scale"
+)
+
 # tidy(<MDSensitivityResult>) -- one row per rung
 S7::method(tidy, MDSensitivityResult) <- function(x, ...) {
   base <- x@grid

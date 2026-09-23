@@ -20,7 +20,10 @@
     refused.
 
 * New `ums` argument: a **covariate-varying** delta for a delegated target, one
-  rung per string (e.g. `"1 + 0.5*C"`), passed verbatim to NARFCS. `summary()`
+  rung per string (e.g. `"1 + 0.5*C"`), passed verbatim to NARFCS. Every
+  string is checked with a one-iteration probe before any rung runs: a string
+  mice cannot parse, or one that yields NA imputations (a typo'd coefficient
+  only makes mice warn), is refused and named. `summary()`
   does not compute a tipping point for a `ums` grid, because it has no numeric
   ordering.
 
@@ -39,6 +42,14 @@
   whose delta would be applied by the `post` shift -- under any imputation
   method -- is now refused, pointing to `method = "logreg"`, which routes it to
   `mnar.logreg`. **Analyses that ran before now error**; that is the intent.
+
+* **A non-finite `delta` is refused.** `delta = c(0, NA)` used to run, with
+  that rung's imputations all NA; NA, NaN and Inf are now errors, as is a
+  non-numeric column in a data-frame grid.
+
+* **A target named like a `tidy()` column is refused.** A target named `msp`
+  (or `estimate`, `conf_low`, `conf_high`, `D4`, `p_value`, `mechanism`,
+  `scale`) had its delta column silently overwritten in `tidy()`.
 
 * **`sensitivity_mnar()`'s categorical guard looked up the imputation method by
   variable name.** `mids$method` is keyed by block, so a 0/1 target imputed by
