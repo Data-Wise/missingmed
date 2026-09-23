@@ -100,7 +100,7 @@ regression introduced by either commit.** Items C3 and C4 were reproduced locall
   If a future mice moves the coercion, the NA-imputation check still catches it.
 - **C2 (MED, coverage boundary, predates these commits).** The `maxit = 1`
   probe cannot see NaN/Inf that only appear from iteration 2 onward.
-- **C3 (LOW, reproduced).** The reserved-name check runs before
+- **C3 (LOW, reproduced; FIXED `06fdfde`).** The reserved-name check ran before
   `.mnar_check_targets()`. As a result `delta = data.frame(msp = ...)` on data
   with no `msp` column reports a tidy() clash, not "not a column". The check
   also refuses `D4` or `p_value` under `type = "mc"`, where nothing is
