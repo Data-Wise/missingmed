@@ -1,3 +1,17 @@
+# missingmed (development version)
+
+## Bug fixes
+
+* **The default IPW path failed without `sandwich` installed.** `method = "ipw"`
+  defaults to `se_type = "sandwich"`, which `medfit` computes with
+  `sandwich::vcovHC()` -- but `sandwich` is only a Suggests of `medfit` and was
+  not declared by missingmed at all, so `run()` errored on a machine without it.
+  `sandwich` is now in Imports.
+
+* **`R CMD check` now runs the test suite.** `tests/testthat.R` never existed,
+  so neither `R CMD check` nor CI had ever run `tests/testthat/`; adding it is
+  what surfaced the `sandwich` bug above.
+
 # missingmed 0.3.1
 
 ## Bug fixes
