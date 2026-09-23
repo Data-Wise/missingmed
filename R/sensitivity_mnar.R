@@ -48,7 +48,8 @@
 #'
 #' @param object An [MDMediationData] with `method = "mi"`.
 #' @param delta Numeric vector (one rung per value, applied to `target`), or a
-#'   data frame (one rung per row, one column per target variable).
+#'   data frame (one rung per row, one column per target variable). Supply
+#'   either `delta` or `ums`, not both.
 #' @param target Name of the variable to shift. Defaults to the mediator. Must
 #'   be `NULL` when `delta` is a data frame.
 #' @param type Inference per rung: `"mc"` (default) or `"mbco"`.
@@ -59,6 +60,12 @@
 #'   the routed mechanism -- `"logodds"` for a `logreg` target, `"raw"`
 #'   otherwise. Supplying `"raw"` or `"logodds"` asserts it, and a mismatch with
 #'   the routed mechanism is an error rather than a relabeling.
+#' @param ums Optional character vector for a **covariate-varying** delta, one
+#'   rung per string, passed verbatim to `mice`'s NARFCS `ums` (e.g.
+#'   `"1 + 0.5*C"`: the offset is 1 + 0.5 C per row). Each string needs exactly
+#'   one intercept term. Only for a single target routed to `mnar.norm` or
+#'   `mnar.logreg`. A `ums` grid has no numeric ordering, so `summary()` does
+#'   not compute a tipping point for it.
 #' @param ... Passed to [run()].
 #'
 #' @return An [MDSensitivityResult].
@@ -67,7 +74,8 @@
 sensitivity_mnar <- function(object, delta, target = NULL,
                              type = c("mc", "mbco"), seed = NULL,
                              level = NULL, n.mc = 1e5,
-                             scale = c("auto", "raw", "logodds"), ...) {
+                             scale = c("auto", "raw", "logodds"), ums = NULL,
+                             ...) {
   type <- match.arg(type)
   scale <- match.arg(scale)
   if (!S7::S7_inherits(object, MDMediationData)) {
@@ -105,9 +113,27 @@ sensitivity_mnar <- function(object, delta, target = NULL,
 
   level <- level %||% object@conf_level
 
-  grid <- .mnar_grid(delta, target, object)
+  if (!is.null(ums)) {
+    if (!missing(delta)) {
+      stop("Supply `delta` or `ums`, not both.", call. = FALSE)
+    }
+    grid <- .mnar_ums_grid(ums, target, object)
+  } else {
+    if (missing(delta)) {
+      stop("Supply `delta` or `ums`.", call. = FALSE)
+    }
+    grid <- .mnar_grid(delta, target, object)
+  }
   targets <- names(grid)
   .mnar_check_targets(targets, mids)
+  if (!is.null(ums) && .mnar_route(mids, targets) == "post") {
+    stop("`ums` needs a target delegated to mice's NARFCS methods (mnar.norm ",
+      "for 'norm', mnar.logreg for 'logreg'); '", targets, "' is imputed by '",
+      unname(mids$method[[.mnar_block_of(mids, targets)]]), "', whose delta is ",
+      "a post shift. Re-impute it with method 'norm', or use `delta`.",
+      call. = FALSE
+    )
+  }
 
   seed_source <- "argument"
   if (is.null(seed)) {
@@ -196,6 +222,24 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     )
   }
   out <- data.frame(delta)
+  names(out) <- target
+  out
+}
+
+# A ums grid: one character column named for the single target.
+.mnar_ums_grid <- function(ums, target, object) {
+  if (!is.character(ums) || !length(ums) || anyNA(ums) || !all(nzchar(ums))) {
+    stop("`ums` must be a non-empty character vector without NA or \"\".",
+      call. = FALSE
+    )
+  }
+  if (is.null(target)) target <- object@mediator
+  if (length(target) != 1L) {
+    stop("`target` must name exactly one variable when `ums` is given.",
+      call. = FALSE
+    )
+  }
+  out <- data.frame(ums, stringsAsFactors = FALSE)
   names(out) <- target
   out
 }
@@ -289,7 +333,8 @@ sensitivity_mnar <- function(object, delta, target = NULL,
       blk <- .mnar_block_of(mids, v)
       method[[blk]] <- route
       blots[[blk]] <- utils::modifyList(
-        as.list(blots[[blk]]), list(ums = .mnar_ums(row[[v]]))
+        as.list(blots[[blk]]),
+        list(ums = if (is.character(row[[v]])) row[[v]] else .mnar_ums(row[[v]]))
       )
     }
   }

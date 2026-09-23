@@ -86,9 +86,11 @@ S7::method(print, MDSensitivityResult) <- function(x, ...) {
 # summary(<MDSensitivityResult>) -- adds the tipping point
 S7::method(summary, MDSensitivityResult) <- function(object, ...) {
   tb <- tidy(object)
-  tp <- .mnar_tipping(object, tb)
+  ordered <- all(vapply(object@grid, is.numeric, logical(1)))
+  tp <- if (ordered) .mnar_tipping(object, tb) else NULL
   structure(
-    list(table = tb, tipping = tp, target = object@target, type = object@type),
+    list(table = tb, tipping = tp, target = object@target, type = object@type,
+      ordered = ordered),
     class = "summary.MDSensitivityResult"
   )
 }
@@ -134,7 +136,10 @@ print.summary.MDSensitivityResult <- function(x, ...) {
     paste(x$target, collapse = ", "), "\n\n"
   )
   print(x$table, row.names = FALSE)
-  if (is.null(x$tipping)) {
+  if (isFALSE(x$ordered)) {
+    cat("\nTipping point not computed: a `ums` grid has no numeric ordering of\n")
+    cat("departures from MAR, so \"smallest departure\" is undefined.\n")
+  } else if (is.null(x$tipping)) {
     cat("\nNo tipping point within the supplied grid.\n")
   } else {
     d <- x$tipping[[1L]]

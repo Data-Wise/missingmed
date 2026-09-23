@@ -13,6 +13,7 @@ sensitivity_mnar(
   level = NULL,
   n.mc = 1e+05,
   scale = c("auto", "raw", "logodds"),
+  ums = NULL,
   ...
 )
 }
@@ -20,7 +21,8 @@ sensitivity_mnar(
 \item{object}{An \link{MDMediationData} with \code{method = "mi"}.}
 
 \item{delta}{Numeric vector (one rung per value, applied to \code{target}), or a
-data frame (one rung per row, one column per target variable).}
+data frame (one rung per row, one column per target variable). Supply
+either \code{delta} or \code{ums}, not both.}
 
 \item{target}{Name of the variable to shift. Defaults to the mediator. Must
 be \code{NULL} when \code{delta} is a data frame.}
@@ -36,6 +38,13 @@ the \code{mids} object, or \code{20260822L} when that is \code{NA}.}
 the routed mechanism -- \code{"logodds"} for a \code{logreg} target, \code{"raw"}
 otherwise. Supplying \code{"raw"} or \code{"logodds"} asserts it, and a mismatch with
 the routed mechanism is an error rather than a relabeling.}
+
+\item{ums}{Optional character vector for a \strong{covariate-varying} delta, one
+rung per string, passed verbatim to \code{mice}'s NARFCS \code{ums} (e.g.
+\code{"1 + 0.5*C"}: the offset is 1 + 0.5 C per row). Each string needs exactly
+one intercept term. Only for a single target routed to \code{mnar.norm} or
+\code{mnar.logreg}. A \code{ums} grid has no numeric ordering, so \code{summary()} does
+not compute a tipping point for it.}
 
 \item{...}{Passed to \code{\link[=run]{run()}}.}
 }

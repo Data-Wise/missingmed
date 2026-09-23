@@ -453,3 +453,36 @@ test_that("a supplied scale that contradicts the routed mechanism is an error", 
     "raw"
   )
 })
+
+test_that("ums drives a covariate-varying delta, one rung per string", {
+  md <- md_norm(m = 2)
+  sens <- sensitivity_mnar(md, ums = c("0", "1 + 0.5*C"), type = "mbco")
+  base <- infer(run(md), type = "mbco")
+  expect_equal(unname(sens@rungs[[1]][["D4"]]), unname(base[["D4"]]))
+  expect_type(sens@grid$M, "character")
+  expect_equal(sens@grid$M, c("0", "1 + 0.5*C"))
+  expect_equal(sens@mechanism_used, "mnar.norm")
+  imp <- missingmed:::.mnar_reimpute(md@data, data.frame(M = "1 + 0.5*C"), seed = 1)
+  expect_equal(imp$blots$M$ums, "1 + 0.5*C")
+})
+
+test_that("ums is refused where it cannot apply, and never alongside delta", {
+  expect_error(
+    suppressMessages(sensitivity_mnar(md_mi(m = 2), ums = "1 + X")),
+    "mnar"
+  )
+  expect_error(sensitivity_mnar(md_norm(m = 2), delta = 1, ums = "1"), "not both")
+  expect_error(sensitivity_mnar(md_norm(m = 2)), "`delta` or `ums`")
+  expect_error(sensitivity_mnar(md_norm(m = 2), ums = c("1", NA)), "non-empty")
+})
+
+test_that("summary() of a ums curve declines to name a tipping point", {
+  # A string grid has no numeric distance from MAR, so "smallest departure" is
+  # undefined; saying "no tipping point" would be a false negative.
+  sens <- sensitivity_mnar(md_norm(m = 2), ums = c("0", "0.5 + 0.2*C"), type = "mbco")
+  s <- summary(sens)
+  expect_null(s$tipping)
+  out <- capture.output(print(s))
+  expect_true(any(grepl("not computed", out, fixed = TRUE)))
+  expect_false(any(grepl("No tipping point within", out, fixed = TRUE)))
+})
