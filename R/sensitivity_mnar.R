@@ -14,13 +14,15 @@
 #' Rezvan et al. 2018). How the delta enters depends on the target's imputation
 #' method:
 #'
-#' * `"norm"`: delegated to `mice`'s NARFCS method `mnar.norm` (Tompsett et al.
-#'   2018; Moreno-Betancur, van Buuren & White 2020), delta in raw units. For a
-#'   constant delta this gives exactly the same draws as shifting them.
+#' * `"norm"` with a `ums` string: delegated to `mice`'s NARFCS method
+#'   `mnar.norm` (Tompsett et al. 2018; Moreno-Betancur, van Buuren & White
+#'   2020), delta in raw units. A numeric `delta` on a `norm` target uses the
+#'   `post` shift below -- for a constant delta the two give identical draws.
 #' * `"logreg"` (a binary target): delegated to `mnar.logreg`, which offsets
 #'   the imputation model's linear predictor -- delta on the **log-odds** scale.
-#' * anything else continuous (`pmm`, `norm.nob`, `cart`, ...): the drawn values
-#'   are shifted through `mice`'s `post` argument, delta in raw units.
+#' * anything else continuous (`pmm`, `norm.nob`, `cart`, ...), and `norm` with
+#'   a numeric `delta`: the drawn values are shifted through `mice`'s `post`
+#'   argument, delta in raw units.
 #'
 #' Each rung re-imputes from the `mids` object's stored settings --
 #' never from its recorded `call`, which does not resolve outside the function
@@ -126,7 +128,7 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   }
   targets <- names(grid)
   .mnar_check_targets(targets, mids)
-  if (!is.null(ums) && .mnar_route(mids, targets) == "post") {
+  if (!is.null(ums) && .mnar_route(mids, targets, ums = TRUE) == "post") {
     stop("`ums` needs a target delegated to mice's NARFCS methods (mnar.norm ",
       "for 'norm', mnar.logreg for 'logreg'); '", targets, "' is imputed by '",
       unname(mids$method[[.mnar_block_of(mids, targets)]]), "', whose delta is ",
@@ -147,7 +149,9 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   }
 
   meth <- unname(mids$method[vapply(targets, .mnar_block_of, character(1), mids = mids)])
-  mechanism <- vapply(targets, .mnar_route, character(1), mids = mids, USE.NAMES = FALSE)
+  mechanism <- vapply(targets, .mnar_route, character(1),
+    mids = mids, ums = !is.null(ums), USE.NAMES = FALSE
+  )
   scales <- ifelse(mechanism == "mnar.logreg", "logodds", "raw")
   if (scale != "auto" && any(scales != scale)) {
     bad <- targets[scales != scale]
@@ -298,14 +302,15 @@ sensitivity_mnar <- function(object, delta, target = NULL,
 }
 
 # Which mechanism applies the delta to target `v`? Only an EXACT method match
-# is delegated to mice's NARFCS method: routing norm.nob/norm.boot/logreg.boot
+# is delegated to mice's NARFCS methods: routing norm.nob/norm.boot/logreg.boot
 # to mnar.* would change the imputation method itself, and delta = 0 would stop
-# reproducing MAR. For a constant delta on a norm target the two mechanisms give
-# identical draws (the spec's verified finding), so delegation there is a
-# capability extension, not a correctness fix.
-.mnar_route <- function(mids, v) {
+# reproducing MAR. A `norm` target is delegated only for a `ums` string: for a
+# constant delta mnar.norm and the post shift give identical draws, so keeping
+# post there spares existing curves any dependence on mice keeping the two RNG
+# paths equal (GRILL D2). `logreg` always delegates -- its delta is log-odds.
+.mnar_route <- function(mids, v, ums = FALSE) {
   switch(unname(mids$method[[.mnar_block_of(mids, v)]]),
-    norm = "mnar.norm",
+    norm = if (ums) "mnar.norm" else "post",
     logreg = "mnar.logreg",
     "post"
   )
@@ -325,7 +330,7 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   method <- mids$method
   blots <- mids$blots
   for (v in names(row)) {
-    route <- .mnar_route(mids, v)
+    route <- .mnar_route(mids, v, ums = is.character(row[[v]]))
     if (route == "post") {
       line <- sprintf("imp[[j]][, i] <- imp[[j]][, i] + (%s)", format(row[[v]], digits = 15))
       post[v] <- if (nzchar(post[[v]])) paste(post[[v]], line, sep = "; ") else line

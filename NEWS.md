@@ -5,9 +5,10 @@
 * **`sensitivity_mnar()` delegates to `mice`'s NARFCS methods** (Tompsett et
   al. 2018; Moreno-Betancur, van Buuren & White 2020). The route depends on the
   target's imputation method:
-  * `norm` goes through `mnar.norm`. For a constant delta the draws are
-    identical to the previous shift, pinned by a regression test, so existing
-    results do not change.
+  * `norm` goes through `mnar.norm` when given a `ums` string (below). A
+    numeric `delta` on a `norm` target keeps the `post` shift -- for a constant
+    delta the two give identical draws (pinned by a regression test), so
+    existing results do not change.
   * **A binary target imputed by `logreg` now runs** through `mnar.logreg`,
     with delta on the **log-odds** scale; it used to be refused. `delta = 0`
     reproduces the MAR analysis exactly, and `msp` is reported as a prevalence

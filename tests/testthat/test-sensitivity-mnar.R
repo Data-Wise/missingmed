@@ -284,14 +284,16 @@ md_norm <- function(m = 4, seed = 11, blocks = NULL, blots = NULL) {
   )
 }
 
-test_that("a norm target is routed to mnar.norm, and the draws equal the post shift", {
-  # The spec's central finding: for a constant delta on a norm target, NARFCS
-  # and the post shift give IDENTICAL draws. Pinned against a direct mice()
-  # post call, so the new route cannot drift from the old one unnoticed.
+test_that("norm routes by delta kind: numeric -> post, ums -> mnar.norm", {
+  # GRILL D2: a constant delta on a norm target stays on post (identical draws,
+  # no dependence on mice internals); only a ums string routes to mnar.norm.
+  # The spec's central finding is still pinned: a constant ums on mnar.norm
+  # gives the SAME draws as the post shift, against a direct mice() call.
   md <- md_norm()
   mids <- md@data
-  expect_equal(missingmed:::.mnar_route(mids, "M"), "mnar.norm")
-  via_route <- missingmed:::.mnar_reimpute(mids, data.frame(M = 1.5), seed = 3)
+  expect_equal(missingmed:::.mnar_route(mids, "M"), "post")
+  expect_equal(missingmed:::.mnar_route(mids, "M", ums = TRUE), "mnar.norm")
+  via_route <- missingmed:::.mnar_reimpute(mids, data.frame(M = "1.5"), seed = 3)
   expect_equal(unname(via_route$method[["M"]]), "mnar.norm")
   post <- mids$post
   post["M"] <- "imp[[j]][, i] <- imp[[j]][, i] + (1.5)"
@@ -304,9 +306,10 @@ test_that("a norm target is routed to mnar.norm, and the draws equal the post sh
   expect_false(grepl("1.5", via_route$post[["M"]], fixed = TRUE))
 })
 
-test_that("delta = 0 on the mnar.norm route reproduces MAR exactly", {
+test_that("ums = '0' on the mnar.norm route reproduces MAR exactly", {
   md <- md_norm()
-  sens <- sensitivity_mnar(md, delta = 0, type = "mbco")
+  sens <- sensitivity_mnar(md, ums = "0", type = "mbco")
+  expect_equal(sens@mechanism_used, "mnar.norm")
   base <- infer(run(md), type = "mbco")
   expect_equal(unname(sens@rungs[[1]][["D4"]]), unname(base[["D4"]]))
 })
@@ -316,7 +319,7 @@ test_that("mnar.norm blots are keyed by block, and a user's entry survives", {
   # errors inside mice ("ums not found"). A pre-existing entry must be merged.
   bl <- list(BM = "M", BX = "X", BY = "Y", BC = "C")
   md <- md_norm(blocks = bl, blots = list(BM = list(ridge = 1e-4)))
-  imp <- missingmed:::.mnar_reimpute(md@data, data.frame(M = -0.5), seed = 2)
+  imp <- missingmed:::.mnar_reimpute(md@data, data.frame(M = "-0.5"), seed = 2)
   expect_equal(imp$blots$BM$ums, "-0.5")
   expect_equal(imp$blots$BM$ridge, 1e-4)
   expect_null(imp$blots$M)
@@ -326,8 +329,6 @@ test_that("a tiny delta is written without scientific notation", {
   # parse.ums() reads "1e-05" as two intercept terms and errors.
   expect_equal(missingmed:::.mnar_ums(1e-05), "0.00001")
   expect_equal(missingmed:::.mnar_ums(-2.5e-07), "-0.00000025")
-  md <- md_norm(m = 2)
-  expect_no_error(missingmed:::.mnar_reimpute(md@data, data.frame(M = 1e-05), seed = 1))
 })
 
 test_that("norm variants that mnar.norm would replace stay on the post route", {
@@ -386,6 +387,12 @@ test_that("mnar.logreg imputes 0/1 values only -- no additive shift on draws", {
   vals <- unique(unlist(imp$imp$M))
   expect_true(all(vals %in% c(0, 1)))
   expect_equal(imp$blots$M$ums, "2")
+  # A numeric delta on the logreg route becomes a ums string: a tiny one must
+  # not reach parse.ums() in scientific notation.
+  tiny <- suppressWarnings(
+    missingmed:::.mnar_reimpute(md@data, data.frame(M = 1e-05), seed = 1)
+  )
+  expect_equal(tiny$blots$M$ums, "0.00001")
 })
 
 test_that("msp for a binary factor target is on the probability scale", {
@@ -412,7 +419,9 @@ test_that("@mechanism_used and @scale record which path ran, per target", {
   expect_equal(s_pmm@mechanism_used, "post")
   expect_equal(s_pmm@scale, "raw")
   s_norm <- sensitivity_mnar(md_norm(m = 2), delta = 0, type = "mbco")
-  expect_equal(s_norm@mechanism_used, "mnar.norm")
+  expect_equal(s_norm@mechanism_used, "post")
+  s_ums <- sensitivity_mnar(md_norm(m = 2), ums = "0", type = "mbco")
+  expect_equal(s_ums@mechanism_used, "mnar.norm")
   expect_equal(s_norm@scale, "raw")
   s_bin <- suppressWarnings(sensitivity_mnar(md_binary(m = 2), delta = 0, type = "mbco"))
   expect_equal(s_bin@mechanism_used, "mnar.logreg")
@@ -425,7 +434,9 @@ test_that("@mechanism_used and @scale record which path ran, per target", {
   imp <- mice::mice(d, m = 2, maxit = 2, method = meth, printFlag = FALSE, seed = 7)
   md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C, treatment = "X", mediator = "M")
   s_mix <- suppressMessages(sensitivity_mnar(md, delta = data.frame(M = 0, Y = 0), type = "mbco"))
-  expect_equal(s_mix@mechanism_used, c("post", "mnar.norm"))
+  # Numeric deltas: pmm and norm both go to post (D2); the entries still
+  # line up one per target.
+  expect_equal(s_mix@mechanism_used, c("post", "post"))
 })
 
 test_that("print() and tidy() state the mechanism and the delta scale", {

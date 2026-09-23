@@ -67,13 +67,15 @@ imputes under MAR and then adds the constant to the imputed values (Hayati
 Rezvan et al. 2018). How the delta enters depends on the target's imputation
 method:
 \itemize{
-\item \code{"norm"}: delegated to \code{mice}'s NARFCS method \code{mnar.norm} (Tompsett et al.
-2018; Moreno-Betancur, van Buuren & White 2020), delta in raw units. For a
-constant delta this gives exactly the same draws as shifting them.
+\item \code{"norm"} with a \code{ums} string: delegated to \code{mice}'s NARFCS method
+\code{mnar.norm} (Tompsett et al. 2018; Moreno-Betancur, van Buuren & White
+2020), delta in raw units. A numeric \code{delta} on a \code{norm} target uses the
+\code{post} shift below -- for a constant delta the two give identical draws.
 \item \code{"logreg"} (a binary target): delegated to \code{mnar.logreg}, which offsets
 the imputation model's linear predictor -- delta on the \strong{log-odds} scale.
-\item anything else continuous (\code{pmm}, \code{norm.nob}, \code{cart}, ...): the drawn values
-are shifted through \code{mice}'s \code{post} argument, delta in raw units.
+\item anything else continuous (\code{pmm}, \code{norm.nob}, \code{cart}, ...), and \code{norm} with
+a numeric \code{delta}: the drawn values are shifted through \code{mice}'s \code{post}
+argument, delta in raw units.
 }
 
 Each rung re-imputes from the \code{mids} object's stored settings --

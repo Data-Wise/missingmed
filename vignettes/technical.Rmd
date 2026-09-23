@@ -619,16 +619,17 @@ runs depends on the target's imputation method:
 
 | Baseline method | Mechanism (`@mechanism_used`) | Delta scale |
 |---|---|---|
-| `norm` | `mnar.norm` — `mice`'s NARFCS method, via `blots` | raw units of the target |
+| `norm`, with a `ums` string | `mnar.norm` — `mice`'s NARFCS method, via `blots` | raw units of the target |
 | `logreg` (binary) | `mnar.logreg`, via `blots` | **log-odds** |
-| `pmm`, `norm.nob`, `norm.boot`, `cart`, … | `post` — shift the drawn values | raw units of the target |
+| `norm` with a numeric `delta`; `pmm`, `norm.nob`, `norm.boot`, `cart`, … | `post` — shift the drawn values | raw units of the target |
 | `logreg.boot`, `polyreg`, `polr`, `lda` | refused | — |
 
 NARFCS is Tompsett et al. (2018); the `mice` methods are Moreno-Betancur, van
 Buuren & White (2020). For a constant delta on a `norm` target the first and
-third rows give **identical draws** — the offset is a scalar added to a normal
-draw's linear predictor, which is arithmetically the same as adding it to the
-draw — so delegation there changes capability, not results. Only an *exact*
+third rows would give **identical draws** — the offset is a scalar added to a
+normal draw's linear predictor, which is arithmetically the same as adding it to
+the draw — so a numeric `delta` stays on `post`, and `mnar.norm` is used only
+where it adds something: a covariate-varying `ums`. Only an *exact*
 method match is delegated: swapping `norm.boot` for `mnar.norm`, say, would
 change the imputation method itself, and `delta = 0` would stop reproducing the
 MAR analysis. `print()` and `tidy()` state the mechanism and scale that ran.
