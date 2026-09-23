@@ -3,18 +3,15 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-09-23
-next: all planned v0.4.0 work is ON DEV (0.3.1.9000): NARFCS delegation (#13),
-  pooled tidy() Wald columns (#14), NARFCS leftovers (#15, 65f8052). Candidate
-  next: cut v0.4.0 (dev -> main, version bump, tag, r-universe). After that:
-  v0.5.0 S7 SEM engine (engine = "lavaan" + model=, lavaan names + a/b/c_prime
-  aliases, dfcom = Inf, NA tests on ~~ rows, MBCO refused for lavaan; Q1-Q4
-  grilled 2026-09-23: docs/specs/SPEC-s7-sem-engine-2026-09-23.md) -> v0.6.0 remove the
-  S4 API (drops OpenMx) -> 1.0.0 CRAN. Before CRAN: DESCRIPTION's
-  Description: still says "Provides S4 classes". Issue #2 CLOSED (D4 hosting;
-  the D4 denominator nu vs mitml's df2 was not re-verified). OPEN QUESTION for
-  upstream: whether
-  medfit's sandwich stacks the weight-model score (RRZ 1994). Manuscript runs
-  on medsim, not missingmed.
+next: RELEASING v0.4.0 -- version bumped on dev (0.3.1.9000 -> 0.4.0); release
+  PR dev -> main open, then tag v0.4.0 + GitHub release + CI verify on main.
+  Contents: NARFCS delegation (#13), pooled tidy() Wald columns (#14), NARFCS
+  leftovers (#15), deps from CRAN (#16). After that: v0.5.0 S7 SEM engine
+  (docs/specs/SPEC-s7-sem-engine-2026-09-23.md; Q1-Q4 grilled, section 4
+  open) -> v0.6.0 remove the S4 API (drops OpenMx) -> 1.0.0 CRAN. Before CRAN:
+  DESCRIPTION's Description: still says "Provides S4 classes". OPEN QUESTION
+  for upstream: whether medfit's sandwich stacks the weight-model score (RRZ
+  1994). Manuscript runs on medsim, not missingmed.
 type: r
 worktrees:
   2026-09-23: feature-narfcs-leftovers REMOVED after PR #15 merged (local tip
@@ -43,7 +40,7 @@ worktrees:
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
-## Since v0.3.1 (unreleased work on dev, 0.3.1.9000)
+## v0.4.0 (bumped 2026-09-23 from 0.3.1.9000; release PR to main)
 - 2026-09-23 (merged): PR #16 feature/cran-deps -> dev (88b4f65, squash).
   medfit 0.3.2 and RMediation 1.6.1 are on CRAN, so DESCRIPTION drops
   Remotes: and Additional_repositories:. CI installed both from the CRAN mirror
