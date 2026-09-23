@@ -9,7 +9,8 @@ vignette: >
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-# These deps are not on CRAN; only evaluate when available.
+# mice, medfit and RMediation are all on CRAN and in Imports, so this is TRUE
+# wherever missingmed is installed. It stays as a guard for a partial library.
 has_deps <- requireNamespace("mice", quietly = TRUE) &&
   requireNamespace("medfit", quietly = TRUE) &&
   requireNamespace("RMediation", quietly = TRUE)

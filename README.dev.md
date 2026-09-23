@@ -29,7 +29,7 @@ make check
 
 Dependencies
 
-The package does not use `renv`; dependencies install into your normal R library. `DESCRIPTION`'s `Additional_repositories` field points at the Data-Wise r-universe, which serves the non-CRAN `medfit` and `RMediation`, so a pak-based install such as `pak::local_install_deps()` resolves them. CI installs the same way, through `r-lib/actions/setup-r-dependencies`.
+The package does not use `renv`; dependencies install into your normal R library. Every dependency, `medfit` and `RMediation` included, is on CRAN, so a pak-based install such as `pak::local_install_deps()` resolves them without extra repositories. CI installs the same way, through `r-lib/actions/setup-r-dependencies`.
 
 Notes
 
