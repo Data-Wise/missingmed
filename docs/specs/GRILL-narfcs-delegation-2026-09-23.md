@@ -131,3 +131,24 @@ unknown arguments on their way into `run()` — a pre-existing, general question
 - The 5B.2 table and the sensitivity-curve figure are also hard-coded (predates
   this branch) — candidate for a separate pass.
 - A binary **factor** mediator fails in medfit (`M1` vs `M`) — upstream issue.
+- **D6 (open, researched 2026-09-23) — the 0/1 guard is inconsistent.** With a
+  `norm`-imputed 0/1 target, `delta = 1` (post) is refused but `ums = "1"`
+  (mnar.norm) runs, though the draws are identical. `norm` + `ums` is the only
+  0/1 path that reaches a route other than `post` or `mnar.logreg`. Evidence:
+  - The proposed tightening ("refuse any 0/1 not routed to mnar.logreg") only
+    removes that path. Under a binomial mediator model that path already fails
+    late in `glm`; under a gaussian one it runs.
+  - The literature does not support P1's premise that a continuous imputation
+    of a binary variable is itself the error. Wu, Jia & Enders (2015, MBR,
+    doi:10.1080/00273171.2015.1022644) found normal-model imputation without
+    rounding performed well for dichotomous items. Bernaards, Belin & Schafer
+    (2007, Stat Med, doi:10.1002/sim.2619) found the normal approximation often
+    had satisfactory bias and coverage.
+  - The failure D1 exists to stop is a shift that leaves the variable's
+    support. Across mice methods, the baseline imputations are all on {0, 1}
+    for pmm/cart/sample/midastouch/logreg and continuous for all four `norm*`
+    methods (verified, mice 3.19.0).
+  - **Candidate rule (data-driven, no method list):** refuse a non-logreg route
+    when the baseline mids' imputed values for the target all lie on {0, 1};
+    allow it when they are continuous. This fixes the inconsistency and relaxes
+    P1 for the `norm*` methods.
