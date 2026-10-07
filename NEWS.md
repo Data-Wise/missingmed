@@ -1,3 +1,58 @@
+# missingmed 0.5.0
+
+## New features
+
+* **`infer(type = "mbco")` gains `ariv = c("fixed", "own")`, default
+  `"fixed"`** (#19). `ariv` sets which per-imputation statistics enter the
+  relative increase in variance `r4` of the D4-stacked MBCO test:
+  * `"fixed"` recomputes every imputation's statistic on the branch (`a = 0`
+    or `b = 0`) that the stacked constrained fit chose. Every imputation
+    then uses the stacked fit's `k`, so models whose two paths carry
+    different numbers of terms (an `X:M` interaction) now return a result. A
+    guard errors when the branch's constraint removes a different number of
+    parameters in some imputation than in the stacked data (for example, a
+    level of a factor that interacts with the treatment or mediator is absent
+    from one imputation).
+  * `"own"` uses each imputation's own winning branch and **reproduces earlier
+    results exactly on full-rank designs**; it still refuses when the branches
+    remove different numbers of parameters.
+
+  Code that relied on the old behavior should pass `ariv = "own"`. The default
+  changes results only when some imputation's own branch differs from the
+  stacked fit's. `sensitivity_mnar(type = "mbco")` calls `infer()` and so uses
+  the new default for its rungs. A single imputation (K = 1) is still
+  an error, now pointing to complete-data MBCO.
+
+* **New exported `mbco_d4()`**: the same test on a plain list of completed
+  data frames, with `formula_y`, `formula_m`, families, `treatment`,
+  `mediator` and `ariv`, so other packages can call it without `:::`.
+
+* **New result class `MbcoMIResult`** (S7, parent `class_double`), returned by
+  `infer(type = "mbco")` and `mbco_d4()`. Its data is the same named numeric
+  `c(D4, p, r4, nu, d_S)`; its properties are `ariv`, `k`, `m`,
+  `stacked_branch`, `branch_mix` and `p_branch_a`. It has `print()` and
+  `tidy()` methods. `r["p"]`, `r[["p"]]` and `is.numeric(r)` work as before,
+  and `S7::S7_data(r)` returns the old vector. Two behavior changes:
+  `identical(r, old_vector)` is now `FALSE`, and `r$p` errors (the old vector
+  had no `$` either).
+
+  Reporting `branch_mix` and `p_branch_a` needs both single-path null fits in
+  every imputation; the `"fixed"` statistic alone would need only the
+  stacked branch's.
+
+## Bug fixes
+
+* The MBCO constraint's `k` (the numerator df of the D4 test) is now a rank
+  difference, `rank(full) - rank(null)`, under both `ariv` values, instead of
+  a column count. Nothing changes on full-rank designs. On a design with
+  aliased columns, such as a factor level absent from the data, 0.4.0
+  overcounted `k`, so `ariv = "own"` can now give a smaller `k` than 0.4.0 did
+  there.
+
+## Documentation
+
+* `vignette("mbco-mi")` is retitled "Testing an indirect effect with incomplete data" and expanded into a worked guide.
+
 # missingmed 0.4.0
 
 ## New features
@@ -278,7 +333,7 @@ New S7 classes: `MDMediationData`, `MDMediationFit`, `MDMediationResult`.
 ## MBCO under multiple imputation
 
 * `infer(type = "mbco")` implements **D4-stacked MBCO**, which respects the
-  union-null geometry of `H0: ab = 0` (branch switching) — exact-match parity
+  union-null geometry of `H0: ab = 0` (`a = 0` or `b = 0`) — exact-match parity
   with the research prototype. See `vignette("mbco-mi")`.
 
 ## Documentation

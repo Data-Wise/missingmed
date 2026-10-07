@@ -98,7 +98,7 @@ For the **MBCO** likelihood-ratio test of `H0: a*b = 0`, use the fit object (see
 `vignette("mbco-mi")` for why pooling does not commute with MBCO):
 
 ```{r mbco}
-infer(fit, type = "mbco")
+infer(fit, type = "mbco", ariv = "fixed")
 ```
 
 ## A binary mediator (or outcome)

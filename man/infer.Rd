@@ -13,12 +13,17 @@ infer(object, ...)
 \item{...}{Method arguments: \code{type} (inference type, \code{"mc"} (default) or
 \code{"mbco"}), \code{level} (confidence level for \code{"mc"}; defaults to the
 object's \verb{@conf_level}, itself \code{0.95} unless set in \code{\link[=set_md_mediation]{set_md_mediation()}}),
-and \code{n.mc}
-(Monte-Carlo draws for \code{"mc"}, default \code{1e5}).}
+\code{n.mc}
+(Monte-Carlo draws for \code{"mc"}, default \code{1e5}), and \code{ariv} (for \code{"mbco"}:
+\code{"fixed"} (default) tests every imputation on the branch the stacked
+constrained fit chose; \code{"own"} uses each imputation's own winning branch
+and reproduces missingmed 0.4.0 on full-rank designs; see \code{\link[=mbco_d4]{mbco_d4()}}).}
 }
 \value{
 For \code{"mc"}, the list returned by \code{\link[RMediation:ci_mediation_data]{RMediation::ci_mediation_data()}}.
-For \code{"mbco"}, a named numeric vector \code{c(D4, p, r4, nu, d_S)}.
+For \code{"mbco"}, an \link{MbcoMIResult}: the named numeric \code{c(D4, p, r4, nu, d_S)}
+(index it with \code{r["p"]} or \code{r[["p"]]}) with the branch diagnostics as
+properties.
 }
 \description{
 Computes inference for the indirect (mediated) effect from a fitted
@@ -31,9 +36,27 @@ interval via \code{\link[RMediation:ci_mediation_data]{RMediation::ci_mediation_
 named \link[medfit:MediationData]{medfit::MediationData}.
 \item \code{type = "mbco"} — \strong{D4-stacked MBCO} likelihood-ratio test of
 \eqn{H_0: a b = 0}, computed from the per-imputation datasets (MBCO does not
-commute with Rubin's rules; see \code{\link[=per_imputation_list]{per_imputation_list()}}).
+commute with Rubin's rules; see \code{\link[=per_imputation_list]{per_imputation_list()}}). The engine is
+\code{\link[=mbco_d4]{mbco_d4()}}; see there for \code{ariv}, the branch diagnostics and the cost.
+At least two imputations are required.
 }
+}
+\examples{
+set.seed(1)
+n <- 200
+d <- data.frame(X = rnorm(n), C = rnorm(n))
+d$M <- 0.4 * d$X + 0.3 * d$C + rnorm(n)
+d$Y <- 0.3 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+d$M[sample(n, 30)] <- NA
+d$Y[sample(n, 30)] <- NA
+imp <- mice::mice(d, m = 3, method = "norm", printFlag = FALSE, seed = 1)
+fit <- run(set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M"
+))
+r <- infer(fit, type = "mbco", ariv = "fixed")
+r
+r[["p"]]
 }
 \seealso{
-\code{\link[=run]{run()}}, \code{\link[=pool]{pool()}}, \code{\link[=per_imputation_list]{per_imputation_list()}}
+\code{\link[=run]{run()}}, \code{\link[=pool]{pool()}}, \code{\link[=per_imputation_list]{per_imputation_list()}}, \code{\link[=mbco_d4]{mbco_d4()}}
 }

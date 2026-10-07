@@ -38,7 +38,7 @@ install.packages(
 )
 ```
 
-Or the development version from GitHub (also pulls the non-CRAN deps):
+Or the development version from GitHub:
 
 ```r
 # install.packages("pak")
@@ -61,7 +61,7 @@ md  <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
 res <- pool(run(md))
 
 infer(res, type = "mc")    # Monte-Carlo CI for the indirect effect
-infer(run(md), type = "mbco")  # D4-stacked MBCO test of H0: ab = 0
+infer(run(md), type = "mbco", ariv = "fixed")  # D4-stacked MBCO test of H0: ab = 0
 ```
 
 Inverse-probability weighting takes a raw `data.frame`:

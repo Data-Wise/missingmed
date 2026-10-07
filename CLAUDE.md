@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this package is
 
-**missingmed** — "Mediation Analysis with Multiple Imputation for Missing Data" (**v0.4.0**). A **thin orchestration layer** (the missing-data middle): it runs mediation across incomplete data and pools with Rubin's rules — **delegating fitting to `medfit`** and **inference to `RMediation`**, with simulation in `medsim`. **S7-first.**
+**missingmed** — "Mediation Analysis with Multiple Imputation for Missing Data" (**v0.5.0**). A **thin orchestration layer** (the missing-data middle): it runs mediation across incomplete data and pools with Rubin's rules — **delegating fitting to `medfit`** and **inference to `RMediation`**, with simulation in `medsim`. **S7-first.**
 
 > **🟢 Roadmap complete (v0.3.0).** S7 rewrite + IPW (v0.2.0, 2026-06-12), then GLM family coverage (PR #5) and MNAR sensitivity `sensitivity_mnar()` (PR #6) landed 2026-08. Released on GitHub, the [pkgdown site](https://data-wise.github.io/missingmed/), and the [Data-Wise r-universe](https://data-wise.r-universe.dev). Post-release backlog: `docs/specs/PLAN-pre-v0.3.0-review-fixes-2026-08-29.md` (parked section).
 
@@ -15,7 +15,7 @@ Four verbs over three S7 classes:
 
 - **`run()`** fits each imputation via `medfit::fit_mediation()` → a list of **named** `medfit::MediationData`.
 - **`pool()`** applies Rubin's rules to the named (estimates, vcov) → a **named pooled** `medfit::MediationData` (valid input to `RMediation::ci_mediation_data()`).
-- **`infer(type = c("mc","mbco"))`** — `mc`: Monte-Carlo CI via RMediation; `mbco`: **D4-stacked MBCO** (hosted in `R/mbco_mi.R` — MBCO does **not** commute with Rubin's rules; exact parity with the research prototype). `per_imputation_list()` exposes the per-imputation fits MBCO needs.
+- **`infer(type = c("mc","mbco"))`** — `mc`: Monte-Carlo CI via RMediation; `mbco`: **D4-stacked MBCO** (`R/mbco_mi.R` — MBCO does **not** commute with Rubin's rules). `per_imputation_list()` exposes the per-imputation fits MBCO needs. **`ariv = c("fixed", "own")`**, default `"fixed"` (#19): `"fixed"` tests every imputation on the stacked fit's branch; `"own"` is bit-identical to v0.4.0 (and to the research prototype). Returns an **`MbcoMIResult`** (S7, parent `class_double`; index with `r["p"]`/`r[["p"]]`, `$` errors). The exported **`mbco_d4(implist, ...)`** is the same engine on a plain list of data frames. D4-MBCO under MI lives here by decision; RMediation keeps complete-data MBCO.
 - **Two estimators (orthogonal `method` axis):** `"mi"` (default; `data` = `mice::mids`) and `"ipw"` (`data` = `data.frame`; reweighted complete cases, stabilized weights, trimming, `se_type = "sandwich"`).
 
 The **S4 API is deprecated** (`set_sem`/`run_sem`/`pool_sem` + `SemImputedData`/`SemResults`/`PooledSEMResults`) with `.Deprecated()` shims for one cycle.
@@ -24,7 +24,7 @@ The **S4 API is deprecated** (`set_sem`/`run_sem`/`pool_sem` + `SemImputedData`/
 
 - `R/MDMediationData.R`, `R/MDMediationFit.R`, `R/MDMediationResult.R` — the three S7 classes (each calls `S7::S4_register()`); `R/zzz.R` runs `S7::methods_register()`.
 - `R/set_md_mediation.R`, `R/run.R`, `R/pool.R`, `R/infer.R`, `R/accessors.R` — the S7 pipeline.
-- `R/ipw_run.R` — IPW weight estimation + fit; `R/mbco_mi.R` — D4-stacked MBCO.
+- `R/ipw_run.R` — IPW weight estimation + fit; `R/mbco_mi.R` — D4-stacked MBCO + `mbco_d4()`; `R/MbcoMIResult.R` — its result class. That class is **not** `S4_register()`ed (fails for a `class_double` parent), so its `print` is registered on `base::print` (the namespace `print` is an S4 generic via `import(OpenMx)`), and `[`/`[[`/`print` use the functional `` S7::`method<-`() `` form.
 - `R/methods-output.R` (print/summary/tidy), `R/reexports.R` (`broom::tidy`).
 - Legacy S4 (deprecated): `R/SemImputedData.R`, `R/SemResults.R`, `R/PooledSEMResults.R`, `R/fit_model.R`, `R/lav_mice.R`, `R/mx_mice.R`, `R/tidy_*.R`, `R/show.R`, `R/summary.R`, `R/is_*.R`, `R/internal_functions.R`, `R/utilities.R`.
 

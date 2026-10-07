@@ -84,7 +84,7 @@ flowchart LR
   R2 --> F
   F -->|"pool()"| P["MDMediationResult<br/>pooled named MediationData"]
   P -->|"infer(type = mc)"| C1["RMediation::ci_mediation_data()"]
-  F -->|"infer(type = mbco)"| C2["hosted D4 stacking<br/>R/mbco_mi.R"]
+  F -->|"infer(type = mbco)"| C2["D4 stacking, R/mbco_mi.R<br/>MbcoMIResult"]
 -->
 
 <!-- LaTeX equivalent of the diagram above, for a PDF build:
@@ -94,7 +94,7 @@ flowchart LR
   \node[box, right=of A] (F) {\texttt{run()}\\\textbf{MDMediationFit}};
   \node[box, right=of F] (P) {\texttt{pool()}\\\textbf{MDMediationResult}};
   \node[box, right=of P] (C) {\texttt{infer(type="mc")}\\RMediation};
-  \node[box, below=1.4cm of P] (M) {\texttt{infer(type="mbco")}\\hosted D4};
+  \node[box, below=1.4cm of P] (M) {\texttt{infer(type="mbco")}\\\textbf{MbcoMIResult}};
   \draw[->] (A) -- (F); \draw[->] (F) -- (P); \draw[->] (P) -- (C);
   \draw[->] (F) -- (M) node[midway, sloped, above, font=\tiny]{per-imputation};
 \end{tikzpicture}
@@ -105,6 +105,8 @@ flowchart LR
 | `MDMediationData` | data (`mids` or `data.frame`) + mediation spec + estimator/mechanism axes | `SemImputedData` |
 | `MDMediationFit` | **list** of per-imputation named `medfit::MediationData` (+ IPW `weights`) | `SemResults` |
 | `MDMediationResult` | **pooled** named `medfit::MediationData` + within/between/total vcov | `PooledSEMResults` |
+| `MbcoMIResult` | D4-stacked MBCO test: numeric `c(D4, p, r4, nu, d_S)` (parent `class_double`) + `ariv`, `k`, `m` and branch diagnostics | — |
+| `MDSensitivityResult` | MNAR sensitivity curve: one inference result per `delta` rung + realized `msp` | — |
 
 **Orthogonal axes.** The estimator (`method = "mi" | "ipw"`) and the model
 (formulas + `engine`) are independent. The same `run() -> pool() -> infer()`
@@ -339,13 +341,20 @@ test second — you need the per-imputation fits.
 
 Hence `MDMediationFit` retains the per-imputation list (exposed by
 `per_imputation_list()`), and `infer(type = "mbco")` combines the per-imputation
-LRT statistics with the **D4** rule (Chan & Meng 2022; Grund et al. 2021):
+LRT statistics with the **D4** rule (Chan & Meng 2022; Grund et al. 2023):
 
 \[
 d_S = \tfrac{\text{LRT(stacked data)}}{K},\quad
 r_4 = \max\!\Big(0, \tfrac{K+1}{k(K-1)}(\bar d - d_S)\Big),\quad
 D_4 = \tfrac{d_S}{k(1+r_4)} \sim F_{k,\nu}.
 \]
+
+The `ariv` argument sets which per-imputation statistics \(d_i\) enter
+\(\bar d\). With `ariv = "fixed"` (the default), every \(d_i\) is computed on
+the branch the stacked constrained fit chose, so all imputations share the
+stacked fit's \(k\). With `ariv = "own"`, each \(d_i\) uses that imputation's
+own winning branch, as in missingmed 0.4.0 on full-rank designs; it errors when the branches remove
+different numbers of parameters. See `vignette("mbco-mi")` for both formulas.
 
 ### Worked example: pooling three MBCO statistics
 
@@ -420,11 +429,12 @@ a deflation factor.
 
 ## 4.3 Hosting decision
 
-`RMediation::mbco()` is OpenMx-only with no MI entry point, so the D4 machinery
-is **hosted in missingmed** (`R/mbco_mi.R`), ported from the Missing-Effect
-research prototype. It reproduces the prototype **exactly** (max abs diff
-\(\approx 5\times10^{-11}\) across design cells). When `RMediation` gains an MI
-entry point, this code should move upstream (`TODO` noted in source).
+D4-MBCO under multiple imputation **lives in missingmed** (`R/mbco_mi.R`), and
+`RMediation` keeps complete-data MBCO (author decision, 2026-10-07; issue #19).
+The code was ported from the Missing-Effect research prototype and reproduces
+it **exactly** (max abs diff \(\approx 5\times10^{-11}\) across design cells).
+The exported `mbco_d4()` runs the same test on a plain list of completed data
+frames, so other packages can call it directly.
 
 ---
 
@@ -983,8 +993,9 @@ substantive model -- not of a bug.
 - Rubin, D. B. (1987). *Multiple Imputation for Nonresponse in Surveys*. Wiley.
 - Chan, K. W., & Meng, X.-L. (2022). Multiple improvements of multiple
   imputation likelihood ratio tests. *Statistica Sinica*.
-- Grund, S., Lüdtke, O., & Robitzsch, A. (2021). Pooling methods for
-  likelihood-ratio tests with multiply imputed data. *Psychological Methods*.
+- Grund, S., Lüdtke, O., & Robitzsch, A. (2023). Pooling methods for
+  likelihood ratio tests in multiply imputed data sets. *Psychological
+  Methods*, *28*(5), 1207--1221.
 - Seaman, S. R., & White, I. R. (2013). Review of inverse probability weighting
   for dealing with missing data. *Statistical Methods in Medical Research*.
 - van Buuren, S. *Flexible Imputation of Missing Data*, 2nd ed., §9.2 (delta

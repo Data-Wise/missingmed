@@ -121,7 +121,8 @@ test_that("MBCO D4 matches the prototype exactly on >= 3 cells", {
       m = 10, method = "norm", printFlag = FALSE)
     proto <- proto_d4(mice::complete(imp, "all"))
     md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C, treatment = "X", mediator = "M")
-    mine <- infer(run(md), type = "mbco")
+    # The prototype pools each imputation on its own winning branch.
+    mine <- infer(run(md), type = "mbco", ariv = "own")
     expect_equal(unname(mine["D4"]), unname(proto["D4"]), tolerance = 1e-6)
     expect_equal(unname(mine["r4"]), unname(proto["r4"]), tolerance = 1e-6)
     expect_equal(unname(mine["d_S"]), unname(proto["d_S"]), tolerance = 1e-6)
