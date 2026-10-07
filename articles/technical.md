@@ -280,13 +280,23 @@ you need the per-imputation fits.
 Hence `MDMediationFit` retains the per-imputation list (exposed by
 [`per_imputation_list()`](https://data-wise.github.io/missingmed/reference/per_imputation_list.md)),
 and `infer(type = "mbco")` combines the per-imputation LRT statistics
-with the **D4** rule (Chan & Meng 2022; Grund et al. 2021):
+with the **D4** rule (Chan & Meng 2022; Grund et al. 2023):
 
 ``` math
 d_S = \tfrac{\text{LRT(stacked data)}}{K},\quad
 r_4 = \max\!\Big(0, \tfrac{K+1}{k(K-1)}(\bar d - d_S)\Big),\quad
 D_4 = \tfrac{d_S}{k(1+r_4)} \sim F_{k,\nu}.
 ```
+
+The `ariv` argument sets which per-imputation statistics $`d_i`$ enter
+$`\bar d`$. With `ariv = "fixed"` (the default), every $`d_i`$ is
+computed on the branch the stacked constrained fit chose, so all
+imputations share the stacked fit’s $`k`$. With `ariv = "own"`, each
+$`d_i`$ uses that imputation’s own winning branch, as in missingmed
+0.4.0 on full-rank designs; it errors when the branches remove different
+numbers of parameters. See
+[`vignette("mbco-mi")`](https://data-wise.github.io/missingmed/articles/mbco-mi.md)
+for both formulas.
 
 #### Worked example: pooling three MBCO statistics
 
@@ -919,9 +929,9 @@ incompatible with the substantive model – not of a bug.
   Wiley.
 - Chan, K. W., & Meng, X.-L. (2022). Multiple improvements of multiple
   imputation likelihood ratio tests. *Statistica Sinica*.
-- Grund, S., Lüdtke, O., & Robitzsch, A. (2021). Pooling methods for
-  likelihood-ratio tests with multiply imputed data. *Psychological
-  Methods*.
+- Grund, S., Lüdtke, O., & Robitzsch, A. (2023). Pooling methods for
+  likelihood ratio tests in multiply imputed data sets. *Psychological
+  Methods*, *28*(5), 1207–1221.
 - Seaman, S. R., & White, I. R. (2013). Review of inverse probability
   weighting for dealing with missing data. *Statistical Methods in
   Medical Research*.

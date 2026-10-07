@@ -34,7 +34,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/mbco-mi.html">MBCO under multiple imputation (D4-stacked)</a></li>
+<li><a class="dropdown-item" href="../articles/mbco-mi.html">Testing an indirect effect with incomplete data</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
@@ -499,12 +499,27 @@ you need the per-imputation fits.</p>
 (exposed by <code><a href="../reference/per_imputation_list.html">per_imputation_list()</a></code>), and
 <code>infer(type = "mbco")</code> combines the per-imputation LRT
 statistics with the <strong>D4</strong> rule (Chan &amp; Meng 2022;
-Grund et al. 2021):</p>
+Grund et al. 2023):</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mi>S</mi></msub><mo>=</mo><mstyle displaystyle="false"><mfrac><mtext mathvariant="normal">LRT(stacked data)</mtext><mi>K</mi></mfrac></mstyle><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>r</mi><mn>4</mn></msub><mo>=</mo><mrow><mi mathvariant="normal">max</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mo minsize="180%" maxsize="180%" stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mstyle displaystyle="false"><mfrac><mrow><mi>K</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mstyle><mo stretchy="false" form="prefix">(</mo><mover><mi>d</mi><mo accent="true">‾</mo></mover><mo>−</mo><msub><mi>d</mi><mi>S</mi></msub><mo stretchy="false" form="postfix">)</mo><mo minsize="180%" maxsize="180%" stretchy="true" form="postfix">)</mo><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>D</mi><mn>4</mn></msub><mo>=</mo><mstyle displaystyle="false"><mfrac><msub><mi>d</mi><mi>S</mi></msub><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><msub><mi>r</mi><mn>4</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mstyle><mo>∼</mo><msub><mi>F</mi><mrow><mi>k</mi><mo>,</mo><mi>ν</mi></mrow></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
 d_S = \tfrac{\text{LRT(stacked data)}}{K},\quad
 r_4 = \max\!\Big(0, \tfrac{K+1}{k(K-1)}(\bar d - d_S)\Big),\quad
 D_4 = \tfrac{d_S}{k(1+r_4)} \sim F_{k,\nu}.
 </annotation></semantics></math></p>
+<p>The <code>ariv</code> argument sets which per-imputation statistics
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mi>i</mi></msub><annotation encoding="application/x-tex">d_i</annotation></semantics></math>
+enter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>d</mi><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar d</annotation></semantics></math>.
+With <code>ariv = "fixed"</code> (the default), every
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mi>i</mi></msub><annotation encoding="application/x-tex">d_i</annotation></semantics></math>
+is computed on the branch the stacked constrained fit chose, so all
+imputations share the stacked fit’s
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>.
+With <code>ariv = "own"</code>, each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mi>i</mi></msub><annotation encoding="application/x-tex">d_i</annotation></semantics></math>
+uses that imputation’s own winning branch, as in missingmed 0.4.0 on
+full-rank designs; it errors when the branches remove different numbers
+of parameters. See <code><a href="../articles/mbco-mi.html">vignette("mbco-mi")</a></code> for both
+formulas.</p>
 <div class="section level4">
 <h4 id="worked-example-pooling-three-mbco-statistics">Worked example: pooling three MBCO statistics<a class="anchor" aria-label="anchor" href="#worked-example-pooling-three-mbco-statistics"></a>
 </h4>
@@ -1463,9 +1478,9 @@ Surveys</em>. Wiley.</li>
 <li>Chan, K. W., &amp; Meng, X.-L. (2022). Multiple improvements of
 multiple imputation likelihood ratio tests. <em>Statistica
 Sinica</em>.</li>
-<li>Grund, S., Lüdtke, O., &amp; Robitzsch, A. (2021). Pooling methods
-for likelihood-ratio tests with multiply imputed data. <em>Psychological
-Methods</em>.</li>
+<li>Grund, S., Lüdtke, O., &amp; Robitzsch, A. (2023). Pooling methods
+for likelihood ratio tests in multiply imputed data sets.
+<em>Psychological Methods</em>, <em>28</em>(5), 1207–1221.</li>
 <li>Seaman, S. R., &amp; White, I. R. (2013). Review of inverse
 probability weighting for dealing with missing data. <em>Statistical
 Methods in Medical Research</em>.</li>

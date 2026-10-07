@@ -19,7 +19,7 @@
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/mbco-mi.html">MBCO under multiple imputation (D4-stacked)</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/mbco-mi.html">Testing an indirect effect with incomplete data</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
@@ -44,7 +44,7 @@
 <ul><li>
 <p><strong><code>infer(type = "mbco")</code> gains <code>ariv = c("fixed", "own")</code>, default <code>"fixed"</code></strong> (<a href="https://github.com/Data-Wise/missingmed/issues/19" class="external-link">#19</a>). <code>ariv</code> sets which per-imputation statistics enter the relative increase in variance <code>r4</code> of the D4-stacked MBCO test:</p>
 <ul><li>
-<code>"fixed"</code> recomputes every imputation’s statistic on the branch (<code>a = 0</code> or <code>b = 0</code>) that the stacked constrained fit chose, so imputations that disagree on the winning branch cannot pull <code>r4</code> down. Every imputation then uses the stacked fit’s <code>k</code>, so models whose two paths carry different numbers of terms (an <code>X:M</code> interaction) now return a result. A guard errors when the branch’s constraint removes a different number of parameters in some imputation than in the stacked data (for example, a level of a factor that interacts with the treatment or mediator is absent from one imputation).</li>
+<code>"fixed"</code> recomputes every imputation’s statistic on the branch (<code>a = 0</code> or <code>b = 0</code>) that the stacked constrained fit chose. Every imputation then uses the stacked fit’s <code>k</code>, so models whose two paths carry different numbers of terms (an <code>X:M</code> interaction) now return a result. A guard errors when the branch’s constraint removes a different number of parameters in some imputation than in the stacked data (for example, a level of a factor that interacts with the treatment or mediator is absent from one imputation).</li>
 <li>
 <code>"own"</code> uses each imputation’s own winning branch and <strong>reproduces earlier results exactly on full-rank designs</strong>; it still refuses when the branches remove different numbers of parameters.</li>
 </ul><p>Code that relied on the old behavior should pass <code>ariv = "own"</code>. The default changes results only when some imputation’s own branch differs from the stacked fit’s. <code>sensitivity_mnar(type = "mbco")</code> calls <code><a href="../reference/infer.html">infer()</a></code> and so uses the new default for its rungs. A single imputation (K = 1) is still an error, now pointing to complete-data MBCO.</p>
@@ -58,6 +58,11 @@
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
 <ul><li>The <code>ariv = "fixed"</code> guard in <code>infer(type = "mbco")</code> / <code><a href="../reference/mbco_d4.html">mbco_d4()</a></code> compared design ranks instead of <code>k</code>, so a factor level absent from some imputations wrongly errored even when <code>k</code> was the same everywhere; it now errors only when <code>k</code> differs, and <code>k</code> is now a rank difference under both <code>ariv</code> values (unchanged on full-rank designs).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-development-version">Documentation<a class="anchor" aria-label="anchor" href="#documentation-development-version"></a></h3>
+<ul><li>
+<code><a href="../articles/mbco-mi.html">vignette("mbco-mi")</a></code> is retitled “Testing an indirect effect with incomplete data” and expanded into a worked guide.</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -165,7 +170,7 @@
 <div class="section level3">
 <h3 id="mbco-under-multiple-imputation-0-2-0">MBCO under multiple imputation<a class="anchor" aria-label="anchor" href="#mbco-under-multiple-imputation-0-2-0"></a></h3>
 <ul><li>
-<code>infer(type = "mbco")</code> implements <strong>D4-stacked MBCO</strong>, which respects the union-null geometry of <code>H0: ab = 0</code> (branch switching) — exact-match parity with the research prototype. See <code><a href="../articles/mbco-mi.html">vignette("mbco-mi")</a></code>.</li>
+<code>infer(type = "mbco")</code> implements <strong>D4-stacked MBCO</strong>, which respects the union-null geometry of <code>H0: ab = 0</code> (<code>a = 0</code> or <code>b = 0</code>) — exact-match parity with the research prototype. See <code><a href="../articles/mbco-mi.html">vignette("mbco-mi")</a></code>.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="documentation-0-2-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-2-0"></a></h3>
