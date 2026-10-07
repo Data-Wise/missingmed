@@ -46,14 +46,16 @@ list of m named MediationData”\] R2 –\> F F –\>\|“pool()”\|
 P\[“MDMediationResult  
 pooled named MediationData”\] P –\>\|“infer(type = mc)”\|
 C1\[“RMediation::ci_mediation_data()”\] F –\>\|“infer(type = mbco)”\|
-C2\[“hosted D4 stacking  
-R/mbco_mi.R”\] –\>
+C2\[“D4 stacking, R/mbco_mi.R  
+MbcoMIResult”\] –\>
 
 | S7 class | Carries | S4 ancestor |
 |----|----|----|
 | `MDMediationData` | data (`mids` or `data.frame`) + mediation spec + estimator/mechanism axes | `SemImputedData` |
 | `MDMediationFit` | **list** of per-imputation named [`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html) (+ IPW `weights`) | `SemResults` |
 | `MDMediationResult` | **pooled** named [`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html) + within/between/total vcov | `PooledSEMResults` |
+| `MbcoMIResult` | D4-stacked MBCO test: numeric `c(D4, p, r4, nu, d_S)` (parent `class_double`) + `ariv`, `k`, `m` and branch diagnostics | — |
+| `MDSensitivityResult` | MNAR sensitivity curve: one inference result per `delta` rung + realized `msp` | — |
 
 **Orthogonal axes.** The estimator (`method = "mi" | "ipw"`) and the
 model (formulas + `engine`) are independent. The same

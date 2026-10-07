@@ -1,88 +1,178 @@
-# Mediation Package Documentat Classes and Methods
+# S7 classes and methods
 
-## Overview
+A developer’s map of missingmed’s object model: which S7 class each verb
+takes and returns, what each class carries, and which generics dispatch
+on it. For the statistics behind the verbs, see
+[`vignette("technical")`](https://data-wise.github.io/missingmed/articles/technical.md).
 
-The `RMediation` package is designed for Structural Equation Modeling
-(SEM) analysis across multiply imputed datasets. It supports pooling SEM
-analysis results from `lavaan` and `OpenMx` models, calculating pooled
-estimates, standard errors, confidence intervals, and more.
+## The pipeline
 
-## Classes and Methods
+Four verbs move a mediation analysis through three classes. Inference
+returns either an `RMediation` interval or a fourth class, and the
+sensitivity analysis returns a fifth.
 
-### Classes
+``` mermaid
+flowchart LR
+  D["MDMediationData"] -->|"run()"| F["MDMediationFit"]
+  F -->|"pool()"| R["MDMediationResult"]
+  R -->|"infer(type = 'mc')"| CI["RMediation interval (list)"]
+  F -->|"infer(type = 'mc')"| CI
+  F -->|"infer(type = 'mbco')"| M["MbcoMIResult"]
+  D -->|"sensitivity_mnar()"| S["MDSensitivityResult"]
+  S -. "one infer() result per rung" .-> CI
+  S -.-> M
+```
 
-#### `SemResults`
+`infer(type = "mbco")` takes the **fit**, not the pooled result: the
+MBCO statistic does not commute with Rubin’s rules, so it needs every
+imputation. `infer(<MDMediationResult>, type = "mbco")` is an error by
+design.
 
-An S4 class for storing the results of SEM analysis performed on
-multiply imputed datasets. It accommodates results from `lavaan`,
-`OpenMx`, or potentially other SEM software.
+## Classes
 
-- **Slots**:
-  - `results`: A list of SEM model fits for each imputed dataset.
-  - `estimate_df`: Data frame of parameter estimates and standard
-    errors.
-  - `coef_df`: Data frame of coefficient estimates for each imputed
-    dataset.
-  - `cov_df`: List of covariance matrices of coefficient estimates.
-  - `method`: SEM package used for analysis (‘lavaan’ or ‘OpenMx’).
-  - `conf_int`: Logical; if confidence intervals are included.
-  - `conf_level`: Confidence level for confidence intervals.
+Each class below is an
+[`S7::new_class()`](https://rconsortium.github.io/S7/reference/new_class.html)
+with `package = "missingmed"`. The property lists are read from the
+class objects when this page is built.
 
-#### `PooledSEMResults`
+| class | parent | properties |
+|:---|:---|:---|
+| MDMediationData | S7_object | `data`, `formula_y`, `formula_m`, `treatment`, `mediator`, `engine`, `family_y`, `family_m`, `method`, `mechanism`, `weight_formula`, `weight_stabilize`, `weight_trim`, `se_type`, `conf_int`, `conf_level`, `n_imputations`, `original_data` |
+| MDMediationFit | S7_object | `per_imputation`, `fits`, `m`, `engine`, `conf_int`, `conf_level`, `weights`, `source` |
+| MDMediationResult | S7_object | `pooled`, `tidy_table`, `cov_total`, `cov_between`, `cov_within`, `m`, `engine`, `conf_int`, `conf_level` |
+| MbcoMIResult | class_double | `ariv`, `k`, `m`, `stacked_branch`, `branch_mix`, `p_branch_a` |
+| MDSensitivityResult | S7_object | `rungs`, `grid`, `msp`, `target`, `type`, `level`, `seed`, `seed_source`, `method_target`, `mechanism_used`, `scale`, `source` |
 
-An S4 class representing pooled results from SEM analysis across
-multiple imputations or datasets.
+- **`MDMediationData`**, built by
+  [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md),
+  holds the analysis specification: the data (a
+  [`mice::mids`](https://amices.org/mice/reference/mids.html) for
+  `method = "mi"`, a data frame for `method = "ipw"`), the two model
+  formulas and families, the treatment and mediator names, and the IPW
+  weight settings.
+- **`MDMediationFit`**, returned by
+  [`run()`](https://data-wise.github.io/missingmed/reference/run.md),
+  holds one named
+  [`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html)
+  per imputation in `per_imputation`, plus the raw fits and, for IPW,
+  the weights. `source` points back to the `MDMediationData`, which is
+  how `infer(type = "mbco")` reaches the imputed datasets.
+- **`MDMediationResult`**, returned by
+  [`pool()`](https://data-wise.github.io/missingmed/reference/pool.md),
+  holds the Rubin’s-rules pooled
+  [`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html)
+  in `pooled`, its tidy table with per-coefficient Wald tests, and the
+  within, between and total covariance matrices.
+- **`MbcoMIResult`**, returned by `infer(type = "mbco")` and
+  [`mbco_d4()`](https://data-wise.github.io/missingmed/reference/mbco_d4.md),
+  is the only class with a base-type parent (`class_double`). Its data
+  is the named vector `c(D4, p, r4, nu, d_S)`; its properties record
+  `ariv`, the numerator df `k`, the number of imputations `m`, and the
+  branch diagnostics.
+- **`MDSensitivityResult`**, returned by
+  [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/reference/sensitivity_mnar.md),
+  holds one inference result per `delta` rung in `rungs`, the `grid` of
+  deltas, and the realized marginal sensitivity parameter `msp` for each
+  rung.
 
-- **Slots**:
-  - `tidy_table`: A data frame containing the pooled results of the SEM
-    analyses.
-  - `cov_total`: The pooled total covariance matrix of the parameter
-    estimates.
-  - `cov_between`: The pooled between-imputation covariance matrix of
-    the parameter estimates.
-  - `cov_within`: The pooled within-imputation covariance matrix of the
-    parameter estimates.
-  - `method`: The method used for SEM analysis (‘lavaan’ or ‘OpenMx’).
-  - `conf.int`: Whether to calculate confidence intervals for the pooled
-    estimates.
-  - `conf.level`: The confidence level used in the interval calculation.
+## Generics and methods
 
-### Methods
+| generic | methods for |
+|:---|:---|
+| run | `MDMediationData` |
+| pool | `ANY`, `MDMediationData`, `MDMediationFit`, `MDMediationResult` |
+| infer | `MDMediationFit`, `MDMediationResult` |
+| per_imputation_list | `MDMediationFit` |
+| n_imputations | `MDMediationFit`, `MDMediationResult` |
 
-#### `pool_sem`
+The methods on the wrong class are refusals with a pointer to the right
+step: `pool(<MDMediationData>)` asks for
+[`run()`](https://data-wise.github.io/missingmed/reference/run.md)
+first, and `pool(<MDMediationResult>)` says the object is already
+pooled.
+[`pool()`](https://data-wise.github.io/missingmed/reference/pool.md) on
+any other object falls through to
+[`mice::pool()`](https://amices.org/mice/reference/pool.html).
 
-A generic function to pool SEM analysis results from multiple datasets
-or imputations.
+Output methods are S7 methods on external generics:
 
-- **Signature**: `SemResults`
-- **Returns**: `PooledSEMResults`
+| Generic | Classes |
+|----|----|
+| [`print()`](https://rdrr.io/r/base/print.html) | all five |
+| [`summary()`](https://rdrr.io/r/base/summary.html) | `MDMediationResult`, `MDSensitivityResult` |
+| [`broom::tidy()`](https://generics.r-lib.org/reference/tidy.html) (re-exported) | `MDMediationResult`, `MbcoMIResult`, `MDSensitivityResult` |
+| `[`, `[[` | `MbcoMIResult` (index the underlying vector) |
 
-#### Helper Functions
+## Working with an `MbcoMIResult`
 
-- `pool_tidy`: Extracts and pools relevant statistics across all
-  imputations.
-- `pool_cov`: Extracts and pools relevant covariance matrices across all
-  imputations.
+S7 objects are not subsettable by default, so `MbcoMIResult` defines `[`
+and `[[` on its data. Properties use `@`; `$` is an error.
 
-## UML Diagram
+``` r
 
-To visualize the relationships between the classes and methods in the
-RMediation package, consider using a UML diagramming tool. A typical
-representation would show:
+set.seed(1)
+implist <- lapply(1:3, function(i) {
+  X <- rnorm(200)
+  M <- 0.4 * X + rnorm(200)
+  data.frame(X = X, M = M, Y = 0.3 * M + rnorm(200))
+})
+r <- mbco_d4(implist, Y ~ X + M, M ~ X,
+  treatment = "X", mediator = "M", ariv = "fixed"
+)
+r[["p"]]
+#> [1] 0.0009082534
+r[c("D4", "nu")]
+#>        D4        nu 
+#>  11.13565 513.14364
+r@stacked_branch
+#> [1] "b"
+is.numeric(r)
+#> [1] TRUE
+S7::S7_data(r)
+#>           D4            p           r4           nu          d_S 
+#> 1.113565e+01 9.082534e-04 6.658739e-02 5.131436e+02 1.187715e+01
+```
 
-- The `SemResults` class with arrows pointing to the `pool_sem` method,
-  indicating that this method operates on objects of this class.
-- The `PooledSEMResults` class as the output of the `pool_sem` method.
-- Helper functions `pool_tidy` and `pool_cov` could be represented as
-  associated with the `pool_sem` method, indicating their role in the
-  pooling process.
+## Registration notes for contributors
 
-### Generating a UML Diagram
+- `R/zzz.R` calls
+  [`S7::methods_register()`](https://rconsortium.github.io/S7/reference/methods_register.html)
+  in `.onLoad()`, which registers the S7 methods on external generics at
+  load time, so they need no `S3method()` lines in `NAMESPACE`.
+- `MDMediationData`, `MDMediationFit`, `MDMediationResult` and
+  `MDSensitivityResult` are passed to
+  [`S7::S4_register()`](https://rconsortium.github.io/S7/reference/S4_register.html),
+  so S4 code can dispatch on them.
+- `MbcoMIResult` is **not**:
+  [`setOldClass()`](https://rdrr.io/r/methods/setOldClass.html) cannot
+  build an S4 prototype for an S7 class whose parent is `class_double`.
+  Two consequences:
+  - Inside the namespace, `print` is an S4 generic (`import(OpenMx)`
+    makes it one), and S7 refuses to add a method for an unregistered
+    class to an S4 generic. Its print method is therefore registered on
+    [`base::print`](https://rdrr.io/r/base/print.html).
+  - Register methods for it with the functional form,
+    `` S7::`method<-`(generic, MbcoMIResult, value = f) ``. The
+    assignment form `S7::method(generic, MbcoMIResult) <- f` assigns the
+    generic back into the namespace; for `[` and `[[` that creates
+    objects `R CMD check` reports as undocumented.
+- Every exported class and function needs an entry in the `reference:`
+  index of `_pkgdown.yml`; `R CMD check` does not read it, but the
+  pkgdown CI job fails without it.
 
-You can use UML diagramming tools like PlantUML, Lucidchart, or others
-to create a visual representation. Here is a simple example in PlantUML
-syntax:
+## Deprecated S4 classes
 
-![](images/rmediation_uml.svg)
+The S4 API
+([`set_sem()`](https://data-wise.github.io/missingmed/reference/set_sem.md),
+[`run_sem()`](https://data-wise.github.io/missingmed/reference/run_sem.md),
+[`pool_sem()`](https://data-wise.github.io/missingmed/reference/pool_sem.md)
+with the classes `SemImputedData`, `SemResults` and `PooledSEMResults`)
+is deprecated and kept for one release cycle behind
+[`.Deprecated()`](https://rdrr.io/r/base/Deprecated.html) shims. Each S7
+class above replaces one of them:
 
-UML of Classes and Methods in the RMediation Package
+| S7 class            | Replaces           |
+|---------------------|--------------------|
+| `MDMediationData`   | `SemImputedData`   |
+| `MDMediationFit`    | `SemResults`       |
+| `MDMediationResult` | `PooledSEMResults` |

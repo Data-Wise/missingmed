@@ -5,14 +5,15 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Mediation Package Documentat Classes and Methods • missingmed</title>
+<title>S7 classes and methods • missingmed</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="classes_methods_files/libs/clipboard/clipboard.min.js"></script><script src="classes_methods_files/libs/quarto-html/popper.min.js"></script><script src="classes_methods_files/libs/quarto-html/tippy.umd.min.js"></script><link href="classes_methods_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="classes_methods_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Mediation Package Documentat Classes and Methods">
+<script src="classes_methods_files/libs/quarto-diagram/mermaid.min.js"></script><script src="classes_methods_files/libs/quarto-diagram/mermaid-init.js"></script><link href="classes_methods_files/libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="S7 classes and methods">
 <meta property="og:image" content="https://data-wise.github.io/missingmed/logo.png">
 </head>
 <body>
@@ -56,7 +57,7 @@
 </nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Mediation Package Documentat Classes and Methods</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>S7 classes and methods</h1>
 
 
 
@@ -70,97 +71,249 @@
 
 
 
-    <section class="section level2"><h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+    <p>A developer’s map of missingmed’s object model: which S7 class each verb takes and returns, what each class carries, and which generics dispatch on it. For the statistics behind the verbs, see <code><a href="../articles/technical.html">vignette("technical")</a></code>.</p>
+<section class="section level2"><h2 id="the-pipeline">The pipeline<a class="anchor" aria-label="anchor" href="#the-pipeline"></a>
 </h2>
-<p>The <code>RMediation</code> package is designed for Structural Equation Modeling (SEM) analysis across multiply imputed datasets. It supports pooling SEM analysis results from <code>lavaan</code> and <code>OpenMx</code> models, calculating pooled estimates, standard errors, confidence intervals, and more.</p>
-</section><section class="section level2"><h2 id="classes-and-methods">Classes and Methods<a class="anchor" aria-label="anchor" href="#classes-and-methods"></a>
-</h2>
-<section class="level2"><h3 id="classes">Classes<a class="anchor" aria-label="anchor" href="#classes"></a>
-</h3>
-<section class="level3"><h4 id="semresults">
-<code>SemResults</code><a class="anchor" aria-label="anchor" href="#semresults"></a>
-</h4>
-<p>An S4 class for storing the results of SEM analysis performed on multiply imputed datasets. It accommodates results from <code>lavaan</code>, <code>OpenMx</code>, or potentially other SEM software.</p>
-<ul>
-<li>
-<strong>Slots</strong>:
-<ul>
-<li>
-<code>results</code>: A list of SEM model fits for each imputed dataset.</li>
-<li>
-<code>estimate_df</code>: Data frame of parameter estimates and standard errors.</li>
-<li>
-<code>coef_df</code>: Data frame of coefficient estimates for each imputed dataset.</li>
-<li>
-<code>cov_df</code>: List of covariance matrices of coefficient estimates.</li>
-<li>
-<code>method</code>: SEM package used for analysis (‘lavaan’ or ‘OpenMx’).</li>
-<li>
-<code>conf_int</code>: Logical; if confidence intervals are included.</li>
-<li>
-<code>conf_level</code>: Confidence level for confidence intervals.</li>
-</ul>
-</li>
-</ul></section><section class="level3"><h4 id="pooledsemresults">
-<code>PooledSEMResults</code><a class="anchor" aria-label="anchor" href="#pooledsemresults"></a>
-</h4>
-<p>An S4 class representing pooled results from SEM analysis across multiple imputations or datasets.</p>
-<ul>
-<li>
-<strong>Slots</strong>:
-<ul>
-<li>
-<code>tidy_table</code>: A data frame containing the pooled results of the SEM analyses.</li>
-<li>
-<code>cov_total</code>: The pooled total covariance matrix of the parameter estimates.</li>
-<li>
-<code>cov_between</code>: The pooled between-imputation covariance matrix of the parameter estimates.</li>
-<li>
-<code>cov_within</code>: The pooled within-imputation covariance matrix of the parameter estimates.</li>
-<li>
-<code>method</code>: The method used for SEM analysis (‘lavaan’ or ‘OpenMx’).</li>
-<li>
-<code>conf.int</code>: Whether to calculate confidence intervals for the pooled estimates.</li>
-<li>
-<code>conf.level</code>: The confidence level used in the interval calculation.</li>
-</ul>
-</li>
-</ul></section></section><section class="level2"><h3 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a>
-</h3>
-<section class="level3"><h4 id="pool_sem">
-<code>pool_sem</code><a class="anchor" aria-label="anchor" href="#pool_sem"></a>
-</h4>
-<p>A generic function to pool SEM analysis results from multiple datasets or imputations.</p>
-<ul>
-<li>
-<strong>Signature</strong>: <code>SemResults</code>
-</li>
-<li>
-<strong>Returns</strong>: <code>PooledSEMResults</code>
-</li>
-</ul></section><section class="level3"><h4 id="helper-functions">Helper Functions<a class="anchor" aria-label="anchor" href="#helper-functions"></a>
-</h4>
-<ul>
-<li>
-<code>pool_tidy</code>: Extracts and pools relevant statistics across all imputations.</li>
-<li>
-<code>pool_cov</code>: Extracts and pools relevant covariance matrices across all imputations.</li>
-</ul></section></section></section><section class="section level2"><h2 id="uml-diagram">UML Diagram<a class="anchor" aria-label="anchor" href="#uml-diagram"></a>
-</h2>
-<p>To visualize the relationships between the classes and methods in the RMediation package, consider using a UML diagramming tool. A typical representation would show:</p>
-<ul>
-<li>The <code>SemResults</code> class with arrows pointing to the <code>pool_sem</code> method, indicating that this method operates on objects of this class.</li>
-<li>The <code>PooledSEMResults</code> class as the output of the <code>pool_sem</code> method.</li>
-<li>Helper functions <code>pool_tidy</code> and <code>pool_cov</code> could be represented as associated with the <code>pool_sem</code> method, indicating their role in the pooling process.</li>
-</ul>
-<section class="level2"><h3 id="generating-a-uml-diagram">Generating a UML Diagram<a class="anchor" aria-label="anchor" href="#generating-a-uml-diagram"></a>
-</h3>
-<p>You can use UML diagramming tools like PlantUML, Lucidchart, or others to create a visual representation. Here is a simple example in PlantUML syntax:</p>
-<div class="quarto-figure quarto-figure-center">
-<figure><p><img src="images/rmediation_uml.svg"></p>
-<figcaption>UML of Classes and Methods in the RMediation Package</figcaption></figure>
+<p>Four verbs move a mediation analysis through three classes. Inference returns either an <code>RMediation</code> interval or a fourth class, and the sensitivity analysis returns a fifth.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p>
+<figure class=""><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  D["MDMediationData"] --&gt;|"run()"| F["MDMediationFit"]
+  F --&gt;|"pool()"| R["MDMediationResult"]
+  R --&gt;|"infer(type = 'mc')"| CI["RMediation interval (list)"]
+  F --&gt;|"infer(type = 'mc')"| CI
+  F --&gt;|"infer(type = 'mbco')"| M["MbcoMIResult"]
+  D --&gt;|"sensitivity_mnar()"| S["MDSensitivityResult"]
+  S -. "one infer() result per rung" .-&gt; CI
+  S -.-&gt; M
+</pre>
 </div>
-</section></section><script id="quarto-html-after-body" type="application/javascript">
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p><code>infer(type = "mbco")</code> takes the <strong>fit</strong>, not the pooled result: the MBCO statistic does not commute with Rubin’s rules, so it needs every imputation. <code>infer(&lt;MDMediationResult&gt;, type = "mbco")</code> is an error by design.</p>
+</section><section class="section level2"><h2 id="classes">Classes<a class="anchor" aria-label="anchor" href="#classes"></a>
+</h2>
+<p>Each class below is an <code><a href="https://rconsortium.github.io/S7/reference/new_class.html" class="external-link">S7::new_class()</a></code> with <code>package = "missingmed"</code>. The property lists are read from the class objects when this page is built.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table caption-top">
+<colgroup>
+<col style="width: 7%">
+<col style="width: 4%">
+<col style="width: 87%">
+</colgroup>
+<thead><tr class="header">
+<th style="text-align: left;">class</th>
+<th style="text-align: left;">parent</th>
+<th style="text-align: left;">properties</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">MDMediationData</td>
+<td style="text-align: left;">S7_object</td>
+<td style="text-align: left;">
+<code>data</code>, <code>formula_y</code>, <code>formula_m</code>, <code>treatment</code>, <code>mediator</code>, <code>engine</code>, <code>family_y</code>, <code>family_m</code>, <code>method</code>, <code>mechanism</code>, <code>weight_formula</code>, <code>weight_stabilize</code>, <code>weight_trim</code>, <code>se_type</code>, <code>conf_int</code>, <code>conf_level</code>, <code>n_imputations</code>, <code>original_data</code>
+</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MDMediationFit</td>
+<td style="text-align: left;">S7_object</td>
+<td style="text-align: left;">
+<code>per_imputation</code>, <code>fits</code>, <code>m</code>, <code>engine</code>, <code>conf_int</code>, <code>conf_level</code>, <code>weights</code>, <code>source</code>
+</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MDMediationResult</td>
+<td style="text-align: left;">S7_object</td>
+<td style="text-align: left;">
+<code>pooled</code>, <code>tidy_table</code>, <code>cov_total</code>, <code>cov_between</code>, <code>cov_within</code>, <code>m</code>, <code>engine</code>, <code>conf_int</code>, <code>conf_level</code>
+</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MbcoMIResult</td>
+<td style="text-align: left;">class_double</td>
+<td style="text-align: left;">
+<code>ariv</code>, <code>k</code>, <code>m</code>, <code>stacked_branch</code>, <code>branch_mix</code>, <code>p_branch_a</code>
+</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MDSensitivityResult</td>
+<td style="text-align: left;">S7_object</td>
+<td style="text-align: left;">
+<code>rungs</code>, <code>grid</code>, <code>msp</code>, <code>target</code>, <code>type</code>, <code>level</code>, <code>seed</code>, <code>seed_source</code>, <code>method_target</code>, <code>mechanism_used</code>, <code>scale</code>, <code>source</code>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ul>
+<li>
+<strong><code>MDMediationData</code></strong>, built by <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code>, holds the analysis specification: the data (a <code><a href="https://amices.org/mice/reference/mids.html" class="external-link">mice::mids</a></code> for <code>method = "mi"</code>, a data frame for <code>method = "ipw"</code>), the two model formulas and families, the treatment and mediator names, and the IPW weight settings.</li>
+<li>
+<strong><code>MDMediationFit</code></strong>, returned by <code><a href="../reference/run.html">run()</a></code>, holds one named <code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code> per imputation in <code>per_imputation</code>, plus the raw fits and, for IPW, the weights. <code>source</code> points back to the <code>MDMediationData</code>, which is how <code>infer(type = "mbco")</code> reaches the imputed datasets.</li>
+<li>
+<strong><code>MDMediationResult</code></strong>, returned by <code><a href="../reference/pool.html">pool()</a></code>, holds the Rubin’s-rules pooled <code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code> in <code>pooled</code>, its tidy table with per-coefficient Wald tests, and the within, between and total covariance matrices.</li>
+<li>
+<strong><code>MbcoMIResult</code></strong>, returned by <code>infer(type = "mbco")</code> and <code><a href="../reference/mbco_d4.html">mbco_d4()</a></code>, is the only class with a base-type parent (<code>class_double</code>). Its data is the named vector <code>c(D4, p, r4, nu, d_S)</code>; its properties record <code>ariv</code>, the numerator df <code>k</code>, the number of imputations <code>m</code>, and the branch diagnostics.</li>
+<li>
+<strong><code>MDSensitivityResult</code></strong>, returned by <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code>, holds one inference result per <code>delta</code> rung in <code>rungs</code>, the <code>grid</code> of deltas, and the realized marginal sensitivity parameter <code>msp</code> for each rung.</li>
+</ul></section><section class="section level2"><h2 id="generics-and-methods">Generics and methods<a class="anchor" aria-label="anchor" href="#generics-and-methods"></a>
+</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table caption-top">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 76%">
+</colgroup>
+<thead><tr class="header">
+<th style="text-align: left;">generic</th>
+<th style="text-align: left;">methods for</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">run</td>
+<td style="text-align: left;"><code>MDMediationData</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">pool</td>
+<td style="text-align: left;">
+<code>ANY</code>, <code>MDMediationData</code>, <code>MDMediationFit</code>, <code>MDMediationResult</code>
+</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">infer</td>
+<td style="text-align: left;">
+<code>MDMediationFit</code>, <code>MDMediationResult</code>
+</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">per_imputation_list</td>
+<td style="text-align: left;"><code>MDMediationFit</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">n_imputations</td>
+<td style="text-align: left;">
+<code>MDMediationFit</code>, <code>MDMediationResult</code>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The methods on the wrong class are refusals with a pointer to the right step: <code>pool(&lt;MDMediationData&gt;)</code> asks for <code><a href="../reference/run.html">run()</a></code> first, and <code>pool(&lt;MDMediationResult&gt;)</code> says the object is already pooled. <code><a href="../reference/pool.html">pool()</a></code> on any other object falls through to <code><a href="https://amices.org/mice/reference/pool.html" class="external-link">mice::pool()</a></code>.</p>
+<p>Output methods are S7 methods on external generics:</p>
+<table class="table caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead><tr class="header">
+<th>Generic</th>
+<th>Classes</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code></td>
+<td>all five</td>
+</tr>
+<tr class="even">
+<td><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code></td>
+<td>
+<code>MDMediationResult</code>, <code>MDSensitivityResult</code>
+</td>
+</tr>
+<tr class="odd">
+<td>
+<code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">broom::tidy()</a></code> (re-exported)</td>
+<td>
+<code>MDMediationResult</code>, <code>MbcoMIResult</code>, <code>MDSensitivityResult</code>
+</td>
+</tr>
+<tr class="even">
+<td>
+<code>[</code>, <code>[[</code>
+</td>
+<td>
+<code>MbcoMIResult</code> (index the underlying vector)</td>
+</tr>
+</tbody>
+</table></section><section class="section level2"><h2 id="working-with-an-mbcomiresult">Working with an <code>MbcoMIResult</code>
+<a class="anchor" aria-label="anchor" href="#working-with-an-mbcomiresult"></a>
+</h2>
+<p>S7 objects are not subsettable by default, so <code>MbcoMIResult</code> defines <code>[</code> and <code>[[</code> on its data. Properties use <code>@</code>; <code>$</code> is an error.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold">
+<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">implist</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span><span class="op">)</span></span>
+<span>  <span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">0.4</span> <span class="op">*</span> <span class="va">X</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>X <span class="op">=</span> <span class="va">X</span>, M <span class="op">=</span> <span class="va">M</span>, Y <span class="op">=</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">M</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mbco_d4.html">mbco_d4</a></span><span class="op">(</span><span class="va">implist</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, ariv <span class="op">=</span> <span class="st">"fixed"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">r</span><span class="op">[[</span><span class="st">"p"</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="co">#&gt; [1] 0.0009082534</span></span>
+<span><span class="va">r</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"D4"</span>, <span class="st">"nu"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;        D4        nu </span></span>
+<span><span class="co">#&gt;  11.13565 513.14364</span></span>
+<span><span class="va">r</span><span class="op">@</span><span class="va">stacked_branch</span></span>
+<span><span class="co">#&gt; [1] "b"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">is.numeric</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/S7_data.html" class="external-link">S7_data</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
+<span><span class="co">#&gt;           D4            p           r4           nu          d_S </span></span>
+<span><span class="co">#&gt; 1.113565e+01 9.082534e-04 6.658739e-02 5.131436e+02 1.187715e+01</span></span></code></pre></div>
+<button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button>
+</div>
+</div>
+</section><section class="section level2"><h2 id="registration-notes-for-contributors">Registration notes for contributors<a class="anchor" aria-label="anchor" href="#registration-notes-for-contributors"></a>
+</h2>
+<ul>
+<li>
+<code>R/zzz.R</code> calls <code><a href="https://rconsortium.github.io/S7/reference/methods_register.html" class="external-link">S7::methods_register()</a></code> in <code>.onLoad()</code>, which registers the S7 methods on external generics at load time, so they need no <code>S3method()</code> lines in <code>NAMESPACE</code>.</li>
+<li>
+<code>MDMediationData</code>, <code>MDMediationFit</code>, <code>MDMediationResult</code> and <code>MDSensitivityResult</code> are passed to <code><a href="https://rconsortium.github.io/S7/reference/S4_register.html" class="external-link">S7::S4_register()</a></code>, so S4 code can dispatch on them.</li>
+<li>
+<code>MbcoMIResult</code> is <strong>not</strong>: <code><a href="https://rdrr.io/r/methods/setOldClass.html" class="external-link">setOldClass()</a></code> cannot build an S4 prototype for an S7 class whose parent is <code>class_double</code>. Two consequences:
+<ul>
+<li>Inside the namespace, <code>print</code> is an S4 generic (<code>import(OpenMx)</code> makes it one), and S7 refuses to add a method for an unregistered class to an S4 generic. Its print method is therefore registered on <code><a href="https://rdrr.io/r/base/print.html" class="external-link">base::print</a></code>.</li>
+<li>Register methods for it with the functional form, <code>S7::`method&lt;-`(generic, MbcoMIResult, value = f)</code>. The assignment form <code>S7::method(generic, MbcoMIResult) &lt;- f</code> assigns the generic back into the namespace; for <code>[</code> and <code>[[</code> that creates objects <code>R CMD check</code> reports as undocumented.</li>
+</ul>
+</li>
+<li>Every exported class and function needs an entry in the <code>reference:</code> index of <code>_pkgdown.yml</code>; <code>R CMD check</code> does not read it, but the pkgdown CI job fails without it.</li>
+</ul></section><section class="section level2"><h2 id="deprecated-s4-classes">Deprecated S4 classes<a class="anchor" aria-label="anchor" href="#deprecated-s4-classes"></a>
+</h2>
+<p>The S4 API (<code><a href="../reference/set_sem.html">set_sem()</a></code>, <code><a href="../reference/run_sem.html">run_sem()</a></code>, <code><a href="../reference/pool_sem.html">pool_sem()</a></code> with the classes <code>SemImputedData</code>, <code>SemResults</code> and <code>PooledSEMResults</code>) is deprecated and kept for one release cycle behind <code><a href="https://rdrr.io/r/base/Deprecated.html" class="external-link">.Deprecated()</a></code> shims. Each S7 class above replaces one of them:</p>
+<table class="table caption-top">
+<thead><tr class="header">
+<th>S7 class</th>
+<th>Replaces</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>MDMediationData</code></td>
+<td><code>SemImputedData</code></td>
+</tr>
+<tr class="even">
+<td><code>MDMediationFit</code></td>
+<td><code>SemResults</code></td>
+</tr>
+<tr class="odd">
+<td><code>MDMediationResult</code></td>
+<td><code>PooledSEMResults</code></td>
+</tr>
+</tbody>
+</table></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const isCodeAnnotation = (el) => {
       for (const clz of el.classList) {
@@ -305,8 +458,7 @@
       }
     }
   });
-  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
-    </nav></aside>
+  </script></main>
 </div>
 
 

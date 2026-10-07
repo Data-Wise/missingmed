@@ -115,8 +115,8 @@ R2[“run()<br>reweight complete cases”] R1 –&gt;
 F[“MDMediationFit<br>list of m named MediationData”] R2 –&gt; F F
 –&gt;|“pool()”| P[“MDMediationResult<br>pooled named MediationData”] P
 –&gt;|“infer(type = mc)”| C1[“RMediation::ci_mediation_data()”] F
-–&gt;|“infer(type = mbco)”| C2[“hosted D4 stacking<br>R/mbco_mi.R”]
-–&gt;</p>
+–&gt;|“infer(type = mbco)”| C2[“D4 stacking,
+R/mbco_mi.R<br>MbcoMIResult”] –&gt;</p>
 <!-- LaTeX equivalent of the diagram above, for a PDF build:
 \begin{tikzpicture}[node distance=2.2cm, every node/.style={font=\small},
   box/.style={draw, rounded corners, align=center, inner sep=4pt}]
@@ -124,7 +124,7 @@ F[“MDMediationFit<br>list of m named MediationData”] R2 –&gt; F F
   \node[box, right=of A] (F) {\texttt{run()}\\\textbf{MDMediationFit}};
   \node[box, right=of F] (P) {\texttt{pool()}\\\textbf{MDMediationResult}};
   \node[box, right=of P] (C) {\texttt{infer(type="mc")}\\RMediation};
-  \node[box, below=1.4cm of P] (M) {\texttt{infer(type="mbco")}\\hosted D4};
+  \node[box, below=1.4cm of P] (M) {\texttt{infer(type="mbco")}\\\textbf{MbcoMIResult}};
   \draw[->] (A) -- (F); \draw[->] (F) -- (P); \draw[->] (P) -- (C);
   \draw[->] (F) -- (M) node[midway, sloped, above, font=\tiny]{per-imputation};
 \end{tikzpicture}
@@ -160,6 +160,20 @@ F[“MDMediationFit<br>list of m named MediationData”] R2 –&gt; F F
 <strong>pooled</strong> named <code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code> +
 within/between/total vcov</td>
 <td><code>PooledSEMResults</code></td>
+</tr>
+<tr class="even">
+<td><code>MbcoMIResult</code></td>
+<td>D4-stacked MBCO test: numeric <code>c(D4, p, r4, nu, d_S)</code>
+(parent <code>class_double</code>) + <code>ariv</code>, <code>k</code>,
+<code>m</code> and branch diagnostics</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td><code>MDSensitivityResult</code></td>
+<td>MNAR sensitivity curve: one inference result per <code>delta</code>
+rung + realized <code>msp</code>
+</td>
+<td>—</td>
 </tr>
 </tbody>
 </table>

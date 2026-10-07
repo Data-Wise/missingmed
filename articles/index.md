@@ -14,5 +14,5 @@
 
 ### Developer
 
-- [Mediation Package Documentat Classes and
-  Methods](https://data-wise.github.io/missingmed/articles/classes_methods.md):
+- [S7 classes and
+  methods](https://data-wise.github.io/missingmed/articles/classes_methods.md):
