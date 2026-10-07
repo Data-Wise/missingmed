@@ -6,7 +6,7 @@ updated: 2026-10-07
 next: v0.5.0 RELEASED 2026-10-07 (tag v0.5.0 on 397cd3c, GitHub release
   published 22:26Z). CONFIRM r-universe serves 0.5.0 (served 0.4.0 at 22:27Z):
   curl -s https://data-wise.r-universe.dev/api/packages/missingmed | jq .Version
-  Then: bump dev to 0.5.0.9000; pin ariv in the manuscript's worked example
+  dev bumped to 0.5.0.9000. Then: pin ariv in the manuscript's worked example
   (research repo, its own session); fix #20 (pool() on X:M models) so the
   mbco-mi vignette's X:M section can show the MC interval; S7 SEM engine
   (docs/specs/SPEC-s7-sem-engine-2026-09-23.md; Q1-Q4 grilled, section 4
@@ -25,7 +25,7 @@ worktrees:
     feature/s7-dev-article, feature/ariv-fixed, feature/ariv-rank-guard,
     feature/vignette-mbco-mi, claude/affectionate-wozniak-46b84f,
     claude/vigilant-shaw-3f3543. docs/ipw-phase1-spec deleted on origin after
-    PR #26 landed its spec (local copy pending a manual `git branch -D`).
+    PR #26 landed its spec; local copy deleted too.
   2026-09-23: feature-narfcs-leftovers REMOVED after PR #15 merged (local tip
     == remote tip == PR head fd75a3d; merge 65f8052 on dev). Local and remote
     branch deleted.
