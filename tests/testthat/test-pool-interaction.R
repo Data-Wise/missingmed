@@ -84,7 +84,7 @@ test_that("the MC interval targets a * (b + theta3 * x)", {
 
 test_that("treatment_level is refused on a model without X:M", {
   set.seed(3)
-  n <- 200
+  n <- 250
   d <- data.frame(X = rnorm(n), C = rnorm(n))
   d$M <- 0.4 * d$X + 0.3 * d$C + rnorm(n)
   d$Y <- 0.3 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
@@ -104,6 +104,19 @@ test_that("print(), summary() and tidy() report the X:M indirect effect", {
   expect_output(print(xm_fit), "at X = 0")
   tt <- tidy(xm_res)
   expect_true(all(c("theta3", "b0") %in% tt$term))
+})
+
+test_that("sensitivity_mnar(type = 'mc') passes treatment_level through", {
+  md <- xm_fit@source
+  expect_error(
+    suppressMessages(sensitivity_mnar(md, delta = 0, type = "mc", n.mc = 1e3)),
+    "treatment_level"
+  )
+  sens <- suppressMessages(sensitivity_mnar(md,
+    delta = c(0, 0.5), type = "mc", n.mc = 1e3, treatment_level = 1
+  ))
+  expect_length(sens@rungs, 2)
+  expect_identical(sens@rungs[[1]]$Estimand, "a * (b + theta3 * 1)")
 })
 
 test_that("MBCO is unchanged on the same X:M fit", {

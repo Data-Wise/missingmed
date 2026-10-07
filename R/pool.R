@@ -6,6 +6,9 @@
 #' [MDMediationResult]). Because the estimates and variance-covariance carry the
 #' mediation path names (`a`, `b`, `c_prime`, ...), the pooled object is valid
 #' input to [RMediation::ci_mediation_data()] / [RMediation::medci()].
+#' For a model with a treatment-by-mediator interaction, use
+#' [infer()]`(type = "mc", treatment_level = )` instead: those RMediation
+#' functions use only \eqn{a b}, the indirect effect at treatment level 0.
 #'
 #' Pooling math (migrated from the S4 `pool_sem` / `pool_tidy` / `pool_cov`):
 #' \deqn{\bar Q = \frac{1}{m}\sum_i Q_i, \quad \bar U = \frac{1}{m}\sum_i U_i,

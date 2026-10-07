@@ -22,6 +22,9 @@ pooled named \link[medfit:MediationData]{medfit::MediationData} (the \code{poole
 \link{MDMediationResult}). Because the estimates and variance-covariance carry the
 mediation path names (\code{a}, \code{b}, \code{c_prime}, ...), the pooled object is valid
 input to \code{\link[RMediation:ci_mediation_data]{RMediation::ci_mediation_data()}} / \code{\link[RMediation:medci]{RMediation::medci()}}.
+For a model with a treatment-by-mediator interaction, use
+\code{\link[=infer]{infer()}}\verb{(type = "mc", treatment_level = )} instead: those RMediation
+functions use only \eqn{a b}, the indirect effect at treatment level 0.
 }
 \details{
 Pooling math (migrated from the S4 \code{pool_sem} / \code{pool_tidy} / \code{pool_cov}):

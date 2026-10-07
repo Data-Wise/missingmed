@@ -62,7 +62,9 @@
 #' @param type Inference per rung: `"mc"` (default) or `"mbco"`.
 #' @param seed Integer seed pinned across rungs. Defaults to the seed stored in
 #'   the `mids` object, or `20260822L` when that is `NA`.
-#' @param level,n.mc Passed to [infer()].
+#' @param level,n.mc,treatment_level Passed to [infer()] for `type = "mc"`.
+#'   `treatment_level` is required when the outcome model has a
+#'   treatment-by-mediator interaction and an error otherwise.
 #' @param ums Optional character vector for a **covariate-varying** delta, one
 #'   rung per string, passed verbatim to `mice`'s NARFCS `ums` (e.g.
 #'   `"1 + 0.5*C"`: the offset is 1 + 0.5 C per row). Each string needs exactly
@@ -77,7 +79,7 @@
 sensitivity_mnar <- function(object, delta, target = NULL,
                              type = c("mc", "mbco"), seed = NULL,
                              level = NULL, n.mc = 1e5,
-                             ums = NULL, ...) {
+                             ums = NULL, treatment_level = NULL, ...) {
   type <- match.arg(type)
   if (!S7::S7_inherits(object, MDMediationData)) {
     stop("`object` must be an MDMediationData (from set_md_mediation()).",
@@ -209,7 +211,8 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     obj_i@mechanism <- "mnar"
     fit_i <- run(obj_i, ...)
     rungs[[i]] <- if (type == "mc") {
-      infer(pool(fit_i), type = "mc", level = level, n.mc = n.mc)
+      infer(pool(fit_i), type = "mc", level = level, n.mc = n.mc,
+        treatment_level = treatment_level)
     } else {
       infer(fit_i, type = "mbco")
     }
