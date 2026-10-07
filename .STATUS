@@ -2,18 +2,22 @@ status: active
 priority: --
 progress: 100
 kind: package
-updated: 2026-09-23
-next: v0.4.0 SHIPPED 2026-09-23 -- release PR #17 merged to main (adb6259,
-  merge commit), CI green on main (R-CMD-check + pkgdown), tag v0.4.0, GitHub
-  release published, and r-universe serves 0.4.0 built from adb6259
-  (confirmed 2026-09-24 00:39Z). dev is 0.4.0.9000. Next: v0.5.0 S7 SEM
-  engine (docs/specs/SPEC-s7-sem-engine-2026-09-23.md; Q1-Q4 grilled, section 4
-  open) -> v0.6.0 remove the S4 API (drops OpenMx) -> 1.0.0 CRAN. Before CRAN:
-  DESCRIPTION's Description: still says "Provides S4 classes". OPEN QUESTION for
-  upstream: whether medfit's sandwich stacks the weight-model score (RRZ 1994).
-  Manuscript runs on medsim, not missingmed.
+updated: 2026-10-07
+next: Issue #19 DONE 2026-10-07 -- PR #21 merged to dev (13aa37c, squash):
+  infer(type = "mbco", ariv = c("fixed", "own")), default "fixed"; exported
+  mbco_d4(); new S7 result class MbcoMIResult. Unreleased; dev is 0.4.0.9000.
+  Next: release v0.5.0 (dev -> main) so r-universe serves ariv, then pin
+  ariv in the manuscript's worked example (research repo, its own session).
+  Then the S7 SEM engine (docs/specs/SPEC-s7-sem-engine-2026-09-23.md; Q1-Q4
+  grilled, section 4 open) -> remove the S4 API (drops OpenMx) -> 1.0.0 CRAN.
+  Before CRAN: DESCRIPTION's Description: still says "Provides S4 classes".
+  OPEN QUESTION for upstream: whether medfit's sandwich stacks the
+  weight-model score (RRZ 1994). Manuscript runs on medsim, not missingmed.
 type: r
 worktrees:
+  2026-10-07: sad-bell-54d993 (~/.worktree/missingmed, app-made) still holds
+    local feature/ariv-fixed at 98257f0 == PR #21 head. Remote branch
+    deleted after the merge. Safe to remove the worktree and local branch.
   2026-09-23: feature-narfcs-leftovers REMOVED after PR #15 merged (local tip
     == remote tip == PR head fd75a3d; merge 65f8052 on dev). Local and remote
     branch deleted.
@@ -39,6 +43,23 @@ worktrees:
 # Scope decided 2026-06-04 (Data-Wise/missingmed#1): general CRAN-targeted toolkit —
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
+
+## Unreleased (dev, 0.4.0.9000)
+- 2026-10-07 (merged): PR #21 feature/ariv-fixed -> dev (13aa37c, squash),
+  closes #19. infer(type = "mbco") gains ariv = c("fixed", "own"), default
+  "fixed": each imputation's statistic is recomputed on the stacked fit's
+  branch before forming r4 (ported from medsim 0.5.1). "own" is bit-identical
+  to 0.4.0 and keeps the different-k refusal; "fixed" uses the stacked k with
+  a design-rank guard. New exported mbco_d4(implist, ...) and S7 class
+  MbcoMIResult (parent class_double; `[`, `[[`, print, tidy; properties ariv,
+  k, m, stacked_branch, branch_mix, p_branch_a). K = 1 still errors. The
+  TODO(rmediation) note is retired: D4-MBCO under MI lives in missingmed.
+  sensitivity_mnar(type = "mbco") now uses the fixed default too.
+  Tests: medsim 0.5.1 fixture on synthetic data (data-raw/, no medsim dep),
+  rel 1e-10 with Inf == Inf; "own" identity checked against the pre-#19 code
+  in tests/testthat/helper-legacy-mbco.R. devtools::test 120 tests / 448
+  expectations, 0 fail/skip/warn; check --as-cran 0/0/0; CI green.
+  S7 gotchas recorded in R/MbcoMIResult.R and R/methods-output.R comments.
 
 ## v0.4.0 RELEASED -- 2026-09-23
 - 2026-09-23 (release): PR #17 dev -> main (adb6259, merge commit). Tag
