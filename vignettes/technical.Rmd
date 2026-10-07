@@ -420,11 +420,12 @@ a deflation factor.
 
 ## 4.3 Hosting decision
 
-`RMediation::mbco()` is OpenMx-only with no MI entry point, so the D4 machinery
-is **hosted in missingmed** (`R/mbco_mi.R`), ported from the Missing-Effect
-research prototype. It reproduces the prototype **exactly** (max abs diff
-\(\approx 5\times10^{-11}\) across design cells). When `RMediation` gains an MI
-entry point, this code should move upstream (`TODO` noted in source).
+D4-MBCO under multiple imputation **lives in missingmed** (`R/mbco_mi.R`), and
+`RMediation` keeps complete-data MBCO (author decision, 2026-10-07; issue #19).
+The code was ported from the Missing-Effect research prototype and reproduces
+it **exactly** (max abs diff \(\approx 5\times10^{-11}\) across design cells).
+The exported `mbco_d4()` runs the same test on a plain list of completed data
+frames, so other packages can call it directly.
 
 ---
 

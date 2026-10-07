@@ -178,3 +178,32 @@ S7::method(tidy, MDSensitivityResult) <- function(x, ...) {
   base$scale <- paste(x@scale, collapse = ",")
   tibble::as_tibble(base)
 }
+
+# print(<MbcoMIResult>). Registered on base::print, not the namespace's
+# `print`: import(OpenMx) makes that an S4 generic, and MbcoMIResult cannot be
+# S4_register()ed (see R/MbcoMIResult.R). The S4 default falls through to
+# base::print's S3 dispatch.
+S7::`method<-`(base::print, MbcoMIResult, value = function(x, ...) {
+  v <- S7::S7_data(x)
+  cat("<MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m =", x@m, "imputations)\n")
+  cat("  D4 =", format(v[["D4"]], digits = 4), "on F(", sep = " ")
+  cat(x@k, ", ", format(v[["nu"]], digits = 4), "), p = ",
+    format.pval(v[["p"]], digits = 4), "\n", sep = "")
+  cat("  r4 =", format(v[["r4"]], digits = 4), paste0("(ariv = \"", x@ariv, "\")"),
+    "| d_S =", format(v[["d_S"]], digits = 4), "\n")
+  cat("  stacked constrained fit:", paste0(x@stacked_branch, " = 0"), "branch\n")
+  cat("  imputations on the a = 0 branch: ", format(100 * x@p_branch_a, digits = 3),
+    "% (", if (x@branch_mix) "mixed" else "not mixed", ")\n", sep = "")
+  invisible(x)
+})
+
+# tidy(<MbcoMIResult>)  (broom::tidy, imported)
+S7::method(tidy, MbcoMIResult) <- function(x, ...) {
+  v <- S7::S7_data(x)
+  tibble::tibble(
+    term = "indirect", statistic = v[["D4"]], df1 = x@k, df2 = v[["nu"]],
+    p_value = v[["p"]], r4 = v[["r4"]], d_S = v[["d_S"]], ariv = x@ariv,
+    stacked_branch = x@stacked_branch, branch_mix = x@branch_mix,
+    p_branch_a = x@p_branch_a, m = x@m
+  )
+}
