@@ -3,16 +3,15 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-10-07
-next: Issue #19 DONE 2026-10-07 -- PR #21 merged to dev (13aa37c, squash):
-  infer(type = "mbco", ariv = c("fixed", "own")), default "fixed"; exported
-  mbco_d4(); new S7 result class MbcoMIResult. Unreleased; dev is 0.4.0.9000.
-  Next: release v0.5.0 (dev -> main) so r-universe serves ariv, then pin
-  ariv in the manuscript's worked example (research repo, its own session).
-  Then the S7 SEM engine (docs/specs/SPEC-s7-sem-engine-2026-09-23.md; Q1-Q4
-  grilled, section 4 open) -> remove the S4 API (drops OpenMx) -> 1.0.0 CRAN.
-  Before CRAN: DESCRIPTION's Description: still says "Provides S4 classes".
-  OPEN QUESTION for upstream: whether medfit's sandwich stacks the
-  weight-model score (RRZ 1994). Manuscript runs on medsim, not missingmed.
+next: v0.5.0 RELEASE IN PROGRESS 2026-10-07 -- bump committed on dev; release
+  PR dev -> main next, then tag v0.5.0 + GitHub release, then confirm
+  r-universe serves 0.5.0. After that: bump dev to 0.5.0.9000; pin ariv in
+  the manuscript's worked example (research repo, its own session); S7 SEM
+  engine (docs/specs/SPEC-s7-sem-engine-2026-09-23.md; Q1-Q4 grilled,
+  section 4 open) -> remove the S4 API (drops OpenMx) -> 1.0.0 CRAN. Before
+  CRAN: DESCRIPTION's Description: still says "Provides S4 classes". OPEN
+  QUESTION for upstream: whether medfit's sandwich stacks the weight-model
+  score (RRZ 1994). Manuscript runs on medsim, not missingmed.
 type: r
 worktrees:
   2026-10-07: sad-bell-54d993 (~/.worktree/missingmed, app-made) still holds
@@ -44,7 +43,26 @@ worktrees:
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
-## Unreleased (dev, 0.4.0.9000)
+## v0.5.0 -- release bump 2026-10-07
+- 2026-10-07 (bump): DESCRIPTION 0.5.0 (Date 2026-10-07); NEWS heading
+  "missingmed 0.5.0", its Bug fixes bullet reworded to the user-visible
+  change (k is a rank difference; differs from 0.4.0 only on aliased
+  designs); CLAUDE.md v0.5.0; mbco-mi vignette "default since 0.5.0"; README
+  drops the stale "non-CRAN deps" note. Gate on the bumped tree: check
+  --as-cran Status OK (0/0/0, vignettes rebuilt), devtools::test 122 tests /
+  459 expectations, 0 fail/skip/warn; dev/e2e-narfcs.R 7/7.
+- 2026-10-07 (merged): PR #24 feature/vignette-mbco-mi -> dev (7c8df62):
+  mbco-mi vignette retitled "Testing an indirect effect with incomplete
+  data" and expanded into a worked guide.
+- 2026-10-07 (merged): PR #23 feature/s7-dev-article -> dev (5284b18): the
+  pkgdown Developer article classes_methods.qmd rewritten around the S7
+  classes (property and method tables generated at build time); stale S4
+  PlantUML source dropped.
+- 2026-10-07 (merged): PR #22 feature/ariv-rank-guard -> dev (2c06edb): the
+  ariv = "fixed" guard compares k, not design ranks; .mm_drop_df() is a rank
+  difference under both ariv values.
+- 2026-10-07 (docs, 34720c9): CLAUDE.md and technical.Rmd document
+  MbcoMIResult, ariv and mbco_d4().
 - 2026-10-07 (merged): PR #21 feature/ariv-fixed -> dev (13aa37c, squash),
   closes #19. infer(type = "mbco") gains ariv = c("fixed", "own"), default
   "fixed": each imputation's statistic is recomputed on the stacked fit's

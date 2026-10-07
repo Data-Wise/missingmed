@@ -38,7 +38,7 @@ install.packages(
 )
 ```
 
-Or the development version from GitHub (also pulls the non-CRAN deps):
+Or the development version from GitHub:
 
 ```r
 # install.packages("pak")

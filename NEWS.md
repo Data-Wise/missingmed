@@ -1,4 +1,4 @@
-# missingmed (development version)
+# missingmed 0.5.0
 
 ## New features
 
@@ -42,11 +42,12 @@
 
 ## Bug fixes
 
-* The `ariv = "fixed"` guard in `infer(type = "mbco")` / `mbco_d4()`
-  compared design ranks instead of `k`, so a factor level absent from some
-  imputations wrongly errored even when `k` was the same everywhere; it now
-  errors only when `k` differs, and `k` is now a rank difference under both
-  `ariv` values (unchanged on full-rank designs).
+* The MBCO constraint's `k` (the numerator df of the D4 test) is now a rank
+  difference, `rank(full) - rank(null)`, under both `ariv` values, instead of
+  a column count. Nothing changes on full-rank designs. On a design with
+  aliased columns, such as a factor level absent from the data, 0.4.0
+  overcounted `k`, so `ariv = "own"` can now give a smaller `k` than 0.4.0 did
+  there.
 
 ## Documentation
 
