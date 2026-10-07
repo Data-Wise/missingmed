@@ -154,9 +154,9 @@
 # ariv = "own" pools each imputation's statistic on its OWN winning branch
 # (standard Chan & Meng r4) and refuses when the branches remove different
 # numbers of parameters. ariv = "fixed" recomputes every per-imputation
-# statistic on the branch the STACKED constrained fit selected, so branch
-# disagreement across imputations cannot pull dbar, and hence r4, down; d_S is
-# the same under both. Both null fits are run in every imputation either way,
+# statistic on the branch the STACKED constrained fit selected, so every
+# imputation tests the same constraint with the same k; d_S is the same under
+# both. Both null fits are run in every imputation either way,
 # because the branch diagnostics (branch_mix, p_branch_a) need each
 # imputation's own winner.
 .mm_d4_mbco <- function(implist, formula_y, formula_m, family_y, family_m,
