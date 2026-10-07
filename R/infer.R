@@ -21,7 +21,7 @@
 #'   (Monte-Carlo draws for `"mc"`, default `1e5`), and `ariv` (for `"mbco"`:
 #'   `"fixed"` (default) tests every imputation on the branch the stacked
 #'   constrained fit chose; `"own"` uses each imputation's own winning branch
-#'   and reproduces missingmed 0.4.0; see [mbco_d4()]).
+#'   and reproduces missingmed 0.4.0 on full-rank designs; see [mbco_d4()]).
 #' @return For `"mc"`, the list returned by [RMediation::ci_mediation_data()].
 #'   For `"mbco"`, an [MbcoMIResult]: the named numeric `c(D4, p, r4, nu, d_S)`
 #'   (index it with `r["p"]` or `r[["p"]]`) with the branch diagnostics as

@@ -17,7 +17,7 @@ object's \verb{@conf_level}, itself \code{0.95} unless set in \code{\link[=set_m
 (Monte-Carlo draws for \code{"mc"}, default \code{1e5}), and \code{ariv} (for \code{"mbco"}:
 \code{"fixed"} (default) tests every imputation on the branch the stacked
 constrained fit chose; \code{"own"} uses each imputation's own winning branch
-and reproduces missingmed 0.4.0; see \code{\link[=mbco_d4]{mbco_d4()}}).}
+and reproduces missingmed 0.4.0 on full-rank designs; see \code{\link[=mbco_d4]{mbco_d4()}}).}
 }
 \value{
 For \code{"mc"}, the list returned by \code{\link[RMediation:ci_mediation_data]{RMediation::ci_mediation_data()}}.
