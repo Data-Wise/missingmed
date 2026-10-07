@@ -9,7 +9,7 @@ missingmed pipeline, dispatching to one of two engines:"><meta property="og:imag
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,14 +63,19 @@ missingmed pipeline, dispatching to one of two engines:</p>
 <dd><p>Method arguments: <code>type</code> (inference type, <code>"mc"</code> (default) or
 <code>"mbco"</code>), <code>level</code> (confidence level for <code>"mc"</code>; defaults to the
 object's <code>@conf_level</code>, itself <code>0.95</code> unless set in <code><a href="set_md_mediation.html">set_md_mediation()</a></code>),
-and <code>n.mc</code>
-(Monte-Carlo draws for <code>"mc"</code>, default <code>1e5</code>).</p></dd>
+<code>n.mc</code>
+(Monte-Carlo draws for <code>"mc"</code>, default <code>1e5</code>), and <code>ariv</code> (for <code>"mbco"</code>:
+<code>"fixed"</code> (default) tests every imputation on the branch the stacked
+constrained fit chose; <code>"own"</code> uses each imputation's own winning branch
+and reproduces missingmed 0.4.0; see <code><a href="mbco_d4.html">mbco_d4()</a></code>).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>For <code>"mc"</code>, the list returned by <code><a href="https://data-wise.github.io/rmediation/reference/ci_mediation_data.html" class="external-link">RMediation::ci_mediation_data()</a></code>.
-For <code>"mbco"</code>, a named numeric vector <code>c(D4, p, r4, nu, d_S)</code>.</p>
+For <code>"mbco"</code>, an <a href="MbcoMIResult.html">MbcoMIResult</a>: the named numeric <code>c(D4, p, r4, nu, d_S)</code>
+(index it with <code>r["p"]</code> or <code>r[["p"]]</code>) with the branch diagnostics as
+properties.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -80,13 +85,39 @@ interval via <code><a href="https://data-wise.github.io/rmediation/reference/ci_
 named <a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a>.</p></li>
 <li><p><code>type = "mbco"</code> — <strong>D4-stacked MBCO</strong> likelihood-ratio test of
 \(H_0: a b = 0\), computed from the per-imputation datasets (MBCO does not
-commute with Rubin's rules; see <code><a href="per_imputation_list.html">per_imputation_list()</a></code>).</p></li>
+commute with Rubin's rules; see <code><a href="per_imputation_list.html">per_imputation_list()</a></code>). The engine is
+<code><a href="mbco_d4.html">mbco_d4()</a></code>; see there for <code>ariv</code>, the branch diagnostics and the cost.
+At least two imputations are required.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="run.html">run()</a></code>, <code><a href="pool.html">pool()</a></code>, <code><a href="per_imputation_list.html">per_imputation_list()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="run.html">run()</a></code>, <code><a href="pool.html">pool()</a></code>, <code><a href="per_imputation_list.html">per_imputation_list()</a></code>, <code><a href="mbco_d4.html">mbco_d4()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span></span></span>
+<span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, C <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">d</span><span class="op">$</span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">0.4</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">X</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">C</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">d</span><span class="op">$</span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">M</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">X</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">C</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">d</span><span class="op">$</span><span class="va">M</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">30</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span></span>
+<span class="r-in"><span><span class="va">d</span><span class="op">$</span><span class="va">Y</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">30</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span></span>
+<span class="r-in"><span><span class="va">imp</span> <span class="op">&lt;-</span> <span class="fu">mice</span><span class="fu">::</span><span class="fu"><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice</a></span><span class="op">(</span><span class="va">d</span>, m <span class="op">=</span> <span class="fl">3</span>, method <span class="op">=</span> <span class="st">"norm"</span>, printFlag <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="run.html">run</a></span><span class="op">(</span><span class="fu"><a href="set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">imp</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span></span>
+<span class="r-in"><span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span></span></span>
+<span class="r-in"><span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">infer</span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"mbco"</span>, ariv <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">r</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;MbcoMIResult&gt; D4-stacked MBCO test of H0: a*b = 0 (m = 3 imputations)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   D4 = 17.65 on F(1, 723.4), p = 2.985e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   r4 = 0.0555 (ariv = "fixed") | d_S = 18.63 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   stacked constrained fit: b = 0 branch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   imputations on the a = 0 branch: 0% (not mixed)</span>
+<span class="r-in"><span><span class="va">r</span><span class="op">[[</span><span class="st">"p"</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.985434e-05</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -347,13 +347,14 @@ list: $`\bar d`$ cannot be recovered from the pooled result alone.
 
 ### 4.3 Hosting decision
 
-[`RMediation::mbco()`](https://data-wise.github.io/rmediation/reference/mbco.html)
-is OpenMx-only with no MI entry point, so the D4 machinery is **hosted
-in missingmed** (`R/mbco_mi.R`), ported from the Missing-Effect research
-prototype. It reproduces the prototype **exactly** (max abs diff
-$`\approx 5\times10^{-11}`$ across design cells). When `RMediation`
-gains an MI entry point, this code should move upstream (`TODO` noted in
-source).
+D4-MBCO under multiple imputation **lives in missingmed**
+(`R/mbco_mi.R`), and `RMediation` keeps complete-data MBCO (author
+decision, 2026-10-07; issue \#19). The code was ported from the
+Missing-Effect research prototype and reproduces it **exactly** (max abs
+diff $`\approx 5\times10^{-11}`$ across design cells). The exported
+[`mbco_d4()`](https://data-wise.github.io/missingmed/reference/mbco_d4.md)
+runs the same test on a plain list of completed data frames, so other
+packages can call it directly.
 
 ------------------------------------------------------------------------
 

@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -104,7 +104,7 @@
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pool.html">pool</a></span><span class="op">(</span><span class="fu"><a href="reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/infer.html">infer</a></span><span class="op">(</span><span class="va">res</span>, type <span class="op">=</span> <span class="st">"mc"</span><span class="op">)</span>    <span class="co"># Monte-Carlo CI for the indirect effect</span></span>
-<span><span class="fu"><a href="reference/infer.html">infer</a></span><span class="op">(</span><span class="fu"><a href="reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"mbco"</span><span class="op">)</span>  <span class="co"># D4-stacked MBCO test of H0: ab = 0</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/infer.html">infer</a></span><span class="op">(</span><span class="fu"><a href="reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"mbco"</span>, ariv <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span>  <span class="co"># D4-stacked MBCO test of H0: ab = 0</span></span></code></pre></div>
 <p>Inverse-probability weighting takes a raw <code>data.frame</code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">md_ipw</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>

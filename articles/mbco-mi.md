@@ -45,9 +45,65 @@ imp <- mice::mice(d, m = 20, method = "norm", printFlag = FALSE)
 fit <- run(set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
   treatment = "X", mediator = "M"))
 
-infer(fit, type = "mbco")
-#>          D4           p          r4          nu         d_S 
-#>   0.1745614   0.6762864   0.1995802 454.9648684   0.2094004
+infer(fit, type = "mbco", ariv = "fixed")
+#> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)
+#>   D4 = 0.1746 on F(1, 455), p = 0.6763
+#>   r4 = 0.1996 (ariv = "fixed") | d_S = 0.2094 
+#>   stacked constrained fit: b = 0 branch
+#>   imputations on the a = 0 branch: 0% (not mixed)
+```
+
+## Which branch feeds $`r_4`$: the `ariv` argument
+
+Each imputation’s statistic has its own winning branch, and the
+imputations need not agree. `ariv` decides which statistics enter
+$`\bar d`$, and so $`r_4`$:
+
+- `ariv = "fixed"` (the default) recomputes every imputation’s statistic
+  on the branch the **stacked** constrained fit chose. All imputations
+  then test the same constraint, with the same $`k`$.
+- `ariv = "own"` uses each imputation’s own winning branch, the standard
+  Chan & Meng $`r_4`$. It reproduces missingmed 0.4.0, and it refuses to
+  pool when the winning branches remove different numbers of parameters
+  (for example, with an `X:M` term in the outcome model).
+
+The result records the branch diagnostics:
+
+``` r
+
+r_fixed <- infer(fit, type = "mbco", ariv = "fixed")
+r_fixed@stacked_branch # "a" (a = 0) or "b" (b = 0)
+#> [1] "b"
+r_fixed@branch_mix # do the imputations disagree on their own branch?
+#> [1] FALSE
+r_fixed@p_branch_a # share of imputations whose own branch is a = 0
+#> [1] 0
+tidy(r_fixed)
+#> # A tibble: 1 × 12
+#>   term     statistic   df1   df2 p_value    r4   d_S ariv  stacked_branch
+#>   <chr>        <dbl> <dbl> <dbl>   <dbl> <dbl> <dbl> <chr> <chr>         
+#> 1 indirect     0.175     1  455.   0.676 0.200 0.209 fixed b             
+#> # ℹ 3 more variables: branch_mix <lgl>, p_branch_a <dbl>, m <int>
+```
+
+When no imputation disagrees with the stacked fit, the two agree.
+Reporting the diagnostics needs both single-path null fits in every
+imputation, which is why each imputation is fit three times.
+
+The same test runs on any list of completed data frames, without the
+pipeline:
+
+``` r
+
+implist <- mice::complete(imp, "all")
+mbco_d4(implist, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M", ariv = "fixed"
+)
+#> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)
+#>   D4 = 0.1746 on F(1, 455), p = 0.6763
+#>   r4 = 0.1996 (ariv = "fixed") | d_S = 0.2094 
+#>   stacked constrained fit: b = 0 branch
+#>   imputations on the a = 0 branch: 0% (not mixed)
 ```
 
 The per-imputation fits MBCO needs are available directly:

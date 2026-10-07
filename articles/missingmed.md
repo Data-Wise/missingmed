@@ -145,9 +145,12 @@ for why pooling does not commute with MBCO):
 
 ``` r
 
-infer(fit, type = "mbco")
-#>           D4            p           r4           nu          d_S 
-#> 2.496516e+01 1.428789e-06 3.818416e-01 1.716563e+02 3.449790e+01
+infer(fit, type = "mbco", ariv = "fixed")
+#> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)
+#>   D4 = 24.97 on F(1, 171.7), p = 1.429e-06
+#>   r4 = 0.3818 (ariv = "fixed") | d_S = 34.5 
+#>   stacked constrained fit: b = 0 branch
+#>   imputations on the a = 0 branch: 0% (not mixed)
 ```
 
 ## A binary mediator (or outcome)

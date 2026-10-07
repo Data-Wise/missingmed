@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -116,11 +116,71 @@ D_4 = \frac{d_S}{k(1 + r_4)} \sim F_{k,\nu}.
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">imp</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
 <span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"mbco"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          D4           p          r4          nu         d_S </span></span>
-<span><span class="co">#&gt;   0.1745614   0.6762864   0.1995802 454.9648684   0.2094004</span></span></code></pre></div>
-<p>The per-imputation fits MBCO needs are available directly:</p>
+<span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"mbco"</span>, ariv <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;MbcoMIResult&gt; D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)</span></span>
+<span><span class="co">#&gt;   D4 = 0.1746 on F(1, 455), p = 0.6763</span></span>
+<span><span class="co">#&gt;   r4 = 0.1996 (ariv = "fixed") | d_S = 0.2094 </span></span>
+<span><span class="co">#&gt;   stacked constrained fit: b = 0 branch</span></span>
+<span><span class="co">#&gt;   imputations on the a = 0 branch: 0% (not mixed)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="which-branch-feeds-r_4-the-ariv-argument">Which branch feeds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mn>4</mn></msub><annotation encoding="application/x-tex">r_4</annotation></semantics></math>:
+the <code>ariv</code> argument<a class="anchor" aria-label="anchor" href="#which-branch-feeds-r_4-the-ariv-argument"></a>
+</h2>
+<p>Each imputation’s statistic has its own winning branch, and the
+imputations need not agree. <code>ariv</code> decides which statistics
+enter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>d</mi><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar d</annotation></semantics></math>,
+and so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mn>4</mn></msub><annotation encoding="application/x-tex">r_4</annotation></semantics></math>:</p>
+<ul>
+<li>
+<code>ariv = "fixed"</code> (the default) recomputes every
+imputation’s statistic on the branch the <strong>stacked</strong>
+constrained fit chose. All imputations then test the same constraint,
+with the same
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>.</li>
+<li>
+<code>ariv = "own"</code> uses each imputation’s own winning branch,
+the standard Chan &amp; Meng
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mn>4</mn></msub><annotation encoding="application/x-tex">r_4</annotation></semantics></math>.
+It reproduces missingmed 0.4.0, and it refuses to pool when the winning
+branches remove different numbers of parameters (for example, with an
+<code>X:M</code> term in the outcome model).</li>
+</ul>
+<p>The result records the branch diagnostics:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">r_fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"mbco"</span>, ariv <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span></span>
+<span><span class="va">r_fixed</span><span class="op">@</span><span class="va">stacked_branch</span> <span class="co"># "a" (a = 0) or "b" (b = 0)</span></span>
+<span><span class="co">#&gt; [1] "b"</span></span>
+<span><span class="va">r_fixed</span><span class="op">@</span><span class="va">branch_mix</span> <span class="co"># do the imputations disagree on their own branch?</span></span>
+<span><span class="co">#&gt; [1] FALSE</span></span>
+<span><span class="va">r_fixed</span><span class="op">@</span><span class="va">p_branch_a</span> <span class="co"># share of imputations whose own branch is a = 0</span></span>
+<span><span class="co">#&gt; [1] 0</span></span>
+<span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">r_fixed</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 12</span></span></span>
+<span><span class="co">#&gt;   term     statistic   df1   df2 p_value    r4   d_S ariv  stacked_branch</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> indirect     0.175     1  455.   0.676 0.200 0.209 fixed b             </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3 more variables: branch_mix &lt;lgl&gt;, p_branch_a &lt;dbl&gt;, m &lt;int&gt;</span></span></span></code></pre></div>
+<p>When no imputation disagrees with the stacked fit, the two agree.
+Reporting the diagnostics needs both single-path null fits in every
+imputation, which is why each imputation is fit three times.</p>
+<p>The same test runs on any list of completed data frames, without the
+pipeline:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">implist</span> <span class="op">&lt;-</span> <span class="fu">mice</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/complete.html" class="external-link">complete</a></span><span class="op">(</span><span class="va">imp</span>, <span class="st">"all"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/mbco_d4.html">mbco_d4</a></span><span class="op">(</span><span class="va">implist</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, ariv <span class="op">=</span> <span class="st">"fixed"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;MbcoMIResult&gt; D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)</span></span>
+<span><span class="co">#&gt;   D4 = 0.1746 on F(1, 455), p = 0.6763</span></span>
+<span><span class="co">#&gt;   r4 = 0.1996 (ariv = "fixed") | d_S = 0.2094 </span></span>
+<span><span class="co">#&gt;   stacked constrained fit: b = 0 branch</span></span>
+<span><span class="co">#&gt;   imputations on the a = 0 branch: 0% (not mixed)</span></span></code></pre></div>
+<p>The per-imputation fits MBCO needs are available directly:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">acc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/per_imputation_list.html">per_imputation_list</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="va">acc</span><span class="op">$</span><span class="va">m</span></span>
 <span><span class="co">#&gt; [1] 20</span></span>
@@ -128,7 +188,7 @@ D_4 = \frac{d_S}{k(1 + r_4)} \sim F_{k,\nu}.
 <span><span class="co">#&gt; [1] 20</span></span></code></pre></div>
 <p>Asking for MBCO on the <em>pooled</em> result is an error by
 design:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"mbco"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;">:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> MBCO does not commute with Rubin's rules; it needs the per-imputation fits. Call infer(type = "mbco") on the MDMediationFit from run(), not on the pooled MDMediationResult.</span></span></code></pre></div>

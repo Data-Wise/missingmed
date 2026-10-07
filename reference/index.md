@@ -12,6 +12,8 @@ The S7 mediation-with-missing-data workflow.
   Pool per-imputation mediation fits with Rubin's rules
 - [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md)
   : Inference on the indirect effect under multiple imputation
+- [`mbco_d4()`](https://data-wise.github.io/missingmed/reference/mbco_d4.md)
+  : D4-stacked MBCO test of an indirect effect across imputed datasets
 
 ## Sensitivity analysis
 
@@ -41,6 +43,8 @@ curves.
   : MDMediationResult: pooled mediation result (S7)
 - [`MDSensitivityResult()`](https://data-wise.github.io/missingmed/reference/MDSensitivityResult.md)
   : MDSensitivityResult: MNAR sensitivity curve (S7)
+- [`MbcoMIResult()`](https://data-wise.github.io/missingmed/reference/MbcoMIResult.md)
+  : MbcoMIResult: D4-stacked MBCO test result (S7)
 
 ## Tidiers
 
