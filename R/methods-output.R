@@ -21,13 +21,32 @@ S7::method(print, MDMediationData) <- function(x, ...) {
   invisible(x)
 }
 
+# Does a (pooled or per-imputation) medfit object carry an X:M term?
+.has_xm <- function(d) S7::S7_inherits(d, medfit::InteractionMediationData)
+
+# The pooled indirect-effect point estimate, as one line. With an X:M term the
+# indirect effect a * (b + theta3 * x) depends on the treatment level, so show
+# it at x = 0 and x = 1 (the pure and total natural indirect effects for a 0/1
+# treatment) instead of a single a*b.
+.indirect_line <- function(pooled) {
+  a <- pooled@a_path
+  b <- pooled@b_path
+  if (!.has_xm(pooled)) {
+    return(paste("indirect effect a*b =", round(a * b, 4)))
+  }
+  t3 <- pooled@interaction
+  paste0("indirect effect a*(b + theta3*x) = ", round(a * b, 4), " at x = 0, ",
+    round(a * (b + t3), 4), " at x = 1")
+}
+
 # print(<MDMediationFit>)
 S7::method(print, MDMediationFit) <- function(x, ...) {
   cat("<MDMediationFit>\n")
   cat("  per-imputation fits:", x@m, "named medfit::MediationData\n")
   cat("  engine:", x@engine, "\n")
   ab <- vapply(x@per_imputation, function(d) d@a_path * d@b_path, numeric(1))
-  cat("  per-imputation a*b: mean =", round(mean(ab), 4),
+  lab <- if (.has_xm(x@per_imputation[[1]])) "a*b (at X = 0)" else "a*b"
+  cat("  per-imputation", paste0(lab, ":"), "mean =", round(mean(ab), 4),
     "(range", round(min(ab), 4), "to", round(max(ab), 4), ")\n")
   cat("  -> pool() for Rubin's-rules estimates; infer() for CIs / MBCO\n")
   invisible(x)
@@ -36,11 +55,15 @@ S7::method(print, MDMediationFit) <- function(x, ...) {
 # print(<MDMediationResult>)
 S7::method(print, MDMediationResult) <- function(x, ...) {
   cat("<MDMediationResult> (pooled, Rubin's rules; m =", x@m, ")\n")
-  key <- x@tidy_table[x@tidy_table$term %in% c("a", "b", "c_prime"),
+  key <- x@tidy_table[x@tidy_table$term %in% c("a", "b", "c_prime", "theta3"),
     c("term", "estimate", "std_error")]
   print(key, row.names = FALSE)
-  cat("  indirect effect a*b =", round(x@pooled@a_path * x@pooled@b_path, 4), "\n")
-  cat("  -> infer(type = \"mc\") for the indirect-effect CI\n")
+  cat(" ", .indirect_line(x@pooled), "\n")
+  if (.has_xm(x@pooled)) {
+    cat("  -> infer(type = \"mc\", treatment_level = x) for the indirect-effect CI\n")
+  } else {
+    cat("  -> infer(type = \"mc\") for the indirect-effect CI\n")
+  }
   invisible(x)
 }
 
@@ -49,7 +72,7 @@ S7::method(summary, MDMediationResult) <- function(object, ...) {
   cat("Pooled mediation result (Rubin's rules)\n")
   cat("  imputations (m):", object@m, "| engine:", object@engine, "\n\n")
   print(object@tidy_table, row.names = FALSE)
-  cat("\n  a*b =", round(object@pooled@a_path * object@pooled@b_path, 4), "\n")
+  cat("\n ", .indirect_line(object@pooled), "\n")
   invisible(object@tidy_table)
 }
 

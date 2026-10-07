@@ -232,7 +232,7 @@ pred <- mice::make.predictorMatrix(d2)
 pred["M", "XM"] <- 0
 imp2 <- mice::mice(d2,
   m = 20, method = meth, predictorMatrix = pred,
-  seed = 3052, printFlag = FALSE
+  seed = 3053, printFlag = FALSE
 )
 
 fit2 <- run(set_md_mediation(imp2, Y ~ X * M + C, M ~ X + C,
@@ -251,9 +251,21 @@ defined; `res2@k` reports it.
 Under `ariv = "own"`, imputations whose own winning branches differ remove
 different numbers of parameters, and the test refuses to pool.
 
-The Monte Carlo interval, `infer(type = "mc")`, is **not yet available for
-models with an X:M interaction**; see
-[issue #20](https://github.com/Data-Wise/missingmed/issues/20).
+With an X:M term the indirect effect is \(a (b + \theta_3 x)\), where
+\(\theta_3\) is the X:M coefficient: the effect of a one-unit increase in
+`X` through `M`, with `X` held at \(x\) in the outcome model. It depends on
+\(x\), so the Monte Carlo interval needs `treatment_level`. For a 0/1
+treatment, `treatment_level = 1` gives the total natural indirect effect and
+`treatment_level = 0` the pure natural indirect effect:
+
+```{r interaction-mc}
+infer(fit2, type = "mc", treatment_level = 1)
+infer(fit2, type = "mc", treatment_level = 0)
+```
+
+Without `treatment_level`, `infer(type = "mc")` stops and asks for it. MBCO
+needs no such choice: its null, \(a = 0\) or \(b = \theta_3 = 0\), removes
+the indirect effect at every \(x\).
 
 ## Why MBCO does not commute with Rubin's rules
 
