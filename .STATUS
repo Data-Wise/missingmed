@@ -3,20 +3,29 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-10-07
-next: v0.5.0 RELEASE IN PROGRESS 2026-10-07 -- bump committed on dev; release
-  PR dev -> main next, then tag v0.5.0 + GitHub release, then confirm
-  r-universe serves 0.5.0. After that: bump dev to 0.5.0.9000; pin ariv in
-  the manuscript's worked example (research repo, its own session); S7 SEM
-  engine (docs/specs/SPEC-s7-sem-engine-2026-09-23.md; Q1-Q4 grilled,
-  section 4 open) -> remove the S4 API (drops OpenMx) -> 1.0.0 CRAN. Before
-  CRAN: DESCRIPTION's Description: still says "Provides S4 classes". OPEN
-  QUESTION for upstream: whether medfit's sandwich stacks the weight-model
-  score (RRZ 1994). Manuscript runs on medsim, not missingmed.
+next: v0.5.0 RELEASED 2026-10-07 (tag v0.5.0 on 397cd3c, GitHub release
+  published 22:26Z). CONFIRM r-universe serves 0.5.0 (served 0.4.0 at 22:27Z):
+  curl -s https://data-wise.r-universe.dev/api/packages/missingmed | jq .Version
+  Then: bump dev to 0.5.0.9000; pin ariv in the manuscript's worked example
+  (research repo, its own session); fix #20 (pool() on X:M models) so the
+  mbco-mi vignette's X:M section can show the MC interval; S7 SEM engine
+  (docs/specs/SPEC-s7-sem-engine-2026-09-23.md; Q1-Q4 grilled, section 4
+  open) -> remove the S4 API (drops OpenMx) -> 1.0.0 CRAN. Before CRAN:
+  DESCRIPTION's Description: still says "Provides S4 classes". OPEN QUESTION
+  for upstream: whether medfit's sandwich stacks the weight-model score (RRZ
+  1994). Manuscript runs on medsim, not missingmed.
 type: r
 worktrees:
-  2026-10-07: sad-bell-54d993 (~/.worktree/missingmed, app-made) still holds
-    local feature/ariv-fixed at 98257f0 == PR #21 head. Remote branch
-    deleted after the merge. Safe to remove the worktree and local branch.
+  2026-10-07: app-made worktrees sad-bell-54d993 (PR #21/#23 session),
+    vigilant-shaw-3f3543 (PR #22) and wonderful-curran-d50199 (PR #24)
+    REMOVED; the sad-bell and vigilant-shaw sessions archived. Their local
+    .token-optimizer stores are copied to the main checkout's
+    .token-optimizer/backup-<name>/. Local branches deleted after checking
+    each tip == its merged PR's head (or == main at adb6259):
+    feature/s7-dev-article, feature/ariv-fixed, feature/ariv-rank-guard,
+    feature/vignette-mbco-mi, claude/affectionate-wozniak-46b84f,
+    claude/vigilant-shaw-3f3543. docs/ipw-phase1-spec deleted on origin after
+    PR #26 landed its spec (local copy pending a manual `git branch -D`).
   2026-09-23: feature-narfcs-leftovers REMOVED after PR #15 merged (local tip
     == remote tip == PR head fd75a3d; merge 65f8052 on dev). Local and remote
     branch deleted.
@@ -43,7 +52,15 @@ worktrees:
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
-## v0.5.0 -- release bump 2026-10-07
+## v0.5.0 -- released 2026-10-07
+- 2026-10-07 (released): PR #25 dev -> main merged (397cd3c, merge commit)
+  after 4/4 checks; push CI on main green (R-CMD-check, pkgdown). Tag v0.5.0
+  on 397cd3c; GitHub release "missingmed 0.5.0", notes = the NEWS 0.5.0
+  section. Pre-merge review: versions consistent; leak grep clean on the
+  vignette, NEWS and PR body.
+- 2026-10-07 (merged): PR #26 feature/ipw-phase1-spec -> dev (1ea84bd,
+  squash): docs/specs/SPEC-ipw-phase1-2026-06-11.md landed unchanged from the
+  never-merged docs/ipw-phase1-spec branch (IPW itself shipped in 0.2.0).
 - 2026-10-07 (bump): DESCRIPTION 0.5.0 (Date 2026-10-07); NEWS heading
   "missingmed 0.5.0", its Bug fixes bullet reworded to the user-visible
   change (k is a rank difference; differs from 0.4.0 only on aliased
@@ -53,7 +70,12 @@ worktrees:
   459 expectations, 0 fail/skip/warn; dev/e2e-narfcs.R 7/7.
 - 2026-10-07 (merged): PR #24 feature/vignette-mbco-mi -> dev (7c8df62):
   mbco-mi vignette retitled "Testing an indirect effect with incomplete
-  data" and expanded into a worked guide.
+  data" and expanded into a worked guide (MC interval + D4-MBCO on one
+  synthetic fit; X:M model shown with MBCO only, pending #20). Grund, Ludtke &
+  Robitzsch cited as 2023, Psych Methods 28(5) (was the 2021 preprint), in
+  both vignettes and mbco_d4() docs. NEWS (#19 bullet, 0.2.0 entry) and the
+  R/mbco_mi.R D4 comment reworded to describe ariv mechanically. Leak grep
+  run on the .Rmd AND rendered HTML (computed output can match).
 - 2026-10-07 (merged): PR #23 feature/s7-dev-article -> dev (5284b18): the
   pkgdown Developer article classes_methods.qmd rewritten around the S7
   classes (property and method tables generated at build time); stale S4
