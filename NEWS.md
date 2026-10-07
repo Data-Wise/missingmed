@@ -15,8 +15,8 @@
     level of a factor that interacts with the treatment or mediator is absent
     from one imputation).
   * `"own"` uses each imputation's own winning branch and **reproduces earlier
-    results exactly**; it still refuses when the branches remove different
-    numbers of parameters.
+    results exactly on full-rank designs**; it still refuses when the branches
+    remove different numbers of parameters.
 
   Code that relied on the old behavior should pass `ariv = "own"`. The default
   changes results only when some imputation's own branch differs from the

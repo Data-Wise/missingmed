@@ -263,7 +263,9 @@
 #'   from one imputation). `k` is a difference of design-matrix ranks, so a
 #'   sparse level of a main-effect factor does not trigger it.
 #' * `"own"`: each imputation's statistic is computed on its own winning branch
-#'   (the standard Chan & Meng \eqn{r_4}). This reproduces missingmed 0.4.0.
+#'   (the standard Chan & Meng \eqn{r_4}). On full-rank designs this
+#'   reproduces missingmed 0.4.0; `k` is now a rank difference rather than a
+#'   column count, so a design with aliased columns gets a smaller `k`.
 #'   It errors when the winning branches remove different numbers of
 #'   parameters, since there is then no single `k`.
 #'
