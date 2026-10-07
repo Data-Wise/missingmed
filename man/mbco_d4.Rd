@@ -84,11 +84,10 @@ mbco_d4(implist, Y ~ X + M, M ~ X,
 }
 \references{
 Chan, K. W., & Meng, X.-L. (2022). Multiple improvements of multiple
-imputation likelihood ratio tests. \emph{Statistica Sinica}, 32, 1489--1514.
+imputation likelihood ratio tests. \emph{Statistica Sinica}.
 
 Grund, S., Lüdtke, O., & Robitzsch, A. (2021). Pooling methods for
-likelihood ratio tests in multiply imputed data sets. \emph{Psychological
-Methods}.
+likelihood-ratio tests with multiply imputed data. \emph{Psychological Methods}.
 }
 \seealso{
 \code{\link[=infer]{infer()}}, \link{MbcoMIResult}

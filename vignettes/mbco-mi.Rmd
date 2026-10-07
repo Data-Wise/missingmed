@@ -77,8 +77,6 @@ The result records the branch diagnostics:
 
 ```{r ariv}
 r_fixed <- infer(fit, type = "mbco", ariv = "fixed")
-r_own <- infer(fit, type = "mbco", ariv = "own")
-c(fixed = r_fixed[["p"]], own = r_own[["p"]])
 r_fixed@stacked_branch # "a" (a = 0) or "b" (b = 0)
 r_fixed@branch_mix # do the imputations disagree on their own branch?
 r_fixed@p_branch_a # share of imputations whose own branch is a = 0
