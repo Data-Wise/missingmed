@@ -48,10 +48,14 @@
 }
 
 # How many parameters does nulling `var` remove from `formula`? This is the
-# degrees of freedom of the corresponding branch of the constraint.
+# degrees of freedom of the corresponding branch of the constraint. It is a
+# difference of design RANKS, not column counts: a factor level absent from
+# `data` but kept in levels() leaves an all-zero column that glm() aliases, so
+# the column count overstates the parameters actually estimated. On a
+# full-rank design the two coincide.
 .mm_drop_df <- function(formula, var, data) {
-  full <- ncol(stats::model.matrix(formula, data = data))
-  full - ncol(stats::model.matrix(.mm_drop_path(formula, var), data = data))
+  rank_of <- function(f) qr(stats::model.matrix(f, data = data))$rank
+  rank_of(formula) - rank_of(.mm_drop_path(formula, var))
 }
 
 # RULING (2026-08-30, author): when the outcome model contains a
@@ -125,14 +129,6 @@
   c(T = .mm_mbco_T_from_lls(lls), k = k)
 }
 
-# Ranks of the full and the path-nulled design matrices of one submodel.
-.mm_branch_ranks <- function(d, formula, var) {
-  c(
-    full = qr(stats::model.matrix(formula, data = d))$rank,
-    null = qr(stats::model.matrix(.mm_drop_path(formula, var), data = d))$rank
-  )
-}
-
 # D4 pooling of a likelihood-ratio statistic (Chan & Meng 2022; Grund et al.
 # 2021). d_S = LRT on the stacked data / K (= LRT of the average log-lik).
 .mm_d4_from_stats <- function(d_k, d_S, k = 1) {
@@ -196,7 +192,8 @@
         "different imputations (", paste(sort(ks), collapse = " vs "), "), so the ",
         "D4 reference distribution is not well defined. This happens when the ",
         "winning branch of `max(a = 0, b = 0)` differs across imputations and the ",
-        "two paths carry different numbers of terms.",
+        "two paths carry different numbers of terms, or when a factor level that ",
+        "interacts with the treatment or mediator is absent from some imputations.",
         call. = FALSE
       )
     }
@@ -206,27 +203,29 @@
     d_k <- vapply(lls, function(l) 2 * (l[["full"]] - l[[key]]), numeric(1))
     d_S <- unname(.mm_mbco_T_from_lls(lls_S)) / K
     # Every imputation is tested on the stacked branch, so k is the stacked
-    # fit's. That is only one k if the branch's design has the same rank in
-    # every imputation -- a factor level present in the stacked data but absent
-    # from one imputation keeps its column and loses rank there.
+    # fit's. That is only one k if the branch removes the same number of
+    # parameters in every imputation. Equal design ranks are NOT required: a
+    # factor level absent from one imputation lowers the full and the nulled
+    # rank alike when the factor enters as a main effect, leaving k unchanged.
+    # k differs only when the sparse level interacts with the nulled path.
     f_br <- if (stacked_a) formula_m else formula_y
     v_br <- if (stacked_a) treatment else mediator
-    rk_S <- .mm_branch_ranks(stacked, f_br, v_br)
+    k_S <- .mm_drop_df(f_br, v_br, stacked)
     for (i in seq_len(K)) {
-      rk_i <- .mm_branch_ranks(implist[[i]], f_br, v_br)
-      if (!identical(rk_i, rk_S)) {
-        stop("Under ariv = \"fixed\", the ", if (stacked_a) "mediator" else "outcome",
-          " model's design matrix has rank ", rk_i[["full"]], " (full) and ",
-          rk_i[["null"]], " (", key, " = 0) in imputation ", i, ", but ",
-          rk_S[["full"]], " and ", rk_S[["null"]], " in the stacked data, so the ",
-          "constraint does not remove the same number of parameters everywhere. ",
-          "This happens, for example, when a factor level is absent from one ",
-          "imputation; drop or merge the sparse level.",
+      k_i <- .mm_drop_df(f_br, v_br, implist[[i]])
+      if (k_i != k_S) {
+        stop("Under ariv = \"fixed\", the ", key, " = 0 constraint removes ",
+          k_i, " parameter", if (k_i == 1) "" else "s", " from the ",
+          if (stacked_a) "mediator" else "outcome", " model in imputation ", i,
+          " but ", k_S, " in the stacked data, so there is no single k for the ",
+          "D4 reference distribution. This happens, for example, when a level of ",
+          "a factor that interacts with the ", if (stacked_a) "treatment" else "mediator",
+          " is absent from that imputation; drop or merge the sparse level.",
           call. = FALSE
         )
       }
     }
-    k <- as.numeric(rk_S[["full"]] - rk_S[["null"]])
+    k <- as.numeric(k_S)
   }
 
   MbcoMIResult(
@@ -258,9 +257,11 @@
 #'   (`a = 0` or `b = 0`) that the **stacked** constrained fit selected.
 #'   Imputations that disagree on the winning branch then cannot pull
 #'   \eqn{r_4} down, and every imputation uses the stacked fit's `k`. An error
-#'   is raised if that branch's design matrix has a different rank in some
-#'   imputation than in the stacked data (for example, a factor level absent
-#'   from one imputation).
+#'   is raised if that branch's constraint removes a different number of
+#'   parameters in some imputation than in the stacked data (for example, a
+#'   level of a factor that interacts with the treatment or mediator is absent
+#'   from one imputation). `k` is a difference of design-matrix ranks, so a
+#'   sparse level of a main-effect factor does not trigger it.
 #' * `"own"`: each imputation's statistic is computed on its own winning branch
 #'   (the standard Chan & Meng \eqn{r_4}). This reproduces missingmed 0.4.0.
 #'   It errors when the winning branches remove different numbers of

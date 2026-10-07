@@ -52,9 +52,11 @@ per-imputation statistics. \code{ariv} chooses how those statistics are formed:
 (\code{a = 0} or \code{b = 0}) that the \strong{stacked} constrained fit selected.
 Imputations that disagree on the winning branch then cannot pull
 \eqn{r_4} down, and every imputation uses the stacked fit's \code{k}. An error
-is raised if that branch's design matrix has a different rank in some
-imputation than in the stacked data (for example, a factor level absent
-from one imputation).
+is raised if that branch's constraint removes a different number of
+parameters in some imputation than in the stacked data (for example, a
+level of a factor that interacts with the treatment or mediator is absent
+from one imputation). \code{k} is a difference of design-matrix ranks, so a
+sparse level of a main-effect factor does not trigger it.
 \item \code{"own"}: each imputation's statistic is computed on its own winning branch
 (the standard Chan & Meng \eqn{r_4}). This reproduces missingmed 0.4.0.
 It errors when the winning branches remove different numbers of

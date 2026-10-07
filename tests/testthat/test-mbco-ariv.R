@@ -214,9 +214,9 @@ test_that("X:M: 'own' refuses mixed k, 'fixed' uses the stacked fit's k", {
     fixed = TRUE)))
 })
 
-# ── Rank guard ──────────────────────────────────────────────────────────────
+# ── k guard ─────────────────────────────────────────────────────────────────
 
-test_that("'fixed' errors when an imputation's design rank differs from the stacked fit's", {
+sparse_level_implist <- function() {
   il <- lapply(1:3, function(s) {
     d <- gen_d(300, a = 0.4, b = 0.3, seed = 30 + s)
     d$F <- factor(rep(c("u", "v", "w"), length.out = 300))
@@ -225,11 +225,61 @@ test_that("'fixed' errors when an imputation's design rank differs from the stac
   # Level "w" is absent from imputation 2 but kept as a level, so the design
   # matrix keeps its column (ncol is unchanged) and loses rank.
   il[[2]]$F[il[[2]]$F == "w"] <- "v"
-  expect_identical(levels(il[[2]]$F), c("u", "v", "w"))
-  args <- list(il, Y ~ X + M + C + F, M ~ X + C + F, treatment = "X",
+  il
+}
+
+test_that("'fixed' accepts a sparse level of a main-effect factor (k unchanged)", {
+  # The task's reproduction: level "z" of G appears only in imputation 2. It
+  # lowers the full and the b-nulled outcome ranks alike, so k = 1 everywhere.
+  # The pre-fix guard compared the ranks themselves and errored here.
+  set.seed(7)
+  n <- 300
+  mk <- function(lv) {
+    X <- rnorm(n)
+    G <- factor(sample(lv, n, TRUE), levels = c("p", "q", "z"))
+    M <- .5 * X + rnorm(n)
+    Y <- .3 * M + .2 * X + .3 * (G == "q") + rnorm(n)
+    data.frame(X, M, Y, G)
+  }
+  implist <- list(mk(c("p", "q")), mk(c("p", "q", "z")), mk(c("p", "q")))
+  args <- list(implist, Y ~ X + M + G, M ~ X, treatment = "X", mediator = "M")
+  fix <- do.call(mbco_d4, c(args, ariv = "fixed"))
+  own <- do.call(mbco_d4, c(args, ariv = "own"))
+  expect_equal(fix@k, 1)
+  expect_equal(own@k, 1)
+  expect_identical(fix@stacked_branch, "b")
+  expect_false(fix@branch_mix)
+  expect_equal(own[["D4"]], 13.242, tolerance = 1e-3)
+  expect_equal(S7::S7_data(fix), S7::S7_data(own), tolerance = 1e-12)
+
+  # The same with the sparse factor in both submodels.
+  il <- sparse_level_implist()
+  r <- mbco_d4(il, Y ~ X + M + C + F, M ~ X + C + F, treatment = "X",
+    mediator = "M", ariv = "fixed")
+  expect_equal(r@k, 1)
+  expect_true(all(is.finite(S7::S7_data(r)[c("D4", "p", "r4", "d_S")])))
+})
+
+test_that("both ariv values error when a sparse level interacts with the nulled path", {
+  # F interacts with X in the mediator model and with M in the outcome model,
+  # so whichever branch the stacked fit selects, imputation 2 loses one
+  # parameter of the constraint (k = 2 there, 3 stacked).
+  il <- sparse_level_implist()
+  args <- list(il, Y ~ X + M * F + C, M ~ X * F + C, treatment = "X",
     mediator = "M")
-  expect_error(do.call(mbco_d4, c(args, ariv = "fixed")), "rank")
-  expect_error(do.call(mbco_d4, c(args, ariv = "fixed")), "imputation 2")
+  expect_error(do.call(mbco_d4, c(args, ariv = "fixed")),
+    "imputation 2 but 3 in the stacked data")
+  expect_error(do.call(mbco_d4, c(args, ariv = "fixed")), "removes 2 parameters")
+  # "own" now takes k from design ranks too, so it sees the mismatch instead of
+  # referring imputation 2 to the column count.
+  expect_error(do.call(mbco_d4, c(args, ariv = "own")), "\\(2 vs 3\\)")
+})
+
+test_that(".mm_drop_df() counts estimable parameters, not columns", {
+  il <- sparse_level_implist()
+  expect_equal(missingmed:::.mm_drop_df(Y ~ X + M * F, "M", il[[1]]), 3)
+  expect_equal(missingmed:::.mm_drop_df(Y ~ X + M * F, "M", il[[2]]), 2)
+  expect_equal(missingmed:::.mm_drop_df(Y ~ X + M + F, "M", il[[2]]), 1)
 })
 
 # ── K = 1 ───────────────────────────────────────────────────────────────────

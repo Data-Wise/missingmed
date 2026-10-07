@@ -1,8 +1,13 @@
 # The pre-#19 (missingmed 0.4.0) MBCO driver, copied verbatim from
 # R/mbco_mi.R at ff64297 with only the names changed (.mm_* -> legacy_* and
-# missingmed::: on the unchanged helpers). test-mbco-ariv.R checks that
-# infer(type = "mbco", ariv = "own") is bit-identical to this, computed in the
-# same session, so the check does not depend on platform floating point.
+# missingmed::: on the unchanged helpers). legacy_drop_df() freezes 0.4.0's
+# column-count .mm_drop_df(), which is now rank-based. test-mbco-ariv.R checks
+# that infer(type = "mbco", ariv = "own") is bit-identical to this, computed in
+# the same session, so the check does not depend on platform floating point.
+legacy_drop_df <- function(formula, var, data) {
+  full <- ncol(stats::model.matrix(formula, data = data))
+  full - ncol(stats::model.matrix(missingmed:::.mm_drop_path(formula, var), data = data))
+}
 
 # Complete-data MBCO likelihood-ratio statistic (branch-union constraint).
 legacy_mbco_T <- function(d, formula_y, formula_m, family_y, family_m,
@@ -21,9 +26,9 @@ legacy_mbco_T <- function(d, formula_y, formula_m, family_y, family_m,
   # of them. Hard-coding k = 1 would refer a multi-parameter constraint to
   # F(1, nu). See SPEC-mbco-constrained-models-2026-08-30.md.
   k <- if (a_wins) {
-    missingmed:::.mm_drop_df(formula_m, treatment, d)
+    legacy_drop_df(formula_m, treatment, d)
   } else {
-    missingmed:::.mm_drop_df(formula_y, mediator, d)
+    legacy_drop_df(formula_y, mediator, d)
   }
   c(T = 2 * (llF - max(ll_a, ll_b)), k = k)
 }
