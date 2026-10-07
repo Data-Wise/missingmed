@@ -193,10 +193,10 @@ when the imputations do not all agree.
 
 `ariv` sets which per-imputation statistics enter $`r_4`$:
 
-- `ariv = "fixed"`, the default in the development version after 0.4.0,
-  recomputes every imputation’s statistic on the branch the **stacked**
-  constrained fit chose. All imputations then test the same constraint,
-  with the same $`k`$.
+- `ariv = "fixed"`, the default since missingmed 0.5.0, recomputes every
+  imputation’s statistic on the branch the **stacked** constrained fit
+  chose. All imputations then test the same constraint, with the same
+  $`k`$.
 - `ariv = "own"` lets each imputation use its own winning branch. It
   reproduces results from missingmed 0.4.0 and earlier on full-rank
   designs.

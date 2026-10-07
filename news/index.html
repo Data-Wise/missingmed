@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,9 +38,9 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.5.0" id="missingmed-050">missingmed 0.5.0<a class="anchor" aria-label="anchor" href="#missingmed-050"></a></h2>
 <div class="section level3">
-<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<h3 id="new-features-0-5-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-5-0"></a></h3>
 <ul><li>
 <p><strong><code>infer(type = "mbco")</code> gains <code>ariv = c("fixed", "own")</code>, default <code>"fixed"</code></strong> (<a href="https://github.com/Data-Wise/missingmed/issues/19" class="external-link">#19</a>). <code>ariv</code> sets which per-imputation statistics enter the relative increase in variance <code>r4</code> of the D4-stacked MBCO test:</p>
 <ul><li>
@@ -56,11 +56,11 @@
 </li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
-<ul><li>The <code>ariv = "fixed"</code> guard in <code>infer(type = "mbco")</code> / <code><a href="../reference/mbco_d4.html">mbco_d4()</a></code> compared design ranks instead of <code>k</code>, so a factor level absent from some imputations wrongly errored even when <code>k</code> was the same everywhere; it now errors only when <code>k</code> differs, and <code>k</code> is now a rank difference under both <code>ariv</code> values (unchanged on full-rank designs).</li>
+<h3 id="bug-fixes-0-5-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-5-0"></a></h3>
+<ul><li>The MBCO constraint’s <code>k</code> (the numerator df of the D4 test) is now a rank difference, <code>rank(full) - rank(null)</code>, under both <code>ariv</code> values, instead of a column count. Nothing changes on full-rank designs. On a design with aliased columns, such as a factor level absent from the data, 0.4.0 overcounted <code>k</code>, so <code>ariv = "own"</code> can now give a smaller <code>k</code> than 0.4.0 did there.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="documentation-development-version">Documentation<a class="anchor" aria-label="anchor" href="#documentation-development-version"></a></h3>
+<h3 id="documentation-0-5-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-5-0"></a></h3>
 <ul><li>
 <code><a href="../articles/mbco-mi.html">vignette("mbco-mi")</a></code> is retitled “Testing an indirect effect with incomplete data” and expanded into a worked guide.</li>
 </ul></div>
