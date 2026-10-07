@@ -84,7 +84,7 @@ flowchart LR
   R2 --> F
   F -->|"pool()"| P["MDMediationResult<br/>pooled named MediationData"]
   P -->|"infer(type = mc)"| C1["RMediation::ci_mediation_data()"]
-  F -->|"infer(type = mbco)"| C2["hosted D4 stacking<br/>R/mbco_mi.R"]
+  F -->|"infer(type = mbco)"| C2["D4 stacking, R/mbco_mi.R<br/>MbcoMIResult"]
 -->
 
 <!-- LaTeX equivalent of the diagram above, for a PDF build:
@@ -94,7 +94,7 @@ flowchart LR
   \node[box, right=of A] (F) {\texttt{run()}\\\textbf{MDMediationFit}};
   \node[box, right=of F] (P) {\texttt{pool()}\\\textbf{MDMediationResult}};
   \node[box, right=of P] (C) {\texttt{infer(type="mc")}\\RMediation};
-  \node[box, below=1.4cm of P] (M) {\texttt{infer(type="mbco")}\\hosted D4};
+  \node[box, below=1.4cm of P] (M) {\texttt{infer(type="mbco")}\\\textbf{MbcoMIResult}};
   \draw[->] (A) -- (F); \draw[->] (F) -- (P); \draw[->] (P) -- (C);
   \draw[->] (F) -- (M) node[midway, sloped, above, font=\tiny]{per-imputation};
 \end{tikzpicture}
@@ -105,6 +105,8 @@ flowchart LR
 | `MDMediationData` | data (`mids` or `data.frame`) + mediation spec + estimator/mechanism axes | `SemImputedData` |
 | `MDMediationFit` | **list** of per-imputation named `medfit::MediationData` (+ IPW `weights`) | `SemResults` |
 | `MDMediationResult` | **pooled** named `medfit::MediationData` + within/between/total vcov | `PooledSEMResults` |
+| `MbcoMIResult` | D4-stacked MBCO test: numeric `c(D4, p, r4, nu, d_S)` (parent `class_double`) + `ariv`, `k`, `m` and branch diagnostics | — |
+| `MDSensitivityResult` | MNAR sensitivity curve: one inference result per `delta` rung + realized `msp` | — |
 
 **Orthogonal axes.** The estimator (`method = "mi" | "ipw"`) and the model
 (formulas + `engine`) are independent. The same `run() -> pool() -> infer()`
@@ -351,7 +353,7 @@ The `ariv` argument sets which per-imputation statistics \(d_i\) enter
 \(\bar d\). With `ariv = "fixed"` (the default), every \(d_i\) is computed on
 the branch the stacked constrained fit chose, so all imputations share the
 stacked fit's \(k\). With `ariv = "own"`, each \(d_i\) uses that imputation's
-own winning branch, as in missingmed 0.4.0; it errors when the branches remove
+own winning branch, as in missingmed 0.4.0 on full-rank designs; it errors when the branches remove
 different numbers of parameters. See `vignette("mbco-mi")` for both formulas.
 
 ### Worked example: pooling three MBCO statistics

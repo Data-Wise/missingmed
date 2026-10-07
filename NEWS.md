@@ -9,12 +9,13 @@
     or `b = 0`) that the stacked constrained fit chose. Every imputation
     then uses the stacked fit's `k`, so models whose two paths carry
     different numbers of terms (an `X:M` interaction) now return a result. A
-    guard errors when the branch's design matrix has a different rank in some
-    imputation than in the stacked data (for example, a factor level absent
+    guard errors when the branch's constraint removes a different number of
+    parameters in some imputation than in the stacked data (for example, a
+    level of a factor that interacts with the treatment or mediator is absent
     from one imputation).
   * `"own"` uses each imputation's own winning branch and **reproduces earlier
-    results exactly**; it still refuses when the branches remove different
-    numbers of parameters.
+    results exactly on full-rank designs**; it still refuses when the branches
+    remove different numbers of parameters.
 
   Code that relied on the old behavior should pass `ariv = "own"`. The default
   changes results only when some imputation's own branch differs from the
@@ -38,6 +39,14 @@
   Reporting `branch_mix` and `p_branch_a` needs both single-path null fits in
   every imputation; the `"fixed"` statistic alone would need only the
   stacked branch's.
+
+## Bug fixes
+
+* The `ariv = "fixed"` guard in `infer(type = "mbco")` / `mbco_d4()`
+  compared design ranks instead of `k`, so a factor level absent from some
+  imputations wrongly errored even when `k` was the same everywhere; it now
+  errors only when `k` differs, and `k` is now a rank difference under both
+  `ariv` values (unchanged on full-rank designs).
 
 ## Documentation
 

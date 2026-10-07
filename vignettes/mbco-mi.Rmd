@@ -168,7 +168,7 @@ do not all agree.
   constrained fit chose. All imputations then test the same constraint, with
   the same \(k\).
 - `ariv = "own"` lets each imputation use its own winning branch. It
-  reproduces results from missingmed 0.4.0 and earlier.
+  reproduces results from missingmed 0.4.0 and earlier on full-rank designs.
 
 The two give the same result when every imputation's own branch matches the
 stacked fit's. Reporting `branch_mix` and `p_branch_a` needs both single-path
@@ -198,14 +198,14 @@ mbco_d4(implist[1], Y ~ X + M + C, M ~ X + C,
 )
 ```
 
-### The rank guard
+### When \(k\) differs across imputations
 
 Under `ariv = "fixed"` every imputation is tested with the stacked fit's
-\(k\). That requires the chosen branch's design matrix to have the same rank
-in every imputation as in the stacked data. When it does not, for example
-when a level of a factor covariate is absent from one imputation, `infer()`
-stops and names the imputation. The remedy is to drop or merge the sparse
-level.
+\(k\), the number of parameters the chosen branch's constraint removes. When
+the constraint removes a different number in some imputation than in the
+stacked data, for example when a level of a factor that interacts with the
+treatment or mediator is absent from that imputation, `infer()` stops and
+names the imputation. The remedy is to drop or merge the sparse level.
 
 ### MBCO on a pooled object
 
