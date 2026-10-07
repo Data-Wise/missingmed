@@ -6,9 +6,9 @@
 # log-likelihood is the *branch union* max(drop_a, drop_b), so the pooled
 # estimate is insufficient and the per-imputation datasets are required.
 #
-# TODO(rmediation): this D4 machinery is hosted in missingmed as an interim
-# measure. RMediation::mbco() is currently OpenMx-only; once it gains an
-# MI/per-imputation entry point, move this there and delegate.
+# Hosting: D4-MBCO under multiple imputation lives in missingmed (author
+# decision, 2026-10-07; Data-Wise/missingmed#19). RMediation keeps
+# complete-data MBCO.
 
 # Drop EVERY term whose variables include `var`, not just the main effect.
 #
@@ -79,17 +79,39 @@
   llm + lly
 }
 
+# The three MBCO log-likelihoods of one dataset: the full model and the two
+# single-path nulls. Both the statistic and the branch indicator derive from
+# this triple, so each dataset is fit once.
+.mm_mbco_lls <- function(d, formula_y, formula_m, family_y, family_m,
+                         treatment, mediator) {
+  c(
+    full = .mm_ll_med(d, formula_y, formula_m, family_y, family_m, treatment, mediator),
+    a = .mm_ll_med(d, formula_y, formula_m, family_y, family_m, treatment, mediator, drop_a = TRUE),
+    b = .mm_ll_med(d, formula_y, formula_m, family_y, family_m, treatment, mediator, drop_b = TRUE)
+  )
+}
+
+# Branch-union MBCO statistic from a log-likelihood triple. Ties go to the a = 0
+# branch.
+.mm_mbco_T_from_lls <- function(lls) {
+  2 * (lls[["full"]] - max(lls[["a"]], lls[["b"]]))
+}
+
 # Complete-data MBCO likelihood-ratio statistic (branch-union constraint).
 .mm_mbco_T <- function(d, formula_y, formula_m, family_y, family_m,
                        treatment, mediator) {
+  lls <- .mm_mbco_lls(d, formula_y, formula_m, family_y, family_m, treatment, mediator)
+  .mm_mbco_T_k(lls, d, formula_y, formula_m, treatment, mediator)
+}
+
+# T and its df k from a precomputed triple, k taken from the dataset's own
+# winning branch.
+.mm_mbco_T_k <- function(lls, d, formula_y, formula_m, treatment, mediator) {
   # NB when the max() below selects the a-branch, the OUTCOME model appears in
   # both llF and llC and cancels exactly, so T does not depend on it at all.
   # That is correct, not a bug -- but a user who edits the outcome model and
   # sees T unmoved will suspect one.
-  llF <- .mm_ll_med(d, formula_y, formula_m, family_y, family_m, treatment, mediator)
-  ll_a <- .mm_ll_med(d, formula_y, formula_m, family_y, family_m, treatment, mediator, drop_a = TRUE)
-  ll_b <- .mm_ll_med(d, formula_y, formula_m, family_y, family_m, treatment, mediator, drop_b = TRUE)
-  a_wins <- ll_a >= ll_b
+  a_wins <- lls[["a"]] >= lls[["b"]]
   # The df of the statistic is the number of parameters the WINNING branch
   # removes -- 1 in the plain specification, but more once the target appears in
   # an interaction or a nonlinear term, since nulling the path now removes all
@@ -100,7 +122,15 @@
   } else {
     .mm_drop_df(formula_y, mediator, d)
   }
-  c(T = 2 * (llF - max(ll_a, ll_b)), k = k)
+  c(T = .mm_mbco_T_from_lls(lls), k = k)
+}
+
+# Ranks of the full and the path-nulled design matrices of one submodel.
+.mm_branch_ranks <- function(d, formula, var) {
+  c(
+    full = qr(stats::model.matrix(formula, data = d))$rank,
+    null = qr(stats::model.matrix(.mm_drop_path(formula, var), data = d))$rank
+  )
 }
 
 # D4 pooling of a likelihood-ratio statistic (Chan & Meng 2022; Grund et al.
@@ -120,35 +150,192 @@
 }
 
 # D4-stacked MBCO across a list of imputed datasets.
+#
+# ariv = "own" pools each imputation's statistic on its OWN winning branch
+# (standard Chan & Meng r4) and refuses when the branches remove different
+# numbers of parameters. ariv = "fixed" recomputes every per-imputation
+# statistic on the branch the STACKED constrained fit selected, so branch
+# disagreement across imputations cannot pull dbar, and hence r4, down; d_S is
+# the same under both. Both null fits are run in every imputation either way,
+# because the branch diagnostics (branch_mix, p_branch_a) need each
+# imputation's own winner.
 .mm_d4_mbco <- function(implist, formula_y, formula_m, family_y, family_m,
-                        treatment, mediator) {
+                        treatment, mediator, ariv = c("fixed", "own")) {
+  ariv <- match.arg(ariv)
   K <- length(implist)
   if (K < 2) {
     stop("D4 pooling of the MBCO statistic needs at least 2 imputations; the ",
-      "supplied object has ", K, ". Re-impute with m >= 2.",
+      "supplied object has ", K, ". Re-impute with m >= 2, or, for a single ",
+      "complete dataset, use complete-data MBCO (e.g. RMediation::mbco()).",
       call. = FALSE
     )
   }
-  per <- vapply(implist, function(d) {
-    .mm_mbco_T(d, formula_y, formula_m, family_y, family_m, treatment, mediator)
-  }, numeric(2))
-  d_k <- per["T", ]
+  lls_of <- function(d) {
+    .mm_mbco_lls(d, formula_y, formula_m, family_y, family_m, treatment, mediator)
+  }
+  lls <- lapply(implist, lls_of)
   stacked <- do.call(rbind, implist)
-  st <- .mm_mbco_T(stacked, formula_y, formula_m, family_y, family_m, treatment, mediator)
-  d_S <- unname(st[["T"]]) / K
-  # D4 assumes one k for the whole pooling. The branch is data-dependent, so if
-  # imputations disagree about which one wins -- and therefore about how many
-  # parameters the constraint removes -- there is no single k and pooling is not
-  # defined. Refuse rather than pick one.
-  ks <- unique(c(per["k", ], st[["k"]]))
-  if (length(ks) > 1L) {
-    stop("The MBCO constraint removes a different number of parameters in ",
-      "different imputations (", paste(sort(ks), collapse = " vs "), "), so the ",
-      "D4 reference distribution is not well defined. This happens when the ",
-      "winning branch of `max(a = 0, b = 0)` differs across imputations and the ",
-      "two paths carry different numbers of terms.",
+  lls_S <- lls_of(stacked)
+  a_wins <- vapply(lls, function(l) l[["a"]] >= l[["b"]], logical(1))
+  stacked_a <- lls_S[["a"]] >= lls_S[["b"]]
+
+  if (ariv == "own") {
+    per <- vapply(seq_len(K), function(i) {
+      .mm_mbco_T_k(lls[[i]], implist[[i]], formula_y, formula_m, treatment, mediator)
+    }, numeric(2))
+    d_k <- per[1L, ]
+    st <- .mm_mbco_T_k(lls_S, stacked, formula_y, formula_m, treatment, mediator)
+    d_S <- unname(st[["T"]]) / K
+    # D4 assumes one k for the whole pooling. The branch is data-dependent, so
+    # if imputations disagree about which one wins -- and therefore about how
+    # many parameters the constraint removes -- there is no single k and
+    # pooling is not defined. Refuse rather than pick one.
+    ks <- unique(c(per[2L, ], st[["k"]]))
+    if (length(ks) > 1L) {
+      stop("The MBCO constraint removes a different number of parameters in ",
+        "different imputations (", paste(sort(ks), collapse = " vs "), "), so the ",
+        "D4 reference distribution is not well defined. This happens when the ",
+        "winning branch of `max(a = 0, b = 0)` differs across imputations and the ",
+        "two paths carry different numbers of terms.",
+        call. = FALSE
+      )
+    }
+    k <- ks[[1L]]
+  } else {
+    key <- if (stacked_a) "a" else "b"
+    d_k <- vapply(lls, function(l) 2 * (l[["full"]] - l[[key]]), numeric(1))
+    d_S <- unname(.mm_mbco_T_from_lls(lls_S)) / K
+    # Every imputation is tested on the stacked branch, so k is the stacked
+    # fit's. That is only one k if the branch's design has the same rank in
+    # every imputation -- a factor level present in the stacked data but absent
+    # from one imputation keeps its column and loses rank there.
+    f_br <- if (stacked_a) formula_m else formula_y
+    v_br <- if (stacked_a) treatment else mediator
+    rk_S <- .mm_branch_ranks(stacked, f_br, v_br)
+    for (i in seq_len(K)) {
+      rk_i <- .mm_branch_ranks(implist[[i]], f_br, v_br)
+      if (!identical(rk_i, rk_S)) {
+        stop("Under ariv = \"fixed\", the ", if (stacked_a) "mediator" else "outcome",
+          " model's design matrix has rank ", rk_i[["full"]], " (full) and ",
+          rk_i[["null"]], " (", key, " = 0) in imputation ", i, ", but ",
+          rk_S[["full"]], " and ", rk_S[["null"]], " in the stacked data, so the ",
+          "constraint does not remove the same number of parameters everywhere. ",
+          "This happens, for example, when a factor level is absent from one ",
+          "imputation; drop or merge the sparse level.",
+          call. = FALSE
+        )
+      }
+    }
+    k <- as.numeric(rk_S[["full"]] - rk_S[["null"]])
+  }
+
+  MbcoMIResult(
+    .mm_d4_from_stats(d_k, d_S, k = k),
+    ariv = ariv, k = k, m = K,
+    stacked_branch = if (stacked_a) "a" else "b",
+    branch_mix = length(unique(a_wins)) > 1L,
+    p_branch_a = mean(a_wins)
+  )
+}
+
+#' D4-stacked MBCO test of an indirect effect across imputed datasets
+#'
+#' Tests \eqn{H_0: a b = 0} with the model-based constrained optimization (MBCO)
+#' likelihood-ratio statistic, pooled across multiply imputed datasets with the
+#' D4 rule (Chan & Meng, 2022; Grund, Lüdtke & Robitzsch, 2021). This is the
+#' engine behind `infer(<MDMediationFit>, type = "mbco")`, exported so that
+#' other packages can call it on a plain list of completed datasets.
+#'
+#' The MBCO constraint is a branch union, \eqn{\max(\ell_{a=0}, \ell_{b=0})},
+#' and nulling a path drops every term that carries it (for example both `M`
+#' and `X:M` from `Y ~ X * M`). The D4 statistic is
+#' \eqn{D_4 = d_S / (k (1 + r_4))}, referred to \eqn{F(k, \nu)}, where
+#' \eqn{d_S} is the statistic on the stacked data divided by \eqn{K} and
+#' \eqn{r_4} is the relative increase in variance estimated from the
+#' per-imputation statistics. `ariv` chooses how those statistics are formed:
+#'
+#' * `"fixed"` (default): each imputation's statistic is computed on the branch
+#'   (`a = 0` or `b = 0`) that the **stacked** constrained fit selected.
+#'   Imputations that disagree on the winning branch then cannot pull
+#'   \eqn{r_4} down, and every imputation uses the stacked fit's `k`. An error
+#'   is raised if that branch's design matrix has a different rank in some
+#'   imputation than in the stacked data (for example, a factor level absent
+#'   from one imputation).
+#' * `"own"`: each imputation's statistic is computed on its own winning branch
+#'   (the standard Chan & Meng \eqn{r_4}). This reproduces missingmed 0.4.0.
+#'   It errors when the winning branches remove different numbers of
+#'   parameters, since there is then no single `k`.
+#'
+#' **Cost.** Every imputation is fit three times (the full model and both
+#' single-path nulls), plus the same three fits on the stacked data. The
+#' `ariv = "fixed"` statistic alone needs only the null on the stacked branch;
+#' the second null per imputation is what the branch diagnostics
+#' `branch_mix` and `p_branch_a` require.
+#'
+#' At least two imputations are required. For a single complete dataset, use a
+#' complete-data MBCO test such as [RMediation::mbco()].
+#'
+#' @param implist A list of at least two completed data frames, e.g.
+#'   `mice::complete(imp, "all")`.
+#' @param formula_y,formula_m Outcome and mediator model formulas.
+#' @param family_y,family_m [stats::family()] objects for the two models
+#'   (default [stats::gaussian()]); models are fit with [stats::glm()].
+#' @param treatment,mediator Names of the treatment and mediator variables.
+#' @param ariv `"fixed"` (default) or `"own"`; see Details.
+#' @return An [MbcoMIResult]: the named numeric `c(D4, p, r4, nu, d_S)` with
+#'   the branch diagnostics as properties.
+#' @references
+#' Chan, K. W., & Meng, X.-L. (2022). Multiple improvements of multiple
+#' imputation likelihood ratio tests. *Statistica Sinica*.
+#'
+#' Grund, S., Lüdtke, O., & Robitzsch, A. (2021). Pooling methods for
+#' likelihood-ratio tests with multiply imputed data. *Psychological Methods*.
+#' @seealso [infer()], [MbcoMIResult]
+#' @examples
+#' set.seed(1)
+#' implist <- lapply(1:3, function(i) {
+#'   n <- 200
+#'   X <- rnorm(n)
+#'   M <- 0.4 * X + rnorm(n)
+#'   data.frame(X = X, M = M, Y = 0.3 * M + rnorm(n))
+#' })
+#' mbco_d4(implist, Y ~ X + M, M ~ X,
+#'   treatment = "X", mediator = "M", ariv = "fixed"
+#' )
+#' @export
+mbco_d4 <- function(implist, formula_y, formula_m,
+                    family_y = stats::gaussian(), family_m = stats::gaussian(),
+                    treatment, mediator, ariv = c("fixed", "own")) {
+  ariv <- match.arg(ariv)
+  if (!is.list(implist) || is.data.frame(implist) ||
+    !all(vapply(implist, is.data.frame, logical(1)))) {
+    stop("`implist` must be a list of data frames (one per imputation), e.g. ",
+      "mice::complete(imp, \"all\").",
       call. = FALSE
     )
   }
-  .mm_d4_from_stats(d_k, d_S, k = ks[[1L]])
+  for (nm in c("formula_y", "formula_m")) {
+    if (!inherits(get(nm), "formula") || length(get(nm)) != 3L) {
+      stop("`", nm, "` must be a two-sided formula.", call. = FALSE)
+    }
+  }
+  for (nm in c("treatment", "mediator")) {
+    v <- get(nm)
+    if (!is.character(v) || length(v) != 1L || is.na(v)) {
+      stop("`", nm, "` must be a single variable name.", call. = FALSE)
+    }
+  }
+  if (!treatment %in% all.vars(formula_m[[3]])) {
+    stop("`treatment` '", treatment, "' is not a predictor in `formula_m`.",
+      call. = FALSE
+    )
+  }
+  if (!mediator %in% all.vars(formula_y[[3]])) {
+    stop("`mediator` '", mediator, "' is not a predictor in `formula_y`.",
+      call. = FALSE
+    )
+  }
+  .mm_d4_mbco(unname(implist), formula_y, formula_m, family_y, family_m,
+    treatment, mediator, ariv = ariv
+  )
 }
