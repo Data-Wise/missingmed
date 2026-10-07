@@ -150,9 +150,9 @@
 # ariv = "own" pools each imputation's statistic on its OWN winning branch
 # (standard Chan & Meng r4) and refuses when the branches remove different
 # numbers of parameters. ariv = "fixed" recomputes every per-imputation
-# statistic on the branch the STACKED constrained fit selected, so branch
-# disagreement across imputations cannot pull dbar, and hence r4, down; d_S is
-# the same under both. Both null fits are run in every imputation either way,
+# statistic on the branch the STACKED constrained fit selected, so every
+# imputation tests the same constraint with the same k; d_S is the same under
+# both. Both null fits are run in every imputation either way,
 # because the branch diagnostics (branch_mix, p_branch_a) need each
 # imputation's own winner.
 .mm_d4_mbco <- function(implist, formula_y, formula_m, family_y, family_m,
@@ -241,7 +241,7 @@
 #'
 #' Tests \eqn{H_0: a b = 0} with the model-based constrained optimization (MBCO)
 #' likelihood-ratio statistic, pooled across multiply imputed datasets with the
-#' D4 rule (Chan & Meng, 2022; Grund, Lüdtke & Robitzsch, 2021). This is the
+#' D4 rule (Chan & Meng, 2022; Grund, Lüdtke & Robitzsch, 2023). This is the
 #' engine behind `infer(<MDMediationFit>, type = "mbco")`, exported so that
 #' other packages can call it on a plain list of completed datasets.
 #'
@@ -291,8 +291,9 @@
 #' Chan, K. W., & Meng, X.-L. (2022). Multiple improvements of multiple
 #' imputation likelihood ratio tests. *Statistica Sinica*.
 #'
-#' Grund, S., Lüdtke, O., & Robitzsch, A. (2021). Pooling methods for
-#' likelihood-ratio tests with multiply imputed data. *Psychological Methods*.
+#' Grund, S., Lüdtke, O., & Robitzsch, A. (2023). Pooling methods for
+#' likelihood ratio tests in multiply imputed data sets. *Psychological
+#' Methods*, *28*(5), 1207--1221. \doi{10.1037/met0000556}
 #' @seealso [infer()], [MbcoMIResult]
 #' @examples
 #' set.seed(1)

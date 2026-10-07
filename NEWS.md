@@ -6,8 +6,7 @@
   `"fixed"`** (#19). `ariv` sets which per-imputation statistics enter the
   relative increase in variance `r4` of the D4-stacked MBCO test:
   * `"fixed"` recomputes every imputation's statistic on the branch (`a = 0`
-    or `b = 0`) that the stacked constrained fit chose, so imputations that
-    disagree on the winning branch cannot pull `r4` down. Every imputation
+    or `b = 0`) that the stacked constrained fit chose. Every imputation
     then uses the stacked fit's `k`, so models whose two paths carry
     different numbers of terms (an `X:M` interaction) now return a result. A
     guard errors when the branch's constraint removes a different number of
@@ -48,6 +47,10 @@
   imputations wrongly errored even when `k` was the same everywhere; it now
   errors only when `k` differs, and `k` is now a rank difference under both
   `ariv` values (unchanged on full-rank designs).
+
+## Documentation
+
+* `vignette("mbco-mi")` is retitled "Testing an indirect effect with incomplete data" and expanded into a worked guide.
 
 # missingmed 0.4.0
 
@@ -329,7 +332,7 @@ New S7 classes: `MDMediationData`, `MDMediationFit`, `MDMediationResult`.
 ## MBCO under multiple imputation
 
 * `infer(type = "mbco")` implements **D4-stacked MBCO**, which respects the
-  union-null geometry of `H0: ab = 0` (branch switching) — exact-match parity
+  union-null geometry of `H0: ab = 0` (`a = 0` or `b = 0`) — exact-match parity
   with the research prototype. See `vignette("mbco-mi")`.
 
 ## Documentation
