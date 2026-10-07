@@ -1,5 +1,13 @@
 # missingmed (development version)
 
+## Documentation
+
+* `vignette("mbco-mi")` is retitled "Testing an indirect effect with
+  incomplete data" and expanded into a worked guide: imputation-model
+  guidance, the Monte Carlo interval and the D4-MBCO test on one fit, the
+  `MbcoMIResult` object, `ariv` and the edge cases, and an `X:M` interaction
+  model (MBCO only for now; #20).
+
 ## New features
 
 * **`infer(type = "mbco")` gains `ariv = c("fixed", "own")`, default
