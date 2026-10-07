@@ -1,103 +1,185 @@
 ---
-title: "Mediation Package Documentat Classes and Methods"
-format: 
+title: "S7 classes and methods"
+format:
   html:
-    fig-width: 8
-    fig-height: 4
-    code-fold: false
-    highlight: tango
-    theme: cosmo
     toc: true
-    number_sections: true
     code-copy: hover
-execute: 
+execute:
   eval: true
   message: false
-  error: true
-editor: 
-  markdown: 
-    wrap: 87
+  warning: false
 ---
 
 ```{r}
 #| label: setup
 #| include: false
-knitr::opts_chunk$set(
-    collapse = TRUE,
-    comment = "#>"
-)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(missingmed)
 ```
 
-# Overview
+A developer's map of missingmed's object model: which S7 class each verb takes
+and returns, what each class carries, and which generics dispatch on it. For
+the statistics behind the verbs, see `vignette("technical")`.
 
-The `RMediation` package is designed for Structural Equation Modeling (SEM) analysis
-across multiply imputed datasets. It supports pooling SEM analysis results from
-`lavaan` and `OpenMx` models, calculating pooled estimates, standard errors, confidence
-intervals, and more.
+# The pipeline
 
-# Classes and Methods
+Four verbs move a mediation analysis through three classes. Inference returns
+either an `RMediation` interval or a fourth class, and the sensitivity analysis
+returns a fifth.
 
-## Classes
+```{mermaid}
+flowchart LR
+  D["MDMediationData"] -->|"run()"| F["MDMediationFit"]
+  F -->|"pool()"| R["MDMediationResult"]
+  R -->|"infer(type = 'mc')"| CI["RMediation interval (list)"]
+  F -->|"infer(type = 'mc')"| CI
+  F -->|"infer(type = 'mbco')"| M["MbcoMIResult"]
+  D -->|"sensitivity_mnar()"| S["MDSensitivityResult"]
+  S -. "one infer() result per rung" .-> CI
+  S -.-> M
+```
 
-### `SemResults`
+`infer(type = "mbco")` takes the **fit**, not the pooled result: the MBCO
+statistic does not commute with Rubin's rules, so it needs every imputation.
+`infer(<MDMediationResult>, type = "mbco")` is an error by design.
 
-An S4 class for storing the results of SEM analysis performed on multiply imputed
-datasets. It accommodates results from `lavaan`, `OpenMx`, or potentially other SEM
-software.
+# Classes
 
--   **Slots**:
-    -   `results`: A list of SEM model fits for each imputed dataset.
-    -   `estimate_df`: Data frame of parameter estimates and standard errors.
-    -   `coef_df`: Data frame of coefficient estimates for each imputed dataset.
-    -   `cov_df`: List of covariance matrices of coefficient estimates.
-    -   `method`: SEM package used for analysis ('lavaan' or 'OpenMx').
-    -   `conf_int`: Logical; if confidence intervals are included.
-    -   `conf_level`: Confidence level for confidence intervals.
+Each class below is an `S7::new_class()` with `package = "missingmed"`. The
+property lists are read from the class objects when this page is built.
 
-### `PooledSEMResults`
+```{r}
+#| label: props
+#| echo: false
+classes <- list(
+  MDMediationData = MDMediationData,
+  MDMediationFit = MDMediationFit,
+  MDMediationResult = MDMediationResult,
+  MbcoMIResult = MbcoMIResult,
+  MDSensitivityResult = MDSensitivityResult
+)
+props <- data.frame(
+  class = names(classes),
+  parent = vapply(classes, function(k) {
+    p <- k@parent
+    if (inherits(p, "S7_base_class")) paste0("class_", p$class) else p@name
+  }, ""),
+  properties = vapply(classes, function(k) {
+    paste0("`", names(k@properties), "`", collapse = ", ")
+  }, ""),
+  row.names = NULL
+)
+knitr::kable(props)
+```
 
-An S4 class representing pooled results from SEM analysis across multiple imputations
-or datasets.
+- **`MDMediationData`**, built by `set_md_mediation()`, holds the analysis
+  specification: the data (a `mice::mids` for `method = "mi"`, a data frame for
+  `method = "ipw"`), the two model formulas and families, the treatment and
+  mediator names, and the IPW weight settings.
+- **`MDMediationFit`**, returned by `run()`, holds one named
+  `medfit::MediationData` per imputation in `per_imputation`, plus the raw fits
+  and, for IPW, the weights. `source` points back to the `MDMediationData`,
+  which is how `infer(type = "mbco")` reaches the imputed datasets.
+- **`MDMediationResult`**, returned by `pool()`, holds the Rubin's-rules pooled
+  `medfit::MediationData` in `pooled`, its tidy table with per-coefficient Wald
+  tests, and the within, between and total covariance matrices.
+- **`MbcoMIResult`**, returned by `infer(type = "mbco")` and `mbco_d4()`, is
+  the only class with a base-type parent (`class_double`). Its data is the
+  named vector `c(D4, p, r4, nu, d_S)`; its properties record `ariv`, the
+  numerator df `k`, the number of imputations `m`, and the branch diagnostics.
+- **`MDSensitivityResult`**, returned by `sensitivity_mnar()`, holds one
+  inference result per `delta` rung in `rungs`, the `grid` of deltas, and the
+  realized marginal sensitivity parameter `msp` for each rung.
 
--   **Slots**:
-    -   `tidy_table`: A data frame containing the pooled results of the SEM analyses.
-    -   `cov_total`: The pooled total covariance matrix of the parameter estimates.
-    -   `cov_between`: The pooled between-imputation covariance matrix of the parameter
-        estimates.
-    -   `cov_within`: The pooled within-imputation covariance matrix of the parameter
-        estimates.
-    -   `method`: The method used for SEM analysis ('lavaan' or 'OpenMx').
-    -   `conf.int`: Whether to calculate confidence intervals for the pooled estimates.
-    -   `conf.level`: The confidence level used in the interval calculation.
+# Generics and methods
 
-## Methods
+```{r}
+#| label: methods
+#| echo: false
+gens <- list(
+  run = run, pool = pool, infer = infer,
+  per_imputation_list = per_imputation_list, n_imputations = n_imputations
+)
+dispatch <- data.frame(
+  generic = names(gens),
+  `methods for` = vapply(gens, function(g) {
+    paste0("`", sort(sub("^missingmed::", "", names(g@methods))), "`",
+      collapse = ", "
+    )
+  }, ""),
+  check.names = FALSE, row.names = NULL
+)
+knitr::kable(dispatch)
+```
 
-### `pool_sem`
+The methods on the wrong class are refusals with a pointer to the right step:
+`pool(<MDMediationData>)` asks for `run()` first, and `pool(<MDMediationResult>)`
+says the object is already pooled. `pool()` on any other object falls through
+to `mice::pool()`.
 
-A generic function to pool SEM analysis results from multiple datasets or imputations.
+Output methods are S7 methods on external generics:
 
--   **Signature**: `SemResults`
--   **Returns**: `PooledSEMResults`
+| Generic | Classes |
+|---|---|
+| `print()` | all five |
+| `summary()` | `MDMediationResult`, `MDSensitivityResult` |
+| `broom::tidy()` (re-exported) | `MDMediationResult`, `MbcoMIResult`, `MDSensitivityResult` |
+| `[`, `[[` | `MbcoMIResult` (index the underlying vector) |
 
-### Helper Functions
+# Working with an `MbcoMIResult`
 
--   `pool_tidy`: Extracts and pools relevant statistics across all imputations.
--   `pool_cov`: Extracts and pools relevant covariance matrices across all imputations.
+S7 objects are not subsettable by default, so `MbcoMIResult` defines `[` and
+`[[` on its data. Properties use `@`; `$` is an error.
 
-# UML Diagram
+```{r}
+#| label: mbco
+set.seed(1)
+implist <- lapply(1:3, function(i) {
+  X <- rnorm(200)
+  M <- 0.4 * X + rnorm(200)
+  data.frame(X = X, M = M, Y = 0.3 * M + rnorm(200))
+})
+r <- mbco_d4(implist, Y ~ X + M, M ~ X,
+  treatment = "X", mediator = "M", ariv = "fixed"
+)
+r[["p"]]
+r[c("D4", "nu")]
+r@stacked_branch
+is.numeric(r)
+S7::S7_data(r)
+```
 
-To visualize the relationships between the classes and methods in the RMediation
-package, consider using a UML diagramming tool. A typical representation would show:
+# Registration notes for contributors
 
--   The `SemResults` class with arrows pointing to the `pool_sem` method, indicating
-    that this method operates on objects of this class.
--   The `PooledSEMResults` class as the output of the `pool_sem` method.
--   Helper functions `pool_tidy` and `pool_cov` could be represented as associated with
-    the `pool_sem` method, indicating their role in the pooling process.
+- `R/zzz.R` calls `S7::methods_register()` in `.onLoad()`, which registers the
+  S7 methods on external generics at load time, so they need no `S3method()`
+  lines in `NAMESPACE`.
+- `MDMediationData`, `MDMediationFit`, `MDMediationResult` and
+  `MDSensitivityResult` are passed to `S7::S4_register()`, so S4 code can
+  dispatch on them.
+- `MbcoMIResult` is **not**: `setOldClass()` cannot build an S4 prototype for
+  an S7 class whose parent is `class_double`. Two consequences:
+  - Inside the namespace, `print` is an S4 generic (`import(OpenMx)` makes it
+    one), and S7 refuses to add a method for an unregistered class to an S4
+    generic. Its print method is therefore registered on `base::print`.
+  - Register methods for it with the functional form,
+    `` S7::`method<-`(generic, MbcoMIResult, value = f) ``. The assignment form
+    `S7::method(generic, MbcoMIResult) <- f` assigns the generic back into the
+    namespace; for `[` and `[[` that creates objects `R CMD check` reports as
+    undocumented.
+- Every exported class and function needs an entry in the `reference:` index
+  of `_pkgdown.yml`; `R CMD check` does not read it, but the pkgdown CI job
+  fails without it.
 
-## Generating a UML Diagram
+# Deprecated S4 classes
 
-You can use UML diagramming tools like PlantUML, Lucidchart, or others to create a
-visual representation. Here is a simple example in PlantUML syntax:
+The S4 API (`set_sem()`, `run_sem()`, `pool_sem()` with the classes
+`SemImputedData`, `SemResults` and `PooledSEMResults`) is deprecated and kept
+for one release cycle behind `.Deprecated()` shims. Each S7 class above
+replaces one of them:
 
-![UML of Classes and Methods in the RMediation Package](images/rmediation_uml.svg)
+| S7 class | Replaces |
+|---|---|
+| `MDMediationData` | `SemImputedData` |
+| `MDMediationFit` | `SemResults` |
+| `MDMediationResult` | `PooledSEMResults` |
