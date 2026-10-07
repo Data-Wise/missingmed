@@ -63,9 +63,10 @@ $`\bar d`$, and so $`r_4`$:
   on the branch the **stacked** constrained fit chose. All imputations
   then test the same constraint, with the same $`k`$.
 - `ariv = "own"` uses each imputation’s own winning branch, the standard
-  Chan & Meng $`r_4`$. It reproduces missingmed 0.4.0, and it refuses to
-  pool when the winning branches remove different numbers of parameters
-  (for example, with an `X:M` term in the outcome model).
+  Chan & Meng $`r_4`$. It reproduces missingmed 0.4.0 on full-rank
+  designs, and it refuses to pool when the winning branches remove
+  different numbers of parameters (for example, with an `X:M` term in
+  the outcome model).
 
 The result records the branch diagnostics:
 

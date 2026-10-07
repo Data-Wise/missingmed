@@ -28,7 +28,8 @@ infer(object, ...)
   `n.mc` (Monte-Carlo draws for `"mc"`, default `1e5`), and `ariv` (for
   `"mbco"`: `"fixed"` (default) tests every imputation on the branch the
   stacked constrained fit chose; `"own"` uses each imputation's own
-  winning branch and reproduces missingmed 0.4.0; see
+  winning branch and reproduces missingmed 0.4.0 on full-rank designs;
+  see
   [`mbco_d4()`](https://data-wise.github.io/missingmed/reference/mbco_d4.md)).
 
 ## Value
