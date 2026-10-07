@@ -35,7 +35,7 @@ the branch diagnostics as properties.
 \description{
 Tests \eqn{H_0: a b = 0} with the model-based constrained optimization (MBCO)
 likelihood-ratio statistic, pooled across multiply imputed datasets with the
-D4 rule (Chan & Meng, 2022; Grund, Lüdtke & Robitzsch, 2021). This is the
+D4 rule (Chan & Meng, 2022; Grund, Lüdtke & Robitzsch, 2023). This is the
 engine behind \verb{infer(<MDMediationFit>, type = "mbco")}, exported so that
 other packages can call it on a plain list of completed datasets.
 }
@@ -86,8 +86,9 @@ mbco_d4(implist, Y ~ X + M, M ~ X,
 Chan, K. W., & Meng, X.-L. (2022). Multiple improvements of multiple
 imputation likelihood ratio tests. \emph{Statistica Sinica}.
 
-Grund, S., Lüdtke, O., & Robitzsch, A. (2021). Pooling methods for
-likelihood-ratio tests with multiply imputed data. \emph{Psychological Methods}.
+Grund, S., Lüdtke, O., & Robitzsch, A. (2023). Pooling methods for
+likelihood ratio tests in multiply imputed data sets. \emph{Psychological
+Methods}, \emph{28}(5), 1207--1221. \doi{10.1037/met0000556}
 }
 \seealso{
 \code{\link[=infer]{infer()}}, \link{MbcoMIResult}

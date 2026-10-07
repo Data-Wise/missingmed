@@ -1,13 +1,5 @@
 # missingmed (development version)
 
-## Documentation
-
-* `vignette("mbco-mi")` is retitled "Testing an indirect effect with
-  incomplete data" and expanded into a worked guide: imputation-model
-  guidance, the Monte Carlo interval and the D4-MBCO test on one fit, the
-  `MbcoMIResult` object, `ariv` and the edge cases, and an `X:M` interaction
-  model (MBCO only for now; #20).
-
 ## New features
 
 * **`infer(type = "mbco")` gains `ariv = c("fixed", "own")`, default
@@ -47,6 +39,10 @@
   Reporting `branch_mix` and `p_branch_a` needs both single-path null fits in
   every imputation; the `"fixed"` statistic alone would need only the
   stacked branch's.
+
+## Documentation
+
+* `vignette("mbco-mi")` is retitled "Testing an indirect effect with incomplete data" and expanded into a worked guide.
 
 # missingmed 0.4.0
 

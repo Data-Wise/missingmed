@@ -104,14 +104,14 @@ fit <- run(md)
 `infer(type = "mc")` pools the per-imputation estimates with Rubin's rules
 and draws a Monte Carlo interval for \(a b\) from the pooled estimates.
 Called on the fit, it pools first; `infer(pool(fit), type = "mc")` gives the
-same result.
+same interval up to Monte Carlo error.
 
 ```{r mc}
 infer(fit, type = "mc", level = 0.95, n.mc = 1e5)
 ```
 
 `Estimate` is the pooled \(\hat a \hat b\), and `CI` its 95% interval.
-`MC.Error` is the Monte Carlo error of the interval limits; raise `n.mc` if it
+`MC.Error` is the Monte Carlo error of the estimate; raise `n.mc` if it
 matters at the precision you report.
 
 ## The test
@@ -210,7 +210,7 @@ level.
 ### MBCO on a pooled object
 
 MBCO needs the per-imputation fits, so asking for it on the *pooled* result
-is an error by design (see [below](#why-mbco-needs-the-per-imputation-fits)):
+is an error by design (see [below](#why-mbco-does-not-commute-with-rubins-rules)):
 
 ```{r error, error = TRUE}
 infer(pool(fit), type = "mbco", ariv = "fixed")
@@ -255,7 +255,7 @@ The Monte Carlo interval, `infer(type = "mc")`, is **not yet available for
 models with an X:M interaction**; see
 [issue #20](https://github.com/Data-Wise/missingmed/issues/20).
 
-## Why MBCO needs the per-imputation fits
+## Why MBCO does not commute with Rubin's rules
 
 The **model-based constrained optimization** (MBCO) test of mediation tests
 \(H_0: a b = 0\). Because \(a b = 0\) iff \(a = 0\) **or** \(b = 0\), the
