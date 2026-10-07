@@ -10,6 +10,7 @@
   estimates and pooled covariance of `a`, `b` and `theta3` with
   `RMediation::ci()`, and the result names the estimand in `Estimand`.
   `treatment_level` is required for such models and an error elsewhere.
+  `sensitivity_mnar(type = "mc")` passes it through.
 
 ## Bug fixes
 
