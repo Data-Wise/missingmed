@@ -13,6 +13,7 @@ sensitivity_mnar(
   level = NULL,
   n.mc = 1e+05,
   ums = NULL,
+  treatment_level = NULL,
   ...
 )
 }
@@ -31,7 +32,9 @@ be \code{NULL} when \code{delta} is a data frame.}
 \item{seed}{Integer seed pinned across rungs. Defaults to the seed stored in
 the \code{mids} object, or \code{20260822L} when that is \code{NA}.}
 
-\item{level, n.mc}{Passed to \code{\link[=infer]{infer()}}.}
+\item{level, n.mc, treatment_level}{Passed to \code{\link[=infer]{infer()}} for \code{type = "mc"}.
+\code{treatment_level} is required when the outcome model has a
+treatment-by-mediator interaction and an error otherwise.}
 
 \item{ums}{Optional character vector for a \strong{covariate-varying} delta, one
 rung per string, passed verbatim to \code{mice}'s NARFCS \code{ums} (e.g.

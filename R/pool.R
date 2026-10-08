@@ -6,6 +6,9 @@
 #' [MDMediationResult]). Because the estimates and variance-covariance carry the
 #' mediation path names (`a`, `b`, `c_prime`, ...), the pooled object is valid
 #' input to [RMediation::ci_mediation_data()] / [RMediation::medci()].
+#' For a model with a treatment-by-mediator interaction, use
+#' [infer()]`(type = "mc", treatment_level = )` instead: those RMediation
+#' functions use only \eqn{a b}, the indirect effect at treatment level 0.
 #'
 #' Pooling math (migrated from the S4 `pool_sem` / `pool_tidy` / `pool_cov`):
 #' \deqn{\bar Q = \frac{1}{m}\sum_i Q_i, \quad \bar U = \frac{1}{m}\sum_i U_i,
@@ -72,13 +75,23 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
   Tmat <- Ubar + (1 + 1 / m) * B # total
   dimnames(Tmat) <- list(nms, nms)
 
-  # Build the pooled MediationData by copy-modifying a per-imputation template
+  # Build the pooled MediationData by copy-modifying a per-imputation template.
+  # The path properties go in with one props<- call, because S7 validates after
+  # every @<- and medfit::InteractionMediationData ties them together
+  # (int_med == interaction * a_path, ...): setting a_path alone leaves a
+  # half-updated object that fails validation (#20).
   pooled <- object@per_imputation[[1]]
-  pooled@estimates <- Qbar
-  pooled@vcov <- Tmat
-  pooled@a_path <- unname(Qbar[["a"]])
-  pooled@b_path <- unname(Qbar[["b"]])
-  pooled@c_prime <- unname(Qbar[["c_prime"]])
+  new_props <- list(
+    estimates = Qbar,
+    vcov = Tmat,
+    a_path = unname(Qbar[["a"]]),
+    b_path = unname(Qbar[["b"]]),
+    c_prime = unname(Qbar[["c_prime"]])
+  )
+  if (S7::S7_inherits(pooled, medfit::InteractionMediationData)) {
+    new_props <- c(new_props, .pool_interaction_effects(object, Qbar))
+  }
+  S7::props(pooled) <- new_props
   # Everything not overwritten above is still imputation 1's. Carrying one
   # imputation's completed data and residual SDs on an object labelled "pooled"
   # invites them to be read as pooled quantities, which they are not: with m = 3
@@ -125,6 +138,33 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
   )
 }
 
+# Four-way decomposition (VanderWeele 2014) for a pooled X:M fit, in the form
+# medfit's InteractionMediationData validator checks. Every component that is a
+# function of the path coefficients is recomputed from the pooled a, b, c_prime
+# and theta3, so the identities (pie = a b, int_med = theta3 a, ...) hold
+# exactly. int_ref = theta3 (m_ref - m_star) also needs m_ref, the mediator's
+# expected value at the reference treatment level with covariates at their
+# means; that depends on each completed dataset, so int_ref is the average of
+# the per-imputation values. It enters only through nde, which the validator
+# defines as cde + int_ref.
+.pool_interaction_effects <- function(object, Qbar) {
+  fits <- object@per_imputation
+  a <- unname(Qbar[["a"]])
+  b <- unname(Qbar[["b"]])
+  c_prime <- unname(Qbar[["c_prime"]])
+  theta3 <- unname(Qbar[["theta3"]])
+  m_star <- fits[[1]]@m_star
+  cde <- c_prime + theta3 * m_star
+  int_ref <- mean(vapply(fits, function(x) x@int_ref, numeric(1)))
+  int_med <- theta3 * a
+  pie <- a * b
+  list(
+    interaction = theta3, cde = cde, int_ref = int_ref, int_med = int_med,
+    pie = pie, nde = cde + int_ref, nie = int_med + pie,
+    total_effect = cde + int_ref + int_med + pie
+  )
+}
+
 # Per-term Rubin inference for the pooled tidy table: statistic, df, riv, fmi,
 # p_value (docs/specs/SPEC-pooled-inference-columns-2026-09-23.md).
 #
@@ -134,7 +174,8 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
 # which include the intercept. A binomial or poisson model has dfcom = Inf,
 # since summary.glm() uses z-tests there; with Inf, df reduces to Rubin (1987).
 # The alias rows a, b and c_prime take their source model's dfcom, so each
-# equals its m_X / y_M / y_X row. At m = 1 there is no between-imputation
+# equals its m_X / y_M / y_X row; so do an X:M fit's theta3 (y_X:M) and b0
+# (m_(Intercept)). At m = 1 there is no between-imputation
 # variance to learn from: riv = fmi = 0 and df = dfcom, the single-fit Wald test.
 #
 # These are per-path Wald quantities, not a test of the indirect effect.
@@ -145,12 +186,15 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
     fam <- if (is.null(family)) "gaussian" else family$family
     if (fam %in% c("binomial", "poisson")) Inf else n - sum(startsWith(term, prefix))
   }
-  dfcom_m <- dfcom_of("m_", fit@family_m)
-  dfcom_y <- dfcom_of("y_", fit@family_y)
+  # medfit::InteractionMediationData has no family properties (medfit fits
+  # X:M models with lm only), so a missing property reads as gaussian.
+  family_of <- function(nm) if (nm %in% S7::prop_names(fit)) S7::prop(fit, nm)
+  dfcom_m <- dfcom_of("m_", family_of("family_m"))
+  dfcom_y <- dfcom_of("y_", family_of("family_y"))
   # Terms outside both models' prefixes and the three aliases get the smaller
   # complete-data df, the conservative choice.
-  dfcom <- ifelse(startsWith(term, "m_") | term == "a", dfcom_m,
-    ifelse(startsWith(term, "y_") | term %in% c("b", "c_prime"), dfcom_y,
+  dfcom <- ifelse(startsWith(term, "m_") | term %in% c("a", "b0"), dfcom_m,
+    ifelse(startsWith(term, "y_") | term %in% c("b", "c_prime", "theta3"), dfcom_y,
       min(dfcom_m, dfcom_y)
     )
   )

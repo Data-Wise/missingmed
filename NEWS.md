@@ -1,5 +1,31 @@
 # missingmed (development version)
 
+## New features
+
+* `infer(type = "mc")` supports models with a treatment-by-mediator
+  interaction (`Y ~ X * M + ...`) through a new `treatment_level` argument
+  (#20). The indirect effect there is `a * (b + theta3 * x)`, so the interval
+  is for the treatment level `x` you choose (for a 0/1 treatment, `1` is the
+  total and `0` the pure natural indirect effect); it is drawn from the pooled
+  estimates and pooled covariance of `a`, `b` and `theta3` with
+  `RMediation::ci()`, and the result names the estimand in `Estimand`.
+  `treatment_level` is required for such models and an error elsewhere.
+  `sensitivity_mnar(type = "mc")` passes it through.
+
+## Bug fixes
+
+* `pool()` no longer errors on models with an `X:M` term (#20). It set the
+  pooled path coefficients one at a time, which broke the invariants of
+  medfit's `InteractionMediationData`; it now sets them together, pools the
+  interaction coefficient with Rubin's rules, and recomputes the four-way
+  decomposition (`pie`, `int_med`, `nie`, ...) from the pooled paths. The
+  pooled `theta3` and `b0` rows now take the degrees of freedom of their
+  source rows (`y_X:M`, `m_(Intercept)`).
+
+* `print()` and `summary()` of a pooled `X:M` fit report the indirect effect
+  at `x = 0` and `x = 1` instead of a single `a*b`, which is the `x = 0`
+  value only.
+
 # missingmed 0.5.0
 
 ## New features
