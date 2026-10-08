@@ -17,6 +17,19 @@
   required for such models and an error elsewhere.
   `sensitivity_mnar(type = "mc")` passes it through.
 
+- [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/reference/sensitivity_mnar.md)
+  gains `ariv`, passed to `infer(type = "mbco")` for every rung (it was
+  always `"fixed"`); [`print()`](https://rdrr.io/r/base/print.html) of
+  an MBCO curve shows it.
+
+- [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md)
+  and
+  [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/reference/sensitivity_mnar.md)
+  warn, naming them, about arguments that do not apply to the chosen
+  `type` (`level`, `n.mc` and `treatment_level` for `"mbco"` in
+  [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md);
+  `ariv` for `"mc"`), instead of ignoring them.
+
 ### Bug fixes
 
 - [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)
@@ -55,6 +68,23 @@
   [`summary()`](https://rdrr.io/r/base/summary.html) of a pooled `X:M`
   fit report the indirect effect at `x = 0` and `x = 1` instead of a
   single `a*b`, which is the `x = 0` value only.
+
+- [`pool_sem()`](https://data-wise.github.io/missingmed/reference/pool_sem.md)
+  (deprecated) reported the geometric mean of the per-imputation
+  p-values, which is not a valid pooled test. It now reports Rubin’s
+  pooled Wald `statistic`, `df` and `riv`, the p-value of the t test on
+  those degrees of freedom, and, with `conf_int = TRUE` in
+  [`set_sem()`](https://data-wise.github.io/missingmed/reference/set_sem.md),
+  `conf_low` and `conf_high` (which were documented but never computed).
+
+- [`summary()`](https://rdrr.io/r/base/summary.html) of a sensitivity
+  curve with NA rungs still reports the tipping point when every NA rung
+  lies farther from MAR than it, since the unknown verdicts cannot
+  change it; it declines (`undetermined = TRUE`) only when an NA rung
+  could.
+  [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/reference/sensitivity_mnar.md)
+  records a fractional `seed` as the integer
+  [`set.seed()`](https://rdrr.io/r/base/Random.html) used.
 
 - The S7 classes validate more of their input, turning silent wrong
   answers and obscure late crashes into clear errors at construction:

@@ -20,6 +20,7 @@ sensitivity_mnar(
   n.mc = 1e+05,
   ums = NULL,
   treatment_level = NULL,
+  ariv = c("fixed", "own"),
   ...
 )
 ```
@@ -50,7 +51,9 @@ sensitivity_mnar(
 - seed:
 
   Integer seed pinned across rungs. Defaults to the seed stored in the
-  `mids` object, or `20260822L` when that is `NA`.
+  `mids` object, or `20260822L` when that is `NA`. A fractional value is
+  truncated, as [`set.seed()`](https://rdrr.io/r/base/Random.html) does,
+  and the result records the integer used.
 
 - level, n.mc, treatment_level:
 
@@ -58,6 +61,9 @@ sensitivity_mnar(
   [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md)
   for `type = "mc"`. `treatment_level` is required when the outcome
   model has a treatment-by-mediator interaction and an error otherwise.
+  For `type = "mbco"`, `level` sets the test size used to find the
+  tipping point (p \> 1 - `level` retains the null), and `n.mc` and
+  `treatment_level` do not apply (a warning names them if supplied).
 
 - ums:
 
@@ -68,6 +74,14 @@ sensitivity_mnar(
   `mnar.norm` or `mnar.logreg`. A `ums` grid has no numeric ordering, so
   [`summary()`](https://rdrr.io/r/base/summary.html) does not compute a
   tipping point for it.
+
+- ariv:
+
+  For `type = "mbco"`: passed to
+  [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md)
+  for every rung (`"fixed"`, the default, or `"own"`; see
+  [`mbco_d4()`](https://data-wise.github.io/missingmed/reference/mbco_d4.md)).
+  Ignored, with a warning, for `type = "mc"`.
 
 - ...:
 

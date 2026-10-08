@@ -40,15 +40,20 @@ columns:
 
 - `std_error`: The pooled standard error of the estimate.
 
-- `statistic`: The pooled test statistic (e.g., z-value, t-value).
+- `statistic`: The pooled Wald statistic, `estimate / std_error`.
 
-- `p_value`: The pooled p-value for the test statistic.
+- `df`: Rubin's (1987) degrees of freedom, `(m - 1) (1 + 1 / riv)^2`
+  (`Inf` when there is no between-imputation variance).
 
-- `conf_low`: The lower bound of the confidence interval for the
-  estimate.
+- `p_value`: The two-sided p-value of `statistic` on `df` degrees of
+  freedom.
 
-- `conf_high`: The upper bound of the confidence interval for the
-  estimate.
+- `var_b`, `var_w`, `var_tot`, `riv`: between, within and total
+  variance, and the relative increase in variance due to nonresponse.
+
+- `conf_low`, `conf_high`: The `conf_level` interval on the same t
+  reference; only when `conf_int = TRUE` in
+  [`set_sem()`](https://data-wise.github.io/missingmed/reference/set_sem.md).
 
 ## Details
 

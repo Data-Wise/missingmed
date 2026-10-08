@@ -85,10 +85,15 @@ all imputations, considering the specified confidence interval settings.</p>
 <p>A <code>data.frame</code> containing the pooled results of the SEM analyses. The column names adhere to tidy conventions and include the following columns:</p><ul><li><p><code>term</code>: The name of the parameter being estimated.</p></li>
 <li><p><code>estimate</code>: The pooled estimate of the parameter.</p></li>
 <li><p><code>std_error</code>: The pooled standard error of the estimate.</p></li>
-<li><p><code>statistic</code>: The pooled test statistic (e.g., z-value, t-value).</p></li>
-<li><p><code>p_value</code>: The pooled p-value for the test statistic.</p></li>
-<li><p><code>conf_low</code>: The lower bound of the confidence interval for the estimate.</p></li>
-<li><p><code>conf_high</code>: The upper bound of the confidence interval for the estimate.</p></li>
+<li><p><code>statistic</code>: The pooled Wald statistic, <code>estimate / std_error</code>.</p></li>
+<li><p><code>df</code>: Rubin's (1987) degrees of freedom, <code>(m - 1) (1 + 1 / riv)^2</code>
+(<code>Inf</code> when there is no between-imputation variance).</p></li>
+<li><p><code>p_value</code>: The two-sided p-value of <code>statistic</code> on <code>df</code> degrees of
+freedom.</p></li>
+<li><p><code>var_b</code>, <code>var_w</code>, <code>var_tot</code>, <code>riv</code>: between, within and total variance,
+and the relative increase in variance due to nonresponse.</p></li>
+<li><p><code>conf_low</code>, <code>conf_high</code>: The <code>conf_level</code> interval on the same t
+reference; only when <code>conf_int = TRUE</code> in <code><a href="set_sem.html">set_sem()</a></code>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
