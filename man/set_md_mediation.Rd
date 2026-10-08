@@ -78,6 +78,32 @@ Two estimators share the interface (\code{method}):
 \item \code{"ipw"} — \code{data} is a raw \code{data.frame}; \code{\link[=run]{run()}} reweights the complete cases
 by inverse missingness probability and fits once.
 }
+
+The model is validated before anything is fit. Formulas are first expanded
+against the data, so \code{Y ~ .} is checked as the model that \code{\link[=run]{run()}} fits.
+\code{set_md_mediation()} refuses:
+\itemize{
+\item a one-sided formula, or a \code{treatment}/\code{mediator} that is not a single
+variable name;
+\item a variable in either formula that is neither a column of the data nor
+defined in the formula's environment (the treatment and mediator must be
+columns);
+\item a \code{formula_m} whose response is not the bare \code{mediator} column (a
+transform such as \code{log(M)} needs its own column), or a \code{formula_y} whose
+response involves the mediator;
+\item a \code{treatment} that is not a main effect of \code{formula_m} and of
+\code{formula_y}, or a \code{mediator} that is not a main effect of \code{formula_y};
+\item any other term involving the treatment or mediator. Both enter only as
+main effects, plus, in \code{formula_y} only, one treatment-by-mediator
+interaction (\code{X:M}, \code{M:X} or from \code{X * M}). Products such as \code{X:C},
+\code{M:W} or \code{X:M:W}, transforms such as \code{I(X^2)}, \code{poly(X, 2)} or \code{log(M)},
+and offsets involving either variable are refused. For moderated models,
+\code{\link[=mbco_d4]{mbco_d4()}} tests the indirect effect on the completed datasets;
+\item an \code{X:M} term when \code{family_y} or \code{family_m} is not Gaussian with an
+identity link;
+\item a treatment column that is not numeric. Factor, character and logical
+treatments must be recoded to numeric (0/1 for a binary treatment).
+}
 }
 \examples{
 \dontrun{

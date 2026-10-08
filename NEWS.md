@@ -14,6 +14,21 @@
 
 ## Bug fixes
 
+* `set_md_mediation()` now validates the model before fitting; previously a
+  `formula_m` whose LHS was not `mediator` returned a wrong indirect effect
+  silently. It also refuses terms the pipeline cannot pool correctly: the
+  treatment and mediator may enter only as main effects, plus one `X:M` term
+  in `formula_y` (products such as `X:C` or `M:W`, transforms such as
+  `I(X^2)` or `log(M)`, and offsets involving either are refused, with a
+  pointer to `mbco_d4()` for moderated models); an `X:M` term with a
+  non-Gaussian or non-identity-link `family_y` or `family_m`; and a
+  non-numeric treatment
+  (factor, character or logical; recode to numeric).
+
+* `mbco_d4()` now refuses a `formula_m` whose response involves anything but
+  the mediator (`log(M) ~ X` is still accepted), and a `formula_y` whose
+  response is the mediator.
+
 * `pool()` no longer errors on models with an `X:M` term (#20). It set the
   pooled path coefficients one at a time, which broke the invariants of
   medfit's `InteractionMediationData`; it now sets them together, pools the

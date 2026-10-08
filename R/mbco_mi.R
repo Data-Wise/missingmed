@@ -280,7 +280,10 @@
 #'
 #' @param implist A list of at least two completed data frames, e.g.
 #'   `mice::complete(imp, "all")`.
-#' @param formula_y,formula_m Outcome and mediator model formulas.
+#' @param formula_y,formula_m Outcome and mediator model formulas. The
+#'   response of `formula_m` must involve the mediator and nothing else (`M`
+#'   or a transform such as `log(M)`), and the mediator may not appear in the
+#'   response of `formula_y`.
 #' @param family_y,family_m [stats::family()] objects for the two models
 #'   (default [stats::gaussian()]); models are fit with [stats::glm()].
 #' @param treatment,mediator Names of the treatment and mediator variables.
@@ -318,27 +321,7 @@ mbco_d4 <- function(implist, formula_y, formula_m,
       call. = FALSE
     )
   }
-  for (nm in c("formula_y", "formula_m")) {
-    if (!inherits(get(nm), "formula") || length(get(nm)) != 3L) {
-      stop("`", nm, "` must be a two-sided formula.", call. = FALSE)
-    }
-  }
-  for (nm in c("treatment", "mediator")) {
-    v <- get(nm)
-    if (!is.character(v) || length(v) != 1L || is.na(v)) {
-      stop("`", nm, "` must be a single variable name.", call. = FALSE)
-    }
-  }
-  if (!treatment %in% all.vars(formula_m[[3]])) {
-    stop("`treatment` '", treatment, "' is not a predictor in `formula_m`.",
-      call. = FALSE
-    )
-  }
-  if (!mediator %in% all.vars(formula_y[[3]])) {
-    stop("`mediator` '", mediator, "' is not a predictor in `formula_y`.",
-      call. = FALSE
-    )
-  }
+  .check_roles(formula_y, formula_m, treatment, mediator)
   .mm_d4_mbco(unname(implist), formula_y, formula_m, family_y, family_m,
     treatment, mediator, ariv = ariv
   )
