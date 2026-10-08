@@ -10,6 +10,9 @@ n_imp(x)
 
 # S4 method for class 'mids'
 n_imp(x)
+
+# S4 method for class 'ANY'
+n_imp(x)
 ```
 
 ## Arguments

@@ -77,7 +77,11 @@ both Rubin's-rules pooling (<code><a href="pool.html">pool()</a></code>) and D4-
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>It is the S7 successor of the S4 <code><a href="run_sem.html">run_sem()</a></code> method.</p>
+    <p>An engine error is rethrown with the engine and the imputation it failed
+on. Engine warnings (a <code>glm</code> that did not converge, fitted probabilities of
+0 or 1) are collected and raised once, naming the imputations that produced
+them.</p>
+<p>It is the S7 successor of the S4 <code><a href="run_sem.html">run_sem()</a></code> method.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

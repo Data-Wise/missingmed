@@ -63,7 +63,8 @@ set_md_mediation(
 
 - engine:
 
-  medfit fitting engine. Defaults to `"glm"`.
+  medfit fitting engine: `"glm"` (default), or `"regmedint"` (needs
+  medfit \>= 0.4.0 and the regmedint package; `method = "mi"` only).
 
 - family_y, family_m:
 
@@ -162,7 +163,17 @@ expanded against the data, so `Y ~ .` is checked as the model that
   identity link;
 
 - a treatment column that is not numeric. Factor, character and logical
-  treatments must be recoded to numeric (0/1 for a binary treatment).
+  treatments must be recoded to numeric (0/1 for a binary treatment);
+
+- a `treatment` or `mediator` that is not a syntactic R name (such as
+  `"my M"`), which medfit cannot fit. Covariates may have any name;
+
+- an `engine` other than `"glm"`, or `"regmedint"` with medfit \>= 0.4.0
+  and `method = "mi"` (regmedint takes no case weights);
+
+- a `weight_formula` that is not `NULL`, a formula or a named list of
+  formulas, or that uses a variable found neither in the data nor in its
+  environment.
 
 ## See also
 

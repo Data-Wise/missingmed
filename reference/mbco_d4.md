@@ -27,7 +27,9 @@ mbco_d4(
 - implist:
 
   A list of at least two completed data frames, e.g.
-  `mice::complete(imp, "all")`.
+  `mice::complete(imp, "all")`. They must share the same columns (in any
+  order) and number of rows, contain the treatment and mediator, and
+  have no missing values in the model variables.
 
 - formula_y, formula_m:
 

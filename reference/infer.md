@@ -37,7 +37,8 @@ infer(object, ...)
   increase in X through M with X held at \\x\\ in the outcome model. For
   a 0/1 treatment, `1` gives the total natural indirect effect and `0`
   the pure natural indirect effect. Required for such models; an error
-  otherwise).
+  otherwise). Any other argument is an error, so a misspelled one (say
+  `conf.level`) is not silently dropped.
 
 ## Value
 

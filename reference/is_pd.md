@@ -1,7 +1,10 @@
 # Checks if a matrix object is positive definite
 
-Determines if a matrix is positive definite (all eigenvalues are
-strictly positive) by attempting Cholesky decomposition.
+Determines if a symmetric matrix is positive definite (all eigenvalues
+are strictly positive) by attempting Cholesky decomposition. A
+non-symmetric matrix returns `FALSE`:
+[`chol()`](https://rdrr.io/r/base/chol.html) reads only the upper
+triangle, so it cannot judge one.
 
 ## Usage
 
@@ -30,8 +33,11 @@ Returns `TRUE` if the matrix is positive definite, `FALSE` otherwise.
 
 ``` r
 # Example of a positive definite matrix
-A <- matrix(c(1, 2, 2, 4), nrow = 2)
-is_pd(A) # Should return TRUE
-#> <simpleWarning in chol.default(x, pivot = TRUE): the matrix is either rank-deficient or not positive definite>
+A <- matrix(c(2, 1, 1, 2), nrow = 2)
+is_pd(A) # TRUE
+#> [1] TRUE
+# A singular (positive semi-definite) matrix is not positive definite
+B <- matrix(c(1, 2, 2, 4), nrow = 2)
+is_pd(B, quiet = TRUE) # FALSE
 #> [1] FALSE
 ```

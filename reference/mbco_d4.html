@@ -74,7 +74,9 @@ other packages can call it on a plain list of completed datasets.</p>
 
 <dl><dt id="arg-implist">implist<a class="anchor" aria-label="anchor" href="#arg-implist"></a></dt>
 <dd><p>A list of at least two completed data frames, e.g.
-<code>mice::complete(imp, "all")</code>.</p></dd>
+<code>mice::complete(imp, "all")</code>. They must share the same columns (in any
+order) and number of rows, contain the treatment and mediator, and have
+no missing values in the model variables.</p></dd>
 
 
 <dt id="arg-formula-y-formula-m">formula_y, formula_m<a class="anchor" aria-label="anchor" href="#arg-formula-y-formula-m"></a></dt>

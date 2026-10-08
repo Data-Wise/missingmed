@@ -102,7 +102,8 @@ a <code>data.frame</code> (may contain <code>NA</code>s; complete cases are rewe
 
 
 <dt id="arg-engine">engine<a class="anchor" aria-label="anchor" href="#arg-engine"></a></dt>
-<dd><p>medfit fitting engine. Defaults to <code>"glm"</code>.</p></dd>
+<dd><p>medfit fitting engine: <code>"glm"</code> (default), or <code>"regmedint"</code>
+(needs medfit &gt;= 0.4.0 and the regmedint package; <code>method = "mi"</code> only).</p></dd>
 
 
 <dt id="arg-family-y-family-m">family_y, family_m<a class="anchor" aria-label="anchor" href="#arg-family-y-family-m"></a></dt>
@@ -177,7 +178,14 @@ and offsets involving either variable are refused. For moderated models,
 <li><p>an <code>X:M</code> term when <code>family_y</code> or <code>family_m</code> is not Gaussian with an
 identity link;</p></li>
 <li><p>a treatment column that is not numeric. Factor, character and logical
-treatments must be recoded to numeric (0/1 for a binary treatment).</p></li>
+treatments must be recoded to numeric (0/1 for a binary treatment);</p></li>
+<li><p>a <code>treatment</code> or <code>mediator</code> that is not a syntactic R name (such as
+<code>"my M"</code>), which medfit cannot fit. Covariates may have any name;</p></li>
+<li><p>an <code>engine</code> other than <code>"glm"</code>, or <code>"regmedint"</code> with medfit &gt;= 0.4.0 and
+<code>method = "mi"</code> (regmedint takes no case weights);</p></li>
+<li><p>a <code>weight_formula</code> that is not <code>NULL</code>, a formula or a named list of
+formulas, or that uses a variable found neither in the data nor in its
+environment.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

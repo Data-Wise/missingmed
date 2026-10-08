@@ -41,6 +41,11 @@ object.
 
 ## Details
 
+An engine error is rethrown with the engine and the imputation it failed
+on. Engine warnings (a `glm` that did not converge, fitted probabilities
+of 0 or 1) are collected and raised once, naming the imputations that
+produced them.
+
 It is the S7 successor of the S4
 [`run_sem()`](https://data-wise.github.io/missingmed/reference/run_sem.md)
 method.
