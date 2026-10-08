@@ -41,7 +41,7 @@ The S4 code is also the only reason missingmed imports `lavaan` and `OpenMx`.
 | Q1 | API | `set_md_mediation(data, model = <lavaan syntax>, treatment, mediator, outcome, engine = "lavaan")` (`outcome` required for lavaan, G3). `model` replaces `formula_y`/`formula_m`, which must be NULL. `...` goes to `lavaan::sem()` (e.g. `estimator = "MLR"`). **lavaan only**: OpenMx support ends when the S4 API is removed. | translating formulas into lavaan syntax (observed variables only, so little gain over glm); a separate `set_md_sem()` |
 | Q2 | Naming | **Keep lavaan's parameter names** (`M~C`, `Y~~Y`, user labels) and always carry the `a`/`b`/`c_prime` aliases. `.pool_wald()` becomes engine-aware: `dfcom = Inf` for lavaan, matching lavaan's z-tests. | renaming to `m_*`/`y_*` (undefined for latent or multi-equation models); pooling only a/b/c_prime |
 | Q3 | `~~` rows | **Keep** them with the pooled estimate and SE; set `statistic` and `p_value` to **NA** and document the boundary null (variance = 0) | dropping them; computing boundary-null Wald tests |
-| Q4 | MBCO | `infer(type = "mbco")` on a lavaan fit **errors** with a clear message in v0.5.0. MBCO for SEM gets its own spec: constrained refits with `lavaan::sem(constraints = "a == 0")`, the author's ruling on what "b = 0" means with a latent mediator, and a lavaan parity test. | building it in v0.5.0; a glm refit for observed-only SEMs |
+| Q4 | MBCO | `infer(type = "mbco")` on a lavaan fit **errors** with a clear message in v0.6.0. MBCO for SEM gets its own spec: constrained refits with `lavaan::sem(constraints = "a == 0")`, the author's ruling on what "b = 0" means with a latent mediator, and a lavaan parity test. | building it in v0.5.0; a glm refit for observed-only SEMs |
 
 ## 4. Section 4 decisions (grilled 2026-10-07)
 
@@ -60,7 +60,7 @@ Full reasoning and rejected options: [GRILL-s7-sem-engine-section4-2026-10-07.md
 
 ### Proposed amendment P3 (open; from the 2026-10-07 interface review)
 
-**Status: open until the author accepts.** Q1 and G1–G7 are not changed by this
+**Status: partly accepted (2026-10-08, H1 of [GRILL-s7-sem-engine-plan-2026-10-08.md](GRILL-s7-sem-engine-plan-2026-10-08.md)).** `fit_args` is accepted for the lavaan engine in 0.6.0; the `run(...)` deprecation, glm `fit_args` and optional `outcome` on glm move to 0.7.0. Q1 and G1–G7 are not changed by this
 subsection. The review compared missingmed's interface with medfit `med()`,
 CMAverse, regmedint and bmlm (name-based roles) and lavaan.mi (lists of imputed
 data).
