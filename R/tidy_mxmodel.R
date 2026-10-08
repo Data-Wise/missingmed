@@ -51,6 +51,17 @@ tidy.MxModel <-
     if (!inherits(x, "MxModel")) {
       stop("Input must be an MxModel object from OpenMx.")
     }
+    if (!is.logical(conf_int) || length(conf_int) != 1 || is.na(conf_int)) {
+      stop("'conf_int' must be a single logical value (TRUE or FALSE).",
+        call. = FALSE
+      )
+    }
+    if (conf_int && (!is.numeric(conf_level) || length(conf_level) != 1 ||
+      is.na(conf_level) || conf_level <= 0 || conf_level >= 1)) {
+      stop("'conf_level' must be a single numeric value between 0 and 1.",
+        call. = FALSE
+      )
+    }
 
     # Extract parameter estimates
     tidy_df <-

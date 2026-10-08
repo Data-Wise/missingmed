@@ -21,13 +21,32 @@ S7::method(print, MDMediationData) <- function(x, ...) {
   invisible(x)
 }
 
+# Does a (pooled or per-imputation) medfit object carry an X:M term?
+.has_xm <- function(d) S7::S7_inherits(d, medfit::InteractionMediationData)
+
+# The pooled indirect-effect point estimate, as one line. With an X:M term the
+# indirect effect a * (b + theta3 * x) depends on the treatment level, so show
+# it at x = 0 and x = 1 (the pure and total natural indirect effects for a 0/1
+# treatment) instead of a single a*b.
+.indirect_line <- function(pooled) {
+  a <- pooled@a_path
+  b <- pooled@b_path
+  if (!.has_xm(pooled)) {
+    return(paste("indirect effect a*b =", round(a * b, 4)))
+  }
+  t3 <- pooled@interaction
+  paste0("indirect effect a*(b + theta3*x) = ", round(a * b, 4), " at x = 0, ",
+    round(a * (b + t3), 4), " at x = 1")
+}
+
 # print(<MDMediationFit>)
 S7::method(print, MDMediationFit) <- function(x, ...) {
   cat("<MDMediationFit>\n")
   cat("  per-imputation fits:", x@m, "named medfit::MediationData\n")
   cat("  engine:", x@engine, "\n")
   ab <- vapply(x@per_imputation, function(d) d@a_path * d@b_path, numeric(1))
-  cat("  per-imputation a*b: mean =", round(mean(ab), 4),
+  lab <- if (.has_xm(x@per_imputation[[1]])) "a*b (at X = 0)" else "a*b"
+  cat("  per-imputation", paste0(lab, ":"), "mean =", round(mean(ab), 4),
     "(range", round(min(ab), 4), "to", round(max(ab), 4), ")\n")
   cat("  -> pool() for Rubin's-rules estimates; infer() for CIs / MBCO\n")
   invisible(x)
@@ -36,11 +55,20 @@ S7::method(print, MDMediationFit) <- function(x, ...) {
 # print(<MDMediationResult>)
 S7::method(print, MDMediationResult) <- function(x, ...) {
   cat("<MDMediationResult> (pooled, Rubin's rules; m =", x@m, ")\n")
-  key <- x@tidy_table[x@tidy_table$term %in% c("a", "b", "c_prime"),
-    c("term", "estimate", "std_error")]
-  print(key, row.names = FALSE)
-  cat("  indirect effect a*b =", round(x@pooled@a_path * x@pooled@b_path, 4), "\n")
-  cat("  -> infer(type = \"mc\") for the indirect-effect CI\n")
+  # @tidy_table defaults to an empty data frame; skip it rather than fail.
+  cols <- c("term", "estimate", "std_error")
+  if (all(cols %in% names(x@tidy_table))) {
+    key <- x@tidy_table[x@tidy_table$term %in% c("a", "b", "c_prime", "theta3"), cols]
+    print(key, row.names = FALSE)
+  } else {
+    cat("  (no pooled estimates table)\n")
+  }
+  cat(" ", .indirect_line(x@pooled), "\n")
+  if (.has_xm(x@pooled)) {
+    cat("  -> infer(type = \"mc\", treatment_level = x) for the indirect-effect CI\n")
+  } else {
+    cat("  -> infer(type = \"mc\") for the indirect-effect CI\n")
+  }
   invisible(x)
 }
 
@@ -49,7 +77,7 @@ S7::method(summary, MDMediationResult) <- function(object, ...) {
   cat("Pooled mediation result (Rubin's rules)\n")
   cat("  imputations (m):", object@m, "| engine:", object@engine, "\n\n")
   print(object@tidy_table, row.names = FALSE)
-  cat("\n  a*b =", round(object@pooled@a_path * object@pooled@b_path, 4), "\n")
+  cat("\n ", .indirect_line(object@pooled), "\n")
   invisible(object@tidy_table)
 }
 
@@ -62,7 +90,11 @@ S7::method(tidy, MDMediationResult) <- function(x, ...) {
 S7::method(print, MDSensitivityResult) <- function(x, ...) {
   cat("<MDSensitivityResult>  MNAR sensitivity curve\n")
   cat("  target(s):", paste(x@target, collapse = ", "),
-    "| rungs:", nrow(x@grid), "| inference:", x@type, "\n"
+    "| rungs:", nrow(x@grid), "| inference:", x@type,
+    if (S7::S7_inherits(x@rungs[[1]], MbcoMIResult)) {
+      paste0("(ariv = \"", x@rungs[[1]]@ariv, "\")")
+    },
+    "\n"
   )
   cat("  seed:", x@seed, paste0("(from ", x@seed_source, ")"),
     "| target imputed by:", x@method_target, "\n"
@@ -87,10 +119,22 @@ S7::method(print, MDSensitivityResult) <- function(x, ...) {
 S7::method(summary, MDSensitivityResult) <- function(object, ...) {
   tb <- tidy(object)
   ordered <- all(vapply(object@grid, is.numeric, logical(1)))
-  tp <- if (ordered) .mnar_tipping(object, tb) else NULL
+  # A rung whose interval or p-value is NA has an unknown verdict. The tipping
+  # point is still known when every such rung lies farther from MAR than it
+  # (the unknown verdicts cannot move the smallest retaining departure);
+  # otherwise it is undetermined and the NA rungs are named instead.
+  keep <- if (ordered) .mnar_null_retained(object, tb) else NULL
+  na_rungs <- if (ordered) which(is.na(keep)) else integer()
+  tp <- NULL
+  undetermined <- FALSE
+  if (ordered) {
+    tp <- .mnar_tipping(object, tb, keep)
+    undetermined <- .mnar_tipping_undetermined(object, keep, tp)
+    if (undetermined) tp <- NULL
+  }
   structure(
     list(table = tb, tipping = tp, target = object@target, type = object@type,
-      ordered = ordered),
+      ordered = ordered, na_rungs = na_rungs, undetermined = undetermined),
     class = "summary.MDSensitivityResult"
   )
 }
@@ -113,10 +157,12 @@ S7::method(summary, MDSensitivityResult) <- function(object, ...) {
 # retained -- not the first such rung in whatever order the grid was supplied.
 # Distance is measured from the all-zero (MAR) row, so a multi-column grid has a
 # defined ordering too; for a single column it reduces to abs(delta).
-.mnar_tipping <- function(object, tb) {
-  keep <- .mnar_null_retained(object, tb)
-  if (is.null(keep) || !any(keep)) return(NULL)
-  dist <- sqrt(rowSums(as.matrix(object@grid)^2))
+.mnar_tipping <- function(object, tb, keep = .mnar_null_retained(object, tb)) {
+  # NA verdicts are skipped here; .mnar_tipping_undetermined() decides whether
+  # they could have changed the answer.
+  keep <- keep %in% TRUE
+  if (!any(keep)) return(NULL)
+  dist <- .mnar_dist(object)
   # The null already retained at MAR itself: nothing tips, the analysis is null
   # before any departure is assumed.
   if (any(dist == 0 & keep)) return(NULL)
@@ -130,6 +176,25 @@ S7::method(summary, MDSensitivityResult) <- function(object, ...) {
   tb[cand[which.min(dist[cand])], , drop = FALSE]
 }
 
+# Distance of each rung from the all-zero (MAR) row.
+.mnar_dist <- function(object) sqrt(rowSums(as.matrix(object@grid)^2))
+
+# Could the rungs with an NA verdict change the tipping point? Not when the
+# null is retained at MAR (there is no tipping point either way), and not when
+# every NA rung is farther from MAR than the tipping point found among the
+# known rungs. Otherwise yes: an NA rung at MAR, an NA rung at or inside the
+# found tipping point, or no retaining rung at all (so "none" would be a claim
+# about rungs whose verdict is unknown).
+.mnar_tipping_undetermined <- function(object, keep, tp) {
+  na <- is.na(keep)
+  if (!any(na)) return(FALSE)
+  dist <- .mnar_dist(object)
+  retained <- keep %in% TRUE
+  if (any(dist == 0 & retained)) return(FALSE)
+  if (any(dist == 0 & na) || is.null(tp)) return(TRUE)
+  any(dist[na] <= min(dist[retained]))
+}
+
 #' @exportS3Method base::print
 print.summary.MDSensitivityResult <- function(x, ...) {
   cat("MNAR sensitivity curve --", x$type, "| target:",
@@ -139,6 +204,10 @@ print.summary.MDSensitivityResult <- function(x, ...) {
   if (isFALSE(x$ordered)) {
     cat("\nTipping point not computed: a `ums` grid has no numeric ordering of\n")
     cat("departures from MAR, so \"smallest departure\" is undefined.\n")
+  } else if (isTRUE(x$undetermined)) {
+    cat("\nTipping point not computed: rung(s)", paste(x$na_rungs, collapse = ", "),
+      "have a missing (NA)\n")
+    cat("interval or p-value, so whether the null is retained there is unknown.\n")
   } else if (is.null(x$tipping)) {
     cat("\nNo tipping point within the supplied grid.\n")
   } else {
@@ -150,6 +219,10 @@ print.summary.MDSensitivityResult <- function(x, ...) {
     cat("A CSP-scale tipping point has no direct clinical reading -- judge\n")
     cat("plausibility on the realized msp, and only call the result fragile if\n")
     cat("that departure from MAR is itself plausible.\n")
+  }
+  if (length(x$na_rungs) && !isTRUE(x$undetermined) && !isFALSE(x$ordered)) {
+    cat("Rung(s)", paste(x$na_rungs, collapse = ", "), "have a missing (NA) verdict",
+      "but cannot change this conclusion.\n")
   }
   invisible(x)
 }
@@ -165,7 +238,8 @@ print.summary.MDSensitivityResult <- function(x, ...) {
 # tidy(<MDSensitivityResult>) -- one row per rung
 S7::method(tidy, MDSensitivityResult) <- function(x, ...) {
   base <- x@grid
-  base$msp <- x@msp
+  # The validator allows an empty @msp; report it as NA rather than fail.
+  base$msp <- if (length(x@msp)) x@msp else NA_real_
   if (identical(x@type, "mc")) {
     base$estimate <- vapply(x@rungs, function(r) as.numeric(r$Estimate)[1], numeric(1))
     base$conf_low <- vapply(x@rungs, function(r) as.numeric(r$CI)[1], numeric(1))

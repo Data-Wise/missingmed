@@ -20,10 +20,15 @@ A \code{data.frame} containing the pooled results of the SEM analyses. The colum
 \item \code{term}: The name of the parameter being estimated.
 \item \code{estimate}: The pooled estimate of the parameter.
 \item \code{std_error}: The pooled standard error of the estimate.
-\item \code{statistic}: The pooled test statistic (e.g., z-value, t-value).
-\item \code{p_value}: The pooled p-value for the test statistic.
-\item \code{conf_low}: The lower bound of the confidence interval for the estimate.
-\item \code{conf_high}: The upper bound of the confidence interval for the estimate.
+\item \code{statistic}: The pooled Wald statistic, \code{estimate / std_error}.
+\item \code{df}: Rubin's (1987) degrees of freedom, \code{(m - 1) (1 + 1 / riv)^2}
+(\code{Inf} when there is no between-imputation variance).
+\item \code{p_value}: The two-sided p-value of \code{statistic} on \code{df} degrees of
+freedom.
+\item \code{var_b}, \code{var_w}, \code{var_tot}, \code{riv}: between, within and total variance,
+and the relative increase in variance due to nonresponse.
+\item \code{conf_low}, \code{conf_high}: The \code{conf_level} interval on the same t
+reference; only when \code{conf_int = TRUE} in \code{\link[=set_sem]{set_sem()}}.
 }
 }
 \description{
@@ -38,6 +43,9 @@ relevant statistics (e.g., estimates, standard errors) across
 all imputations, considering the specified confidence interval settings.
 }
 \details{
+\strong{Deprecated.} Use \code{\link[=pool]{pool()}} on an \link{MDMediationFit} from \code{\link[=run]{run()}} instead; \code{pool_sem()} becomes a \code{.Defunct()} stub in
+missingmed 0.6.0.
+
 A generic function to pool SEM analysis results from multiple datasets or imputations.
 
 Refer to method-specific documentation for details on pooling process and assumptions.

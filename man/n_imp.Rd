@@ -4,11 +4,14 @@
 \name{n_imp}
 \alias{n_imp}
 \alias{n_imp,mids-method}
+\alias{n_imp,ANY-method}
 \title{Get Number of Imputations from a mids Object}
 \usage{
 n_imp(x)
 
 \S4method{n_imp}{mids}(x)
+
+\S4method{n_imp}{ANY}(x)
 }
 \arguments{
 \item{x}{A \code{mids} object representing multiple imputed datasets.}

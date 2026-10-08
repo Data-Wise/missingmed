@@ -93,6 +93,9 @@ setValidity("SemResults", function(object) {
 
 #' Pool SEM Analysis Results
 #'
+#' **Deprecated.** Use [pool()] on an [MDMediationFit] from [run()] instead; `pool_sem()` becomes a `.Defunct()` stub in
+#' missingmed 0.6.0.
+#'
 #' A generic function to pool SEM analysis results from multiple datasets or imputations.
 #'
 #' @description
@@ -131,10 +134,15 @@ setGeneric(
 #'   - `term`: The name of the parameter being estimated.
 #'   - `estimate`: The pooled estimate of the parameter.
 #'   - `std_error`: The pooled standard error of the estimate.
-#'   - `statistic`: The pooled test statistic (e.g., z-value, t-value).
-#'   - `p_value`: The pooled p-value for the test statistic.
-#'   - `conf_low`: The lower bound of the confidence interval for the estimate.
-#'   - `conf_high`: The upper bound of the confidence interval for the estimate.
+#'   - `statistic`: The pooled Wald statistic, `estimate / std_error`.
+#'   - `df`: Rubin's (1987) degrees of freedom, `(m - 1) (1 + 1 / riv)^2`
+#'     (`Inf` when there is no between-imputation variance).
+#'   - `p_value`: The two-sided p-value of `statistic` on `df` degrees of
+#'     freedom.
+#'   - `var_b`, `var_w`, `var_tot`, `riv`: between, within and total variance,
+#'     and the relative increase in variance due to nonresponse.
+#'   - `conf_low`, `conf_high`: The `conf_level` interval on the same t
+#'     reference; only when `conf_int = TRUE` in [set_sem()].
 #'
 #' @examples
 #' \dontrun{
@@ -172,9 +180,22 @@ setMethod("pool_sem", signature = "SemResults", function(object) {
       object@method
     )
   }
+  # Rubin's rules need a between-imputation variance; with one imputation it
+  # is NA and every pooled standard error would silently be NA.
+  if (length(object@results) < 2) {
+    stop("pool_sem() needs at least 2 imputations; found ",
+      length(object@results), ".",
+      call. = FALSE
+    )
+  }
 
   # Assuming pool_tidy and pool_cov are correctly implemented
   tidy_table <- pool_tidy(object)
+  if (isTRUE(object@conf_int)) {
+    q <- stats::qt(1 - (1 - object@conf_level) / 2, tidy_table$df)
+    tidy_table$conf_low <- tidy_table$estimate - q * tidy_table$std_error
+    tidy_table$conf_high <- tidy_table$estimate + q * tidy_table$std_error
+  }
   cov_res <- pool_cov(object)
 
   # Ensure PooledSEMResults class is defined with the correct slots
@@ -224,19 +245,35 @@ setMethod("pool_tidy", signature = "SemResults", function(object) {
       var_b = var(.data$estimate),
       var_w = mean(.data$std_error^2),
       var_tot = .data$var_w + .data$var_b * (1 + 1 / n_imputations),
-      se = sqrt(.data$var_tot),
-      p_value = exp(mean(log(.data$p_value)))
+      se = sqrt(.data$var_tot)
     ) |>
     dplyr::ungroup() |>
+    dplyr::mutate(
+      # Rubin's (1987) rules: the pooled Wald t on Rubin's degrees of freedom.
+      # The per-imputation tests are large-sample z tests, so the complete-data
+      # df is infinite and Barnard-Rubin reduces to this; with no between-
+      # imputation variance (riv = 0) the reference is the normal. The pooled
+      # p-value used to be the geometric mean of the per-imputation p-values,
+      # which is not a valid test.
+      riv = (1 + 1 / n_imputations) * .data$var_b / .data$var_w,
+      df = ifelse(.data$riv > 0,
+        (n_imputations - 1) * (1 + 1 / .data$riv)^2, Inf
+      ),
+      statistic = .data$est / .data$se,
+      p_value = 2 * stats::pt(abs(.data$statistic), .data$df, lower.tail = FALSE)
+    ) |>
     dplyr::rename(estimate = "est", std_error = "se") |>
     dplyr::relocate(
       "term",
       "estimate",
       "std_error",
+      "statistic",
+      "df",
       "p_value",
       "var_b",
       "var_w",
-      "var_tot"
+      "var_tot",
+      "riv"
     ) |>
     tibble::as_tibble()
 })

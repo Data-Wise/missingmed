@@ -17,9 +17,14 @@ mbco_d4(
 }
 \arguments{
 \item{implist}{A list of at least two completed data frames, e.g.
-\code{mice::complete(imp, "all")}.}
+\code{mice::complete(imp, "all")}. They must share the same columns (in any
+order) and number of rows, contain the treatment and mediator, and have
+no missing values in the model variables.}
 
-\item{formula_y, formula_m}{Outcome and mediator model formulas.}
+\item{formula_y, formula_m}{Outcome and mediator model formulas. The
+response of \code{formula_m} must involve the mediator and nothing else (\code{M}
+or a transform such as \code{log(M)}), and the mediator may not appear in the
+response of \code{formula_y}.}
 
 \item{family_y, family_m}{\code{\link[stats:family]{stats::family()}} objects for the two models
 (default \code{\link[stats:gaussian]{stats::gaussian()}}); models are fit with \code{\link[stats:glm]{stats::glm()}}.}

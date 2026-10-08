@@ -11,11 +11,7 @@
    textual =~ x4 + x5 + x6
    speed   =~ x7 + x8 + x9
    "
-fit <- lavaan::sem(model, hs)
-summary(fit)
-
 expect_warning(sem_imputed_data <- set_sem(imputed_data, model), "set_sem\\(\\) is deprecated")
-summary(sem_imputed_data)
 
 test_that("summary method for SemImputedData objects provides comprehensive summary", {
   summary_output <- capture.output(summary(sem_imputed_data))

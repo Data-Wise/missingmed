@@ -6,7 +6,7 @@
 \alias{missingmed-package}
 \title{missingmed: Mediation Analysis with Multiple Imputation for Missing Data}
 \description{
-missingmed runs SEM-based mediation analysis across multiply imputed datasets
+missingmed runs regression-based mediation analysis across multiply imputed datasets
 and pools with Rubin's rules. It is a thin orchestration layer: it \strong{fits}
 each imputation with \link[medfit:medfit]{medfit} and delegates \strong{inference} to \link[RMediation:RMediation]{RMediation}.
 }
@@ -24,7 +24,7 @@ each imputation with \link[medfit:medfit]{medfit} and delegates \strong{inferenc
 \section{Deprecated S4 API}{
 
 \code{\link[=set_sem]{set_sem()}}, \code{\link[=run_sem]{run_sem()}}, and \code{\link[=pool_sem]{pool_sem()}} are superseded by the S7 pipeline
-above and kept for one release cycle.
+above. They are replaced by \code{.Defunct()} stubs in 0.6.0.
 }
 
 \seealso{

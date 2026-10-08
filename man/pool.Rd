@@ -22,6 +22,9 @@ pooled named \link[medfit:MediationData]{medfit::MediationData} (the \code{poole
 \link{MDMediationResult}). Because the estimates and variance-covariance carry the
 mediation path names (\code{a}, \code{b}, \code{c_prime}, ...), the pooled object is valid
 input to \code{\link[RMediation:ci_mediation_data]{RMediation::ci_mediation_data()}} / \code{\link[RMediation:medci]{RMediation::medci()}}.
+For a model with a treatment-by-mediator interaction, use
+\code{\link[=infer]{infer()}}\verb{(type = "mc", treatment_level = )} instead: those RMediation
+functions use only \eqn{a b}, the indirect effect at treatment level 0.
 }
 \details{
 Pooling math (migrated from the S4 \code{pool_sem} / \code{pool_tidy} / \code{pool_cov}):
@@ -40,6 +43,8 @@ multiple imputation. \emph{Biometrika}, 86(4), 948--955.
 \seealso{
 \code{\link[=run]{run()}}, \code{\link[=infer]{infer()}}, \code{\link[=pool_sem]{pool_sem()}}
 The returned tidy table also carries a per-coefficient Wald test
-(\code{statistic}, \code{df}, \code{riv}, \code{fmi}, \code{p_value}); see \link{MDMediationResult} for the
-columns and why they do not test the indirect effect.
+(\code{statistic}, \code{df}, \code{riv}, \code{fmi}, \code{p_value}) and, when \code{conf_int = TRUE} was
+set in \code{\link[=set_md_mediation]{set_md_mediation()}}, per-coefficient \code{conf_low} and \code{conf_high} at
+\code{conf_level} on the same t reference; see \link{MDMediationResult} for the columns
+and why they do not test or bound the indirect effect.
 }

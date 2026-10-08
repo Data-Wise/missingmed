@@ -41,14 +41,26 @@ MDMediationFit <- S7::new_class(
       self@conf_level <= 0 || self@conf_level >= 1) {
       return("@conf_level must be a single number in (0, 1).")
     }
-    if (length(self@m) != 1L || self@m < 1) {
+    if (length(self@m) != 1L || is.na(self@m) || self@m < 1) {
       return("@m must be a single positive number of imputations.")
     }
     if (length(self@per_imputation) != self@m) {
       return("@per_imputation must have length @m (one MediationData per imputation).")
+    }
+    # print() and pool() read @a_path and @b_path from every element. Checked by
+    # property, not class: medfit's InteractionMediationData does not inherit
+    # from MediationData.
+    if (!all(vapply(self@per_imputation, .is_path_fit, logical(1)))) {
+      return("@per_imputation must hold medfit mediation fits (S7 objects with @a_path and @b_path).")
     }
     NULL
   }
 )
 
 S7::S4_register(MDMediationFit)
+
+# Is `x` a medfit fit that carries the a and b paths? Shared by the
+# MDMediationFit and MDMediationResult validators.
+.is_path_fit <- function(x) {
+  S7::S7_inherits(x) && all(c("a_path", "b_path") %in% S7::prop_names(x))
+}

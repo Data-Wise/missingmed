@@ -48,12 +48,9 @@ setValidity("PooledSEMResults", function(object) {
     messages <- c(messages, "conf_int must be a logical value.")
   }
 
+  # Only the base columns are required: pool_sem() adds conf_low/conf_high
+  # when 'conf_int' is TRUE, but a table built by hand need not carry them.
   requiredColumns <- c("term", "estimate", "std_error", "p_value")
-
-  requiredColumns <- ifelse(object@conf_int,
-    c(requiredColumns, "conf_low", "conf_high"),
-    requiredColumns
-  )
 
   if (!is.data.frame(object@tidy_table) ||
     nrow(object@tidy_table) == 0) {
@@ -74,7 +71,7 @@ setValidity("PooledSEMResults", function(object) {
   # Check if cov_total, cov_between, and cov_within are positive definite symmetric matrices
   warning_messages <- character(0)
 
-  if (!is_pd(object@cov_total)) {
+  if (!is_pd(object@cov_total, quiet = TRUE)) {
     warning_messages <-
       c(
         warning_messages,
@@ -82,7 +79,7 @@ setValidity("PooledSEMResults", function(object) {
       )
   }
 
-  if (!is_pd(object@cov_between)) {
+  if (!is_pd(object@cov_between, quiet = TRUE)) {
     warning_messages <-
       c(
         warning_messages,
@@ -90,7 +87,7 @@ setValidity("PooledSEMResults", function(object) {
       )
   }
 
-  if (!is_pd(object@cov_within)) {
+  if (!is_pd(object@cov_within, quiet = TRUE)) {
     warning_messages <-
       c(
         warning_messages,

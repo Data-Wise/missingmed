@@ -61,8 +61,17 @@
 #'   be `NULL` when `delta` is a data frame.
 #' @param type Inference per rung: `"mc"` (default) or `"mbco"`.
 #' @param seed Integer seed pinned across rungs. Defaults to the seed stored in
-#'   the `mids` object, or `20260822L` when that is `NA`.
-#' @param level,n.mc Passed to [infer()].
+#'   the `mids` object, or `20260822L` when that is `NA`. A fractional value is
+#'   truncated, as [set.seed()] does, and the result records the integer used.
+#' @param level,n.mc,treatment_level Passed to [infer()] for `type = "mc"`.
+#'   `treatment_level` is required when the outcome model has a
+#'   treatment-by-mediator interaction and an error otherwise. For
+#'   `type = "mbco"`, `level` sets the test size used to find the tipping point
+#'   (p > 1 - `level` retains the null), and `n.mc` and `treatment_level` do not
+#'   apply (a warning names them if supplied).
+#' @param ariv For `type = "mbco"`: passed to [infer()] for every rung
+#'   (`"fixed"`, the default, or `"own"`; see [mbco_d4()]). Ignored, with a
+#'   warning, for `type = "mc"`.
 #' @param ums Optional character vector for a **covariate-varying** delta, one
 #'   rung per string, passed verbatim to `mice`'s NARFCS `ums` (e.g.
 #'   `"1 + 0.5*C"`: the offset is 1 + 0.5 C per row). Each string needs exactly
@@ -77,8 +86,15 @@
 sensitivity_mnar <- function(object, delta, target = NULL,
                              type = c("mc", "mbco"), seed = NULL,
                              level = NULL, n.mc = 1e5,
-                             ums = NULL, ...) {
+                             ums = NULL, treatment_level = NULL,
+                             ariv = c("fixed", "own"), ...) {
+  # missing() is only reliable before an argument is reassigned. `level` is not
+  # listed: under "mbco" it still sets the test size for the tipping point.
+  supplied <- c(n.mc = !missing(n.mc),
+    treatment_level = !missing(treatment_level), ariv = !missing(ariv))
   type <- match.arg(type)
+  ariv <- match.arg(ariv)
+  .warn_ignored(supplied, type)
   if (!S7::S7_inherits(object, MDMediationData)) {
     stop("`object` must be an MDMediationData (from set_md_mediation()).",
       call. = FALSE
@@ -113,6 +129,14 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   }
 
   level <- level %||% object@conf_level
+  # Checked here because type = "mbco" never uses `level`, so a bad value would
+  # otherwise surface only in the result validator, after every rung has run.
+  if (!is.numeric(level) || length(level) != 1L || !is.finite(level) ||
+    level <= 0 || level >= 1) {
+    stop("`level` must be a single number strictly between 0 and 1.",
+      call. = FALSE
+    )
+  }
 
   if (!is.null(ums)) {
     if (!missing(delta)) {
@@ -157,7 +181,20 @@ sensitivity_mnar <- function(object, delta, target = NULL,
       seed <- 20260822L
       seed_source <- "default"
     }
+  } else if (!is.numeric(seed) || length(seed) != 1L || !is.finite(seed) ||
+    abs(seed) > .Machine$integer.max) {
+    # mice() skips set.seed() for an NA seed, so NA_integer_ would leave every
+    # rung on a fresh random stream and the curve would not reproduce; NA and
+    # TRUE fail only in the result validator, after every rung has run; and an
+    # out-of-range seed fails inside mice(), which the ums probe would report
+    # as a problem with the ums string.
+    stop("`seed` must be a single finite number in the integer range (it is ",
+      "passed to set.seed() through mice() for every rung).",
+      call. = FALSE
+    )
   }
+  # set.seed() truncates a fractional seed; record the integer actually used.
+  seed <- as.integer(seed)
 
   meth <- unname(mids$method[vapply(targets, .mnar_block_of, character(1), mids = mids)])
   mechanism <- vapply(targets, .mnar_route, character(1),
@@ -209,9 +246,10 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     obj_i@mechanism <- "mnar"
     fit_i <- run(obj_i, ...)
     rungs[[i]] <- if (type == "mc") {
-      infer(pool(fit_i), type = "mc", level = level, n.mc = n.mc)
+      infer(pool(fit_i), type = "mc", level = level, n.mc = n.mc,
+        treatment_level = treatment_level)
     } else {
-      infer(fit_i, type = "mbco")
+      infer(fit_i, type = "mbco", ariv = ariv)
     }
   }
 
@@ -235,6 +273,16 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     }
     if (!nrow(delta) || !ncol(delta)) {
       stop("`delta` data frame must have at least one row and one column.",
+        call. = FALSE
+      )
+    }
+    # Column names are the targets. A duplicated name would be shifted by its
+    # first column only -- the rung silently reports the other column's delta --
+    # and an NA or empty name cannot be looked up at all.
+    nm <- names(delta)
+    if (anyNA(nm) || !all(nzchar(nm)) || anyDuplicated(nm)) {
+      stop("`delta` data frame columns must have unique, non-empty names: each ",
+        "names the target variable it shifts.",
         call. = FALSE
       )
     }
@@ -262,6 +310,14 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   if (!all(is.finite(delta))) {
     stop("`delta` must be finite (no NA, NaN or Inf): a non-finite shift makes ",
       "that rung's imputations NA.",
+      call. = FALSE
+    )
+  }
+  # A one-column matrix is a vector of rungs; a wider one would become several
+  # unnamed target columns below.
+  if (length(dim(delta)) > 1L && prod(dim(delta)[-1L]) != 1L) {
+    stop("`delta` must be a vector (one rung per value). For several targets ",
+      "use a data frame with one named column per target.",
       call. = FALSE
     )
   }

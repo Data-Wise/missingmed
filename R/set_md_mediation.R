@@ -11,13 +11,46 @@
 #' * `"ipw"` — `data` is a raw `data.frame`; [run()] reweights the complete cases
 #'   by inverse missingness probability and fits once.
 #'
+#' @details
+#' The model is validated before anything is fit. Formulas are first expanded
+#' against the data, so `Y ~ .` is checked as the model that [run()] fits.
+#' `set_md_mediation()` refuses:
+#' * a one-sided formula, or a `treatment`/`mediator` that is not a single
+#'   variable name;
+#' * a variable in either formula that is neither a column of the data nor
+#'   defined in the formula's environment (the treatment and mediator must be
+#'   columns);
+#' * a `formula_m` whose response is not the bare `mediator` column (a
+#'   transform such as `log(M)` needs its own column), or a `formula_y` whose
+#'   response involves the mediator;
+#' * a `treatment` that is not a main effect of `formula_m` and of
+#'   `formula_y`, or a `mediator` that is not a main effect of `formula_y`;
+#' * any other term involving the treatment or mediator. Both enter only as
+#'   main effects, plus, in `formula_y` only, one treatment-by-mediator
+#'   interaction (`X:M`, `M:X` or from `X * M`). Products such as `X:C`,
+#'   `M:W` or `X:M:W`, transforms such as `I(X^2)`, `poly(X, 2)` or `log(M)`,
+#'   and offsets involving either variable are refused. For moderated models,
+#'   [mbco_d4()] tests the indirect effect on the completed datasets;
+#' * an `X:M` term when `family_y` or `family_m` is not Gaussian with an
+#'   identity link;
+#' * a treatment column that is not numeric. Factor, character and logical
+#'   treatments must be recoded to numeric (0/1 for a binary treatment);
+#' * a `treatment` or `mediator` that is not a syntactic R name (such as
+#'   `"my M"`), which medfit cannot fit. Covariates may have any name;
+#' * an `engine` other than `"glm"`, or `"regmedint"` with medfit >= 0.4.0 and
+#'   `method = "mi"` (regmedint takes no case weights);
+#' * a `weight_formula` that is not `NULL`, a formula or a named list of
+#'   formulas, or that uses a variable found neither in the data nor in its
+#'   environment.
+#'
 #' @param data For `method = "mi"`, a [mice::mids] object; for `method = "ipw"`,
 #'   a `data.frame` (may contain `NA`s; complete cases are reweighted).
 #' @param formula_y Outcome model formula (e.g. `Y ~ X + M + C`).
 #' @param formula_m Mediator model formula (e.g. `M ~ X + C`).
 #' @param treatment Name of the treatment/exposure variable.
 #' @param mediator Name of the mediator variable.
-#' @param engine medfit fitting engine. Defaults to `"glm"`.
+#' @param engine medfit fitting engine: `"glm"` (default), or `"regmedint"`
+#'   (needs medfit >= 0.4.0 and the regmedint package; `method = "mi"` only).
 #' @param family_y,family_m `stats::family` objects for the outcome and mediator
 #'   models. Default `stats::gaussian()`.
 #' @param method Estimator axis: `"mi"` (default) or `"ipw"`.
@@ -30,9 +63,12 @@
 #' @param weight_stabilize (IPW) Use stabilized weights? Default `TRUE`.
 #' @param weight_trim (IPW) Upper quantile to cap weights; `1` (default) = none.
 #' @param se_type (IPW) `"sandwich"` (default, HC robust) or `"model"`.
-#' @param conf_int Logical; whether downstream output carries confidence
-#'   intervals. Defaults to `FALSE`.
-#' @param conf_level Numeric in (0, 1); confidence level. Defaults to `0.95`.
+#' @param conf_int Logical; if `TRUE`, [pool()] adds per-coefficient
+#'   `conf_low` and `conf_high` columns to the pooled tidy table, at
+#'   `conf_level` on Rubin's t reference. Defaults to `FALSE`. These bound
+#'   single coefficients; for the indirect effect use [infer()].
+#' @param conf_level Numeric in (0, 1); confidence level for `conf_int` and the
+#'   default `level` of [infer()]. Defaults to `0.95`.
 #'
 #' @return An [MDMediationData] object.
 #' @seealso [MDMediationData], [run()], [pool()], [infer()], [medfit::fit_mediation()]
@@ -96,9 +132,10 @@ set_md_mediation <- function(data, formula_y, formula_m,
   if (!inherits(formula_y, "formula") || !inherits(formula_m, "formula")) {
     stop("'formula_y' and 'formula_m' must be formula objects.", call. = FALSE)
   }
-  if (!is.logical(conf_int) || length(conf_int) != 1L) {
+  if (!is.logical(conf_int) || length(conf_int) != 1L || is.na(conf_int)) {
     stop("'conf_int' must be a single logical value.", call. = FALSE)
   }
+  .check_engine(engine, method)
   if (conf_int && (!is.numeric(conf_level) || length(conf_level) != 1L ||
     conf_level <= 0 || conf_level >= 1)) {
     stop("'conf_level' must be a single number in (0, 1).", call. = FALSE)
@@ -111,6 +148,11 @@ set_md_mediation <- function(data, formula_y, formula_m,
     n_imputations <- 1
     original_data <- as.data.frame(data)
   }
+
+  .check_md_spec(formula_y, formula_m, treatment, mediator,
+    family_y, family_m, original_data)
+  .check_ipw_args(weight_formula, weight_stabilize, weight_trim, original_data,
+    method)
 
   MDMediationData(
     data = data,
@@ -132,4 +174,272 @@ set_md_mediation <- function(data, formula_y, formula_m,
     n_imputations = n_imputations,
     original_data = original_data
   )
+}
+
+# Role checks shared by set_md_mediation() and mbco_d4(): two-sided formulas,
+# single-name roles, the treatment predicts the mediator, the mediator predicts
+# the outcome, the response of `formula_m` is the mediator and the mediator is
+# not the outcome. They work on variables (all.vars()), not terms, so
+# mbco_d4() keeps accepting `log(M) ~ X` and moderated models; the term-level
+# rules live in .check_md_spec(). A `.` on a right-hand side is expanded
+# against `data` when it is given; without data, the predictor checks for that
+# formula are skipped rather than failing a model such as `Y ~ .`.
+.check_roles <- function(formula_y, formula_m, treatment, mediator, data = NULL) {
+  fs <- list(formula_y = formula_y, formula_m = formula_m)
+  for (nm in names(fs)) {
+    if (!inherits(fs[[nm]], "formula") || length(fs[[nm]]) != 3L) {
+      stop("`", nm, "` must be a two-sided formula.", call. = FALSE)
+    }
+  }
+  if (!is.null(data)) {
+    formula_y <- stats::formula(stats::terms(formula_y, data = data))
+    formula_m <- stats::formula(stats::terms(formula_m, data = data))
+  }
+  has_dot <- function(f) "." %in% all.vars(f[[3]])
+  roles <- list(treatment = treatment, mediator = mediator)
+  for (nm in names(roles)) {
+    v <- roles[[nm]]
+    if (!is.character(v) || length(v) != 1L || is.na(v) || !nzchar(v)) {
+      stop("`", nm, "` must be a single variable name.", call. = FALSE)
+    }
+  }
+  if (identical(treatment, mediator)) {
+    stop("`treatment` and `mediator` are both '", treatment, "'; they must ",
+      "be different variables.",
+      call. = FALSE
+    )
+  }
+  if (!has_dot(formula_m) && !treatment %in% all.vars(formula_m[[3]])) {
+    stop("`treatment` '", treatment, "' is not a predictor in `formula_m`.",
+      call. = FALSE
+    )
+  }
+  if (!has_dot(formula_y) && !mediator %in% all.vars(formula_y[[3]])) {
+    stop("`mediator` '", mediator, "' is not a predictor in `formula_y`.",
+      call. = FALSE
+    )
+  }
+  # A `formula_m` modelling another variable fits, but its "a path" is the
+  # treatment's effect on that variable, so the indirect effect is silently
+  # wrong.
+  if (!identical(all.vars(formula_m[[2]]), mediator)) {
+    stop("The response of `formula_m` is '", deparse1(formula_m[[2]]),
+      "', but `mediator` is '", mediator, "'. `formula_m` must model the ",
+      "mediator.",
+      call. = FALSE
+    )
+  }
+  if (mediator %in% all.vars(formula_y[[2]])) {
+    stop("`mediator` '", mediator, "' is the response of `formula_y`; ",
+      "`formula_y` must model the outcome.",
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+# Pre-fit validation for set_md_mediation(): .check_roles() plus the term
+# grammar run() -> pool() -> infer() can estimate. Formulas are expanded
+# against `data` first, so `Y ~ .` is checked as the model that will be fit.
+.check_md_spec <- function(formula_y, formula_m, treatment, mediator,
+                           family_y, family_m, data) {
+  expand <- function(f) stats::formula(stats::terms(f, data = data))
+  fy <- expand(formula_y)
+  fm <- expand(formula_m)
+  .check_roles(fy, fm, treatment, mediator)
+
+  # medfit backticks a non-syntactic coefficient name (`my M`) and then fails
+  # to find the bare name among them, so run() could never fit this model.
+  # Covariates are not looked up by name and may be called anything.
+  role_vars <- c(treatment = treatment, mediator = mediator)
+  for (nm in names(role_vars)) {
+    v <- role_vars[[nm]]
+    if (!identical(deparse(as.name(v), backtick = TRUE), v)) {
+      stop("`", nm, "` '", v, "' is not a syntactic R name, which ",
+        "medfit cannot fit. Rename the column (for example with ",
+        "make.names()) and use the new name in both formulas.",
+        call. = FALSE
+      )
+    }
+  }
+
+  # The treatment and mediator must be columns; other names may come from the
+  # formula's environment (see .not_in_env()).
+  absent <- unique(c(
+    .not_in_env(setdiff(all.vars(fy), names(data)), formula_y),
+    .not_in_env(setdiff(all.vars(fm), names(data)), formula_m),
+    setdiff(c(treatment, mediator), names(data))
+  ))
+  if (length(absent)) {
+    stop("Variable", if (length(absent) > 1L) "s" else "", " ",
+      paste0("'", absent, "'", collapse = ", "), " not found in `data`.",
+      call. = FALSE
+    )
+  }
+
+  if (!identical(fm[[2]], as.name(mediator))) {
+    stop("The response of `formula_m` must be the mediator column '", mediator,
+      "' itself, not '", deparse1(fm[[2]]), "'. Create a transformed column ",
+      "in the data and use it as `mediator` in both formulas.",
+      call. = FALSE
+    )
+  }
+
+  is_role <- function(s, v) identical(str2lang(s), as.name(v))
+  tt <- list(formula_y = stats::terms(fy), formula_m = stats::terms(fm))
+  need <- list(
+    c("formula_y", treatment, "treatment"),
+    c("formula_y", mediator, "mediator"),
+    c("formula_m", treatment, "treatment")
+  )
+  for (nd in need) {
+    labs <- attr(tt[[nd[1]]], "term.labels")
+    if (!any(vapply(labs, is_role, logical(1), v = nd[2]))) {
+      stop("`", nd[3], "` '", nd[2], "' must enter `", nd[1], "` as a main ",
+        "effect.",
+        call. = FALSE
+      )
+    }
+  }
+
+  # Term grammar: the treatment and mediator enter only as bare main effects,
+  # plus, in `formula_y`, the one treatment-by-mediator product. Any other term
+  # carrying them (X:C, M:W, X:M:W, I(X^2), poly(X, 2), log(M)) changes what
+  # the a, b and c' coefficients mean, and the pipeline would pool them as if
+  # it did not.
+  roles <- c(treatment, mediator)
+  has_xm <- FALSE
+  for (nm in names(tt)) {
+    t_nm <- tt[[nm]]
+    labs <- attr(t_nm, "term.labels")
+    fac <- attr(t_nm, "factors")
+    for (j in seq_along(labs)) {
+      if (!any(roles %in% all.vars(str2lang(labs[j])))) next
+      if (is_role(labs[j], treatment) || is_role(labs[j], mediator)) next
+      comps <- rownames(fac)[fac[, j] > 0]
+      xm <- nm == "formula_y" && length(comps) == 2L &&
+        ((is_role(comps[1], treatment) && is_role(comps[2], mediator)) ||
+          (is_role(comps[1], mediator) && is_role(comps[2], treatment)))
+      if (xm) {
+        has_xm <- TRUE
+        next
+      }
+      stop("Term `", labs[j], "` in `", nm, "` is not supported: the ",
+        "treatment and mediator may enter only as main effects, plus one ",
+        "treatment-by-mediator interaction (`", treatment, ":", mediator,
+        "`) in `formula_y`. For moderated or transformed paths, test the ",
+        "indirect effect with mbco_d4() on the completed datasets.",
+        call. = FALSE
+      )
+    }
+    off <- attr(t_nm, "offset")
+    vars <- as.list(attr(t_nm, "variables"))[-1L]
+    for (o in off) {
+      if (any(roles %in% all.vars(vars[[o]]))) {
+        stop("Offset `", deparse1(vars[[o]]), "` in `", nm, "` involves the ",
+          "treatment or mediator, which set_md_mediation() does not support.",
+          call. = FALSE
+        )
+      }
+    }
+  }
+
+  # The X:M effect a(b + theta3 x) is a product of linear-model coefficients;
+  # on a nonlinear link it is not the indirect effect.
+  if (has_xm) {
+    fams <- list(family_y = family_y, family_m = family_m)
+    for (nm in names(fams)) {
+      f <- fams[[nm]]
+      if (is.character(f)) f <- get(f, mode = "function", envir = parent.frame())
+      if (is.function(f)) f <- f()
+      ok <- inherits(f, "family") && identical(f$family, "gaussian") &&
+        identical(f$link, "identity")
+      if (!ok) {
+        stop("A treatment-by-mediator interaction (`", treatment, ":",
+          mediator, "`) in `formula_y` needs Gaussian models with an identity ",
+          "link; `", nm, "` is not. Drop the interaction or use Gaussian ",
+          "`family_y` and `family_m`.",
+          call. = FALSE
+        )
+      }
+    }
+  }
+
+  x <- data[[treatment]]
+  if (!is.numeric(x)) {
+    stop("`treatment` '", treatment, "' must be a numeric column (0/1 for a ",
+      "binary treatment, or continuous), not ", class(x)[1L], ". Recode it to ",
+      "numeric before calling set_md_mediation().",
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+# The names in `vs` (already known to be absent from the data) that the
+# formula's environment does not supply either. A constant such as `k` in
+# `I(C * k)` is fine, as model.frame() would find it.
+.not_in_env <- function(vs, f) {
+  env <- environment(f) %||% globalenv()
+  # A function of the same name (stats::C) is not a value model.frame() can use.
+  found <- vapply(vs, function(v) {
+    exists(v, envir = env) && !is.function(get(v, envir = env))
+  }, logical(1))
+  vs[!found]
+}
+
+# The IPW arguments. `weight_stabilize` and `weight_trim` are checked for
+# either method, as the MDMediationData validator checks `weight_trim`
+# regardless (and fails obscurely on NA); `weight_formula`, which method "mi"
+# ignores, only for IPW.
+.check_ipw_args <- function(weight_formula, weight_stabilize, weight_trim, data,
+                            method = "ipw") {
+  if (!is.logical(weight_stabilize) || length(weight_stabilize) != 1L ||
+    is.na(weight_stabilize)) {
+    stop("`weight_stabilize` must be TRUE or FALSE.", call. = FALSE)
+  }
+  if (!is.numeric(weight_trim) || length(weight_trim) != 1L ||
+    is.na(weight_trim) || weight_trim <= 0 || weight_trim > 1) {
+    stop("`weight_trim` must be a single number in (0, 1].", call. = FALSE)
+  }
+  wf <- weight_formula
+  if (is.null(wf) || !identical(method, "ipw")) {
+    return(invisible(TRUE))
+  }
+  # Anything else (a string, an unnamed list) used to fall through to the
+  # default missingness model without a word.
+  is_f <- function(x) inherits(x, "formula")
+  fs <- if (is_f(wf)) {
+    list(wf)
+  } else if (is.list(wf) && length(wf) > 0L && !is.null(names(wf)) &&
+    all(nzchar(names(wf))) && all(vapply(wf, is_f, logical(1)))) {
+    wf
+  } else {
+    stop("`weight_formula` must be NULL, a formula (e.g. `~ X + C`), or a ",
+      "named list of formulas, one per incomplete variable (e.g. ",
+      "`list(M = ~ X + C)`).",
+      call. = FALSE
+    )
+  }
+  # A list naming a variable that is not a column is refused by run()
+  # (.ipw_weights()), with a clear message.
+  # run() builds the missingness model from the term labels without the data,
+  # where `.` cannot be expanded.
+  if (any(vapply(fs, function(f) "." %in% all.vars(f[[length(f)]]), logical(1)))) {
+    stop("`weight_formula` cannot use `.`; list the predictors of missingness ",
+      "(e.g. `~ X + C`).",
+      call. = FALSE
+    )
+  }
+  absent <- unique(unlist(lapply(fs, function(f) {
+    rhs <- setdiff(all.vars(f[[length(f)]]), names(data))
+    .not_in_env(rhs, f)
+  })))
+  if (length(absent)) {
+    stop("`weight_formula` uses ", paste0("'", absent, "'", collapse = ", "),
+      ", not found in `data`.",
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
 }

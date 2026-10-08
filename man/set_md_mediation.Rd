@@ -35,7 +35,8 @@ a \code{data.frame} (may contain \code{NA}s; complete cases are reweighted).}
 
 \item{mediator}{Name of the mediator variable.}
 
-\item{engine}{medfit fitting engine. Defaults to \code{"glm"}.}
+\item{engine}{medfit fitting engine: \code{"glm"} (default), or \code{"regmedint"}
+(needs medfit >= 0.4.0 and the regmedint package; \code{method = "mi"} only).}
 
 \item{family_y, family_m}{\code{stats::family} objects for the outcome and mediator
 models. Default \code{stats::gaussian()}.}
@@ -56,10 +57,13 @@ predictors), a single \code{formula}, or a named \code{list} of per-variable for
 
 \item{se_type}{(IPW) \code{"sandwich"} (default, HC robust) or \code{"model"}.}
 
-\item{conf_int}{Logical; whether downstream output carries confidence
-intervals. Defaults to \code{FALSE}.}
+\item{conf_int}{Logical; if \code{TRUE}, \code{\link[=pool]{pool()}} adds per-coefficient
+\code{conf_low} and \code{conf_high} columns to the pooled tidy table, at
+\code{conf_level} on Rubin's t reference. Defaults to \code{FALSE}. These bound
+single coefficients; for the indirect effect use \code{\link[=infer]{infer()}}.}
 
-\item{conf_level}{Numeric in (0, 1); confidence level. Defaults to \code{0.95}.}
+\item{conf_level}{Numeric in (0, 1); confidence level for \code{conf_int} and the
+default \code{level} of \code{\link[=infer]{infer()}}. Defaults to \code{0.95}.}
 }
 \value{
 An \link{MDMediationData} object.
@@ -77,6 +81,39 @@ Two estimators share the interface (\code{method}):
 \item \code{"mi"} — \code{data} is a \link[mice:mids]{mice::mids} object; \code{\link[=run]{run()}} fits every imputation.
 \item \code{"ipw"} — \code{data} is a raw \code{data.frame}; \code{\link[=run]{run()}} reweights the complete cases
 by inverse missingness probability and fits once.
+}
+
+The model is validated before anything is fit. Formulas are first expanded
+against the data, so \code{Y ~ .} is checked as the model that \code{\link[=run]{run()}} fits.
+\code{set_md_mediation()} refuses:
+\itemize{
+\item a one-sided formula, or a \code{treatment}/\code{mediator} that is not a single
+variable name;
+\item a variable in either formula that is neither a column of the data nor
+defined in the formula's environment (the treatment and mediator must be
+columns);
+\item a \code{formula_m} whose response is not the bare \code{mediator} column (a
+transform such as \code{log(M)} needs its own column), or a \code{formula_y} whose
+response involves the mediator;
+\item a \code{treatment} that is not a main effect of \code{formula_m} and of
+\code{formula_y}, or a \code{mediator} that is not a main effect of \code{formula_y};
+\item any other term involving the treatment or mediator. Both enter only as
+main effects, plus, in \code{formula_y} only, one treatment-by-mediator
+interaction (\code{X:M}, \code{M:X} or from \code{X * M}). Products such as \code{X:C},
+\code{M:W} or \code{X:M:W}, transforms such as \code{I(X^2)}, \code{poly(X, 2)} or \code{log(M)},
+and offsets involving either variable are refused. For moderated models,
+\code{\link[=mbco_d4]{mbco_d4()}} tests the indirect effect on the completed datasets;
+\item an \code{X:M} term when \code{family_y} or \code{family_m} is not Gaussian with an
+identity link;
+\item a treatment column that is not numeric. Factor, character and logical
+treatments must be recoded to numeric (0/1 for a binary treatment);
+\item a \code{treatment} or \code{mediator} that is not a syntactic R name (such as
+\code{"my M"}), which medfit cannot fit. Covariates may have any name;
+\item an \code{engine} other than \code{"glm"}, or \code{"regmedint"} with medfit >= 0.4.0 and
+\code{method = "mi"} (regmedint takes no case weights);
+\item a \code{weight_formula} that is not \code{NULL}, a formula or a named list of
+formulas, or that uses a variable found neither in the data nor in its
+environment.
 }
 }
 \examples{

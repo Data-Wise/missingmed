@@ -28,7 +28,7 @@
 is_valid_lav_syntax <- function(model, data = NULL) {
   # Ensure data is a data frame and is not NULL
   if (!is.null(data) && !is.data.frame(data)) {
-    stop("'data' must be a data frame.")
+    stop("'data' must be a data frame.", call. = FALSE)
   }
 
   tryCatch(

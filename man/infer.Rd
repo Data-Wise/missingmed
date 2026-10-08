@@ -17,10 +17,20 @@ object's \verb{@conf_level}, itself \code{0.95} unless set in \code{\link[=set_m
 (Monte-Carlo draws for \code{"mc"}, default \code{1e5}), and \code{ariv} (for \code{"mbco"}:
 \code{"fixed"} (default) tests every imputation on the branch the stacked
 constrained fit chose; \code{"own"} uses each imputation's own winning branch
-and reproduces missingmed 0.4.0 on full-rank designs; see \code{\link[=mbco_d4]{mbco_d4()}}).}
+and reproduces missingmed 0.4.0 on full-rank designs; see \code{\link[=mbco_d4]{mbco_d4()}}),
+and \code{treatment_level} (for \code{"mc"} on a model with an \code{X:M} term, and
+only there: the treatment level \eqn{x} at which the indirect effect
+\eqn{a (b + \theta_3 x)} is evaluated, that is, the effect of a one-unit
+increase in X through M with X held at \eqn{x} in the outcome model. For
+a 0/1 treatment, \code{1} gives the total natural indirect effect and \code{0} the
+pure natural indirect effect. Required for such models; an error
+otherwise). Any other argument is an error, so a misspelled one (say
+\code{conf.level}) is not silently dropped.}
 }
 \value{
-For \code{"mc"}, the list returned by \code{\link[RMediation:ci_mediation_data]{RMediation::ci_mediation_data()}}.
+For \code{"mc"}, the list returned by \code{\link[RMediation:ci_mediation_data]{RMediation::ci_mediation_data()}}
+(\code{CI}, \code{Estimate}, \code{SE}, \code{MC.Error}); for a model with an \code{X:M} term, the
+same elements plus \code{Estimand}, the formula the interval is for.
 For \code{"mbco"}, an \link{MbcoMIResult}: the named numeric \code{c(D4, p, r4, nu, d_S)}
 (index it with \code{r["p"]} or \code{r[["p"]]}) with the branch diagnostics as
 properties.
@@ -33,7 +43,12 @@ missingmed pipeline, dispatching to one of two engines:
 \itemize{
 \item \code{type = "mc"} — Monte-Carlo / distribution-of-the-product confidence
 interval via \code{\link[RMediation:ci_mediation_data]{RMediation::ci_mediation_data()}} applied to the \strong{pooled}
-named \link[medfit:MediationData]{medfit::MediationData}.
+named \link[medfit:MediationData]{medfit::MediationData}. When the outcome model has a
+treatment-by-mediator interaction (\code{Y ~ X * M + ...}), the indirect effect
+is \eqn{a (b + \theta_3 x)}, which depends on the treatment level \eqn{x};
+set \code{treatment_level} to choose it. The interval then comes from
+\code{\link[RMediation:ci]{RMediation::ci()}} on the pooled estimates and pooled covariance of
+\eqn{(a, b, \theta_3)}.
 \item \code{type = "mbco"} — \strong{D4-stacked MBCO} likelihood-ratio test of
 \eqn{H_0: a b = 0}, computed from the per-imputation datasets (MBCO does not
 commute with Rubin's rules; see \code{\link[=per_imputation_list]{per_imputation_list()}}). The engine is

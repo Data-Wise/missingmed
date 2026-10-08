@@ -10,7 +10,7 @@ test_that("tidy.logLik returns expected data frame for valid input", {
   logLik_object <- logLik(lm.D9)
 
   # Call the function
-  result <- RMediation::tidy(logLik_object) |> print()
+  result <- RMediation::tidy(logLik_object)
 
   # Check if the result is as expected
   expect_equal(nrow(result), 1) # Check number of rows

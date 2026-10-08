@@ -127,3 +127,37 @@ test_that("an IPW fit (m = 1) reports riv = fmi = 0 and finite p-values", {
   expect_true(all(tt$riv == 0 & tt$fmi == 0))
   expect_true(all(is.finite(tt$p_value)))
 })
+
+test_that("conf_int = TRUE adds per-coefficient intervals on Rubin's t", {
+  set.seed(31)
+  n <- 150
+  d <- data.frame(X = rnorm(n), C = rnorm(n))
+  d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
+  d$Y <- 0.4 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+  d$M[sample(n, 30)] <- NA
+  imp <- mice::mice(d, m = 3, maxit = 2, method = "norm", printFlag = FALSE, seed = 8)
+  spec <- function(...) {
+    set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+      treatment = "X", mediator = "M", ...
+    )
+  }
+  # v0.5.0 stored conf_int and never used it: no interval columns.
+  plain <- pool(run(spec()))@tidy_table
+  expect_false(any(c("conf_low", "conf_high") %in% names(plain)))
+  tt <- pool(run(spec(conf_int = TRUE, conf_level = 0.9)))@tidy_table
+  q <- stats::qt(0.95, tt$df)
+  expect_equal(tt$conf_low, tt$estimate - q * tt$std_error)
+  expect_equal(tt$conf_high, tt$estimate + q * tt$std_error)
+  # Everything else is unchanged.
+  expect_equal(tt[names(plain)], plain)
+  # Known answer for one coefficient: mice::pool.scalar() with the same dfcom.
+  fits <- run(spec())@per_imputation
+  qa <- vapply(fits, function(f) f@a_path, numeric(1))
+  ua <- vapply(fits, function(f) f@vcov["a", "a"], numeric(1))
+  ref <- mice::pool.scalar(qa, ua, n = n, k = 3)
+  row <- tt[tt$term == "a", ]
+  expect_equal(row$df, ref$df)
+  expect_equal(c(row$conf_low, row$conf_high),
+    ref$qbar + c(-1, 1) * stats::qt(0.95, ref$df) * sqrt(ref$t)
+  )
+})

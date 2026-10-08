@@ -1,3 +1,164 @@
+# missingmed 0.5.1
+
+## New features
+
+* `infer(type = "mc")` supports models with a treatment-by-mediator
+  interaction (`Y ~ X * M + ...`) through a new `treatment_level` argument
+  (#20). The indirect effect there is `a * (b + theta3 * x)`, so the interval
+  is for the treatment level `x` you choose (for a 0/1 treatment, `1` is the
+  total and `0` the pure natural indirect effect); it is drawn from the pooled
+  estimates and pooled covariance of `a`, `b` and `theta3` with
+  `RMediation::ci()`, and the result names the estimand in `Estimand`.
+  `treatment_level` is required for such models and an error elsewhere.
+  `sensitivity_mnar(type = "mc")` passes it through.
+
+* `sensitivity_mnar()` gains `ariv`, passed to `infer(type = "mbco")` for
+  every rung (it was always `"fixed"`); `print()` of an MBCO curve shows it.
+
+* `infer()` and `sensitivity_mnar()` warn, naming them, about arguments that
+  do not apply to the chosen `type` (`level`, `n.mc` and `treatment_level`
+  for `"mbco"` in `infer()`; `ariv` for `"mc"`), instead of ignoring them.
+
+* New vignette, `vignette("worked-analysis")`: a step-by-step tutorial of a
+  mediation analysis with a missing mediator (complete-data reference, MAR
+  deletion, imputation, pooled Monte Carlo interval, D4-MBCO test with both
+  `ariv` choices, MNAR sensitivity), with a second part showing what was
+  added after 0.5.0.
+
+* `set_md_mediation(conf_int = TRUE)` now does what it documented: `pool()`
+  adds per-coefficient `conf_low` and `conf_high` columns to the pooled tidy
+  table, at `conf_level` on Rubin's t reference. Before, the argument was
+  stored and ignored.
+
+## Bug fixes
+
+* `set_md_mediation()` now validates the model before fitting; previously a
+  `formula_m` whose LHS was not `mediator` returned a wrong indirect effect
+  silently. It also refuses terms the pipeline cannot pool correctly: the
+  treatment and mediator may enter only as main effects, plus one `X:M` term
+  in `formula_y` (products such as `X:C` or `M:W`, transforms such as
+  `I(X^2)` or `log(M)`, and offsets involving either are refused, with a
+  pointer to `mbco_d4()` for moderated models); an `X:M` term with a
+  non-Gaussian or non-identity-link `family_y` or `family_m`; and a
+  non-numeric treatment
+  (factor, character or logical; recode to numeric).
+
+* `mbco_d4()` now refuses a `formula_m` whose response involves anything but
+  the mediator (`log(M) ~ X` is still accepted), and a `formula_y` whose
+  response is the mediator.
+
+* `pool()` no longer errors on models with an `X:M` term (#20). It set the
+  pooled path coefficients one at a time, which broke the invariants of
+  medfit's `InteractionMediationData`; it now sets them together, pools the
+  interaction coefficient with Rubin's rules, and recomputes the four-way
+  decomposition (`pie`, `int_med`, `nie`, ...) from the pooled paths and one
+  pooled reference profile: `int_ref` uses the pooled `theta3` and the mean
+  of the per-imputation mediator reference values (which differ when a
+  covariate is imputed), and imputations fitted at different `m_star` are
+  refused. The
+  pooled `theta3` and `b0` rows now take the degrees of freedom of their
+  source rows (`y_X:M`, `m_(Intercept)`).
+
+* `print()` and `summary()` of a pooled `X:M` fit report the indirect effect
+  at `x = 0` and `x = 1` instead of a single `a*b`, which is the `x = 0`
+  value only.
+
+* `pool_sem()` (deprecated) reported the geometric mean of the
+  per-imputation p-values, which is not a valid pooled test. It now reports
+  Rubin's pooled Wald `statistic`, `df` and `riv`, the p-value of the t test on
+  those degrees of freedom, and, with `conf_int = TRUE` in `set_sem()`,
+  `conf_low` and `conf_high` (which were documented but never computed).
+
+* `summary()` of a sensitivity curve with NA rungs still reports the tipping
+  point when every NA rung lies farther from MAR than it, since the unknown
+  verdicts cannot change it; it declines (`undetermined = TRUE`) only when an
+  NA rung could. `sensitivity_mnar()` records a fractional `seed` as the
+  integer `set.seed()` used.
+
+* The S7 classes validate more of their input, turning silent wrong answers
+  and obscure late crashes into clear errors at construction:
+  `MDMediationData` refuses `treatment == mediator`, missing or empty roles,
+  an `engine` that is not a single string, an IPW `weight_stabilize` that is
+  not `TRUE`/`FALSE` (it used to fit unstabilized weights silently), an NA
+  `weight_trim`, and an `n_imputations` that disagrees with the data;
+  `MDMediationFit` and `MDMediationResult` refuse non-fit objects and an NA
+  `m`; `MDSensitivityResult` refuses zero rungs, rungs whose shape does not
+  match `type`, and a `level` outside (0, 1). `print()` of a result with an
+  empty table no longer errors, and `summary()` of a sensitivity curve with
+  NA rungs lists them (new `na_rungs` element) and declines to name a
+  tipping point.
+
+* Engines are checked when the model is set up: `engine` must be one of the
+  engines missingmed supports with the installed medfit (`"glm"`, plus
+  `"regmedint"` with medfit >= 0.4.0 and the MI estimator); anything else,
+  including `"lavaan"` (planned for 0.6.0; `set_sem()` exists today), errors
+  in `set_md_mediation()` instead of inside `run()`. A failed fit is reported
+  as `engine "glm" failed on imputation i of m: ...`, keeping the original
+  message, and fitting warnings are collected into one warning naming the
+  imputations.
+
+* `pool()` aligns the per-imputation estimates and covariance matrices by
+  name; imputations whose coefficients came in a different order were stacked
+  by position and silently scrambled every pooled estimate. Imputations with
+  different coefficient sets are refused, naming the terms, and a pooled `b`
+  that is NA (an aliased mediator) gets a clear error.
+
+* `run()` warns when a mids leaves a model variable incomplete, since each
+  imputation is then fitted on its complete cases. `Y ~ .` now works in
+  `set_md_mediation()`, `run()`, `mbco_d4()` and `infer(type = "mbco")`.
+  A non-syntactic treatment or mediator name (for example `` `my M` ``),
+  which medfit cannot fit, is refused at set-up.
+
+* IPW: with no missing data the weights are exactly 1 without fitting a
+  degenerate response model (no more non-convergence warnings); zero complete
+  cases, a `weight_formula` that is not a formula or named list of formulas,
+  uses `.`, or names absent variables, and an NA `weight_trim`,
+  `weight_stabilize` or `conf_int` are refused at set-up. Names in a
+  `weight_formula` now resolve in the formula's environment.
+
+* `infer()` refuses a `level` outside (0, 1) (0 gave a zero-width interval),
+  an `n.mc` below 2 or not a whole number, and unknown arguments in `...`
+  (for example `conf.level = 0.9` was silently ignored and a 95% interval
+  returned).
+
+* `sensitivity_mnar()` checks `seed` and `level` before re-imputing, and
+  refuses a delta grid with duplicate or empty column names (a duplicate
+  name silently reported the wrong rung) and a delta matrix with more than
+  one column. `seed = NA` is refused because it made the curve
+  irreproducible.
+
+* `mbco_d4()` and `infer(type = "mbco")` refuse imputations that differ in
+  row count, columns, or a model variable's type, and NA left in a model
+  variable (which silently dropped different rows per model); a failed fit
+  names its imputation. When the imputations are identical, `r4` is now
+  exactly 0 and `nu` is `Inf` instead of rounding noise.
+
+* The deprecated S4 pipeline works again: `run_sem()` failed on every call
+  (an internal `lav_mice()`/`mx_mice()` with swapped arguments was masked by
+  the exported functions), and `lav_mice()` rejected every valid model
+  syntax (an inverted check). `fit_model()` and `set_sem()` list the
+  accepted model types for anything else; a lavaan or OpenMx failure names
+  its imputation, and per-imputation warnings are collected into one.
+  `pool_sem()` needs at least two imputations (with one, every standard
+  error was NA), `is_pd()` returns `FALSE` for a non-symmetric matrix,
+  `PooledSEMResults` requires its four base columns, `set_sem()` refuses a
+  `conf_level` of 0 or 1, and `mx_mice()` now passes `...` to
+  `OpenMx::mxRun()` as documented (so unknown arguments error) and runs the
+  imputations sequentially (`lapply`, not `omxLapply`).
+
+* New tests: edge cases for every exported function, and end-to-end tests
+  that check the pooled estimates, variances and degrees of freedom against
+  `mice::pool()`, and MC, MBCO, IPW and sensitivity results against known
+  answers.
+
+## Documentation
+
+* The package Description no longer calls missingmed an S4/SEM
+  package; the README cites `citation("missingmed")` (new `inst/CITATION`)
+  instead of a stale version string; the deprecated S4 functions say so on
+  their help pages and name the 0.6.0 removal; the pkgdown site builds
+  development versions under `/dev/` so the root documents the release.
+
 # missingmed 0.5.0
 
 ## New features
