@@ -58,12 +58,13 @@ worktrees:
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
 ## post-0.5.0 (dev 0.5.0.9000)
-- 2026-10-07 (open): PR #34 feature/vignette-replication -> dev, stacked
-  on #33 (merge #33 first). New vignette worked-analysis.Rmd: tutorial of
+- 2026-10-07 (merged): PR #34 feature/vignette-replication -> dev
+  (29daa69, squash). New vignette worked-analysis.Rmd: tutorial of
   the paper's illustrative-analysis steps on simulated data (no manuscript
   values), Part 1 core workflow, Part 2 what dev adds over 0.5.0. Check
   --as-cran 0/0/0; renders in 1.8 s.
-- 2026-10-07 (open): PR #33 feature/review-followups -> dev. #32's open
+- 2026-10-07 (merged): PR #33 feature/review-followups -> dev (a368e85,
+  squash). #32's open
   questions 1-5: pool_sem() Rubin t p-values (was geometric mean of p) + CIs;
   NA-aware tipping point; sensitivity_mnar(ariv =); warnings for args a type
   ignores; integer seed recorded. Tests 1275 pass (0.4.0) / 1271 + 2 skip
