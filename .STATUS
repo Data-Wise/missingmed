@@ -58,7 +58,7 @@ worktrees:
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
 ## post-0.5.0 (dev 0.5.0.9000)
-- 2026-10-07 (open): PR #35 feature/docs-site -> dev. Website audit items
+- 2026-10-07 (merged): PR #35 feature/docs-site -> dev (0f6e869, squash). Website audit items
   1-2: pkgdown development mode auto (site deployed dev builds at the root;
   root stays dev-built until the next main build or a manual
   workflow_dispatch on main); conf_int implemented (pool() adds per-coef
