@@ -73,7 +73,10 @@ the S7 successor of the S4 <code><a href="set_sem.html">set_sem()</a></code> con
 <span>  weight_trim <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  se_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sandwich"</span>, <span class="st">"model"</span><span class="op">)</span>,</span>
 <span>  conf_int <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  conf_level <span class="op">=</span> <span class="fl">0.95</span></span>
+<span>  conf_level <span class="op">=</span> <span class="fl">0.95</span>,</span>
+<span>  model <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  outcome <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fit_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -87,11 +90,13 @@ a <code>data.frame</code> (may contain <code>NA</code>s; complete cases are rewe
 
 
 <dt id="arg-formula-y">formula_y<a class="anchor" aria-label="anchor" href="#arg-formula-y"></a></dt>
-<dd><p>Outcome model formula (e.g. <code>Y ~ X + M + C</code>).</p></dd>
+<dd><p>Outcome model formula (e.g. <code>Y ~ X + M + C</code>). Not used with
+<code>engine = "lavaan"</code>.</p></dd>
 
 
 <dt id="arg-formula-m">formula_m<a class="anchor" aria-label="anchor" href="#arg-formula-m"></a></dt>
-<dd><p>Mediator model formula (e.g. <code>M ~ X + C</code>).</p></dd>
+<dd><p>Mediator model formula (e.g. <code>M ~ X + C</code>). Not used with
+<code>engine = "lavaan"</code>.</p></dd>
 
 
 <dt id="arg-treatment">treatment<a class="anchor" aria-label="anchor" href="#arg-treatment"></a></dt>
@@ -103,8 +108,11 @@ a <code>data.frame</code> (may contain <code>NA</code>s; complete cases are rewe
 
 
 <dt id="arg-engine">engine<a class="anchor" aria-label="anchor" href="#arg-engine"></a></dt>
-<dd><p>medfit fitting engine: <code>"glm"</code> (default), or <code>"regmedint"</code>
-(needs medfit &gt;= 0.4.0 and the regmedint package; <code>method = "mi"</code> only).</p></dd>
+<dd><p>Fitting engine: <code>"glm"</code> (default), <code>"regmedint"</code> (needs
+medfit 0.4.0 or later and the regmedint package; <code>method = "mi"</code> only), or
+<code>"lavaan"</code>
+(a structural equation model given as <code>model</code> syntax instead of formulas;
+<code>method = "mi"</code> only for now).</p></dd>
 
 
 <dt id="arg-family-y-family-m">family_y, family_m<a class="anchor" aria-label="anchor" href="#arg-family-y-family-m"></a></dt>
@@ -150,6 +158,24 @@ single coefficients; for the indirect effect use <code><a href="infer.html">infe
 <dt id="arg-conf-level">conf_level<a class="anchor" aria-label="anchor" href="#arg-conf-level"></a></dt>
 <dd><p>Numeric in (0, 1); confidence level for <code>conf_int</code> and the
 default <code>level</code> of <code><a href="infer.html">infer()</a></code>. Defaults to <code>0.95</code>.</p></dd>
+
+
+<dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
+<dd><p>(<code>engine = "lavaan"</code>) lavaan model syntax, a single string, for
+example <code>"M ~ a*X + C\nY ~ b*M + cp*X + C"</code>. A latent mediator
+(<code>"Mlat =~ m1 + m2 + m3"</code>) is allowed. Must be <code>NULL</code> for other engines.</p></dd>
+
+
+<dt id="arg-outcome">outcome<a class="anchor" aria-label="anchor" href="#arg-outcome"></a></dt>
+<dd><p>(<code>engine = "lavaan"</code>) name of the outcome variable; required
+for lavaan, and it must be regressed on the mediator in <code>model</code>. Must be
+<code>NULL</code> for other engines.</p></dd>
+
+
+<dt id="arg-fit-args">fit_args<a class="anchor" aria-label="anchor" href="#arg-fit-args"></a></dt>
+<dd><p>(<code>engine = "lavaan"</code>) named list of extra arguments for
+<code><a href="https://rdrr.io/pkg/lavaan/man/sem.html" class="external-link">lavaan::sem()</a></code>, for example <code>list(estimator = "MLR")</code>, stored on the
+object. It cannot set <code>model</code> or <code>data</code>. Must be empty for other engines.</p></dd>
 
 </dl></div>
     <div class="section level2">

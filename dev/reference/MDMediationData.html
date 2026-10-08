@@ -75,6 +75,9 @@ successor of the S4 <a href="SemImputedData.html">SemImputedData</a> class.</p>
 <span>  conf_int <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  conf_level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  n_imputations <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  outcome <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  fit_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  original_data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -154,6 +157,20 @@ intervals. Defaults to <code>FALSE</code>.</p></dd>
 
 <dt id="arg-n-imputations">n_imputations<a class="anchor" aria-label="anchor" href="#arg-n-imputations"></a></dt>
 <dd><p>Number of imputations (MI) or <code>1</code> (IPW).</p></dd>
+
+
+<dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
+<dd><p>For <code>engine = "lavaan"</code>, the lavaan model syntax (a single
+string); <code>NULL</code>-equivalent (<code>character(0)</code>) otherwise.</p></dd>
+
+
+<dt id="arg-outcome">outcome<a class="anchor" aria-label="anchor" href="#arg-outcome"></a></dt>
+<dd><p>For <code>engine = "lavaan"</code>, the name of the outcome variable.</p></dd>
+
+
+<dt id="arg-fit-args">fit_args<a class="anchor" aria-label="anchor" href="#arg-fit-args"></a></dt>
+<dd><p>For <code>engine = "lavaan"</code>, a named list of extra arguments
+for <code><a href="https://rdrr.io/pkg/lavaan/man/sem.html" class="external-link">lavaan::sem()</a></code>. Empty otherwise.</p></dd>
 
 
 <dt id="arg-original-data">original_data<a class="anchor" aria-label="anchor" href="#arg-original-data"></a></dt>

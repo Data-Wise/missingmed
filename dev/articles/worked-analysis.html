@@ -405,7 +405,7 @@ moderated models for testing);</li>
 <span>  treatment <span class="op">=</span> <span class="st">"treat"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, engine <span class="op">=</span> <span class="st">"lavaan"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;">:</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> `engine` "lavaan" is not supported. Supported: "glm". A lavaan engine is planned for missingmed 0.6.0; until then, the deprecated set_sem() fits lavaan models.</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> `formula_y` and `formula_m` cannot be used with engine = "lavaan"; give the lavaan syntax in `model`.</span></span></code></pre></div>
 <p>In 0.5.0 an unsupported engine failed later, inside
 <code><a href="../reference/run.html">run()</a></code>, with an error from medfit. When a fit does fail, the
 error now names the engine and the imputation

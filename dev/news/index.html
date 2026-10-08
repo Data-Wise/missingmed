@@ -41,6 +41,11 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
 <div class="section level3">
+<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li>
+<code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> gains <code>engine = "lavaan"</code>: give a structural equation model as lavaan syntax in <code>model</code>, name the <code>outcome</code>, and pass extra <code><a href="https://rdrr.io/pkg/lavaan/man/sem.html" class="external-link">lavaan::sem()</a></code> arguments in <code>fit_args</code> (for example <code>list(estimator = "MLR")</code>). The model is validated before any fitting. <code><a href="../reference/run.html">run()</a></code> fits each imputation with lavaan; <code><a href="../reference/pool.html">pool()</a></code> reports z-tests (<code>df = Inf</code> at <code>m = 1</code>) and leaves the statistic and p-value of variance and covariance rows (<code>~~</code>) <code>NA</code>; <code>infer(type = "mc")</code> works. <code>infer(type = "mbco")</code> refuses for lavaan fits until a separate SEM-MBCO design lands. Non-convergence in any imputation refuses, naming the imputations; an improper solution warns once.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="documentation-development-version">Documentation<a class="anchor" aria-label="anchor" href="#documentation-development-version"></a></h3>
 <ul><li>New articles on the package website: <em>Supported models</em> (every model rule of <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code>, each one run when the site builds), <em>Frequently asked questions</em>, and <em>Migrating from the S4 API</em>.</li>
 <li>

@@ -32,7 +32,10 @@ set_md_mediation(
   weight_trim = 1,
   se_type = c("sandwich", "model"),
   conf_int = FALSE,
-  conf_level = 0.95
+  conf_level = 0.95,
+  model = NULL,
+  outcome = NULL,
+  fit_args = list()
 )
 ```
 
@@ -47,11 +50,13 @@ set_md_mediation(
 
 - formula_y:
 
-  Outcome model formula (e.g. `Y ~ X + M + C`).
+  Outcome model formula (e.g. `Y ~ X + M + C`). Not used with
+  `engine = "lavaan"`.
 
 - formula_m:
 
-  Mediator model formula (e.g. `M ~ X + C`).
+  Mediator model formula (e.g. `M ~ X + C`). Not used with
+  `engine = "lavaan"`.
 
 - treatment:
 
@@ -63,8 +68,10 @@ set_md_mediation(
 
 - engine:
 
-  medfit fitting engine: `"glm"` (default), or `"regmedint"` (needs
-  medfit \>= 0.4.0 and the regmedint package; `method = "mi"` only).
+  Fitting engine: `"glm"` (default), `"regmedint"` (needs medfit 0.4.0
+  or later and the regmedint package; `method = "mi"` only), or
+  `"lavaan"` (a structural equation model given as `model` syntax
+  instead of formulas; `method = "mi"` only for now).
 
 - family_y, family_m:
 
@@ -117,6 +124,26 @@ set_md_mediation(
   `level` of
   [`infer()`](https://data-wise.github.io/missingmed/dev/reference/infer.md).
   Defaults to `0.95`.
+
+- model:
+
+  (`engine = "lavaan"`) lavaan model syntax, a single string, for
+  example `"M ~ a*X + C\nY ~ b*M + cp*X + C"`. A latent mediator
+  (`"Mlat =~ m1 + m2 + m3"`) is allowed. Must be `NULL` for other
+  engines.
+
+- outcome:
+
+  (`engine = "lavaan"`) name of the outcome variable; required for
+  lavaan, and it must be regressed on the mediator in `model`. Must be
+  `NULL` for other engines.
+
+- fit_args:
+
+  (`engine = "lavaan"`) named list of extra arguments for
+  [`lavaan::sem()`](https://rdrr.io/pkg/lavaan/man/sem.html), for
+  example `list(estimator = "MLR")`, stored on the object. It cannot set
+  `model` or `data`. Must be empty for other engines.
 
 ## Value
 

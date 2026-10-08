@@ -35,6 +35,9 @@ MDMediationData(
   conf_int = FALSE,
   conf_level = 0.95,
   n_imputations = integer(0),
+  model = character(0),
+  outcome = character(0),
+  fit_args = list(),
   original_data = data.frame()
 )
 ```
@@ -116,6 +119,21 @@ MDMediationData(
 - n_imputations:
 
   Number of imputations (MI) or `1` (IPW).
+
+- model:
+
+  For `engine = "lavaan"`, the lavaan model syntax (a single string);
+  `NULL`-equivalent (`character(0)`) otherwise.
+
+- outcome:
+
+  For `engine = "lavaan"`, the name of the outcome variable.
+
+- fit_args:
+
+  For `engine = "lavaan"`, a named list of extra arguments for
+  [`lavaan::sem()`](https://rdrr.io/pkg/lavaan/man/sem.html). Empty
+  otherwise.
 
 - original_data:
 

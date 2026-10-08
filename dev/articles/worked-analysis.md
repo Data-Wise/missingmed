@@ -371,7 +371,7 @@ set_md_mediation(imp,
   treatment = "treat", mediator = "M", engine = "lavaan"
 )
 #> Error:
-#> ! `engine` "lavaan" is not supported. Supported: "glm". A lavaan engine is planned for missingmed 0.6.0; until then, the deprecated set_sem() fits lavaan models.
+#> ! `formula_y` and `formula_m` cannot be used with engine = "lavaan"; give the lavaan syntax in `model`.
 ```
 
 In 0.5.0 an unsupported engine failed later, inside
