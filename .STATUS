@@ -3,10 +3,11 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-10-07
-next: PR #28 (feature/pool-interaction -> dev, closes #20) is OPEN, CI green,
-  awaiting the author's merge (squash). It fixes pool() on X:M models and adds
-  infer(type = "mc", treatment_level = x) for a * (b + theta3 * x); the
-  branch lives in worktree pensive-kare-38530a. v0.5.0 is fully released:
+next: #20 FIXED on dev (PR #28, squash 2450c71; issue closed by hand, since
+  "Closes" only fires on main): pool() handles X:M fits and
+  infer(type = "mc", treatment_level = x) gives a * (b + theta3 * x); ships
+  in the next release. Worktree pensive-kare-38530a still holds the merged
+  local feature/pool-interaction. v0.5.0 is fully released:
   tag v0.5.0 on 397cd3c, GitHub release, r-universe serves 0.5.0 (built
   22:54Z); dev bumped to 0.5.0.9000 (#27). Then: pin ariv in the
   manuscript's worked example (research repo, its own session); S7 SEM
@@ -52,6 +53,18 @@ worktrees:
 # Scope decided 2026-06-04 (Data-Wise/missingmed#1): general CRAN-targeted toolkit —
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
+
+## post-0.5.0 (dev 0.5.0.9000)
+- 2026-10-07 (merged): PR #28 feature/pool-interaction -> dev (2450c71,
+  squash), closes #20. pool() sets the X:M path properties in one props<-
+  call, pools theta3 and recomputes the four-way decomposition (int_ref
+  averaged); .pool_wald() tolerates the interaction class's missing family
+  props and gives theta3/b0 their source rows' df. infer(type = "mc") gains
+  treatment_level (required on X:M fits, error elsewhere; RMediation::ci() on
+  pooled (a, b, theta3)); sensitivity_mnar passes it through; print/summary
+  show the X:M indirect effect at x = 0 and 1. Gate: check --as-cran 1 NOTE
+  (incoming baseline), tests 498 pass (was 459); known-answer MC test, planted
+  wrong estimand caught (2 failures).
 
 ## v0.5.0 -- released 2026-10-07
 - 2026-10-07 (released): PR #25 dev -> main merged (397cd3c, merge commit)
