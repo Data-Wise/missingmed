@@ -3,7 +3,7 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-10-07
-next: #20 FIXED on dev (PR #28) and its pooling follow-up merged (PR #29,
+next: v0.5.1 RELEASED 2026-10-07 (PRs #28-#36). #20 FIXED (PR #28) and its pooling follow-up merged (PR #29,
   bbb89b3): pool() now pools the X:M reference profile m_ref, not int_ref,
   and refuses imputations fitted at different m_star. Both ship in the next
   release. P1 pre-fit validation merged (PR #31, e49804e); defensive checks, engine
@@ -57,7 +57,14 @@ worktrees:
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
-## post-0.5.0 (dev 0.5.0.9000)
+## 0.5.1 (released 2026-10-07; PRs #28-#36)
+- 2026-10-07 (released): v0.5.1. Bump PR #36 -> dev (b5dcb2a, squash);
+  release PR #37 dev -> main (12ad874, merge commit); CI green on main;
+  tag v0.5.1 on 12ad874; GitHub release "missingmed 0.5.1" (latest,
+  03:44Z 2026-10-08). Gate: tests 1281 (medfit 0.4.0) / 1277 + 2 skip
+  (0.3.2); check --as-cran 0/0/0. pkgdown root serves 0.5.1. r-universe
+  still 0.5.0 at release time (polls main). dev stays at 0.5.1 (no .9000
+  bump yet).
 - 2026-10-07 (merged): PR #35 feature/docs-site -> dev (0f6e869, squash). Website audit items
   1-2: pkgdown development mode auto (site deployed dev builds at the root;
   root stays dev-built until the next main build or a manual
