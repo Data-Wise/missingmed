@@ -65,10 +65,6 @@ reference:
   - MDMediationResult
   - MDSensitivityResult
   - MbcoMIResult
-- title: Tidiers
-  contents:
-  - tidy.logLik
-  - tidy.MxModel
 - title: Low-level helpers
   desc: Fitting and validation utilities used by the pipeline.
   contents:
