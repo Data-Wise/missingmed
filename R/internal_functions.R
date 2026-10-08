@@ -32,14 +32,19 @@ model_type <- function(model) {
         if (is_lav_syntax(model, quiet = TRUE)) {
             return("lavaan_syntax")
         } else {
-            stop("The provided model syntax is not a valid 'lavaan' syntax.")
+            stop("The provided model syntax is not a valid 'lavaan' syntax. ",
+                "Run is_lav_syntax(model) to see the parser error.",
+                call. = FALSE)
         }
     } else if (inherits(model, "lavaan")) {
         return("lavaan")
     } else if (inherits(model, "MxModel")) {
         return(c("MxModel", "OpenMx"))
     } else {
-        stop("The provided model is neither a 'lavaan' syntax, 'lavaan' object, nor 'MxModel' object in 'OpenMx'.")
+        stop("Unsupported model of class '", class(model)[1], "'. ",
+            "The model must be one of: a 'lavaan' model syntax string, ",
+            "a 'lavaan' object, or an OpenMx 'MxModel' object.",
+            call. = FALSE)
     }
 }
 
@@ -56,3 +61,44 @@ vcov_lav <- function(x) {
     lavaan::lavTech(x, what = "vcov", add.labels = TRUE) # This is useful
 }
 
+### ----------------------------------------------------------------------------
+### .fit_each_imputation
+### ----------------------------------------------------------------------------
+#' Fit one SEM per imputation with engine-aware error and warning handling
+#'
+#' Calls `fit_one(i)` for each imputation `i`. An error is rethrown naming the
+#' engine and the imputation, keeping the engine's own message. Warnings are
+#' collected and re-issued once, naming the affected imputations, so a
+#' non-converged or improper solution in one imputation is not lost.
+#' @param engine Engine label used in messages ("lavaan" or "OpenMx").
+#' @param m Number of imputations.
+#' @param fit_one A function of the imputation index returning a fitted model.
+#' @return A list of length `m` of fitted models.
+#' @keywords internal
+#' @noRd
+.fit_each_imputation <- function(engine, m, fit_one) {
+    warn_imp <- integer(0)
+    warn_msg <- character(0)
+    fits <- lapply(seq_len(m), function(i) {
+        withCallingHandlers(
+            tryCatch(fit_one(i), error = function(e) {
+                stop(engine, " failed on imputation ", i, ": ",
+                    trimws(conditionMessage(e)),
+                    call. = FALSE)
+            }),
+            warning = function(w) {
+                warn_imp <<- c(warn_imp, i)
+                warn_msg <<- c(warn_msg,
+                    gsub("\\s+", " ", trimws(conditionMessage(w))))
+                invokeRestart("muffleWarning")
+            }
+        )
+    })
+    if (length(warn_imp) > 0) {
+        warning(engine, " issued warnings on imputation(s) ",
+            paste(unique(warn_imp), collapse = ", "), " of ", m, ": ",
+            paste(unique(warn_msg), collapse = "; "),
+            call. = FALSE)
+    }
+    fits
+}

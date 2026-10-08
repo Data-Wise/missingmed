@@ -52,34 +52,31 @@
 mx_mice <- function(model, mids, ...) {
   # Ensure 'mids' is a 'mids' object
   if (!inherits(mids, "mids")) {
-    stop("'mids' must be a 'mids' object from the 'mice' package.")
+    stop("'mids' must be a 'mids' object from the 'mice' package.",
+      call. = FALSE
+    )
   }
-  # Ensure 'mxModel' is an OpenMx model object
+  # Ensure 'model' is an OpenMx model object
   if (!inherits(model, "MxModel")) {
-    stop("'mids' must be an 'MxModel' object from the 'OpenMx' package.")
+    stop("'model' must be an 'MxModel' object from the 'OpenMx' package.",
+      call. = FALSE
+    )
   }
 
-  # Assuming myModel is your mxModel object and imxVerifyModel() is a conceptual verification function
-  # Note: This assumes imxVerifyModel() returns TRUE if the model is correct, otherwise FALSE
+  # imxVerifyModel() returns TRUE for a well-formed model and errors otherwise
   verified <- OpenMx::imxVerifyModel(model)
-  if (!verified) {
-    stop("The mxModel object failed verification.")
+  if (!isTRUE(verified)) {
+    stop("The mxModel object failed verification.", call. = FALSE)
   }
 
-  # Extract the complete imputed datasets
-  data_complete <- OpenMx::omxLapply(1:mids$m, function(i) mice::complete(mids, action = i))
-
-  # Fit the OpenMx model to each imputed dataset
-  mx_results <- OpenMx::omxLapply(data_complete, function(data) {
+  # Fit the OpenMx model to each imputed dataset; failures and warnings are
+  # reported with the imputation number.
+  .fit_each_imputation("OpenMx", mids$m, function(i) {
+    data <- mice::complete(mids, action = i)
     # Update the model with the new data
     mxDataObj <- OpenMx::mxData(data, type = "raw")
     updatedModel <- OpenMx::mxModel(model, mxDataObj)
-
     # Fit the model
-    fit <- OpenMx::mxRun(updatedModel)
-    return(fit)
+    OpenMx::mxRun(updatedModel, ...)
   })
-
-  # Return list of OpenMx model fits
-  return(mx_results)
 }

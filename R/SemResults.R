@@ -172,6 +172,14 @@ setMethod("pool_sem", signature = "SemResults", function(object) {
       object@method
     )
   }
+  # Rubin's rules need a between-imputation variance; with one imputation it
+  # is NA and every pooled standard error would silently be NA.
+  if (length(object@results) < 2) {
+    stop("pool_sem() needs at least 2 imputations; found ",
+      length(object@results), ".",
+      call. = FALSE
+    )
+  }
 
   # Assuming pool_tidy and pool_cov are correctly implemented
   tidy_table <- pool_tidy(object)

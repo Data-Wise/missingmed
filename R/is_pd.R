@@ -1,7 +1,9 @@
 #' @title Checks if a matrix object is positive definite
 #'
-#' @description Determines if a matrix is positive definite (all eigenvalues
-#' are strictly positive) by attempting Cholesky decomposition.
+#' @description Determines if a symmetric matrix is positive definite (all
+#' eigenvalues are strictly positive) by attempting Cholesky decomposition.
+#' A non-symmetric matrix returns `FALSE`: [chol()] reads only the upper
+#' triangle, so it cannot judge one.
 #'
 #' @param x A numeric matrix.
 #' @param quiet Logical. If `TRUE`, suppresses warnings and error messages.
@@ -9,8 +11,11 @@
 #' @usage is_pd(x, quiet = FALSE)
 #' @examples
 #' # Example of a positive definite matrix
-#' A <- matrix(c(1, 2, 2, 4), nrow = 2)
-#' is_pd(A) # Should return TRUE
+#' A <- matrix(c(2, 1, 1, 2), nrow = 2)
+#' is_pd(A) # TRUE
+#' # A singular (positive semi-definite) matrix is not positive definite
+#' B <- matrix(c(1, 2, 2, 4), nrow = 2)
+#' is_pd(B, quiet = TRUE) # FALSE
 #' @export
 #' @rdname is_pd
 
@@ -23,11 +28,12 @@ setGeneric("is_pd", function(x, quiet = FALSE) {
 setMethod("is_pd",
   signature = "matrix",
   definition = function(x, quiet = FALSE) {
-    # # Check for symmetry
-    # if (!isSymmetric(x)) {
-    #   if (!quiet) print("Matrix is not symmetric, and thus, not positive definite.")
-    #   return(FALSE)
-    # }
+    # Check for symmetry: chol() reads only the upper triangle, so a
+    # non-symmetric matrix would otherwise be judged by half its entries.
+    if (!isSymmetric(unname(x))) {
+      if (!quiet) print("Matrix is not symmetric, and thus, not positive definite.")
+      return(FALSE)
+    }
 
     # Attempt Cholesky decomposition for efficiency and stability
     tryCatch(
