@@ -71,8 +71,9 @@
 # the b-path (mediator -> outcome) dropped.
 #
 # NB engine: this refits with stats::glm() regardless of @engine, and carries no
-# weights. That is latent rather than live -- infer(type = "mbco") errors on IPW
-# fits by design, and the MI path is glm-only -- but it is a known limitation
+# weights. infer(type = "mbco") errors on IPW fits by design; on the MI path a
+# fit with engine = "regmedint" is retested here with glm, which matches it for
+# the Gaussian and binomial models regmedint accepts. A known limitation
 # (SPEC-mbco-constrained-models-2026-08-30.md, section 6).
 .mm_ll_med <- function(d, formula_y, formula_m, family_y, family_m,
                        treatment, mediator, drop_a = FALSE, drop_b = FALSE) {
@@ -433,6 +434,8 @@ mbco_d4 <- function(implist, formula_y, formula_m,
       call. = FALSE
     )
   }
+  formula_y <- .expand_dot(formula_y, implist[[1]])
+  formula_m <- .expand_dot(formula_m, implist[[1]])
   .check_roles(formula_y, formula_m, treatment, mediator)
   # Fewer than two data frames falls through to .mm_d4_mbco()'s K < 2 error.
   if (length(implist) >= 2L) {

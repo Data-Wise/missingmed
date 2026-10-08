@@ -396,3 +396,17 @@ test_that("moderated and transformed models still pass the shape checks", {
   r2 <- em_d4(pos, formula_y = Y ~ X + M, formula_m = log(M) ~ X)
   expect_true(all(is.finite(S7::S7_data(r2)[c("D4", "p", "r4", "d_S")])))
 })
+
+test_that("mbco_d4() expands `.` in a formula against the imputed data", {
+  set.seed(71)
+  n <- 120
+  d <- data.frame(X = rnorm(n), C = rnorm(n))
+  d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
+  d$Y <- 0.4 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+  il <- list(d, transform(d, M = M + rnorm(n, sd = 0.05)))
+  dot <- mbco_d4(il, Y ~ ., M ~ X + C, treatment = "X", mediator = "M")
+  explicit <- mbco_d4(il, Y ~ X + C + M, M ~ X + C,
+    treatment = "X", mediator = "M"
+  )
+  expect_equal(S7::S7_data(dot), S7::S7_data(explicit))
+})

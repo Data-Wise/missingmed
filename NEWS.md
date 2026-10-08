@@ -58,6 +58,39 @@
   NA rungs lists them (new `na_rungs` element) and declines to name a
   tipping point.
 
+* Engines are checked when the model is set up: `engine` must be one of the
+  engines missingmed supports with the installed medfit (`"glm"`, plus
+  `"regmedint"` with medfit >= 0.4.0 and the MI estimator); anything else,
+  including `"lavaan"` (planned for 0.6.0; `set_sem()` exists today), errors
+  in `set_md_mediation()` instead of inside `run()`. A failed fit is reported
+  as `engine "glm" failed on imputation i of m: ...`, keeping the original
+  message, and fitting warnings are collected into one warning naming the
+  imputations.
+
+* `pool()` aligns the per-imputation estimates and covariance matrices by
+  name; imputations whose coefficients came in a different order were stacked
+  by position and silently scrambled every pooled estimate. Imputations with
+  different coefficient sets are refused, naming the terms, and a pooled `b`
+  that is NA (an aliased mediator) gets a clear error.
+
+* `run()` warns when a mids leaves a model variable incomplete, since each
+  imputation is then fitted on its complete cases. `Y ~ .` now works in
+  `set_md_mediation()`, `run()`, `mbco_d4()` and `infer(type = "mbco")`.
+  A non-syntactic treatment or mediator name (for example `` `my M` ``),
+  which medfit cannot fit, is refused at set-up.
+
+* IPW: with no missing data the weights are exactly 1 without fitting a
+  degenerate response model (no more non-convergence warnings); zero complete
+  cases, a `weight_formula` that is not a formula or named list of formulas,
+  uses `.`, or names absent variables, and an NA `weight_trim`,
+  `weight_stabilize` or `conf_int` are refused at set-up. Names in a
+  `weight_formula` now resolve in the formula's environment.
+
+* `infer()` refuses a `level` outside (0, 1) (0 gave a zero-width interval),
+  an `n.mc` below 2 or not a whole number, and unknown arguments in `...`
+  (for example `conf.level = 0.9` was silently ignored and a 95% interval
+  returned).
+
 * `sensitivity_mnar()` checks `seed` and `level` before re-imputing, and
   refuses a delta grid with duplicate or empty column names (a duplicate
   name silently reported the wrong rung) and a delta matrix with more than
