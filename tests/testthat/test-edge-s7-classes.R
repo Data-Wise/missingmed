@@ -397,3 +397,50 @@ test_that("print() truncates long curves and labels the log-odds scale", {
   expect_output(print(lo), "mnar.logreg (log-odds)", fixed = TRUE)
   expect_output(print(lo), "log-odds scale, while msp is a prevalence")
 })
+
+test_that("an NA rung farther from MAR than the tipping point does not block it", {
+  grid <- data.frame(M = c(0, 0.5, 1))
+  na_rung <- mc_rung(NA_real_, NA_real_, NA_real_)
+  # MAR rejects, 0.5 retains, the NA rung is at 1: the tipping point is known.
+  s <- new_sens(
+    rungs = list(mc_rung(0.2, 0.05, 0.4), mc_rung(0.1, -0.02, 0.25), na_rung),
+    grid = grid, msp = c(0, 0.3, 0.6)
+  )
+  sm <- summary(s)
+  expect_equal(sm$tipping$M, 0.5)
+  expect_identical(sm$na_rungs, 3L)
+  expect_false(sm$undetermined)
+  out <- capture.output(print(sm))
+  expect_true(any(grepl("Tipping point: the smallest departure", out, fixed = TRUE)))
+  expect_true(any(grepl("Rung(s) 3 have a missing (NA) verdict but cannot change", out, fixed = TRUE)))
+  # The NA rung at 0.5, inside the first retaining rung at 1: undetermined.
+  s2 <- new_sens(
+    rungs = list(mc_rung(0.2, 0.05, 0.4), na_rung, mc_rung(0.1, -0.02, 0.25)),
+    grid = grid, msp = c(0, 0.3, 0.6)
+  )
+  sm2 <- summary(s2)
+  expect_null(sm2$tipping)
+  expect_true(sm2$undetermined)
+  expect_output(print(sm2), "Tipping point not computed: rung(s) 2", fixed = TRUE)
+  # Null retained at MAR: no tipping point whatever the NA rung would say.
+  s3 <- new_sens(
+    rungs = list(mc_rung(0.1, -0.02, 0.25), na_rung, mc_rung(0.2, 0.05, 0.4)),
+    grid = grid, msp = c(0, 0.3, 0.6)
+  )
+  sm3 <- summary(s3)
+  expect_null(sm3$tipping)
+  expect_false(sm3$undetermined)
+  expect_output(print(sm3), "No tipping point within the supplied grid")
+  # A tie in distance with the found tipping point is undetermined too.
+  s4 <- new_sens(
+    rungs = list(mc_rung(0.2, 0.05, 0.4), mc_rung(0.1, -0.02, 0.25), na_rung),
+    grid = data.frame(M = c(0, 0.5, -0.5)), msp = c(0, 0.3, -0.3)
+  )
+  expect_true(summary(s4)$undetermined)
+})
+
+test_that("print() of an mbco curve names its ariv", {
+  s <- new_sens(rungs = list(new_mbco(0.01), new_mbco(0.2, ariv = "own")), type = "mbco")
+  expect_output(print(s), "inference: mbco (ariv = \"fixed\")", fixed = TRUE)
+  expect_false(any(grepl("ariv", capture.output(print(new_sens())))))
+})

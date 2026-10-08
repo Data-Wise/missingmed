@@ -190,10 +190,10 @@ test_that("an explicit seed pins the curve and is recorded", {
   expect_equal(a@seed, 5)
   expect_identical(a@seed_source, "argument")
   # A fractional seed is accepted; set.seed() truncates it, so it reproduces
-  # the integer part while @seed records the value as given.
+  # the integer part, and @seed records that integer (it used to record 5.5).
   frac <- em_sens(md, delta = 1, seed = 5.5, type = "mbco")
   expect_equal(frac@rungs[[1]], a@rungs[[2]])
-  expect_equal(frac@seed, 5.5)
+  expect_identical(frac@seed, 5L)
 })
 
 # ── sensitivity_mnar(): number of imputations ───────────────────────────────
@@ -411,4 +411,29 @@ test_that("mbco_d4() expands `.` in a formula against the imputed data", {
     treatment = "X", mediator = "M"
   )
   expect_equal(S7::S7_data(dot), S7::S7_data(explicit))
+})
+
+test_that("sensitivity_mnar() passes ariv to every MBCO rung", {
+  md <- em_md()
+  # seed 11 is em_md()'s mice seed, so the delta = 0 rung re-creates its
+  # imputations.
+  own <- em_sens(md, delta = c(0, 1), seed = 11, type = "mbco", ariv = "own")
+  fixed <- em_sens(md, delta = c(0, 1), seed = 11, type = "mbco")
+  expect_identical(vapply(own@rungs, function(r) r@ariv, ""), c("own", "own"))
+  expect_identical(vapply(fixed@rungs, function(r) r@ariv, ""), c("fixed", "fixed"))
+  # The delta = 0 rung under "own" is infer(type = "mbco", ariv = "own") on the
+  # same imputations.
+  ref <- infer(run(md), type = "mbco", ariv = "own")
+  expect_equal(S7::S7_data(own@rungs[[1]]), S7::S7_data(ref))
+  expect_equal(S7::S7_data(fixed@rungs[[1]]), S7::S7_data(infer(run(md), type = "mbco")))
+})
+
+test_that("sensitivity_mnar() warns about arguments the chosen type does not use", {
+  md <- em_md()
+  expect_warning(em_sens(md, delta = 0, seed = 5, type = "mc", ariv = "own", n.mc = 500),
+    "Ignored for type = \"mc\": `ariv`.", fixed = TRUE
+  )
+  expect_warning(em_sens(md, delta = 0, seed = 5, type = "mbco", n.mc = 500),
+    "Ignored for type = \"mbco\": `n.mc`.", fixed = TRUE
+  )
 })

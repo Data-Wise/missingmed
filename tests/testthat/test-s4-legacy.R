@@ -499,3 +499,36 @@ test_that("tidy.MxModel() validates conf_int and conf_level", {
   ci <- tidy(fit, conf_int = TRUE)
   expect_true(all(ci$conf_low < ci$estimate & ci$estimate < ci$conf_high))
 })
+
+test_that("pool_sem() p-values and intervals use Rubin's t, not a mean of p-values", {
+  skip_if_not_installed("lavaan")
+  imp <- s4_mids(m = 3)
+  sd <- s4_collect(set_sem(imp, s4_model, conf_int = TRUE, conf_level = 0.9))$value
+  res <- s4_collect(run_sem(sd))$value
+  pooled <- s4_collect(pool_sem(res))$value
+  tt <- pooled@tidy_table
+  est <- res@estimate_df
+  for (term in c("m ~ x", "y ~ m")) {
+    per <- est[est$term == term, ]
+    ref <- mice::pool.scalar(Q = per$estimate, U = per$std_error^2, n = Inf)
+    row <- tt[tt$term == term, ]
+    expect_equal(row$estimate, ref$qbar)
+    expect_equal(row$var_tot, ref$t)
+    expect_equal(row$riv, ref$r)
+    expect_equal(row$df, ref$df)
+    expect_equal(row$statistic, ref$qbar / sqrt(ref$t))
+    expect_equal(row$p_value, 2 * stats::pt(-abs(ref$qbar / sqrt(ref$t)), ref$df))
+    # v0.5.0 reported the geometric mean of the per-imputation p-values.
+    expect_false(isTRUE(all.equal(row$p_value, exp(mean(log(per$p_value))))))
+    q <- stats::qt(0.95, ref$df)
+    expect_equal(c(row$conf_low, row$conf_high), ref$qbar + c(-1, 1) * q * sqrt(ref$t))
+  }
+})
+
+test_that("pool_sem() without conf_int adds no interval columns", {
+  skip_if_not_installed("lavaan")
+  sd <- s4_collect(set_sem(s4_mids(m = 3), s4_model))$value
+  tt <- s4_collect(pool_sem(s4_collect(run_sem(sd))$value))$value@tidy_table
+  expect_false(any(c("conf_low", "conf_high") %in% names(tt)))
+  expect_true(all(c("statistic", "df", "p_value", "riv") %in% names(tt)))
+})

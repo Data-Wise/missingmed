@@ -48,8 +48,8 @@ setValidity("PooledSEMResults", function(object) {
     messages <- c(messages, "conf_int must be a logical value.")
   }
 
-  # pool_sem() does not compute conf_low/conf_high, so only the base columns
-  # are required whatever 'conf_int' says.
+  # Only the base columns are required: pool_sem() adds conf_low/conf_high
+  # when 'conf_int' is TRUE, but a table built by hand need not carry them.
   requiredColumns <- c("term", "estimate", "std_error", "p_value")
 
   if (!is.data.frame(object@tidy_table) ||
