@@ -374,12 +374,37 @@ test_that("weight_formula variables must exist", {
     "cannot use `.`", fixed = TRUE)
   # Method "mi" ignores weight_formula, so it is not checked there.
   expect_s7_class(edge_md(imp2, weight_formula = ~ X + Z), MDMediationData)
-  # A constant from the formula's environment is a valid predictor term.
+  # A constant from the formula's environment is a valid predictor term, at
+  # set time and in run().
   k <- 2
-  expect_s7_class(
-    edge_md(d_miss, method = "ipw", weight_formula = ~ X + I(C * k)),
-    MDMediationData
-  )
+  md <- edge_md(d_miss, method = "ipw", weight_formula = ~ X + I(C * k))
+  expect_s7_class(md, MDMediationData)
+  expect_s7_class(run(md), MDMediationFit)
+})
+
+test_that("weight_formula names resolve in the user's environment", {
+  # `n` is also a local of the weight code (the row count); the user's wins.
+  n <- 0.5
+  lit <- run(edge_md(d_miss, method = "ipw", weight_formula = ~ X + I(C > 0.5)))
+  sym <- run(edge_md(d_miss, method = "ipw", weight_formula = ~ X + I(C > n)))
+  expect_equal(sym@weights, lit@weights)
+  sym_v <- run(edge_md(d_miss, method = "ipw",
+    weight_formula = list(M = ~ X + I(C > n), Y = ~ X)))
+  lit_v <- run(edge_md(d_miss, method = "ipw",
+    weight_formula = list(M = ~ X + I(C > 0.5), Y = ~ X)))
+  expect_equal(sym_v@weights, lit_v@weights)
+})
+
+test_that("a `.` in a model formula is expanded for fitting, so run() works", {
+  md <- edge_md(imp2, fy = Y ~ .)
+  expect_identical(md@formula_y, Y ~ .) # stored as given
+  fit <- run(md)
+  expect_equal(pool(fit)@tidy_table, res2@tidy_table)
+  expect_equal(infer(fit, type = "mbco"), infer(fit2, type = "mbco"))
+  ipw <- run(edge_md(d_miss, fy = Y ~ ., method = "ipw"))
+  ref <- run(edge_md(d_miss, method = "ipw"))
+  expect_equal(ipw@per_imputation[[1]]@estimates, ref@per_imputation[[1]]@estimates)
+  expect_identical(ipw@weights, ref@weights)
 })
 
 test_that("a two-sided weight_formula is accepted; its response is ignored", {

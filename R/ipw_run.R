@@ -12,8 +12,7 @@
 .ipw_weights <- function(object) {
   data <- as.data.frame(object@data)
   n <- nrow(data)
-  model_vars <- unique(c(all.vars(object@formula_y), all.vars(object@formula_m)))
-  model_vars <- intersect(model_vars, names(data))
+  model_vars <- intersect(.model_vars(object), names(data))
 
   # Complete-case indicator over the model variables.
   cc <- stats::complete.cases(data[, model_vars, drop = FALSE])
@@ -58,8 +57,12 @@
       dd <- data
       dd[[".R_v"]] <- Rv
       rhs <- attr(stats::terms(wf[[v]]), "term.labels")
-      mod <- stats::glm(stats::reformulate(rhs, ".R_v"), data = dd,
-        family = stats::binomial())
+      # The user's formula environment, so a name in it (a constant `k` in
+      # `I(C * k)`) is found, and not shadowed by a local here such as `n`.
+      mod <- stats::glm(
+        stats::reformulate(rhs, ".R_v", env = environment(wf[[v]])),
+        data = dd, family = stats::binomial()
+      )
       p <- p * .ipw_prob(mod, dd)
       if (stabilize) {
         num <- stats::glm(stats::reformulate(treatment, ".R_v"), data = dd,
@@ -70,8 +73,10 @@
   } else {
     # Joint complete-case model. Predictors: an explicit weight_formula RHS, else
     # all fully-observed model variables (the MAR drivers).
+    wf_env <- environment()
     if (inherits(wf, "formula")) {
       rhs <- attr(stats::terms(wf), "term.labels")
+      wf_env <- environment(wf) # as for the per-variable formulas above
     } else {
       fully_obs <- model_vars[vapply(data[model_vars], function(x) !anyNA(x), logical(1))]
       rhs <- setdiff(fully_obs, character(0))
@@ -79,8 +84,8 @@
     }
     dd <- data
     dd[[".R_ind"]] <- R
-    mod <- stats::glm(stats::reformulate(rhs, ".R_ind"), data = dd,
-      family = stats::binomial())
+    mod <- stats::glm(stats::reformulate(rhs, ".R_ind", env = wf_env),
+      data = dd, family = stats::binomial())
     p <- .ipw_prob(mod, dd)
     p_num <- if (stabilize) {
       .ipw_prob(stats::glm(stats::reformulate(treatment, ".R_ind"), data = dd,

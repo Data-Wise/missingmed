@@ -88,8 +88,10 @@ S7::method(infer, MDMediationFit) <- function(object, type = c("mc", "mbco"),
       "IPW objects (weighted Monte-Carlo CI).", call. = FALSE)
   }
   implist <- mice::complete(src@data, action = "all")
-  .mm_d4_mbco(implist, src@formula_y, src@formula_m, src@family_y, src@family_m,
-    src@treatment, src@mediator, ariv = ariv)
+  .mm_d4_mbco(implist,
+    .expand_dot(src@formula_y, src@original_data),
+    .expand_dot(src@formula_m, src@original_data),
+    src@family_y, src@family_m, src@treatment, src@mediator, ariv = ariv)
 }
 
 S7::method(infer, MDMediationResult) <- function(object, type = c("mc", "mbco"),

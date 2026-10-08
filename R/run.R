@@ -60,14 +60,30 @@ S7::method(run, MDMediationData) <- function(object, ...) {
   )
 }
 
+# The stored formula is the user's (`Y ~ .` stays `Y ~ .`), but medfit cannot
+# fit a `.`, so it is expanded against the data set_md_mediation() validated
+# it on. Only a dotted formula changes: expanding reorders terms (X * M
+# becomes X + M + X:M), and with them the coefficients.
+.expand_dot <- function(f, data) {
+  if (!"." %in% all.vars(f)) {
+    return(f)
+  }
+  stats::formula(stats::terms(f, data = data))
+}
+
+# All variables of both model formulas, with `.` expanded.
+.model_vars <- function(object) {
+  unique(c(
+    all.vars(.expand_dot(object@formula_y, object@original_data)),
+    all.vars(.expand_dot(object@formula_m, object@original_data))
+  ))
+}
+
 # A model variable that mice left unimputed (method "") is still incomplete in
 # every completed dataset, and the engine then fits each one on its complete
 # cases while @n_obs (and the complete-data df) still counts every row.
 .warn_unimputed <- function(object, implist) {
-  vars <- intersect(
-    unique(c(all.vars(object@formula_y), all.vars(object@formula_m))),
-    names(implist[[1]])
-  )
+  vars <- intersect(.model_vars(object), names(implist[[1]]))
   incomplete <- vars[vapply(vars, function(v) {
     any(vapply(implist, function(d) anyNA(d[[v]]), logical(1)))
   }, logical(1))]
@@ -129,8 +145,8 @@ S7::method(run, MDMediationData) <- function(object, ...) {
 # replace the engine and still exercise the error and warning handling.
 .md_engine_call <- function(object, data, ...) {
   fit_mediation(
-    formula_y = object@formula_y,
-    formula_m = object@formula_m,
+    formula_y = .expand_dot(object@formula_y, object@original_data),
+    formula_m = .expand_dot(object@formula_m, object@original_data),
     data = data,
     treatment = object@treatment,
     mediator = object@mediator,
