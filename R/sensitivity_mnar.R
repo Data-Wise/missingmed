@@ -82,6 +82,23 @@
 #'
 #' @return An [MDSensitivityResult].
 #' @seealso [infer()], [MDSensitivityResult]
+#' @examples
+#' \donttest{
+#' set.seed(1)
+#' n <- 150
+#' d <- data.frame(X = rbinom(n, 1, 0.5), C = rnorm(n))
+#' d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
+#' d$Y <- 0.3 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+#' d$M[sample(n, 25)] <- NA
+#' imp <- mice::mice(d, m = 3, method = "norm", printFlag = FALSE, seed = 1)
+#' md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+#'   treatment = "X", mediator = "M"
+#' )
+#' # Shift the imputed mediator values by 0, 0.5 and 1 (on the mediator's
+#' # scale) and recompute the Monte Carlo interval at each rung.
+#' sens <- sensitivity_mnar(md, delta = c(0, 0.5, 1), n.mc = 1e3)
+#' sens
+#' }
 #' @export
 sensitivity_mnar <- function(object, delta, target = NULL,
                              type = c("mc", "mbco"), seed = NULL,
@@ -113,6 +130,9 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     stop("`object@data` must be a mice::mids object for MNAR sensitivity.",
       call. = FALSE
     )
+  }
+  if (identical(object@engine, "lavaan")) {
+    .check_lavaan_sensitivity(object, target, type, delta, ums, mids)
   }
 
   # Every route enters only inside the sampler: `post` runs per iteration, and
@@ -569,4 +589,29 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     }
   }
   invisible(NULL)
+}
+
+# engine = "lavaan": MBCO is refused (as in infer(), Q4), and a latent mediator
+# has no data column, so the default `target` (the mediator) must be named
+# explicitly (G4). Checked before any re-imputation. A data-frame `delta` names
+# its own target columns, so only a vector `delta` or `ums` needs `target`.
+.check_lavaan_sensitivity <- function(object, target, type, delta, ums, mids) {
+  if (identical(type, "mbco")) {
+    stop("`type = \"mbco\"` is not available for engine = \"lavaan\" yet; ",
+      "use type = \"mc\". See infer().",
+      call. = FALSE
+    )
+  }
+  needs_target <- !is.null(ums) || (!missing(delta) && !is.data.frame(delta))
+  latent <- !object@mediator %in% names(mids$data)
+  if (is.null(target) && needs_target && latent) {
+    pt <- lavaan::lavaanify(object@model)
+    ind <- pt$rhs[pt$op == "=~" & pt$lhs == object@mediator]
+    stop("The mediator '", object@mediator, "' is latent and has no data ",
+      "column, so `target` is required. Name one of its indicators: ",
+      paste(ind, collapse = ", "), ".",
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
 }

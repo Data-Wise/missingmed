@@ -2,25 +2,35 @@ status: active
 priority: --
 progress: 100
 kind: package
-updated: 2026-10-07
-next: #20 FIXED on dev (PR #28) and its pooling follow-up merged (PR #29,
-  bbb89b3): pool() now pools the X:M reference profile m_ref, not int_ref,
-  and refuses imputations fitted at different m_star. Both ship in the next
-  release. P1 pre-fit validation merged (PR #31, e49804e); defensive checks, engine
-  error catching and edge/E2E tests merged (PR #32, 1506c45; open questions in
-  its PR body):
-  set_md_mediation() now refuses a formula_m whose LHS is not the mediator
-  (was a silent wrong answer, 0.034 vs 0.191) and any X/M term other than
-  main effects + X:M. Spec follow-ups merged in PR #30. OPEN for P3 (spec,
-  proposed): medfit 0.4.0 already has its own `engine_args`, and forwarding
-  it needs medfit >= 0.4.0, not yet on CRAN. Roadmap: S7 SEM
-  engine + S4 removal in 0.6.0 (docs/specs/SPEC-s7-sem-engine-2026-09-23.md,
-  section 4 grilled G1-G7) -> 1.0.0 CRAN. Before CRAN: DESCRIPTION's
-  Description: still says "Provides S4 classes". OPEN QUESTION for upstream:
-  whether medfit's sandwich stacks the weight-model score (RRZ 1994).
-  Manuscript runs on medsim, not missingmed.
+updated: 2026-10-08
+next: SEM engine + S4 removal MERGED to dev 2026-10-08 (PRs #40 T1-T4 cba2592, #41 T5-T7 48cb5cd, #42 T8+T9 0a4dc88);
+  v0.6.0 is NOT released yet. engine = "lavaan" works through set_md_mediation(model,
+  outcome, fit_args) -> run -> pool -> infer("mc"), with latent mediators, IPW
+  (robust SEs forced) and sensitivity_mnar(type = "mc"); infer(type = "mbco")
+  refuses for lavaan (own spec). S4 API removed: six .Defunct() stubs (R/defunct.R,
+  deleted in 0.7.0), OpenMx/dplyr/purrr no longer imported. Plan, grill (H1-H5) and
+  T0 record: docs/specs/PLAN-s7-sem-engine-2026-10-08.md,
+  GRILL-s7-sem-engine-plan-2026-10-08.md. NEXT: T11 release workflow for 0.6.0
+  (--as-cran check, dev/e2e-*, version bump + Date:, merge NEWS headings, dev->main
+  PR with --merge, tag, GitHub release, confirm r-universe). 0.7.0: run(...)
+  deprecation into fit_args (H1), delete the stubs. Follow-ups: SEM-MBCO spec;
+  report to medfit that extract_mediation() truncates lavaan's weighted nobs
+  (355.99999999999994 -> 355; worked around by .lav_round_nobs()). Before CRAN:
+  1.0.0. Open question for upstream: whether medfit's sandwich stacks the
+  weight-model score (RRZ 1994). Manuscript runs on medsim, not missingmed.
 type: r
 worktrees:
+  2026-10-07: post-v0.5.1 cleanup. REMOVED 12 worktrees: 7 agent worktrees
+    under .claude/worktrees/ and ~/.git-worktrees/missingmed/{feature-defensive-
+    tests, feature-docs-site, feature-review-followups, feature-vignette-
+    replication, release-0.5.1}. Each branch tip == its merged PR's head
+    (#29-#36) and each merge commit is in origin/dev; dt-* branches are
+    contained in feature/defensive-tests (#32); worktree-agent-* sit at
+    397cd3c (on main). Untracked P1 e2e scratch (dev/e2e-p1*) was backed up
+    first. The 19 local branches need `git branch -D` (squash merges; the
+    branch-guard hook blocks it for the agent). Remote branches were already
+    auto-deleted. pensive-kare-38530a (this session, feature/pool-mref) is
+    removed by archiving the session.
   2026-10-07: app-made worktrees sad-bell-54d993 (PR #21/#23 session),
     vigilant-shaw-3f3543 (PR #22) and wonderful-curran-d50199 (PR #24)
     REMOVED; the sad-bell and vigilant-shaw sessions archived. Their local
@@ -57,7 +67,21 @@ worktrees:
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
-## post-0.5.0 (dev 0.5.0.9000)
+## post-0.5.1 (dev 0.5.1.9000)
+- 2026-10-07 (merged): PR #39 feature/docs-audit-new -> dev (169195b, squash).
+  Audit docs 1-5: articles supported-models (rules asserted live), faq,
+  s4-migration; technical.Rmd 3A (X:M pooling); verb examples. Check
+  --as-cran 0/0/0 (medfit 0.4.0 and 0.3.2). PR #38 (169195b's parent line):
+  dev bumped to 0.5.1.9000.
+
+## 0.5.1 (released 2026-10-07; PRs #28-#36)
+- 2026-10-07 (released): v0.5.1. Bump PR #36 -> dev (b5dcb2a, squash);
+  release PR #37 dev -> main (12ad874, merge commit); CI green on main;
+  tag v0.5.1 on 12ad874; GitHub release "missingmed 0.5.1" (latest,
+  03:44Z 2026-10-08). Gate: tests 1281 (medfit 0.4.0) / 1277 + 2 skip
+  (0.3.2); check --as-cran 0/0/0. pkgdown root serves 0.5.1. r-universe
+  still 0.5.0 at release time (polls main). dev stays at 0.5.1 (no .9000
+  bump yet).
 - 2026-10-07 (merged): PR #35 feature/docs-site -> dev (0f6e869, squash). Website audit items
   1-2: pkgdown development mode auto (site deployed dev builds at the root;
   root stays dev-built until the next main build or a manual

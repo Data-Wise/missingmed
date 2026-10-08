@@ -41,7 +41,7 @@ The S4 code is also the only reason missingmed imports `lavaan` and `OpenMx`.
 | Q1 | API | `set_md_mediation(data, model = <lavaan syntax>, treatment, mediator, outcome, engine = "lavaan")` (`outcome` required for lavaan, G3). `model` replaces `formula_y`/`formula_m`, which must be NULL. `...` goes to `lavaan::sem()` (e.g. `estimator = "MLR"`). **lavaan only**: OpenMx support ends when the S4 API is removed. | translating formulas into lavaan syntax (observed variables only, so little gain over glm); a separate `set_md_sem()` |
 | Q2 | Naming | **Keep lavaan's parameter names** (`M~C`, `Y~~Y`, user labels) and always carry the `a`/`b`/`c_prime` aliases. `.pool_wald()` becomes engine-aware: `dfcom = Inf` for lavaan, matching lavaan's z-tests. | renaming to `m_*`/`y_*` (undefined for latent or multi-equation models); pooling only a/b/c_prime |
 | Q3 | `~~` rows | **Keep** them with the pooled estimate and SE; set `statistic` and `p_value` to **NA** and document the boundary null (variance = 0) | dropping them; computing boundary-null Wald tests |
-| Q4 | MBCO | `infer(type = "mbco")` on a lavaan fit **errors** with a clear message in v0.5.0. MBCO for SEM gets its own spec: constrained refits with `lavaan::sem(constraints = "a == 0")`, the author's ruling on what "b = 0" means with a latent mediator, and a lavaan parity test. | building it in v0.5.0; a glm refit for observed-only SEMs |
+| Q4 | MBCO | `infer(type = "mbco")` on a lavaan fit **errors** with a clear message in v0.6.0. MBCO for SEM gets its own spec: constrained refits with `lavaan::sem(constraints = "a == 0")`, the author's ruling on what "b = 0" means with a latent mediator, and a lavaan parity test. | building it in the same release as the lavaan engine; a glm refit for observed-only SEMs |
 
 ## 4. Section 4 decisions (grilled 2026-10-07)
 
@@ -60,7 +60,7 @@ Full reasoning and rejected options: [GRILL-s7-sem-engine-section4-2026-10-07.md
 
 ### Proposed amendment P3 (open; from the 2026-10-07 interface review)
 
-**Status: open until the author accepts.** Q1 and G1–G7 are not changed by this
+**Status: partly accepted (2026-10-08, H1 of [GRILL-s7-sem-engine-plan-2026-10-08.md](GRILL-s7-sem-engine-plan-2026-10-08.md)).** `fit_args` is accepted for the lavaan engine in 0.6.0; the `run(...)` deprecation, glm `fit_args` and optional `outcome` on glm move to 0.7.0. Q1 and G1–G7 are not changed by this
 subsection. The review compared missingmed's interface with medfit `med()`,
 CMAverse, regmedint and bmlm (name-based roles) and lavaan.mi (lists of imputed
 data).
@@ -81,23 +81,31 @@ data).
 | Part | Proposed rule |
 |---|---|
 | Roles | One role triple across engines: `treatment`, `mediator`, `outcome`. On glm, `outcome` is optional, taken from `formula_y`'s left-hand side, and validated against it if given. On lavaan it stays required (G3). |
-| Engine options | `engine_args = list()` on `set_md_mediation()`, stored on the `MDMediationData` object. It replaces Q1's set-time `...` (if accepted, Q1's `...` becomes `engine_args`) and the current `run(...)`. |
-| Precedence | `engine_args` is the only stored path. `run(...)` warns as deprecated for one cycle and errors if it repeats a name in `engine_args`. `sensitivity_mnar()` reads the stored `engine_args`; its `...` follows the same deprecation path. |
-| G1 constraint | `engine_args` must not override G1: on the IPW + lavaan path, a non-robust `se` or an estimator without a sandwich in `engine_args` errors, exactly as G1 specifies for `...`. |
+| Engine options | `fit_args = list()` on `set_md_mediation()`, stored on the `MDMediationData` object. It replaces Q1's set-time `...` (if accepted, Q1's `...` becomes `fit_args`) and the current `run(...)`. |
+| Precedence | `fit_args` is the only stored path. `run(...)` warns as deprecated for one cycle and errors if it repeats a name in `fit_args`. `sensitivity_mnar()` reads the stored `fit_args`; its `...` follows the same deprecation path. |
+| G1 constraint | `fit_args` must not override G1: on the IPW + lavaan path, a non-robust `se` or an estimator without a sandwich in `fit_args` errors, exactly as G1 specifies for `...`. |
 
 **Trade-offs:** one more argument and a deprecation cycle for `run(...)`, against
 one place for engine options and `sensitivity_mnar()` refits that reproduce the
 original fit without restating its options.
 
-**Open sub-questions (not decided here):**
+**Naming (decided 2026-10-07, author):** the stored list is `fit_args`, not
+`engine_args`. medfit 0.4.0's `fit_mediation()` already has an argument called
+`engine_args = list()` (absent in 0.3.2), so the same name on
+`set_md_mediation()` would mean two different lists in one call chain.
 
-- **Name collision with medfit.** medfit 0.4.0's `fit_mediation()` has its own
-  `engine_args = list()` (checked 2026-10-07; absent in 0.3.2). Under 0.4.0, a
-  literal `run(obj, engine_args = list(...))` already reaches medfit through
-  `run()`'s `...`; the deprecation rule must say how that call is treated.
-- **medfit floor.** Forwarding the stored `engine_args` to medfit's argument of
-  the same name on the glm path raises `Imports: medfit (>= 0.3.1)` to
-  `>= 0.4.0`.
+**Sub-questions:**
+
+- **Name collision with medfit (resolved by the rename).** `fit_args` holds
+  arguments for `medfit::fit_mediation()` (or, on the lavaan path, for
+  `lavaan::sem()`). medfit's own `engine_args` is then an ordinary entry,
+  `fit_args = list(engine_args = list(...))`, with no special case. A literal
+  `run(obj, engine_args = list(...))` is a `run(...)` argument like any other and
+  follows the deprecation rule above.
+- **medfit floor (open).** `fit_args` itself needs no newer medfit; only an
+  entry that is a 0.4.0-only argument (such as `engine_args`) does. Raising
+  `Imports: medfit (>= 0.3.1)` to `>= 0.4.0` is needed only if missingmed
+  itself starts relying on such an argument.
 
 ## 5. Acceptance criteria
 

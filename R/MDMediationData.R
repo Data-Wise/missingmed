@@ -4,7 +4,7 @@
 #' mediation specification** (outcome/mediator formulas + roles). It is the entry
 #' point of the missingmed S7 pipeline
 #' (`set_md_mediation()` -> [run()] -> [pool()] -> [infer()]) and the S7
-#' successor of the S4 [SemImputedData] class.
+#' successor of the removed S4 `SemImputedData` class.
 #'
 #' Fitting is delegated to [medfit::fit_mediation()] (one call per imputation),
 #' so the per-imputation fits carry **named** path coefficients (`a`, `b`,
@@ -36,12 +36,17 @@
 #' @param conf_int Logical; whether downstream output carries confidence
 #'   intervals. Defaults to `FALSE`.
 #' @param conf_level Numeric in (0, 1); confidence level. Defaults to `0.95`.
+#' @param model For `engine = "lavaan"`, the lavaan model syntax (a single
+#'   string); `NULL`-equivalent (`character(0)`) otherwise.
+#' @param outcome For `engine = "lavaan"`, the name of the outcome variable.
+#' @param fit_args For `engine = "lavaan"`, a named list of extra arguments
+#'   for [lavaan::sem()]. Empty otherwise.
 #' @param n_imputations Number of imputations (MI) or `1` (IPW).
 #' @param original_data The original data (pre-imputation for MI; the supplied
 #'   frame for IPW).
 #'
 #' @return An `MDMediationData` S7 object.
-#' @seealso [set_md_mediation()], [medfit::fit_mediation()], [SemImputedData]
+#' @seealso [set_md_mediation()], [medfit::fit_mediation()]
 #' @export
 #' @name MDMediationData
 MDMediationData <- S7::new_class(
@@ -65,6 +70,9 @@ MDMediationData <- S7::new_class(
     conf_int = S7::new_property(S7::class_logical, default = FALSE),
     conf_level = S7::new_property(S7::class_numeric, default = 0.95),
     n_imputations = S7::class_numeric,
+    model = S7::new_property(S7::class_character, default = character(0)),
+    outcome = S7::new_property(S7::class_character, default = character(0)),
+    fit_args = S7::new_property(S7::class_list, default = list()),
     original_data = S7::new_property(S7::class_data.frame, default = quote(data.frame()))
   ),
   validator = function(self) {
@@ -77,8 +85,27 @@ MDMediationData <- S7::new_class(
     if (self@method == "ipw" && !is.data.frame(self@data)) {
       return("@data must be a data.frame when method = 'ipw'.")
     }
-    if (!inherits(self@formula_y, "formula") || !inherits(self@formula_m, "formula")) {
+    lav <- identical(self@engine, "lavaan")
+    if (lav) {
+      # A lavaan model is one syntax string; there are no formulas.
+      if (length(self@model) != 1L || is.na(self@model) || !nzchar(self@model)) {
+        return("@model must be a single lavaan model syntax string when engine = 'lavaan'.")
+      }
+      if (length(self@outcome) != 1L || is.na(self@outcome) || !nzchar(self@outcome)) {
+        return("@outcome must be a single variable name when engine = 'lavaan'.")
+      }
+      if (!is.null(self@formula_y) || !is.null(self@formula_m)) {
+        return("@formula_y and @formula_m must be NULL when engine = 'lavaan'.")
+      }
+      if (self@outcome %in% c(self@treatment, self@mediator)) {
+        return("@outcome must differ from @treatment and @mediator.")
+      }
+    } else if (!inherits(self@formula_y, "formula") || !inherits(self@formula_m, "formula")) {
       return("@formula_y and @formula_m must be formula objects.")
+    }
+    if (!is.list(self@fit_args) ||
+      (length(self@fit_args) && (is.null(names(self@fit_args)) || !all(nzchar(names(self@fit_args)))))) {
+      return("@fit_args must be a named list.")
     }
     if (length(self@treatment) != 1L || length(self@mediator) != 1L ||
       is.na(self@treatment) || is.na(self@mediator) ||

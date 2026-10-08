@@ -45,12 +45,18 @@
 #'
 #' @param data For `method = "mi"`, a [mice::mids] object; for `method = "ipw"`,
 #'   a `data.frame` (may contain `NA`s; complete cases are reweighted).
-#' @param formula_y Outcome model formula (e.g. `Y ~ X + M + C`).
-#' @param formula_m Mediator model formula (e.g. `M ~ X + C`).
+#' @param formula_y Outcome model formula (e.g. `Y ~ X + M + C`). Not used with
+#'   `engine = "lavaan"`.
+#' @param formula_m Mediator model formula (e.g. `M ~ X + C`). Not used with
+#'   `engine = "lavaan"`.
 #' @param treatment Name of the treatment/exposure variable.
 #' @param mediator Name of the mediator variable.
-#' @param engine medfit fitting engine: `"glm"` (default), or `"regmedint"`
-#'   (needs medfit >= 0.4.0 and the regmedint package; `method = "mi"` only).
+#' @param engine Fitting engine: `"glm"` (default), `"regmedint"` (needs
+#'   medfit 0.4.0 or later and the regmedint package; `method = "mi"` only), or
+#'   `"lavaan"`
+#'   (a structural equation model given as `model` syntax instead of formulas;
+#'   with `method = "ipw"` too: complete cases are weighted and the SEs are
+#'   robust).
 #' @param family_y,family_m `stats::family` objects for the outcome and mediator
 #'   models. Default `stats::gaussian()`.
 #' @param method Estimator axis: `"mi"` (default) or `"ipw"`.
@@ -63,6 +69,15 @@
 #' @param weight_stabilize (IPW) Use stabilized weights? Default `TRUE`.
 #' @param weight_trim (IPW) Upper quantile to cap weights; `1` (default) = none.
 #' @param se_type (IPW) `"sandwich"` (default, HC robust) or `"model"`.
+#' @param model (`engine = "lavaan"`) lavaan model syntax, a single string, for
+#'   example `"M ~ a*X + C\nY ~ b*M + cp*X + C"`. A latent mediator
+#'   (`"Mlat =~ m1 + m2 + m3"`) is allowed. Must be `NULL` for other engines.
+#' @param outcome (`engine = "lavaan"`) name of the outcome variable; required
+#'   for lavaan, and it must be regressed on the mediator in `model`. Must be
+#'   `NULL` for other engines.
+#' @param fit_args (`engine = "lavaan"`) named list of extra arguments for
+#'   [lavaan::sem()], for example `list(estimator = "MLR")`, stored on the
+#'   object. It cannot set `model` or `data`. Must be empty for other engines.
 #' @param conf_int Logical; if `TRUE`, [pool()] adds per-coefficient
 #'   `conf_low` and `conf_high` columns to the pooled tidy table, at
 #'   `conf_level` on Rubin's t reference. Defaults to `FALSE`. These bound
@@ -73,20 +88,18 @@
 #' @return An [MDMediationData] object.
 #' @seealso [MDMediationData], [run()], [pool()], [infer()], [medfit::fit_mediation()]
 #' @examples
-#' \dontrun{
 #' set.seed(1)
 #' d <- data.frame(X = rbinom(200, 1, .5), C = rnorm(200))
 #' d$M <- .5 * d$X + .3 * d$C + rnorm(200)
 #' d$Y <- .2 * d$X + .4 * d$M + .3 * d$C + rnorm(200)
 #' d$M[sample(200, 30)] <- NA
 #' # MI
-#' imp <- mice::mice(d, m = 5, printFlag = FALSE)
+#' imp <- mice::mice(d, m = 5, printFlag = FALSE, seed = 1)
 #' md_mi <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
 #'   treatment = "X", mediator = "M")
 #' # IPW (raw data.frame)
 #' md_ipw <- set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
 #'   treatment = "X", mediator = "M", method = "ipw")
-#' }
 #' @export
 set_md_mediation <- function(data, formula_y, formula_m,
                              treatment, mediator,
@@ -100,13 +113,22 @@ set_md_mediation <- function(data, formula_y, formula_m,
                              weight_trim = 1,
                              se_type = c("sandwich", "model"),
                              conf_int = FALSE,
-                             conf_level = 0.95) {
+                             conf_level = 0.95,
+                             model = NULL,
+                             outcome = NULL,
+                             fit_args = list()) {
   if (missing(data)) stop("Argument 'data' is missing.", call. = FALSE)
-  if (missing(formula_y) || missing(formula_m)) {
-    stop("Both 'formula_y' and 'formula_m' must be supplied.", call. = FALSE)
-  }
   if (missing(treatment) || missing(mediator)) {
     stop("Both 'treatment' and 'mediator' must be supplied.", call. = FALSE)
+  }
+  lav <- identical(engine, "lavaan")
+  .check_engine_args(lav,
+    formula_y = if (missing(formula_y)) NULL else formula_y,
+    formula_m = if (missing(formula_m)) NULL else formula_m,
+    model, outcome, fit_args
+  )
+  if (!lav && (missing(formula_y) || missing(formula_m))) {
+    stop("Both 'formula_y' and 'formula_m' must be supplied.", call. = FALSE)
   }
   method <- match.arg(method)
   # D1: `mechanism` is derived, not user-set. The pipeline estimates under MAR
@@ -129,7 +151,7 @@ set_md_mediation <- function(data, formula_y, formula_m,
   if (method == "ipw" && !is.data.frame(data)) {
     stop("'data' must be a data.frame when method = 'ipw'.", call. = FALSE)
   }
-  if (!inherits(formula_y, "formula") || !inherits(formula_m, "formula")) {
+  if (!lav && (!inherits(formula_y, "formula") || !inherits(formula_m, "formula"))) {
     stop("'formula_y' and 'formula_m' must be formula objects.", call. = FALSE)
   }
   if (!is.logical(conf_int) || length(conf_int) != 1L || is.na(conf_int)) {
@@ -149,15 +171,24 @@ set_md_mediation <- function(data, formula_y, formula_m,
     original_data <- as.data.frame(data)
   }
 
-  .check_md_spec(formula_y, formula_m, treatment, mediator,
-    family_y, family_m, original_data)
+  if (lav) {
+    .check_lavaan_spec(model, treatment, mediator, outcome, fit_args,
+      original_data)
+    if (method == "ipw") .check_lavaan_ipw_args(fit_args, se_type)
+  } else {
+    .check_md_spec(formula_y, formula_m, treatment, mediator,
+      family_y, family_m, original_data)
+  }
   .check_ipw_args(weight_formula, weight_stabilize, weight_trim, original_data,
     method)
 
   MDMediationData(
     data = data,
-    formula_y = formula_y,
-    formula_m = formula_m,
+    formula_y = if (lav) NULL else formula_y,
+    formula_m = if (lav) NULL else formula_m,
+    model = if (lav) model else character(0),
+    outcome = if (lav) outcome else character(0),
+    fit_args = if (lav) fit_args else list(),
     treatment = treatment,
     mediator = mediator,
     engine = engine,

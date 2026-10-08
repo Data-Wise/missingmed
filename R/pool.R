@@ -21,6 +21,7 @@
 #' @param ... Unused.
 #' @return An [MDMediationResult] object.
 #' @seealso [run()], [infer()], [pool_sem()]
+#' @details
 #' The returned tidy table also carries a per-coefficient Wald test
 #' (`statistic`, `df`, `riv`, `fmi`, `p_value`) and, when `conf_int = TRUE` was
 #' set in [set_md_mediation()], per-coefficient `conf_low` and `conf_high` at
@@ -32,6 +33,21 @@
 #'
 #'   Barnard, J., & Rubin, D. B. (1999). Small-sample degrees of freedom with
 #'   multiple imputation. *Biometrika*, 86(4), 948--955.
+#' @examples
+#' set.seed(1)
+#' n <- 150
+#' d <- data.frame(X = rbinom(n, 1, 0.5), C = rnorm(n))
+#' d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
+#' d$Y <- 0.3 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+#' d$M[sample(n, 25)] <- NA
+#' imp <- mice::mice(d, m = 3, method = "norm", printFlag = FALSE, seed = 1)
+#' md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C, conf_int = TRUE,
+#'   treatment = "X", mediator = "M"
+#' )
+#' res <- pool(run(md))
+#' res
+#' # Per-coefficient table, with Rubin's df and conf_low/conf_high
+#' res@tidy_table[, c("term", "estimate", "std_error", "df", "conf_low", "conf_high")]
 #' @export
 #' @name pool
 pool <- S7::new_generic("pool", "object")
@@ -290,11 +306,16 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
   dfcom_y <- dfcom_of("y_", family_of("family_y"))
   # Terms outside both models' prefixes and the three aliases get the smaller
   # complete-data df, the conservative choice.
+  lav <- identical(fit@source_package, "lavaan")
   dfcom <- ifelse(startsWith(term, "m_") | term %in% c("a", "b0"), dfcom_m,
     ifelse(startsWith(term, "y_") | term %in% c("b", "c_prime", "theta3"), dfcom_y,
       min(dfcom_m, dfcom_y)
     )
   )
+
+  # lavaan names its parameters (M~C, Y~~Y, user labels), so the m_/y_ prefix
+  # rule does not apply. Its tests are z-tests: the complete-data df is Inf.
+  if (lav) dfcom <- rep(Inf, length(term))
 
   statistic <- tidy_table$estimate / tidy_table$std_error
   if (m == 1) {
@@ -312,5 +333,12 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
   p_value <- ifelse(is.infinite(df), 2 * stats::pnorm(-abs(statistic)),
     2 * stats::pt(-abs(statistic), df)
   )
+  # A (co)variance (`M~~M`) is tested against a boundary null (variance = 0),
+  # where a Wald z-test is not valid: keep the estimate and SE, leave the test NA.
+  if (lav) {
+    vv <- grepl("~~", term, fixed = TRUE)
+    statistic[vv] <- NA_real_
+    p_value[vv] <- NA_real_
+  }
   data.frame(statistic = statistic, df = df, riv = riv, fmi = fmi, p_value = p_value)
 }

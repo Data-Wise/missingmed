@@ -1,8 +1,8 @@
 Package: missingmed
 Type: Package
 Title: Mediation Analysis with Multiple Imputation for Missing Data
-Version: 0.5.1
-Date: 2026-10-07
+Version: 0.6.0
+Date: 2026-10-08
 Authors@R: person("Davood", "Tofighi",
         email = "dtofighi@gmail.com",
         role = c("aut", "cre", "cph"),
@@ -17,9 +17,6 @@ Imports:
     RMediation (>= 1.5.0),
     mice (>= 3.18.0),
     lavaan (>= 0.6-0),
-    OpenMx (>= 2.13),
-    dplyr (>= 1.0.0),
-    purrr (>= 0.3.0),
     tibble (>= 3.0.0),
     broom (>= 0.7.0),
     rlang (>= 0.4.0),
@@ -40,8 +37,8 @@ Description: Mediation analysis with incomplete data. Fits the mediator and
     constrained optimization (MBCO) likelihood-ratio test. Also provides an
     inverse probability weighting estimator, treatment-by-mediator interaction
     models, and a delta-adjustment sensitivity analysis for departures from
-    missing at random. A deprecated structural equation modeling interface
-    ('lavaan', 'OpenMx') remains until version 0.6.0.
+    missing at random. Structural equation models, including a latent
+    mediator, are fit with 'lavaan'.
 License: GPL-2
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, roclets = c("rd","collate","namespace"))

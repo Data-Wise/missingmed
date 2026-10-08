@@ -138,8 +138,8 @@ test_that("a non-syntactic covariate name runs end to end", {
 test_that("unknown engines are refused at set time, naming the supported ones", {
   expect_error(edge_md(imp2, engine = "lm"),
     "`engine` \"lm\" is not supported. Supported: \"glm\"", fixed = TRUE)
-  expect_error(edge_md(imp2, engine = "lavaan"), "planned for missingmed 0.6.0")
-  expect_error(edge_md(imp2, engine = "lavaan"), "set_sem()", fixed = TRUE)
+  # "lavaan" is supported, but takes `model`, not formulas (see test-lavaan-spec.R).
+  expect_error(edge_md(imp2, engine = "lavaan"), "cannot be used with engine")
   expect_error(edge_md(imp2, engine = "GLM"), "not supported")
   for (bad in list(NA_character_, c("glm", "regmedint"), 1, character(0))) {
     expect_error(edge_md(imp2, engine = bad), "`engine` must be a single string")
@@ -158,7 +158,7 @@ test_that("regmedint needs medfit >= 0.4.0", {
   local_mocked_bindings(.medfit_version = function() numeric_version("0.3.2"))
   expect_error(edge_md(imp2, engine = "regmedint"),
     "needs medfit >= 0.4.0 (installed: 0.3.2)", fixed = TRUE)
-  expect_identical(.md_engines("mi"), "glm")
+  expect_identical(.md_engines("mi"), c("glm", "lavaan"))
 })
 
 test_that("regmedint runs end to end and matches glm on a Gaussian model", {

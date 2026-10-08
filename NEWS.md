@@ -1,3 +1,50 @@
+# missingmed 0.6.0
+
+## Breaking changes
+
+* The S4 API is removed. `set_sem()`, `run_sem()`, `pool_sem()`, `fit_model()`,
+  `lav_mice()` and `mx_mice()` now stop with a message naming their replacement
+  (`.Defunct()` stubs, deleted in 0.7.0): use `set_md_mediation()`, `run()` and
+  `pool()`, with `engine = "lavaan"` for a structural equation model. Removed
+  without a stub, because nothing in the S7 pipeline uses them: the classes
+  `SemImputedData`, `SemResults` and `PooledSEMResults`; the functions
+  `is_fit()`, `is_pd()`, `is_lav_syntax()` and `is_valid_lav_syntax()`; and the
+  `tidy()` methods for OpenMx models and `logLik` objects. There is no OpenMx
+  engine: `OpenMx` is no longer imported, and `dplyr` and `purrr` are no longer
+  imported either. `n_imp()` stays, now a plain function. See *Migrating from
+  the S4 API* on the package website.
+
+## New features
+
+* `set_md_mediation()` gains `engine = "lavaan"`: give a structural equation
+  model as lavaan syntax in `model`, name the `outcome`, and pass extra
+  `lavaan::sem()` arguments in `fit_args` (for example `list(estimator =
+  "MLR")`). The model is validated before any fitting. `run()` fits each
+  imputation with lavaan; `pool()` reports z-tests (`df = Inf` at `m = 1`) and
+  leaves the statistic and p-value of variance and covariance rows (`~~`) `NA`;
+  `infer(type = "mc")` works. `infer(type = "mbco")` refuses for lavaan fits
+  until a separate SEM-MBCO design lands. Non-convergence in any imputation
+  refuses, naming the imputations; an improper solution warns once.
+* `engine = "lavaan"` also works with `method = "ipw"`: the complete cases are
+  fit with `sampling.weights` and always with robust (sandwich) SEs. A
+  non-robust `se`, an estimator without sandwich SEs, or `se_type = "model"`
+  is refused. `sensitivity_mnar()` accepts lavaan fits for `type = "mc"`; a
+  latent mediator needs an explicit observed `target`.
+
+## Documentation
+
+* New articles on the package website: *Supported models* (every model rule
+  of `set_md_mediation()`, each one run when the site builds), *Frequently
+  asked questions*, and *Migrating from the S4 API*.
+* `vignette("technical")` gains section 3A on models with a
+  treatment-by-mediator interaction: the estimand behind `treatment_level`,
+  and how `pool()` recomputes the four-way decomposition from one pooled
+  reference profile.
+* `run()`, `pool()`, `per_imputation_list()`, `n_imputations()` and
+  `sensitivity_mnar()` have runnable examples, and the `set_md_mediation()`
+  example now runs. The `pool()` help page's note on the tidy table's Wald
+  columns moved from *See also* to *Details*.
+
 # missingmed 0.5.1
 
 ## New features

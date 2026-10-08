@@ -6,10 +6,10 @@
 #' MBCO-MI path consumes, because MBCO does not commute with Rubin's rules
 #' (D4-stacked MBCO needs the per-imputation fits, not the pooled estimate).
 #'
-#' It is the S7 successor of the S4 [SemResults] class.
+#' It is the S7 successor of the removed S4 `SemResults` class.
 #'
 #' @param per_imputation A list of named [medfit::MediationData] objects (length `m`).
-#' @param fits A list of the raw backend fits (`lavaan`/`OpenMx`), one per imputation.
+#' @param fits A list of the raw backend fits (`lavaan`), one per imputation.
 #' @param m Integer number of imputations.
 #' @param engine medfit fitting engine used (e.g. `"glm"`).
 #' @param conf_int Logical; whether output carries confidence intervals.
@@ -20,7 +20,7 @@
 #'   constrained/unconstrained models against the imputed data).
 #'
 #' @return An `MDMediationFit` S7 object.
-#' @seealso [run()], [per_imputation_list()], [SemResults]
+#' @seealso [run()], [per_imputation_list()]
 #' @export
 #' @name MDMediationFit
 MDMediationFit <- S7::new_class(

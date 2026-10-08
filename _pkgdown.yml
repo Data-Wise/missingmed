@@ -26,6 +26,11 @@ articles:
   - missingmed
   - worked-analysis
   - mbco-mi
+- title: Guides
+  contents:
+  - articles/supported-models
+  - articles/faq
+  - articles/s4-migration
 - title: Technical
   contents:
   - technical
@@ -60,29 +65,11 @@ reference:
   - MDMediationResult
   - MDSensitivityResult
   - MbcoMIResult
-- title: Tidiers
-  contents:
-  - tidy.logLik
-  - tidy.MxModel
 - title: Low-level helpers
   desc: Fitting and validation utilities used by the pipeline.
   contents:
-  - fit_model
-  - lav_mice
-  - mx_mice
   - n_imp
-  - is_fit
-  - is_pd
-  - is_lav_syntax
-  - is_valid_lav_syntax
-- title: Deprecated (S4)
-  desc: Deprecated; superseded by the S7 pipeline. Replaced by `.Defunct()` stubs in 0.6.0.
+- title: Defunct (S4)
+  desc: Removed in 0.6.0; each stub stops with a message naming its replacement.
   contents:
-  - set_sem
-  - run_sem
-  - pool_sem
-  - SemImputedData
-  - SemResults
-  - PooledSEMResults
-  - "show,SemImputedData-method"
-  - "summary,SemImputedData-method"
+  - missingmed-defunct

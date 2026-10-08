@@ -22,6 +22,9 @@ MDMediationData(
   conf_int = FALSE,
   conf_level = 0.95,
   n_imputations = integer(0),
+  model = character(0),
+  outcome = character(0),
+  fit_args = list(),
   original_data = data.frame()
 )
 }
@@ -67,6 +70,14 @@ intervals. Defaults to \code{FALSE}.}
 
 \item{n_imputations}{Number of imputations (MI) or \code{1} (IPW).}
 
+\item{model}{For \code{engine = "lavaan"}, the lavaan model syntax (a single
+string); \code{NULL}-equivalent (\code{character(0)}) otherwise.}
+
+\item{outcome}{For \code{engine = "lavaan"}, the name of the outcome variable.}
+
+\item{fit_args}{For \code{engine = "lavaan"}, a named list of extra arguments
+for \code{\link[lavaan:sem]{lavaan::sem()}}. Empty otherwise.}
+
 \item{original_data}{The original data (pre-imputation for MI; the supplied
 frame for IPW).}
 }
@@ -78,7 +89,7 @@ An S7 class holding multiply imputed data together with a \strong{medfit-style
 mediation specification} (outcome/mediator formulas + roles). It is the entry
 point of the missingmed S7 pipeline
 (\code{set_md_mediation()} -> \code{\link[=run]{run()}} -> \code{\link[=pool]{pool()}} -> \code{\link[=infer]{infer()}}) and the S7
-successor of the S4 \link{SemImputedData} class.
+successor of the removed S4 \code{SemImputedData} class.
 }
 \details{
 Fitting is delegated to \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}} (one call per imputation),
@@ -88,5 +99,5 @@ model are orthogonal axes: \code{method} selects the missing-data estimator
 (\code{"mi"}/\code{"ipw"}); the formulas/engine select the model.
 }
 \seealso{
-\code{\link[=set_md_mediation]{set_md_mediation()}}, \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}}, \link{SemImputedData}
+\code{\link[=set_md_mediation]{set_md_mediation()}}, \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}}
 }

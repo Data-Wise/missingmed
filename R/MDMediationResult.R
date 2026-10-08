@@ -4,7 +4,7 @@
 #' feature is `pooled`: a single **named** [medfit::MediationData] built from the
 #' pooled estimates and total variance-covariance, valid as input to
 #' [RMediation::ci_mediation_data()] / [RMediation::medci()] (path coefficients
-#' resolve by name). It is the S7 successor of the S4 [PooledSEMResults] class.
+#' resolve by name). It is the S7 successor of the removed S4 `PooledSEMResults` class.
 #'
 #' @param pooled A named [medfit::MediationData] carrying the pooled estimates
 #'   and total vcov (path labels `a`, `b`, `c_prime`, ...).
@@ -29,7 +29,7 @@
 #' @param conf_level Numeric in (0, 1); confidence level.
 #'
 #' @return An `MDMediationResult` S7 object.
-#' @seealso [pool()], [infer()], [PooledSEMResults]
+#' @seealso [pool()], [infer()]
 #' @export
 #' @name MDMediationResult
 MDMediationResult <- S7::new_class(
