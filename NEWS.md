@@ -21,7 +21,8 @@
   in `formula_y` (products such as `X:C` or `M:W`, transforms such as
   `I(X^2)` or `log(M)`, and offsets involving either are refused, with a
   pointer to `mbco_d4()` for moderated models); an `X:M` term with a
-  non-Gaussian `family_y` or `family_m`; and a non-numeric treatment
+  non-Gaussian or non-identity-link `family_y` or `family_m`; and a
+  non-numeric treatment
   (factor, character or logical; recode to numeric).
 
 * `mbco_d4()` now refuses a `formula_m` whose response involves anything but

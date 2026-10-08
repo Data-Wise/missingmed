@@ -226,7 +226,11 @@ set_md_mediation <- function(data, formula_y, formula_m,
   # the treatment and mediator must be columns.
   in_env <- function(vs, f) {
     env <- environment(f) %||% globalenv()
-    vs[!vapply(vs, exists, logical(1), envir = env)]
+    # A function of the same name (stats::C) is not a value model.frame() can use.
+    found <- vapply(vs, function(v) {
+      exists(v, envir = env) && !is.function(get(v, envir = env))
+    }, logical(1))
+    vs[!found]
   }
   absent <- unique(c(
     in_env(setdiff(all.vars(fy), names(data)), formula_y),

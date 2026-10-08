@@ -63,6 +63,15 @@ test_that("variables absent from the data are refused", {
   k <- 2
   expect_error(smd(Y ~ X + M + I(C * k), M ~ X + C), NA)
   expect_error(smd(Y ~ X + M + I(C * pi), M ~ X + C), NA)
+  # A missing column that shares its name with a function (stats::C) is still
+  # missing.
+  d <- gen_val()[c("X", "M", "Y")]
+  d$M[1:30] <- NA
+  expect_error(
+    set_md_mediation(d, Y ~ X + M + C, M ~ X,
+      treatment = "X", mediator = "M", method = "ipw"),
+    "'C' not found in `data`"
+  )
 })
 
 test_that("a family given as a string is resolved for the X:M check", {
