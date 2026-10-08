@@ -179,8 +179,8 @@ S7::method(run, MDMediationData) <- function(object, ...) {
   if (identical(object@method, "ipw")) {
     # The IPW path appends its weights as `.md_ipw_w`; robust (sandwich) SEs are
     # forced, as for the glm IPW path (G1).
-    args$se <- NULL
-    args <- c(args, list(sampling.weights = ".md_ipw_w", se = "robust.huber.white"))
+    args <- args[.lav_key(names(args)) != "se"]
+    args <- c(args, list(sampling_weights = ".md_ipw_w", se = "robust.huber.white"))
   }
   fit <- withCallingHandlers(
     .lav_sem(object@model, data, args),

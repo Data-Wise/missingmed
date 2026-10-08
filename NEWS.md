@@ -1,6 +1,22 @@
 # missingmed (development version)
 
-* No user-visible changes yet.
+## Licensing and dependencies
+
+* missingmed is now licensed GPL (>= 3) (was GPL-2), matching `medfit`,
+  `RMediation` and `medsim`, which missingmed already imports.
+* `lavaan (>= 0.7-3)` is required (was `>= 0.6-0`). lavaan 0.7-2 could return a
+  fit marked converged that broke its own constraints (`optim_parscale =
+  "standardized"`, also used in the automatic retries), and could report
+  convergence for a runaway solution; 0.7-3 fixes both.
+
+## Bug fixes
+
+* `set_md_mediation(method = "ipw", engine = "lavaan")` now guards every spelling
+  of the options it controls. lavaan >= 0.7-2 accepts `sampling_weights` as well
+  as `sampling.weights`; `fit_args = list(sampling_weights = ...)` used to pass the
+  check and be dropped silently in favor of the IPW weights, and is now an error.
+  `se = "robust_huber_white"` (or any case) is accepted as the robust SE request.
+  The lavaan call itself uses the snake_case names.
 
 # missingmed 0.6.0
 
