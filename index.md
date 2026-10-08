@@ -16,6 +16,16 @@ Two estimators share one S7 pipeline:
   with Rubin’s rules.
 - **Inverse-probability weighting** (`method = "ipw"`) — reweights
   complete cases (stabilized weights, trimming, HC sandwich SEs).
+- **Structural equation models** (`engine = "lavaan"`) — give lavaan
+  syntax in `model`, including a latent mediator; works with both
+  estimators.
+- **Sensitivity to missing not at random**
+  ([`sensitivity_mnar()`](https://data-wise.github.io/missingmed/reference/sensitivity_mnar.md))
+  — repeats the analysis with the imputed values shifted, giving a
+  sensitivity curve.
+
+New to the package? Start with *Choosing an analysis* on the
+[website](https://data-wise.github.io/missingmed/).
 
 For the indirect effect it provides both a **Monte-Carlo confidence
 interval** and a **D4-stacked MBCO** likelihood-ratio test (which,

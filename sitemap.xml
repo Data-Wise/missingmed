@@ -1,11 +1,16 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://data-wise.github.io/missingmed/404.html</loc></url>
+<url><loc>https://data-wise.github.io/missingmed/articles/choosing-an-analysis.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/articles/classes_methods.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/articles/faq.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/articles/index.html</loc></url>
+<url><loc>https://data-wise.github.io/missingmed/articles/ipw-weighting.html</loc></url>
+<url><loc>https://data-wise.github.io/missingmed/articles/lavaan-sem.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/articles/mbco-mi.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/articles/missingmed.html</loc></url>
+<url><loc>https://data-wise.github.io/missingmed/articles/reading-results.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/articles/s4-migration.html</loc></url>
+<url><loc>https://data-wise.github.io/missingmed/articles/sensitivity-mnar.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/articles/supported-models.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/articles/technical.html</loc></url>
 <url><loc>https://data-wise.github.io/missingmed/articles/worked-analysis.html</loc></url>
