@@ -35,7 +35,8 @@ a \code{data.frame} (may contain \code{NA}s; complete cases are reweighted).}
 
 \item{mediator}{Name of the mediator variable.}
 
-\item{engine}{medfit fitting engine. Defaults to \code{"glm"}.}
+\item{engine}{medfit fitting engine: \code{"glm"} (default), or \code{"regmedint"}
+(needs medfit >= 0.4.0 and the regmedint package; \code{method = "mi"} only).}
 
 \item{family_y, family_m}{\code{stats::family} objects for the outcome and mediator
 models. Default \code{stats::gaussian()}.}
@@ -102,7 +103,14 @@ and offsets involving either variable are refused. For moderated models,
 \item an \code{X:M} term when \code{family_y} or \code{family_m} is not Gaussian with an
 identity link;
 \item a treatment column that is not numeric. Factor, character and logical
-treatments must be recoded to numeric (0/1 for a binary treatment).
+treatments must be recoded to numeric (0/1 for a binary treatment);
+\item a \code{treatment} or \code{mediator} that is not a syntactic R name (such as
+\code{"my M"}), which medfit cannot fit. Covariates may have any name;
+\item an \code{engine} other than \code{"glm"}, or \code{"regmedint"} with medfit >= 0.4.0 and
+\code{method = "mi"} (regmedint takes no case weights);
+\item a \code{weight_formula} that is not \code{NULL}, a formula or a named list of
+formulas, or that uses a variable found neither in the data nor in its
+environment.
 }
 }
 \examples{

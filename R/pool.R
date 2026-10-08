@@ -37,6 +37,15 @@ pool <- S7::new_generic("pool", "object")
 # Anything that is not a missingmed fit (a mice::mira, for one) goes to
 # mice::pool, so attaching missingmed does not break the standard mice workflow.
 S7::method(pool, S7::class_any) <- function(object, ...) {
+  # Neither is a mice input, and mice::pool() fails on both with an error about
+  # columns or lists that does not say what was expected.
+  if (is.null(object) || is.data.frame(object)) {
+    stop("`pool()` takes the MDMediationFit returned by `run()` (or a ",
+      "mice::mira, which it passes to mice::pool()), not ",
+      if (is.null(object)) "NULL" else "a data.frame", ".",
+      call. = FALSE
+    )
+  }
   mice::pool(object, ...)
 }
 
@@ -54,8 +63,9 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
   m <- object@m
   if (m < 1) stop("Nothing to pool: @m must be >= 1.", call. = FALSE)
 
-  est_list <- lapply(object@per_imputation, function(x) x@estimates)
-  vcov_list <- lapply(object@per_imputation, function(x) x@vcov)
+  aligned <- .align_imputations(object@per_imputation)
+  est_list <- lapply(aligned, `[[`, "est")
+  vcov_list <- lapply(aligned, `[[`, "vcov")
   nms <- names(est_list[[1]])
 
   # Stack estimates: m x p (one row per imputation)
@@ -136,6 +146,39 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
     conf_int = object@conf_int,
     conf_level = object@conf_level
   )
+}
+
+# Per-imputation estimates and vcov, in imputation 1's coefficient order.
+# Pooling stacks them by position, so an imputation whose coefficients come in
+# another order would be averaged term against the wrong term without any
+# error; it is reordered by name. One with a different set of coefficients
+# cannot be pooled at all.
+.align_imputations <- function(fits) {
+  nms <- names(fits[[1]]@estimates)
+  lapply(seq_along(fits), function(i) {
+    e <- fits[[i]]@estimates
+    v <- fits[[i]]@vcov
+    if (identical(names(e), nms)) {
+      return(list(est = e, vcov = v))
+    }
+    if (length(e) != length(nms) || !setequal(names(e), nms)) {
+      only <- function(x, y) paste(setdiff(x, y), collapse = ", ")
+      stop("Cannot pool: imputation ", i, " estimates different coefficients ",
+        "from imputation 1 (only in imputation 1: ", only(nms, names(e)),
+        "; only in imputation ", i, ": ", only(names(e), nms), "). This ",
+        "happens when a factor level or a term is absent from one completed ",
+        "dataset.",
+        call. = FALSE
+      )
+    }
+    if (!setequal(rownames(v), nms) || !setequal(colnames(v), nms)) {
+      stop("Cannot pool: imputation ", i, " lists its coefficients in another ",
+        "order, and its covariance matrix has no matching names to reorder by.",
+        call. = FALSE
+      )
+    }
+    list(est = e[nms], vcov = v[nms, nms, drop = FALSE])
+  })
 }
 
 # Four-way decomposition (VanderWeele 2014) for a pooled X:M fit, in the form
