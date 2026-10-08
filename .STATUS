@@ -21,6 +21,17 @@ next: v0.5.1 RELEASED 2026-10-07 (PRs #28-#36). #20 FIXED (PR #28) and its pooli
   Manuscript runs on medsim, not missingmed.
 type: r
 worktrees:
+  2026-10-07: post-v0.5.1 cleanup. REMOVED 12 worktrees: 7 agent worktrees
+    under .claude/worktrees/ and ~/.git-worktrees/missingmed/{feature-defensive-
+    tests, feature-docs-site, feature-review-followups, feature-vignette-
+    replication, release-0.5.1}. Each branch tip == its merged PR's head
+    (#29-#36) and each merge commit is in origin/dev; dt-* branches are
+    contained in feature/defensive-tests (#32); worktree-agent-* sit at
+    397cd3c (on main). Untracked P1 e2e scratch (dev/e2e-p1*) was backed up
+    first. The 19 local branches need `git branch -D` (squash merges; the
+    branch-guard hook blocks it for the agent). Remote branches were already
+    auto-deleted. pensive-kare-38530a (this session, feature/pool-mref) is
+    removed by archiving the session.
   2026-10-07: app-made worktrees sad-bell-54d993 (PR #21/#23 session),
     vigilant-shaw-3f3543 (PR #22) and wonderful-curran-d50199 (PR #24)
     REMOVED; the sad-bell and vigilant-shaw sessions archived. Their local
