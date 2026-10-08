@@ -131,6 +131,9 @@ sensitivity_mnar <- function(object, delta, target = NULL,
       call. = FALSE
     )
   }
+  if (identical(object@engine, "lavaan")) {
+    .check_lavaan_sensitivity(object, target, type, delta, ums, mids)
+  }
 
   # Every route enters only inside the sampler: `post` runs per iteration, and
   # mnar.norm/mnar.logreg leave the fill-in draws unshifted too (verified,
@@ -586,4 +589,29 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     }
   }
   invisible(NULL)
+}
+
+# engine = "lavaan": MBCO is refused (as in infer(), Q4), and a latent mediator
+# has no data column, so the default `target` (the mediator) must be named
+# explicitly (G4). Checked before any re-imputation. A data-frame `delta` names
+# its own target columns, so only a vector `delta` or `ums` needs `target`.
+.check_lavaan_sensitivity <- function(object, target, type, delta, ums, mids) {
+  if (identical(type, "mbco")) {
+    stop("`type = \"mbco\"` is not available for engine = \"lavaan\" yet; ",
+      "use type = \"mc\". See infer().",
+      call. = FALSE
+    )
+  }
+  needs_target <- !is.null(ums) || (!missing(delta) && !is.data.frame(delta))
+  latent <- !object@mediator %in% names(mids$data)
+  if (is.null(target) && needs_target && latent) {
+    pt <- lavaan::lavaanify(object@model)
+    ind <- pt$rhs[pt$op == "=~" & pt$lhs == object@mediator]
+    stop("The mediator '", object@mediator, "' is latent and has no data ",
+      "column, so `target` is required. Name one of its indicators: ",
+      paste(ind, collapse = ", "), ".",
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
 }

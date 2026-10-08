@@ -55,7 +55,8 @@
 #'   medfit 0.4.0 or later and the regmedint package; `method = "mi"` only), or
 #'   `"lavaan"`
 #'   (a structural equation model given as `model` syntax instead of formulas;
-#'   `method = "mi"` only for now).
+#'   with `method = "ipw"` too: complete cases are weighted and the SEs are
+#'   robust).
 #' @param family_y,family_m `stats::family` objects for the outcome and mediator
 #'   models. Default `stats::gaussian()`.
 #' @param method Estimator axis: `"mi"` (default) or `"ipw"`.
@@ -173,6 +174,7 @@ set_md_mediation <- function(data, formula_y, formula_m,
   if (lav) {
     .check_lavaan_spec(model, treatment, mediator, outcome, fit_args,
       original_data)
+    if (method == "ipw") .check_lavaan_ipw_args(fit_args, se_type)
   } else {
     .check_md_spec(formula_y, formula_m, treatment, mediator,
       family_y, family_m, original_data)

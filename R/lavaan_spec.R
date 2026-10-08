@@ -120,3 +120,36 @@
   }
   invisible(TRUE)
 }
+
+# IPW with lavaan fits on the complete cases with `sampling.weights` and always
+# uses robust (sandwich) SEs, like the glm IPW path (G1). A request for naive SEs
+# is refused rather than overridden silently.
+.check_lavaan_ipw_args <- function(fit_args, se_type = "sandwich") {
+  if (!identical(se_type, "sandwich")) {
+    stop("`se_type = \"", se_type, "\"` is not available for engine = ",
+      "\"lavaan\" with method = \"ipw\": its SEs are always robust (sandwich).",
+      call. = FALSE
+    )
+  }
+  if ("sampling.weights" %in% names(fit_args)) {
+    stop("`fit_args` cannot set `sampling.weights`: the IPW weights are used.",
+      call. = FALSE
+    )
+  }
+  se <- fit_args[["se"]]
+  if (!is.null(se) && !identical(se, "robust.huber.white")) {
+    stop("`fit_args$se` = ", deparse(se), " is not allowed for method = ",
+      "\"ipw\": SEs must be robust (\"robust.huber.white\"), because the ",
+      "weights make the model-based SEs wrong.",
+      call. = FALSE
+    )
+  }
+  est <- fit_args[["estimator"]]
+  if (!is.null(est) && !toupper(est[1L]) %in% c("ML", "MLR")) {
+    stop("`fit_args$estimator` = ", deparse(est), " has no sandwich SEs with ",
+      "sampling weights; use \"ML\" or \"MLR\" with method = \"ipw\".",
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}

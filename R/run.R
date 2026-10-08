@@ -125,10 +125,10 @@ S7::method(run, MDMediationData) <- function(object, ...) {
 
 # Engines that run end to end through run() -> pool() -> infer(). The one
 # place the supported set is defined. medfit 0.4.0 added "regmedint"; it takes
-# no case weights, so the IPW path is glm-only.
+# no case weights, so the IPW path is glm and lavaan only.
 .md_engines <- function(method = "mi") {
   if (identical(method, "ipw")) {
-    return("glm")
+    return(c("glm", "lavaan"))
   }
   # "lavaan" is fit by lavaan::sem() and converted by medfit::extract_mediation(),
   # so it does not depend on the medfit engine list.
@@ -153,8 +153,6 @@ S7::method(run, MDMediationData) <- function(object, ...) {
   } else if (identical(engine, "regmedint")) {
     paste0(" engine = \"regmedint\" needs medfit >= 0.4.0 (installed: ",
       format(.medfit_version()), ").")
-  } else if (identical(method, "ipw") && identical(engine, "lavaan")) {
-    " IPW with engine = \"lavaan\" is not supported yet."
   } else {
     ""
   }
@@ -177,13 +175,21 @@ S7::method(run, MDMediationData) <- function(object, ...) {
 # by .md_fit_one(), and when lavaan stayed silent one is raised here.
 .md_lavaan_call <- function(object, data) {
   n_warn <- 0L
+  args <- object@fit_args
+  if (identical(object@method, "ipw")) {
+    # The IPW path appends its weights as `.md_ipw_w`; robust (sandwich) SEs are
+    # forced, as for the glm IPW path (G1).
+    args$se <- NULL
+    args <- c(args, list(sampling.weights = ".md_ipw_w", se = "robust.huber.white"))
+  }
   fit <- withCallingHandlers(
-    .lav_sem(object@model, data, object@fit_args),
+    .lav_sem(object@model, data, args),
     warning = function(w) n_warn <<- n_warn + 1L
   )
   if (!isTRUE(lavaan::lavInspect(fit, "converged"))) {
     return(structure(list(), class = "md_nonconverged"))
   }
+  if (identical(object@method, "ipw")) fit <- .lav_round_nobs(fit)
   if (!isTRUE(lavaan::lavInspect(fit, "post.check")) && n_warn == 0L) {
     warning("improper solution (lavaan's post.check failed).", call. = FALSE)
   }
@@ -191,6 +197,17 @@ S7::method(run, MDMediationData) <- function(object, ...) {
     treatment = object@treatment, mediator = object@mediator,
     outcome = object@outcome
   )
+}
+
+# lavaan normalizes sampling weights to sum to N with floating-point error, so
+# lavInspect(fit, "nobs") reads 355.99999999999994 for N = 356, and
+# medfit::extract_mediation() truncates that with as.integer() to 355 and then
+# rejects the object (rows of data != n_obs). Rounding the weighted counts
+# restores N; the model fit itself is untouched.
+.lav_round_nobs <- function(fit) {
+  n <- tryCatch(fit@SampleStats@nobs, error = function(e) NULL)
+  if (is.list(n)) fit@SampleStats@nobs <- lapply(n, round)
+  fit
 }
 
 # Refuse to go on when any imputation's lavaan fit did not converge, naming them.

@@ -131,11 +131,29 @@
   cc_data <- data[cc, , drop = FALSE]
   w_cc <- w_full[cc]
 
-  res <- .md_fit_one(object, cc_data, "the IPW fit",
-    weights = w_cc, se_type = object@se_type, ...
-  )
+  if (identical(object@engine, "lavaan")) {
+    if (...length() > 0L) {
+      stop("`run()` takes no extra arguments for engine = \"lavaan\"; set ",
+        "them with `fit_args` in set_md_mediation().",
+        call. = FALSE
+      )
+    }
+    .check_lavaan_ipw_args(object@fit_args, object@se_type)
+    cc_data$.md_ipw_w <- w_cc
+    res <- .md_fit_one(object, cc_data, "the IPW fit")
+  } else {
+    res <- .md_fit_one(object, cc_data, "the IPW fit",
+      weights = w_cc, se_type = object@se_type, ...
+    )
+  }
   .md_warn_fits(list(res$warnings), object@engine)
   med <- res$fit
+  if (inherits(med, "md_nonconverged")) {
+    stop("engine \"lavaan\" did not converge on the IPW fit. Simplify the ",
+      "model, or pass `fit_args` such as list(control = list(iter.max = 5000)).",
+      call. = FALSE
+    )
+  }
 
   MDMediationFit(
     per_imputation = list(med),
