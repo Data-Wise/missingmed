@@ -3,21 +3,27 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-10-08
-next: SEM engine + S4 removal MERGED to dev 2026-10-08 (PRs #40 T1-T4 cba2592, #41 T5-T7 48cb5cd, #42 T8+T9 0a4dc88);
-  v0.6.0 is NOT released yet. engine = "lavaan" works through set_md_mediation(model,
-  outcome, fit_args) -> run -> pool -> infer("mc"), with latent mediators, IPW
-  (robust SEs forced) and sensitivity_mnar(type = "mc"); infer(type = "mbco")
-  refuses for lavaan (own spec). S4 API removed: six .Defunct() stubs (R/defunct.R,
-  deleted in 0.7.0), OpenMx/dplyr/purrr no longer imported. Plan, grill (H1-H5) and
-  T0 record: docs/specs/PLAN-s7-sem-engine-2026-10-08.md,
-  GRILL-s7-sem-engine-plan-2026-10-08.md. NEXT: T11 release workflow for 0.6.0
-  (--as-cran check, dev/e2e-*, version bump + Date:, merge NEWS headings, dev->main
-  PR with --merge, tag, GitHub release, confirm r-universe). 0.7.0: run(...)
-  deprecation into fit_args (H1), delete the stubs. Follow-ups: SEM-MBCO spec;
-  report to medfit that extract_mediation() truncates lavaan's weighted nobs
-  (355.99999999999994 -> 355; worked around by .lav_round_nobs()). Before CRAN:
-  1.0.0. Open question for upstream: whether medfit's sandwich stacks the
-  weight-model score (RRZ 1994). Manuscript runs on medsim, not missingmed.
+next: v0.6.0 RELEASED 2026-10-08 (tag v0.6.0 on d4cc31c; GitHub release; r-universe serves 0.6.0).
+  Contents: engine = "lavaan" (set_md_mediation(model, outcome, fit_args) -> run -> pool ->
+  infer("mc"); latent mediators; IPW with robust SEs; sensitivity_mnar mc) and the S4
+  removal (six .Defunct() stubs in R/defunct.R; OpenMx/dplyr/purrr no longer imported).
+  PRs #40-#47. dev is 0.6.0.9000. Five tutorials added (#46: choosing-an-analysis,
+  reading-results, ipw-weighting, sensitivity-mnar, lavaan-sem) and two stale passages
+  fixed (#45). Plan/grill: docs/specs/PLAN-s7-sem-engine-2026-10-08.md,
+  GRILL-s7-sem-engine-plan-2026-10-08.md. Mediationverse check (2026-10-08): nothing
+  imports missingmed, so the S4 removal does not cascade; the ecosystem manifest entry is
+  stale ("S4, multiple imputation"); lavaan 0.7-3 (CRAN 2026-10-08) passes the full suite.
+  NEXT: (1) 0.7.0: run(...) deprecation into fit_args (H1), delete the .Defunct() stubs.
+  (2) SEM-MBCO spec: constrained lavaan refits, what "b = 0" means for a latent mediator.
+  (3) Move sampling.weights -> sampling_weights (lavaan 0.7-2 deprecates dotted names;
+  needs a lavaan floor). (4) medfit extract_mediation() truncates lavaan's weighted nobs
+  (355.99999999999994 -> 355) with as.integer() at 4 sites in R/extract-lavaan.R; fix is
+  round(); missingmed works around it in .lav_round_nobs(), remove once medfit ships it.
+  (5) Update the missingmed entry in mediation-planning/ECOSYSTEM-MANIFEST.yaml (other
+  repo; needs permission). (6) Add lavaan 0.7-3's information_bread/information_meat_hc
+  to the lavaan tutorial. Before CRAN: 1.0.0. Open question for upstream: whether medfit's
+  sandwich stacks the weight-model score (RRZ 1994). Manuscript runs on medsim, not
+  missingmed.
 type: r
 worktrees:
   2026-10-07: post-v0.5.1 cleanup. REMOVED 12 worktrees: 7 agent worktrees
