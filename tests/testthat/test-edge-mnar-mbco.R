@@ -231,14 +231,28 @@ test_that("identical imputations give r4 = 0 and the complete-data statistic", {
   # Known answer: K copies of one dataset stack to K times its log-likelihoods,
   # so d_S equals the complete-data T, dbar - d_S = 0, r4 = 0, nu = Inf and
   # D4 = T / k.
-  d <- em_d()
-  r <- em_d4(list(d, d, d))
+  # Seed 2 is a dataset where, unsnapped, rounding left r4 ~ 1.5e-13 and
+  # nu ~ 9e25 for K = 3 and 5.
+  d <- em_d(seed = 2)
   Tk <- missingmed:::.mm_mbco_T(d, Y ~ X + M + C, M ~ X + C, stats::gaussian(),
     stats::gaussian(), "X", "M")
-  expect_equal(r[["r4"]], 0)
-  expect_equal(r[["nu"]], Inf)
-  expect_equal(r[["d_S"]], Tk[["T"]], tolerance = 1e-8)
-  expect_equal(r[["D4"]], Tk[["T"]] / Tk[["k"]], tolerance = 1e-8)
+  for (K in c(2, 3, 5)) {
+    r <- em_d4(rep(list(d), K))
+    expect_identical(r[["r4"]], 0)
+    expect_identical(r[["nu"]], Inf)
+    expect_equal(r[["d_S"]], Tk[["T"]], tolerance = 1e-8)
+    expect_equal(r[["D4"]], Tk[["T"]] / Tk[["k"]], tolerance = 1e-8)
+  }
+})
+
+test_that("D4 pooling snaps a rounding-size gap to r4 = 0 but keeps a real one", {
+  d4 <- missingmed:::.mm_d4_from_stats
+  noise <- d4(c(5, 5) + 1e-13, 5)
+  expect_identical(noise[["r4"]], 0)
+  expect_identical(noise[["nu"]], Inf)
+  small <- d4(c(5, 5.002), 5)
+  expect_equal(small[["r4"]], 3 * 0.001)
+  expect_true(is.finite(small[["nu"]]))
 })
 
 # ── mbco_d4(): implist shape ────────────────────────────────────────────────
@@ -296,7 +310,10 @@ test_that("NA left in a model variable is refused; NA elsewhere is ignored", {
   il <- em_il()
   na_x <- il
   na_x[[2]]$X[1:5] <- NA # unguarded: silently fit on fewer rows
-  expect_error(em_d4(na_x), "Imputation 2 .*'X'.*MBCO needs completed")
+  expect_error(em_d4(na_x), "Imputation 2 .*'X'; `implist` must hold completed")
+  na_c <- il
+  na_c[[1]]$C[1:5] <- NA # imputation 1 is checked too
+  expect_error(em_d4(na_c), "Imputation 1 .*'C'")
   na_z <- lapply(il, function(d) {
     d$Z <- 1
     d
@@ -305,17 +322,33 @@ test_that("NA left in a model variable is refused; NA elsewhere is ignored", {
   expect_equal(S7::S7_data(em_d4(na_z)), S7::S7_data(em_d4(il)))
 })
 
-test_that("infer(type = 'mbco') refuses a mids that left a model variable unimputed", {
-  # A covariate with method "" keeps its NA in mice::complete(). Unguarded,
-  # infer(type = "mbco") silently fit each model on its own complete cases.
+em_unimputed <- function(v) {
   d <- em_gen()
-  d$C[c(3, 9, 27, 81)] <- NA
+  d[[v]][c(3, 9, 27, 81)] <- NA
   meth <- mice::make.method(d)
-  meth["C"] <- ""
-  imp <- mice::mice(d, m = 2, maxit = 2, method = meth, printFlag = FALSE,
-    seed = 3)
-  fit <- run(em_spec(imp))
-  expect_error(infer(fit, type = "mbco"), "Imputation 1 .*'C'.*MBCO needs completed")
+  meth[v] <- ""
+  # Without this, the incomplete predictor would leave M unimputed too.
+  pred <- mice::make.predictorMatrix(d)
+  pred[, v] <- 0
+  imp <- mice::mice(d, m = 2, maxit = 2, method = meth, predictorMatrix = pred,
+    printFlag = FALSE, seed = 3)
+  stopifnot(!anyNA(mice::complete(imp, 1)$M))
+  run(em_spec(imp))
+}
+
+test_that("infer(type = 'mbco') refuses NA left in a variable the constraint drops", {
+  # A treatment with method "" keeps its NA in mice::complete(). Unguarded, the
+  # full mediator model dropped those rows and the a = 0 model kept them, so
+  # the reported statistic compared two different samples.
+  expect_error(infer(em_unimputed("X"), type = "mbco"),
+    "Imputation 1 .*'X', which the MBCO constraint drops")
+})
+
+test_that("NA left in a covariate both fits keep is a consistent complete-case MBCO", {
+  # C stays in the full and the constrained models, so both drop the same rows
+  # in every imputation -- the same complete-case analysis the MC path runs.
+  r <- infer(em_unimputed("C"), type = "mbco")
+  expect_true(all(is.finite(S7::S7_data(r)[c("D4", "p", "d_S")])))
 })
 
 test_that("a treatment or mediator that is not a column is refused", {

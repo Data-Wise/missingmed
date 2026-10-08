@@ -134,7 +134,14 @@
 .mm_d4_from_stats <- function(d_k, d_S, k = 1) {
   K <- length(d_k)
   dbar <- mean(d_k)
-  r4 <- max(0, (K + 1) / (k * (K - 1)) * (dbar - d_S))
+  # Identical imputations (no missing data) give dbar == d_S in exact
+  # arithmetic, but the stacked log-likelihood is a sum K times longer, so
+  # rounding leaves dbar - d_S ~ 1e-13 and r4 ~ 1e-13, nu ~ 1e25 instead of
+  # 0 and Inf. A gap that small relative to the statistics is rounding, not
+  # between-imputation variance; real imputations give r4 orders above it.
+  gap <- dbar - d_S
+  if (gap <= 1e-10 * max(1, abs(dbar), abs(d_S))) gap <- 0
+  r4 <- max(0, (K + 1) / (k * (K - 1)) * gap)
   D4 <- d_S / (k * (1 + r4))
   km1 <- k * (K - 1)
   nu <- if (km1 > 4) {
@@ -166,21 +173,26 @@
       call. = FALSE
     )
   }
-  # NA left in a model variable (a user implist, or a mids variable imputed
-  # with method "") makes glm() drop rows per model, so the full and
-  # constrained fits can use different rows and 2 * (llF - llC) is no longer a
-  # likelihood ratio. Only columns are checked: other names in the formulas may
-  # be constants from the formula environment.
-  vars <- unique(c(all.vars(formula_y), all.vars(formula_m)))
+  # NA left in a variable that a constraint DROPS (e.g. a mids treatment
+  # imputed with method "") makes glm() keep rows in the constrained fit that
+  # the full fit dropped, so 2 * (llF - llC) compares different samples and is
+  # not a likelihood ratio. NA in a variable kept by both fits (a covariate)
+  # drops the same rows from each -- a consistent complete-case MBCO, as the MC
+  # path gives -- so it is allowed. Only columns are checked: other names in
+  # the formulas may be constants from the formula environment.
+  dropped <- function(f, v) {
+    setdiff(all.vars(f[[3]]), all.vars(.mm_drop_path(f, v)[[3]]))
+  }
+  vars <- union(dropped(formula_m, treatment), dropped(formula_y, mediator))
   for (i in seq_len(K)) {
     d <- implist[[i]]
     na <- Filter(function(v) anyNA(d[[v]]), intersect(vars, names(d)))
     if (length(na)) {
-      stop("Imputation ", i, " has missing values in model variable(s) ",
-        paste0("'", na, "'", collapse = ", "), ". MBCO needs completed ",
-        "datasets: glm() would drop those rows, and the full and constrained ",
-        "fits could then use different rows. Check that every incomplete ",
-        "model variable is imputed.",
+      stop("Imputation ", i, " has missing values in ",
+        paste0("'", na, "'", collapse = ", "), ", which the MBCO constraint ",
+        "drops: glm() would drop those rows from the full fit but keep them ",
+        "in the constrained one, so the two fits would use different rows. ",
+        "Impute every model variable.",
         call. = FALSE
       )
     }
@@ -315,6 +327,19 @@
         " have a different type in imputation ", i, " than in imputation 1 ",
         "(e.g. numeric versus factor or character); stacking would coerce ",
         "them silently.",
+        call. = FALSE
+      )
+    }
+  }
+  # A user implist is documented as completed datasets, so any NA in a model
+  # variable is refused here; .mm_d4_mbco() refuses only the NA that would
+  # break the likelihood ratio.
+  for (i in seq_along(implist)) {
+    na <- Filter(function(v) anyNA(implist[[i]][[v]]), vars)
+    if (length(na)) {
+      stop("Imputation ", i, " has missing values in model variable(s) ",
+        paste0("'", na, "'", collapse = ", "), "; `implist` must hold ",
+        "completed datasets.",
         call. = FALSE
       )
     }
