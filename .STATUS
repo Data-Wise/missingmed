@@ -3,19 +3,21 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-10-07
-next: #20 FIXED on dev (PR #28, squash 2450c71; issue closed by hand, since
-  "Closes" only fires on main): pool() handles X:M fits and
-  infer(type = "mc", treatment_level = x) gives a * (b + theta3 * x); ships
-  in the next release. Worktree pensive-kare-38530a still holds the merged
-  local feature/pool-interaction. v0.5.0 is fully released:
-  tag v0.5.0 on 397cd3c, GitHub release, r-universe serves 0.5.0 (built
-  22:54Z); dev bumped to 0.5.0.9000 (#27). Then: pin ariv in the
-  manuscript's worked example (research repo, its own session); S7 SEM
-  engine (docs/specs/SPEC-s7-sem-engine-2026-09-23.md; Q1-Q4 grilled,
-  section 4 open) -> remove the S4 API (drops OpenMx) -> 1.0.0 CRAN. Before
-  CRAN: DESCRIPTION's Description: still says "Provides S4 classes". OPEN
-  QUESTION for upstream: whether medfit's sandwich stacks the weight-model
-  score (RRZ 1994). Manuscript runs on medsim, not missingmed.
+next: #20 FIXED on dev (PR #28) and its pooling follow-up merged (PR #29,
+  bbb89b3): pool() now pools the X:M reference profile m_ref, not int_ref,
+  and refuses imputations fitted at different m_star. Both ship in the next
+  release. NEXT (recommended): P1 pre-fit validation in set_md_mediation():
+  formula_m's LHS is never checked against `mediator`, so M ~ X + C vs C ~ X
+  silently gives 0.191 vs 0.034 (reproduced 2026-10-07); also check X/M in
+  formula_y, numeric treatment, engine, X:M + non-Gaussian, other product
+  terms. Then fold P3 (shared outcome role, engine_args) into the SEM spec
+  before implementing it; correct the grill's evidence line (medfit 0.4.0
+  accepts engine = "glm" and "regmedint", not glm only). Roadmap: S7 SEM
+  engine + S4 removal in 0.6.0 (docs/specs/SPEC-s7-sem-engine-2026-09-23.md,
+  section 4 grilled G1-G7) -> 1.0.0 CRAN. Before CRAN: DESCRIPTION's
+  Description: still says "Provides S4 classes". OPEN QUESTION for upstream:
+  whether medfit's sandwich stacks the weight-model score (RRZ 1994).
+  Manuscript runs on medsim, not missingmed.
 type: r
 worktrees:
   2026-10-07: app-made worktrees sad-bell-54d993 (PR #21/#23 session),
@@ -55,6 +57,15 @@ worktrees:
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
 ## post-0.5.0 (dev 0.5.0.9000)
+- 2026-10-07 (merged): PR #29 feature/pool-mref -> dev (bbb89b3, squash).
+  Fixes a Codex adversarial-review finding on #28: averaging int_ref mixed
+  each imputation's theta3 with its own m_ref. pool() now averages m_ref
+  (recovered as m_star + int_ref/theta3, with a b0 + covariate-means
+  fallback when theta3 = 0) and sets int_ref = theta3 * (m_ref - m_star) from
+  pooled values; differing m_star across imputations errors. Read back from
+  int_ref because CRAN medfit 0.3.2 (CI) lacks the covariate-means
+  attribute. Gate: CI R-CMD-check + pkgdown green; local check vs medfit
+  0.3.2 1 NOTE, 504 pass.
 - 2026-10-07 (merged): PR #28 feature/pool-interaction -> dev (2450c71,
   squash), closes #20. pool() sets the X:M path properties in one props<-
   call, pools theta3 and recomputes the four-way decomposition (int_ref
