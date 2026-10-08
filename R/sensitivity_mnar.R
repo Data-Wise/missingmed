@@ -115,6 +115,14 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   }
 
   level <- level %||% object@conf_level
+  # Checked here because type = "mbco" never uses `level`, so a bad value would
+  # otherwise surface only in the result validator, after every rung has run.
+  if (!is.numeric(level) || length(level) != 1L || !is.finite(level) ||
+    level <= 0 || level >= 1) {
+    stop("`level` must be a single number strictly between 0 and 1.",
+      call. = FALSE
+    )
+  }
 
   if (!is.null(ums)) {
     if (!missing(delta)) {
@@ -159,6 +167,17 @@ sensitivity_mnar <- function(object, delta, target = NULL,
       seed <- 20260822L
       seed_source <- "default"
     }
+  } else if (!is.numeric(seed) || length(seed) != 1L || !is.finite(seed) ||
+    abs(seed) > .Machine$integer.max) {
+    # mice() skips set.seed() for an NA seed, so NA_integer_ would leave every
+    # rung on a fresh random stream and the curve would not reproduce; NA and
+    # TRUE fail only in the result validator, after every rung has run; and an
+    # out-of-range seed fails inside mice(), which the ums probe would report
+    # as a problem with the ums string.
+    stop("`seed` must be a single finite number in the integer range (it is ",
+      "passed to set.seed() through mice() for every rung).",
+      call. = FALSE
+    )
   }
 
   meth <- unname(mids$method[vapply(targets, .mnar_block_of, character(1), mids = mids)])
@@ -241,6 +260,16 @@ sensitivity_mnar <- function(object, delta, target = NULL,
         call. = FALSE
       )
     }
+    # Column names are the targets. A duplicated name would be shifted by its
+    # first column only -- the rung silently reports the other column's delta --
+    # and an NA or empty name cannot be looked up at all.
+    nm <- names(delta)
+    if (anyNA(nm) || !all(nzchar(nm)) || anyDuplicated(nm)) {
+      stop("`delta` data frame columns must have unique, non-empty names: each ",
+        "names the target variable it shifts.",
+        call. = FALSE
+      )
+    }
     for (v in names(delta)) {
       if (!is.numeric(delta[[v]])) {
         stop("`delta` column '", v, "' must be numeric; for a covariate-varying ",
@@ -265,6 +294,14 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   if (!all(is.finite(delta))) {
     stop("`delta` must be finite (no NA, NaN or Inf): a non-finite shift makes ",
       "that rung's imputations NA.",
+      call. = FALSE
+    )
+  }
+  # A one-column matrix is a vector of rungs; a wider one would become several
+  # unnamed target columns below.
+  if (length(dim(delta)) > 1L && prod(dim(delta)[-1L]) != 1L) {
+    stop("`delta` must be a vector (one rung per value). For several targets ",
+      "use a data frame with one named column per target.",
       call. = FALSE
     )
   }
