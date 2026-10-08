@@ -40,7 +40,7 @@ T0 decisions + spikes
 T8 S4 inventory-driven removal (stubs, tests, OpenMx)  (independent of T1-T7 until T9)
 T9 cross-cutting docs (vignettes, migration article)  (needs T1-T8)
 T10 run(...) deprecation -> fit_args  MOVED TO 0.7.0 (H1); not in this plan's critical path
-T11 release gate                                              ── CHECKPOINT C
+T11 release workflow (post-merge, after PR 4)                  ── CHECKPOINT C
 ```
 
 T8 (S4 removal) is independent of the engine work and can proceed in parallel on its own branch. It must merge **after** the lavaan engine is on `dev`, so that the package is never left with no SEM path (the spec's own reason for G5).
@@ -148,6 +148,8 @@ Sizes: XS 1 file, S 1-2, M 3-5. Nothing above M.
 ### T8: S4 removal with `.Defunct()` stubs (M, own branch, merges after Checkpoint B)
 
 - Stub `set_sem`, `run_sem`, `pool_sem`, `fit_model`, `lav_mice`, `mx_mice` with `.Defunct()` naming the replacement (G7, H2). Delete `is_pd`, `is_fit`, `is_lav_syntax`, `is_valid_lav_syntax`, the S4 classes and the OpenMx/logLik tidy helpers, with a NEWS entry.
+- Every removed export, stubbed or deleted, gets a line in NEWS (symbol, fate, replacement or "none"). The deleted ones are a documented break, not a stub (H2); the review that questioned this (Codex, 2026-10-08) is answered by T9's mechanical coverage check.
+- Rewrite DESCRIPTION's `Description:` sentence "A deprecated structural equation modeling interface ('lavaan', 'OpenMx') remains until version 0.6.0" (it names OpenMx and a removed interface).
 - Keep `MbcoMIResult`'s `base::print` registration unchanged (H3); remove only OpenMx wording from its comment.
 - Remove `OpenMx` from `Imports`, `NAMESPACE` and `DESCRIPTION`'s "deprecated SEM interface" sentence.
 - Delete `test-s4-legacy.R` and the OpenMx tidy tests; add a test that each stub errors with its replacement named.
@@ -167,7 +169,7 @@ Per H5, each PR already carries its own roxygen, `_pkgdown.yml` and NEWS bullets
 - NEWS, CLAUDE.md (S4 lines in Architecture), `.STATUS`.
 - Set DESCRIPTION `Date:` to the release day (recorded miss at v0.4.0).
 
-**Acceptance:** [ ] `grep -rn 'set_sem\|run_sem\|pool_sem'` hits only stub docs and the migration article; [ ] pkgdown builds; [ ] vignettes build with `eval = TRUE` on new live chunks.
+**Acceptance:** [ ] **coverage check:** every symbol in `git show origin/main:NAMESPACE`'s S4-era exports that is absent or stubbed in the new `NAMESPACE` appears in NEWS and in `s4-migration.Rmd` with its fate and replacement (or "none"); the check is a short script whose output is quoted in the PR body; [ ] `grep -rn 'set_sem\|run_sem\|pool_sem'` hits only stub docs and the migration article; [ ] pkgdown builds; [ ] vignettes build with `eval = TRUE` on new live chunks.
 **Dependencies:** T1-T8. **Files:** about 10 doc files; run `doc-update-currency-check` first.
 
 ### T10: `run(...)` deprecation into `fit_args` (S) — MOVED TO 0.7.0 (H1)
@@ -179,7 +181,9 @@ Not part of the 0.6.0 work. Kept here as the 0.7.0 scope note.
 **Acceptance:** [ ] warning on `run(obj, extra = ...)`; [ ] error on a duplicate name; [ ] sensitivity refits reproduce the original fit options without restating them.
 **Dependencies:** T1. **Files:** `R/run.R`, `R/sensitivity_mnar.R`, test.
 
-### T11: Release gate (S)
+### T11: Release workflow (S; post-merge, not part of any content PR)
+
+Runs after PR 4 merges. The version bump and the `dev -> main` release PR are release-only changes and stay out of the content PRs.
 
 - Full suite, `R CMD check --as-cran` 0/0/0, `dev/e2e-*` scripts, version bump, release PR (`dev -> main`) per the repo's release process.
 
@@ -208,12 +212,15 @@ Not part of the 0.6.0 work. Kept here as the 0.7.0 scope note.
 | 1 | T1-T4 | Checkpoint A |
 | 2 | T5-T7 | Checkpoint B |
 | 3 | T8 | fresh-session print test (H3) |
-| 4 | T9 prose + T11 release gate | Checkpoint C |
+| 4 | T9 (cross-cutting prose + the removed-symbol coverage check) | coverage check output in the PR body |
+| — | T11 release workflow (`dev -> main`), after PR 4 merges | Checkpoint C |
 
 Each PR carries its own roxygen, `_pkgdown.yml` and NEWS bullets, in one shared `development version` NEWS section.
 
 ## 6. Decisions and open items
 
-Resolved in the grill: P3 scope (H1), S4 fate (H2), print registration (H3), test-count wording (H4), PR split (H5), latent extraction (spike).
+Resolved in the grill: P3 scope (H1), S4 fate (H2), print registration (H3), test-count wording (H4), PR split (H5, amended below), latent extraction (spike).
+
+Amended after the Codex adversarial review (2026-10-08): T11 moved out of PR 4 into a post-merge release workflow (accepted: the release PR is a separate `dev -> main` PR); H2 is unchanged, with its documentation gap closed by the T9 coverage check instead of more stubs (the deleted symbols have no callers and no replacement to name).
 
 Still open (T0 checks, not decisions): vcov covers loadings; `outcome =` honored; improper-solution detection via `post.check`.
