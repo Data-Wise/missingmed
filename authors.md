@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/Data-Wise/missingmed/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/Data-Wise/missingmed/blob/dev/inst/CITATION)
 
 Tofighi D (2026). *missingmed: Mediation Analysis with Multiple
 Imputation for Missing Data*. R package version 0.6.0,
