@@ -17,10 +17,12 @@
 #' }
 fit_model <- function(model, data) {
   if (!all(model_type(model) %in% c("lavaan_syntax", "lavaan", "MxModel", "OpenMx"))) {
-    stop("The model must be a character string, a lavaan model object, or an OpenMx model object.")
+    stop("The model must be a character string, a lavaan model object, or an OpenMx model object.",
+      call. = FALSE
+    )
   }
 
-  if (!is.data.frame(data)) stop("The data must be a data frame.")
+  if (!is.data.frame(data)) stop("The data must be a data frame.", call. = FALSE)
 
   # Check if model is a character string and attempt to fit it using lavaan
   if (is.character(model) && is_lav_syntax(model)) {

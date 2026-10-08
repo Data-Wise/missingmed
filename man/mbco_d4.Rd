@@ -17,7 +17,9 @@ mbco_d4(
 }
 \arguments{
 \item{implist}{A list of at least two completed data frames, e.g.
-\code{mice::complete(imp, "all")}.}
+\code{mice::complete(imp, "all")}. They must share the same columns (in any
+order) and number of rows, contain the treatment and mediator, and have
+no missing values in the model variables.}
 
 \item{formula_y, formula_m}{Outcome and mediator model formulas. The
 response of \code{formula_m} must involve the mediator and nothing else (\code{M}

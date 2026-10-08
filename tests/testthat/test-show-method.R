@@ -12,7 +12,6 @@ create_sem <- function(method = "lavaan") {
   hs_data <- hs_data$amp
   imp_data <- mice::mice(hs_data, m = 5, maxit = 3, seed = 12345, printFlag = FALSE)
 
-  cat("\n Number of imputations: ", n_imp(imp_data), "\n")
 
   model_lav <- "visual  =~ x1 + x2 + x3
                textual =~ x4 + x5 + x6
@@ -21,9 +20,6 @@ create_sem <- function(method = "lavaan") {
   expect_warning(sem_data <- set_sem(imp_data, model_lav), "set_sem\\(\\) is deprecated")
   return(list(sem_imputed_data = sem_data))
 }
-
-res <- create_sem()$sem_imputed_data
-print(res)
 
 test_that("show method for SemImputedData displays correctly", {
   # Capture the output of the show method

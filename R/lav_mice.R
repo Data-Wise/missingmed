@@ -45,35 +45,31 @@
 lav_mice <- function(model, mids, ...) {
   # Ensure 'mids' is a 'mids' object from the 'mice' package
   if (!inherits(mids, "mids")) {
-    stop("'mids' must be a 'mids' object from the 'mice' package.")
+    stop("'mids' must be a 'mids' object from the 'mice' package.",
+      call. = FALSE
+    )
   }
 
-  # Ensure 'model' is either a character string or a lavaan model object
-
-  if (is_valid_lav_syntax(model, mids$data)) {
-    stop("The model is not a valid lavaan model syntax.")
-  }
   # Determine if 'model' is a character string or a lavaan model
   is_lav_object <- inherits(model, "lavaan")
 
-  # Extract complete imputed datasets
-  data_complete <-
-    lapply(1:mids$m, function(i) {
-      mice::complete(mids, action = i)
-    })
+  # A syntax 'model' must parse and match the variables in the data
+  if (!is_lav_object && !is_valid_lav_syntax(model, mids$data)) {
+    stop("The model is not a valid lavaan model syntax for the variables in 'mids'.",
+      call. = FALSE
+    )
+  }
 
-  # Fit SEM model to each imputed dataset or update the model with new data
-  sem_results <- lapply(data_complete, function(data) {
+  # Fit SEM model to each imputed dataset or update the model with new data;
+  # failures and warnings are reported with the imputation number.
+  .fit_each_imputation("lavaan", mids$m, function(i) {
+    data <- mice::complete(mids, action = i)
     if (is_lav_object) {
       # Update the model with new data
-      updated_model <- update(model, data = data)
-      return(updated_model)
+      update(model, data = data)
     } else {
       # Fit the model as a character string
-      return(lavaan::sem(model, data = data, ...))
+      lavaan::sem(model, data = data, ...)
     }
   })
-
-  # Return list of SEM model fits
-  return(sem_results)
 }

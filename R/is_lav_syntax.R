@@ -30,7 +30,7 @@ is_lav_syntax <- function(model, quiet = FALSE) {
     if (!quiet) print("The model syntax must be a character string.")
     return(FALSE)
   } else {
-    check_syntax <- try(lavaan::lavaanify(model))
+    check_syntax <- try(lavaan::lavaanify(model), silent = quiet)
     if (inherits(check_syntax, "try-error")) {
       if (!quiet) print("A lavaan syntax error occurred!")
       return(FALSE)

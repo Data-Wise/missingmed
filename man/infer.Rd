@@ -24,7 +24,8 @@ only there: the treatment level \eqn{x} at which the indirect effect
 increase in X through M with X held at \eqn{x} in the outcome model. For
 a 0/1 treatment, \code{1} gives the total natural indirect effect and \code{0} the
 pure natural indirect effect. Required for such models; an error
-otherwise).}
+otherwise). Any other argument is an error, so a misspelled one (say
+\code{conf.level}) is not silently dropped.}
 }
 \value{
 For \code{"mc"}, the list returned by \code{\link[RMediation:ci_mediation_data]{RMediation::ci_mediation_data()}}

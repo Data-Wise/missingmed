@@ -71,8 +71,9 @@
 # the b-path (mediator -> outcome) dropped.
 #
 # NB engine: this refits with stats::glm() regardless of @engine, and carries no
-# weights. That is latent rather than live -- infer(type = "mbco") errors on IPW
-# fits by design, and the MI path is glm-only -- but it is a known limitation
+# weights. infer(type = "mbco") errors on IPW fits by design; on the MI path a
+# fit with engine = "regmedint" is retested here with glm, which matches it for
+# the Gaussian and binomial models regmedint accepts. A known limitation
 # (SPEC-mbco-constrained-models-2026-08-30.md, section 6).
 .mm_ll_med <- function(d, formula_y, formula_m, family_y, family_m,
                        treatment, mediator, drop_a = FALSE, drop_b = FALSE) {
@@ -134,7 +135,14 @@
 .mm_d4_from_stats <- function(d_k, d_S, k = 1) {
   K <- length(d_k)
   dbar <- mean(d_k)
-  r4 <- max(0, (K + 1) / (k * (K - 1)) * (dbar - d_S))
+  # Identical imputations (no missing data) give dbar == d_S in exact
+  # arithmetic, but the stacked log-likelihood is a sum K times longer, so
+  # rounding leaves dbar - d_S ~ 1e-13 and r4 ~ 1e-13, nu ~ 1e25 instead of
+  # 0 and Inf. A gap that small relative to the statistics is rounding, not
+  # between-imputation variance; real imputations give r4 orders above it.
+  gap <- dbar - d_S
+  if (gap <= 1e-10 * max(1, abs(dbar), abs(d_S))) gap <- 0
+  r4 <- max(0, (K + 1) / (k * (K - 1)) * gap)
   D4 <- d_S / (k * (1 + r4))
   km1 <- k * (K - 1)
   nu <- if (km1 > 4) {
@@ -166,12 +174,46 @@
       call. = FALSE
     )
   }
-  lls_of <- function(d) {
-    .mm_mbco_lls(d, formula_y, formula_m, family_y, family_m, treatment, mediator)
+  # NA left in a variable that a constraint DROPS (e.g. a mids treatment
+  # imputed with method "") makes glm() keep rows in the constrained fit that
+  # the full fit dropped, so 2 * (llF - llC) compares different samples and is
+  # not a likelihood ratio. NA in a variable kept by both fits (a covariate)
+  # drops the same rows from each -- a consistent complete-case MBCO, as the MC
+  # path gives -- so it is allowed. Only columns are checked: other names in
+  # the formulas may be constants from the formula environment.
+  dropped <- function(f, v) {
+    setdiff(all.vars(f[[3]]), all.vars(.mm_drop_path(f, v)[[3]]))
   }
-  lls <- lapply(implist, lls_of)
+  vars <- union(dropped(formula_m, treatment), dropped(formula_y, mediator))
+  for (i in seq_len(K)) {
+    d <- implist[[i]]
+    na <- Filter(function(v) anyNA(d[[v]]), intersect(vars, names(d)))
+    if (length(na)) {
+      stop("Imputation ", i, " has missing values in ",
+        paste0("'", na, "'", collapse = ", "), ", which the MBCO constraint ",
+        "drops: glm() would drop those rows from the full fit but keep them ",
+        "in the constrained one, so the two fits would use different rows. ",
+        "Impute every model variable.",
+        call. = FALSE
+      )
+    }
+  }
+  # A fit that fails in one dataset (e.g. a factor with a single level there)
+  # names that dataset; glm()'s own message is kept verbatim.
+  lls_of <- function(d, where) {
+    tryCatch(
+      .mm_mbco_lls(d, formula_y, formula_m, family_y, family_m, treatment, mediator),
+      error = function(e) {
+        stop("Fitting the MBCO models failed in ", where, ": ",
+          conditionMessage(e),
+          call. = FALSE
+        )
+      }
+    )
+  }
+  lls <- lapply(seq_len(K), function(i) lls_of(implist[[i]], paste("imputation", i)))
   stacked <- do.call(rbind, implist)
-  lls_S <- lls_of(stacked)
+  lls_S <- lls_of(stacked, "the stacked data")
   a_wins <- vapply(lls, function(l) l[["a"]] >= l[["b"]], logical(1))
   stacked_a <- lls_S[["a"]] >= lls_S[["b"]]
 
@@ -237,6 +279,75 @@
   )
 }
 
+# Shape checks for a user-supplied implist (mbco_d4() only; the imputations
+# mice::complete() returns share columns, rows and types by construction).
+# Imputations of one dataset share their columns and rows: an extra or missing
+# column failed inside rbind() or glm() with no hint of which imputation,
+# unequal row counts gave a silent answer (d_S = T_stacked / K assumes the same
+# n in every imputation), and a model variable that is numeric in one
+# imputation but a factor or character in another was silently coerced by
+# rbind() for the stacked fit. Integer versus double is not a type change.
+.mm_check_implist <- function(implist, formula_y, formula_m, treatment, mediator) {
+  first <- implist[[1L]]
+  cols <- names(first)
+  n <- nrow(first)
+  if (!n) {
+    stop("The data frames in `implist` have no rows.", call. = FALSE)
+  }
+  absent <- setdiff(c(treatment, mediator), cols)
+  if (length(absent)) {
+    stop("`treatment` and `mediator` must be columns of every data frame in ",
+      "`implist`; missing: ", paste0("'", absent, "'", collapse = ", "), ".",
+      call. = FALSE
+    )
+  }
+  vars <- intersect(unique(c(all.vars(formula_y), all.vars(formula_m))), cols)
+  kind <- function(x) if (is.numeric(x)) "numeric" else class(x)[1L]
+  kinds <- vapply(first[vars], kind, character(1))
+  for (i in seq_along(implist)[-1L]) {
+    d <- implist[[i]]
+    if (!setequal(names(d), cols)) {
+      stop("Every data frame in `implist` must have the same columns; ",
+        "imputation ", i, " differs from imputation 1 in: ",
+        paste(union(setdiff(names(d), cols), setdiff(cols, names(d))),
+          collapse = ", "
+        ), ".",
+        call. = FALSE
+      )
+    }
+    if (nrow(d) != n) {
+      stop("Every data frame in `implist` must have the same number of rows ",
+        "(imputations of one dataset); imputation 1 has ", n,
+        " and imputation ", i, " has ", nrow(d), ".",
+        call. = FALSE
+      )
+    }
+    differ <- vars[vapply(d[vars], kind, character(1)) != kinds]
+    if (length(differ)) {
+      stop("Model variable(s) ", paste0("'", differ, "'", collapse = ", "),
+        " have a different type in imputation ", i, " than in imputation 1 ",
+        "(e.g. numeric versus factor or character); stacking would coerce ",
+        "them silently.",
+        call. = FALSE
+      )
+    }
+  }
+  # A user implist is documented as completed datasets, so any NA in a model
+  # variable is refused here; .mm_d4_mbco() refuses only the NA that would
+  # break the likelihood ratio.
+  for (i in seq_along(implist)) {
+    na <- Filter(function(v) anyNA(implist[[i]][[v]]), vars)
+    if (length(na)) {
+      stop("Imputation ", i, " has missing values in model variable(s) ",
+        paste0("'", na, "'", collapse = ", "), "; `implist` must hold ",
+        "completed datasets.",
+        call. = FALSE
+      )
+    }
+  }
+  invisible(TRUE)
+}
+
 #' D4-stacked MBCO test of an indirect effect across imputed datasets
 #'
 #' Tests \eqn{H_0: a b = 0} with the model-based constrained optimization (MBCO)
@@ -279,7 +390,9 @@
 #' complete-data MBCO test such as [RMediation::mbco()].
 #'
 #' @param implist A list of at least two completed data frames, e.g.
-#'   `mice::complete(imp, "all")`.
+#'   `mice::complete(imp, "all")`. They must share the same columns (in any
+#'   order) and number of rows, contain the treatment and mediator, and have
+#'   no missing values in the model variables.
 #' @param formula_y,formula_m Outcome and mediator model formulas. The
 #'   response of `formula_m` must involve the mediator and nothing else (`M`
 #'   or a transform such as `log(M)`), and the mediator may not appear in the
@@ -321,7 +434,13 @@ mbco_d4 <- function(implist, formula_y, formula_m,
       call. = FALSE
     )
   }
+  formula_y <- .expand_dot(formula_y, implist[[1]])
+  formula_m <- .expand_dot(formula_m, implist[[1]])
   .check_roles(formula_y, formula_m, treatment, mediator)
+  # Fewer than two data frames falls through to .mm_d4_mbco()'s K < 2 error.
+  if (length(implist) >= 2L) {
+    .mm_check_implist(unname(implist), formula_y, formula_m, treatment, mediator)
+  }
   .mm_d4_mbco(unname(implist), formula_y, formula_m, family_y, family_m,
     treatment, mediator, ariv = ariv
   )
