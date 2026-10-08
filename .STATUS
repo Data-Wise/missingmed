@@ -6,7 +6,9 @@ updated: 2026-10-07
 next: #20 FIXED on dev (PR #28) and its pooling follow-up merged (PR #29,
   bbb89b3): pool() now pools the X:M reference profile m_ref, not int_ref,
   and refuses imputations fitted at different m_star. Both ship in the next
-  release. P1 pre-fit validation merged (PR #31, e49804e):
+  release. P1 pre-fit validation merged (PR #31, e49804e); defensive checks, engine
+  error catching and edge/E2E tests merged (PR #32, 1506c45; open questions in
+  its PR body):
   set_md_mediation() now refuses a formula_m whose LHS is not the mediator
   (was a silent wrong answer, 0.034 vs 0.191) and any X/M term other than
   main effects + X:M. Spec follow-ups merged in PR #30. OPEN for P3 (spec,
@@ -56,7 +58,8 @@ worktrees:
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
 ## post-0.5.0 (dev 0.5.0.9000)
-- 2026-10-07 (open): PR #32 feature/defensive-tests -> dev. Defensive
+- 2026-10-07 (merged): PR #32 feature/defensive-tests -> dev (1506c45,
+  squash). Defensive
   checks + engine validation/error catching + edge-case and E2E tests across
   S7, MNAR, MBCO, IPW and S4, from five parallel units (each probed bad input
   on dev first: silent-wrong -> guard, obscure crash -> clear error, clear ->
