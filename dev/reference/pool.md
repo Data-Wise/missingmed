@@ -56,6 +56,15 @@ It is the S7 successor of the S4
 [`pool_sem()`](https://data-wise.github.io/missingmed/dev/reference/pool_sem.md)
 method.
 
+The returned tidy table also carries a per-coefficient Wald test
+(`statistic`, `df`, `riv`, `fmi`, `p_value`) and, when `conf_int = TRUE`
+was set in
+[`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md),
+per-coefficient `conf_low` and `conf_high` at `conf_level` on the same t
+reference; see
+[MDMediationResult](https://data-wise.github.io/missingmed/dev/reference/MDMediationResult.md)
+for the columns and why they do not test or bound the indirect effect.
+
 ## References
 
 Rubin, D. B. (1987). *Multiple Imputation for Nonresponse in Surveys*.
@@ -69,11 +78,40 @@ multiple imputation. *Biometrika*, 86(4), 948–955.
 [`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md),
 [`infer()`](https://data-wise.github.io/missingmed/dev/reference/infer.md),
 [`pool_sem()`](https://data-wise.github.io/missingmed/dev/reference/pool_sem.md)
-The returned tidy table also carries a per-coefficient Wald test
-(`statistic`, `df`, `riv`, `fmi`, `p_value`) and, when `conf_int = TRUE`
-was set in
-[`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md),
-per-coefficient `conf_low` and `conf_high` at `conf_level` on the same t
-reference; see
-[MDMediationResult](https://data-wise.github.io/missingmed/dev/reference/MDMediationResult.md)
-for the columns and why they do not test or bound the indirect effect.
+
+## Examples
+
+``` r
+set.seed(1)
+n <- 150
+d <- data.frame(X = rbinom(n, 1, 0.5), C = rnorm(n))
+d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
+d$Y <- 0.3 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+d$M[sample(n, 25)] <- NA
+imp <- mice::mice(d, m = 3, method = "norm", printFlag = FALSE, seed = 1)
+md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C, conf_int = TRUE,
+  treatment = "X", mediator = "M"
+)
+res <- pool(run(md))
+res
+#> <MDMediationResult> (pooled, Rubin's rules; m = 3 )
+#>     term  estimate std_error
+#>        a 0.2997036 0.2373242
+#>        b 0.1184713 0.1078543
+#>  c_prime 0.4906530 0.1858024
+#>   indirect effect a*b = 0.0355 
+#>   -> infer(type = "mc") for the indirect-effect CI
+# Per-coefficient table, with Rubin's df and conf_low/conf_high
+res@tidy_table[, c("term", "estimate", "std_error", "df", "conf_low", "conf_high")]
+#>             term   estimate std_error         df   conf_low conf_high
+#> 1  m_(Intercept)  0.1913439 0.1387452  13.479078 -0.1073176 0.4900054
+#> 2            m_X  0.2997036 0.2373242   5.921504 -0.2828789 0.8822861
+#> 3            m_C  0.4581555 0.0982157  18.924013  0.2525318 0.6637792
+#> 4  y_(Intercept) -0.1428326 0.1287487 141.503020 -0.3973521 0.1116869
+#> 5            y_X  0.4906530 0.1858024 130.680441  0.1230833 0.8582228
+#> 6            y_M  0.1184713 0.1078543  26.045872 -0.1032073 0.3401499
+#> 7            y_C  0.4293115 0.1052909 127.927068  0.2209744 0.6376486
+#> 8              a  0.2997036 0.2373242   5.921504 -0.2828789 0.8822861
+#> 9              b  0.1184713 0.1078543  26.045872 -0.1032073 0.3401499
+#> 10       c_prime  0.4906530 0.1858024 130.680441  0.1230833 0.8582228
+```

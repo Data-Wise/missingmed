@@ -2,6 +2,32 @@
 
 ## missingmed (development version)
 
+### Documentation
+
+- New articles on the package website: *Supported models* (every model
+  rule of
+  [`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md),
+  each one run when the site builds), *Frequently asked questions*, and
+  *Migrating from the S4 API*.
+- [`vignette("technical")`](https://data-wise.github.io/missingmed/dev/articles/technical.md)
+  gains section 3A on models with a treatment-by-mediator interaction:
+  the estimand behind `treatment_level`, and how
+  [`pool()`](https://data-wise.github.io/missingmed/dev/reference/pool.md)
+  recomputes the four-way decomposition from one pooled reference
+  profile.
+- [`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md),
+  [`pool()`](https://data-wise.github.io/missingmed/dev/reference/pool.md),
+  [`per_imputation_list()`](https://data-wise.github.io/missingmed/dev/reference/per_imputation_list.md),
+  [`n_imputations()`](https://data-wise.github.io/missingmed/dev/reference/n_imputations.md)
+  and
+  [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/dev/reference/sensitivity_mnar.md)
+  have runnable examples, and the
+  [`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md)
+  example now runs. The
+  [`pool()`](https://data-wise.github.io/missingmed/dev/reference/pool.md)
+  help page’s note on the tidy table’s Wald columns moved from *See
+  also* to *Details*.
+
 ## missingmed 0.5.1
 
 ### New features

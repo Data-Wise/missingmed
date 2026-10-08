@@ -157,3 +157,39 @@ meant.
 
 [`infer()`](https://data-wise.github.io/missingmed/dev/reference/infer.md),
 [MDSensitivityResult](https://data-wise.github.io/missingmed/dev/reference/MDSensitivityResult.md)
+
+## Examples
+
+``` r
+# \donttest{
+set.seed(1)
+n <- 150
+d <- data.frame(X = rbinom(n, 1, 0.5), C = rnorm(n))
+d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
+d$Y <- 0.3 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+d$M[sample(n, 25)] <- NA
+imp <- mice::mice(d, m = 3, method = "norm", printFlag = FALSE, seed = 1)
+md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M"
+)
+# Shift the imputed mediator values by 0, 0.5 and 1 (on the mediator's
+# scale) and recompute the Monte Carlo interval at each rung.
+sens <- sensitivity_mnar(md, delta = c(0, 0.5, 1), n.mc = 1e3)
+sens
+#> <MDSensitivityResult>  MNAR sensitivity curve
+#>   target(s): M | rungs: 3 | inference: mc 
+#>   seed: 1 (from mids) | target imputed by: norm 
+#>   delta applied by: post (raw units) 
+#> # A tibble: 3 × 7
+#>       M     msp estimate conf_low conf_high mechanism scale
+#>   <dbl>   <dbl>    <dbl>    <dbl>     <dbl> <chr>     <chr>
+#> 1   0   -0.0239   0.0460  -0.0277     0.194 post      raw  
+#> 2   0.5  0.476    0.0514  -0.0253     0.204 post      raw  
+#> 3   1    0.976    0.0534  -0.0233     0.203 post      raw  
+#> 
+#>   delta is a CONDITIONAL sensitivity parameter; `msp` is the marginal
+#>   difference actually realized. Compare msp against what you intended.
+#>   Assumes the supplied imputation model is compatible with the
+#>   mediation model; this is not verifiable from here.
+# }
+```

@@ -208,6 +208,15 @@ Deprecated; superseded by the S7 pipeline. Replaced by
 - [Testing an indirect effect with incomplete
   data](https://data-wise.github.io/missingmed/dev/articles/mbco-mi.md):
 
+### Guides
+
+- [Supported
+  models](https://data-wise.github.io/missingmed/dev/articles/supported-models.md):
+- [Frequently asked
+  questions](https://data-wise.github.io/missingmed/dev/articles/faq.md):
+- [Migrating from the S4
+  API](https://data-wise.github.io/missingmed/dev/articles/s4-migration.md):
+
 ### Technical
 
 - [Technical reference: design, contracts, and

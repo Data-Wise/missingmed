@@ -260,6 +260,136 @@ res@tidy_table               # + statistic, df, riv, fmi, p_value (per path)
 
 ------------------------------------------------------------------------
 
+## 3A. Treatment-by-mediator interaction (`X:M`)
+
+[`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md)
+accepts one product term, the treatment-by-mediator interaction in the
+outcome model (`Y ~ X * M + C`), for Gaussian identity-link models only.
+This section covers what changes in pooling and in the Monte Carlo
+interval. The MBCO side is in
+[`vignette("mbco-mi")`](https://data-wise.github.io/missingmed/dev/articles/mbco-mi.md),
+section “Models with an X:M interaction”.
+
+### 3A.1 Estimand
+
+With mediator model $`M = \beta_0 + aX + \sum_k \beta_k C_k + e_M`$ and
+outcome model $`Y = \gamma_0 + c'X + bM + \theta_3 XM + \dots + e_Y`$,
+the effect of a one-unit increase in $`X`$ through $`M`$, with $`X`$
+held at $`x`$ in the outcome model, is
+
+``` math
+ a\,(b + \theta_3 x). 
+```
+
+It depends on $`x`$, so `infer(type = "mc")` requires `treatment_level`
+on such a model and refuses it on a model without `X:M`. For a 0/1
+treatment, `treatment_level = 1` gives the total natural indirect effect
+and `0` the pure natural indirect effect. The draws come from the pooled
+estimates of $`(a, b, \theta_3)`$ and the matching block of the pooled
+total covariance $`T`$. That block is not block-diagonal: the
+between-imputation part couples the mediator and outcome models, because
+both are fitted to the same completed dataset.
+
+### 3A.2 The four-way decomposition, pooled
+
+medfit returns an `InteractionMediationData` per imputation, carrying
+the four-way decomposition (VanderWeele 2014):
+
+| Component | Formula |
+|----|----|
+| controlled direct effect | $`\text{cde} = c' + \theta_3 m^*`$ |
+| reference interaction | $`\text{int\_ref} = \theta_3 (m_{\text{ref}} - m^*)`$ |
+| mediated interaction | $`\text{int\_med} = \theta_3 a`$ |
+| pure indirect effect | $`\text{pie} = a b`$ |
+
+with $`\text{nde} = \text{cde} + \text{int\_ref}`$,
+$`\text{nie} = \text{int\_med} + \text{pie}`$, and the total effect
+their sum. $`m^*`$ is the mediator level at which the CDE is evaluated
+(medfit’s default is 0).
+$`m_{\text{ref}} = \beta_0 + \sum_k \beta_k \bar C_k`$ is the mediator’s
+expected value at the reference treatment level with covariates at their
+means.
+
+[`pool()`](https://data-wise.github.io/missingmed/dev/reference/pool.md)
+does **not** average these components one by one. It recomputes all of
+them from one pooled reference profile:
+
+1.  $`a, b, c', \theta_3`$ are the Rubin estimates $`\bar Q`$.
+2.  $`m^*`$ must be the same in every imputation; otherwise
+    [`pool()`](https://data-wise.github.io/missingmed/dev/reference/pool.md)
+    stops, because the decompositions refer to different mediator
+    levels.
+3.  $`m_{\text{ref}}`$ changes across imputations whenever a covariate
+    is imputed, since $`\bar C_k`$ is a mean over the completed data. It
+    is pooled as the mean of the per-imputation values. Each value is
+    read back from medfit’s own `int_ref` as
+    $`m^* + \text{int\_ref}/\theta_3`$. When an imputation’s
+    $`\theta_3`$ is exactly 0, `int_ref` carries no information about
+    $`m_{\text{ref}}`$, and it is rebuilt from $`\beta_0`$ and the
+    covariate means medfit stores (medfit \>= 0.4.0).
+4.  $`\text{int\_ref} = \bar\theta_3(\bar m_{\text{ref}} - m^*)`$, and
+    the other components follow from the formulas above.
+
+The mean of the per-imputation `int_ref` values would be the mean of the
+products $`\theta_{3,i}\, m_{\text{ref},i}`$. That is not
+$`\bar\theta_3 \bar m_{\text{ref}}`$, and the pooled object would then
+fail medfit’s own identities (for example $`\text{nde} = \text{cde} +
+\text{int\_ref}`$ built from pooled parts). Recomputing from one profile
+keeps every identity exact.
+
+In the tidy table, the `theta3` row takes the df of its source row
+(`y_X:M`), and `b0` that of `m_(Intercept)`, like the `a`, `b` and
+`c_prime` aliases in section 3.
+
+The check below fits a model whose covariate is imputed, so
+$`m_{\text{ref}}`$ differs across imputations, and fails the build if
+the pooled decomposition does not come from one profile:
+
+``` r
+
+library(missingmed)
+set.seed(8)
+n <- 300
+d <- data.frame(X = rbinom(n, 1, 0.5), C = rnorm(n))
+d$M <- 0.5 * d$X + 0.4 * d$C + rnorm(n)
+d$Y <- 0.2 * d$X + 0.3 * d$M + 0.25 * d$X * d$M + 0.3 * d$C + rnorm(n)
+d$M[sample(n, 40)] <- NA
+d$C[sample(n, 50)] <- NA
+imp_xm <- mice::mice(d, m = 5, method = "norm", printFlag = FALSE, seed = 8)
+fit_xm <- run(set_md_mediation(imp_xm, Y ~ X * M + C, M ~ X + C,
+  treatment = "X", mediator = "M"
+))
+p <- missingmed::pool(fit_xm)@pooled
+fits <- fit_xm@per_imputation
+m_ref <- vapply(fits, function(f) f@m_star + f@int_ref / f@interaction, numeric(1))
+round(m_ref, 4) # differs across imputations: C is imputed
+#>       1       2       3       4       5 
+#> -0.0918 -0.1236  0.0431 -0.0605 -0.0239
+stopifnot(
+  all.equal(p@int_ref, p@interaction * (mean(m_ref) - p@m_star)),
+  all.equal(p@nde, p@cde + p@int_ref),
+  all.equal(p@nie, p@int_med + p@pie)
+)
+c(pooled_int_ref = p@int_ref,
+  mean_of_int_ref = mean(vapply(fits, function(f) f@int_ref, numeric(1))))
+#>  pooled_int_ref mean_of_int_ref 
+#>     -0.01289910     -0.01314089
+```
+
+The last line shows the two candidates side by side. They differ, and
+only the first is consistent with the pooled $`\theta_3`$.
+
+### 3A.3 What stays refused
+
+Only one product term is supported, and only in the outcome model.
+`X:C`, `M:W`, `X:M:W`, transforms of `X` or `M` and an `X:M` term in a
+non-Gaussian model are refused before fitting (the *Supported models*
+article lists every rule). For moderated models,
+[`mbco_d4()`](https://data-wise.github.io/missingmed/dev/reference/mbco_d4.md)
+tests the indirect effect on the completed datasets directly.
+
+------------------------------------------------------------------------
+
 ## 4. MBCO under MI: D4-stacking (and why it is hosted here)
 
 ### 4.1 Why MBCO does not commute with Rubin’s rules
@@ -795,6 +925,9 @@ is the “small upstream fix” that a new capability turned out to need.
 - **MBCO hosted here by decision** (section 4.3): D4-MBCO under multiple
   imputation lives in missingmed and RMediation keeps complete-data
   MBCO; exact parity with the research prototype was the acceptance bar.
+- **`X:M` pooled from one reference profile** (section 3A): path
+  coefficients by Rubin’s rules, the four-way decomposition recomputed
+  from them, so medfit’s identities hold exactly.
 - **IPW = thin
   [`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md)
   branch + passthrough
@@ -929,6 +1062,8 @@ incompatible with the substantive model – not of a bug.
 
 - Rubin, D. B. (1987). *Multiple Imputation for Nonresponse in Surveys*.
   Wiley.
+- VanderWeele, T. J. (2014). A unification of mediation and interaction:
+  a 4-way decomposition. *Epidemiology*, 25(5), 749–761.
 - Chan, K. W., & Meng, X.-L. (2022). Multiple improvements of multiple
   imputation likelihood ratio tests. *Statistica Sinica*.
 - Grund, S., Lüdtke, O., & Robitzsch, A. (2023). Pooling methods for

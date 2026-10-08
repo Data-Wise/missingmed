@@ -56,3 +56,25 @@ method.
 [`pool()`](https://data-wise.github.io/missingmed/dev/reference/pool.md),
 [`infer()`](https://data-wise.github.io/missingmed/dev/reference/infer.md),
 [`run_sem()`](https://data-wise.github.io/missingmed/dev/reference/run_sem.md)
+
+## Examples
+
+``` r
+set.seed(1)
+n <- 150
+d <- data.frame(X = rbinom(n, 1, 0.5), C = rnorm(n))
+d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
+d$Y <- 0.3 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+d$M[sample(n, 25)] <- NA
+imp <- mice::mice(d, m = 3, method = "norm", printFlag = FALSE, seed = 1)
+md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M"
+)
+fit <- run(md)
+fit
+#> <MDMediationFit>
+#>   per-imputation fits: 3 named medfit::MediationData
+#>   engine: glm 
+#>   per-imputation a*b: mean = 0.0396 (range 0.0097 to 0.0663 )
+#>   -> pool() for Rubin's-rules estimates; infer() for CIs / MBCO
+```
