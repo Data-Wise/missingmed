@@ -22,6 +22,11 @@ is an \link{MDMediationFit} whose \code{per_imputation} slot is a list of \stron
 both Rubin's-rules pooling (\code{\link[=pool]{pool()}}) and D4-stacked MBCO (\code{\link[=infer]{infer()}}).
 }
 \details{
+An engine error is rethrown with the engine and the imputation it failed
+on. Engine warnings (a \code{glm} that did not converge, fitted probabilities of
+0 or 1) are collected and raised once, naming the imputations that produced
+them.
+
 It is the S7 successor of the S4 \code{\link[=run_sem]{run_sem()}} method.
 }
 \seealso{

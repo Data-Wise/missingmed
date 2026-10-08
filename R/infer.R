@@ -33,7 +33,8 @@
 #'   increase in X through M with X held at \eqn{x} in the outcome model. For
 #'   a 0/1 treatment, `1` gives the total natural indirect effect and `0` the
 #'   pure natural indirect effect. Required for such models; an error
-#'   otherwise).
+#'   otherwise). Any other argument is an error, so a misspelled one (say
+#'   `conf.level`) is not silently dropped.
 #' @return For `"mc"`, the list returned by [RMediation::ci_mediation_data()]
 #'   (`CI`, `Estimate`, `SE`, `MC.Error`); for a model with an `X:M` term, the
 #'   same elements plus `Estimand`, the formula the interval is for.
@@ -67,6 +68,7 @@ S7::method(infer, MDMediationFit) <- function(object, type = c("mc", "mbco"),
                                               treatment_level = NULL, ...) {
   type <- match.arg(type)
   ariv <- match.arg(ariv)
+  .check_infer_dots(...)
   # NULL (not 0.95) is the default so that "unspecified" is distinguishable from
   # "specified as 0.95": an explicit level= still wins, and otherwise the level
   # the user set once on the data object is honoured instead of ignored.
@@ -100,7 +102,25 @@ S7::method(infer, MDMediationResult) <- function(object, type = c("mc", "mbco"),
       "fits. Call infer(type = \"mbco\") on the MDMediationFit from run(), not ",
       "on the pooled MDMediationResult.", call. = FALSE)
   }
+  .check_infer_dots(...)
   .mc_interval(object@pooled, level, n.mc, treatment_level)
+}
+
+# infer()'s `...` exists only because the S7 generic needs it. Anything that
+# lands there is a misspelled or misplaced argument (`conf.level = 0.9`,
+# `nmc = 1e4`) that would otherwise be dropped while the default is used.
+.check_infer_dots <- function(...) {
+  if (...length() == 0L) {
+    return(invisible(TRUE))
+  }
+  # ...names() reads the names without evaluating the values.
+  nms <- ...names() %||% rep("", ...length())
+  nms[is.na(nms) | !nzchar(nms)] <- "<unnamed>"
+  stop("Unused argument", if (length(nms) > 1L) "s", " in `infer()`: ",
+    paste0("`", nms, "`", collapse = ", "), ". The arguments are `type`, ",
+    "`level`, `n.mc`, `treatment_level` and, for an MDMediationFit, `ariv`.",
+    call. = FALSE
+  )
 }
 
 # Monte Carlo interval for the indirect effect of a pooled fit. Without an X:M
@@ -113,7 +133,31 @@ S7::method(infer, MDMediationResult) <- function(object, type = c("mc", "mbco"),
 # covariance of (a, b, theta3); its a-by-b block is not zero, because the
 # between-imputation part couples the two models.
 .mc_interval <- function(pooled, level, n.mc, treatment_level) {
+  # RMediation accepts level 0 and 1 (a zero-width interval, and the range of
+  # the draws) and fails obscurely on n.mc = 1, so both are checked here.
+  if (!is.numeric(level) || length(level) != 1L || !is.finite(level) ||
+    level <= 0 || level >= 1) {
+    stop("`level` must be a single number in (0, 1).", call. = FALSE)
+  }
+  if (!is.numeric(n.mc) || length(n.mc) != 1L || !is.finite(n.mc) ||
+    n.mc < 2 || n.mc != round(n.mc)) {
+    stop("`n.mc` must be a single whole number of at least 2.", call. = FALSE)
+  }
   is_int <- .has_xm(pooled)
+  # An aliased path coefficient (its predictor collinear with others, or
+  # constant, in some imputation) pools to NA, and RMediation then fails
+  # inside eigen(). Only the terms the interval uses matter.
+  keep <- c("a", "b", if (is_int) "theta3")
+  bad <- keep[is.na(pooled@estimates[keep]) |
+    is.na(diag(pooled@vcov)[keep])]
+  if (length(bad)) {
+    stop("The pooled ", paste0("`", bad, "`", collapse = ", "), " is NA, so ",
+      "the indirect effect has no interval. A coefficient is NA when its ",
+      "predictor is aliased (collinear with other predictors, or constant) ",
+      "in at least one imputation; see the tidy table from pool().",
+      call. = FALSE
+    )
+  }
   if (!is_int) {
     if (!is.null(treatment_level)) {
       stop("`treatment_level` applies only to models with a treatment-by-",

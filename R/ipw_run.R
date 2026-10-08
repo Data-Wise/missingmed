@@ -18,16 +18,21 @@
   # Complete-case indicator over the model variables.
   cc <- stats::complete.cases(data[, model_vars, drop = FALSE])
   R <- as.integer(cc)
+  # Checked before any model is fit: with no complete case there is nothing to
+  # reweight, and the glm calls below would only warn on a constant response.
+  if (!any(cc)) {
+    stop("No complete cases: every row has a missing value in at least one ",
+      "model variable (", paste(model_vars, collapse = ", "), "), so IPW has ",
+      "nothing to reweight. Use method = \"mi\".",
+      call. = FALSE
+    )
+  }
 
   treatment <- object@treatment
   stabilize <- isTRUE(object@weight_stabilize)
   wf <- object@weight_formula
-
-  # Probability of being observed, P(R = 1 | Z), per row.
-  if (is.list(wf) && !is.null(names(wf))) {
-    # Per-variable (sequential factorization): P(complete) = prod_V P(R_V = 1).
-    p <- rep(1, n)
-    p_num <- rep(1, n)
+  per_var <- is.list(wf) && !is.null(names(wf))
+  if (per_var) {
     unknown <- setdiff(names(wf), names(data))
     if (length(unknown)) {
       stop("`weight_formula` names variables not in the data: ",
@@ -35,6 +40,19 @@
         call. = FALSE
       )
     }
+  }
+  # No missing values: P(R = 1 | Z) = 1 and every weight is 1. Fitting the
+  # missingness model to a constant response would only warn that it did not
+  # converge.
+  if (all(cc)) {
+    return(rep(1, n))
+  }
+
+  # Probability of being observed, P(R = 1 | Z), per row.
+  if (per_var) {
+    # Per-variable (sequential factorization): P(complete) = prod_V P(R_V = 1).
+    p <- rep(1, n)
+    p_num <- rep(1, n)
     for (v in names(wf)) {
       Rv <- as.integer(!is.na(data[[v]]))
       dd <- data
@@ -101,25 +119,18 @@
 #' @keywords internal
 #' @noRd
 .ipw_run <- function(object, ...) {
+  .check_engine(object@engine, "ipw")
   data <- as.data.frame(object@data)
   w_full <- .ipw_weights(object)
   cc <- !is.na(w_full)
   cc_data <- data[cc, , drop = FALSE]
   w_cc <- w_full[cc]
 
-  med <- medfit::fit_mediation(
-    formula_y = object@formula_y,
-    formula_m = object@formula_m,
-    data = cc_data,
-    treatment = object@treatment,
-    mediator = object@mediator,
-    engine = object@engine,
-    family_y = object@family_y,
-    family_m = object@family_m,
-    weights = w_cc,
-    se_type = object@se_type,
-    ...
+  res <- .md_fit_one(object, cc_data, "the IPW fit",
+    weights = w_cc, se_type = object@se_type, ...
   )
+  .md_warn_fits(list(res$warnings), object@engine)
+  med <- res$fit
 
   MDMediationFit(
     per_imputation = list(med),
