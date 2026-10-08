@@ -4,12 +4,18 @@ medfit::MediationData objects in an MDMediationFit, producing a single
 pooled named medfit::MediationData (the pooled slot of the returned
 MDMediationResult). Because the estimates and variance-covariance carry the
 mediation path names (a, b, c_prime, ...), the pooled object is valid
-input to RMediation::ci_mediation_data() / RMediation::medci()."><meta property="og:description" content="Applies Rubin's (1987) rules to the list of per-imputation named
+input to RMediation::ci_mediation_data() / RMediation::medci().
+For a model with a treatment-by-mediator interaction, use
+infer()(type = &quot;mc&quot;, treatment_level = ) instead: those RMediation
+functions use only \(a b\), the indirect effect at treatment level 0."><meta property="og:description" content="Applies Rubin's (1987) rules to the list of per-imputation named
 medfit::MediationData objects in an MDMediationFit, producing a single
 pooled named medfit::MediationData (the pooled slot of the returned
 MDMediationResult). Because the estimates and variance-covariance carry the
 mediation path names (a, b, c_prime, ...), the pooled object is valid
-input to RMediation::ci_mediation_data() / RMediation::medci()."><meta property="og:image" content="https://data-wise.github.io/missingmed/logo.png"></head><body>
+input to RMediation::ci_mediation_data() / RMediation::medci().
+For a model with a treatment-by-mediator interaction, use
+infer()(type = &quot;mc&quot;, treatment_level = ) instead: those RMediation
+functions use only \(a b\), the indirect effect at treatment level 0."><meta property="og:image" content="https://data-wise.github.io/missingmed/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -54,7 +60,10 @@ input to RMediation::ci_mediation_data() / RMediation::medci()."><meta property=
 pooled named <a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a> (the <code>pooled</code> slot of the returned
 <a href="MDMediationResult.html">MDMediationResult</a>). Because the estimates and variance-covariance carry the
 mediation path names (<code>a</code>, <code>b</code>, <code>c_prime</code>, ...), the pooled object is valid
-input to <code><a href="https://data-wise.github.io/rmediation/reference/ci_mediation_data.html" class="external-link">RMediation::ci_mediation_data()</a></code> / <code><a href="https://data-wise.github.io/rmediation/reference/medci.html" class="external-link">RMediation::medci()</a></code>.</p>
+input to <code><a href="https://data-wise.github.io/rmediation/reference/ci_mediation_data.html" class="external-link">RMediation::ci_mediation_data()</a></code> / <code><a href="https://data-wise.github.io/rmediation/reference/medci.html" class="external-link">RMediation::medci()</a></code>.
+For a model with a treatment-by-mediator interaction, use
+<code><a href="infer.html">infer()</a></code><code>(type = "mc", treatment_level = )</code> instead: those RMediation
+functions use only \(a b\), the indirect effect at treatment level 0.</p>
     </div>
 
     <div class="section level2">

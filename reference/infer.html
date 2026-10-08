@@ -67,12 +67,21 @@ object's <code>@conf_level</code>, itself <code>0.95</code> unless set in <code>
 (Monte-Carlo draws for <code>"mc"</code>, default <code>1e5</code>), and <code>ariv</code> (for <code>"mbco"</code>:
 <code>"fixed"</code> (default) tests every imputation on the branch the stacked
 constrained fit chose; <code>"own"</code> uses each imputation's own winning branch
-and reproduces missingmed 0.4.0 on full-rank designs; see <code><a href="mbco_d4.html">mbco_d4()</a></code>).</p></dd>
+and reproduces missingmed 0.4.0 on full-rank designs; see <code><a href="mbco_d4.html">mbco_d4()</a></code>),
+and <code>treatment_level</code> (for <code>"mc"</code> on a model with an <code>X:M</code> term, and
+only there: the treatment level \(x\) at which the indirect effect
+\(a (b + \theta_3 x)\) is evaluated, that is, the effect of a one-unit
+increase in X through M with X held at \(x\) in the outcome model. For
+a 0/1 treatment, <code>1</code> gives the total natural indirect effect and <code>0</code> the
+pure natural indirect effect. Required for such models; an error
+otherwise).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>For <code>"mc"</code>, the list returned by <code><a href="https://data-wise.github.io/rmediation/reference/ci_mediation_data.html" class="external-link">RMediation::ci_mediation_data()</a></code>.
+    <p>For <code>"mc"</code>, the list returned by <code><a href="https://data-wise.github.io/rmediation/reference/ci_mediation_data.html" class="external-link">RMediation::ci_mediation_data()</a></code>
+(<code>CI</code>, <code>Estimate</code>, <code>SE</code>, <code>MC.Error</code>); for a model with an <code>X:M</code> term, the
+same elements plus <code>Estimand</code>, the formula the interval is for.
 For <code>"mbco"</code>, an <a href="MbcoMIResult.html">MbcoMIResult</a>: the named numeric <code>c(D4, p, r4, nu, d_S)</code>
 (index it with <code>r["p"]</code> or <code>r[["p"]]</code>) with the branch diagnostics as
 properties.</p>
@@ -82,7 +91,12 @@ properties.</p>
 
 <ul><li><p><code>type = "mc"</code> — Monte-Carlo / distribution-of-the-product confidence
 interval via <code><a href="https://data-wise.github.io/rmediation/reference/ci_mediation_data.html" class="external-link">RMediation::ci_mediation_data()</a></code> applied to the <strong>pooled</strong>
-named <a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a>.</p></li>
+named <a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a>. When the outcome model has a
+treatment-by-mediator interaction (<code>Y ~ X * M + ...</code>), the indirect effect
+is \(a (b + \theta_3 x)\), which depends on the treatment level \(x\);
+set <code>treatment_level</code> to choose it. The interval then comes from
+<code><a href="https://data-wise.github.io/rmediation/reference/ci.html" class="external-link">RMediation::ci()</a></code> on the pooled estimates and pooled covariance of
+\((a, b, \theta_3)\).</p></li>
 <li><p><code>type = "mbco"</code> — <strong>D4-stacked MBCO</strong> likelihood-ratio test of
 \(H_0: a b = 0\), computed from the per-imputation datasets (MBCO does not
 commute with Rubin's rules; see <code><a href="per_imputation_list.html">per_imputation_list()</a></code>). The engine is

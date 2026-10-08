@@ -107,7 +107,7 @@ downstream consumer resolves **by name**.
 ### 2.3 Dependency direction (no cycle)
 
     missingmed  ->  medfit       (fit_mediation, MediationData)
-    missingmed  ->  RMediation   (ci_mediation_data, medci)
+    missingmed  ->  RMediation   (ci_mediation_data, medci; ci for X:M models)
     RMediation  ->  medfit       (consumes MediationData)
     medsim          (Suggests, later phases)
 

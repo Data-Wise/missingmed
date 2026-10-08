@@ -237,7 +237,7 @@ strictly by name (errors if unnamed). This is the
 <h3 id="dependency-direction-no-cycle">2.3 Dependency direction (no cycle)<a class="anchor" aria-label="anchor" href="#dependency-direction-no-cycle"></a>
 </h3>
 <pre><code>missingmed  -&gt;  medfit       (fit_mediation, MediationData)
-missingmed  -&gt;  RMediation   (ci_mediation_data, medci)
+missingmed  -&gt;  RMediation   (ci_mediation_data, medci; ci for X:M models)
 RMediation  -&gt;  medfit       (consumes MediationData)
 medsim          (Suggests, later phases)</code></pre>
 <p>missingmed imports both medfit and RMediation; neither depends back

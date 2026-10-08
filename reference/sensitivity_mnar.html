@@ -68,6 +68,7 @@ indirect effect is X".</p>
 <span>  level <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n.mc <span class="op">=</span> <span class="fl">1e+05</span>,</span>
 <span>  ums <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  treatment_level <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -100,8 +101,10 @@ be <code>NULL</code> when <code>delta</code> is a data frame.</p></dd>
 the <code>mids</code> object, or <code>20260822L</code> when that is <code>NA</code>.</p></dd>
 
 
-<dt id="arg-level-n-mc">level, n.mc<a class="anchor" aria-label="anchor" href="#arg-level-n-mc"></a></dt>
-<dd><p>Passed to <code><a href="infer.html">infer()</a></code>.</p></dd>
+<dt id="arg-level-n-mc-treatment-level">level, n.mc, treatment_level<a class="anchor" aria-label="anchor" href="#arg-level-n-mc-treatment-level"></a></dt>
+<dd><p>Passed to <code><a href="infer.html">infer()</a></code> for <code>type = "mc"</code>.
+<code>treatment_level</code> is required when the outcome model has a
+treatment-by-mediator interaction and an error otherwise.</p></dd>
 
 
 <dt id="arg-ums">ums<a class="anchor" aria-label="anchor" href="#arg-ums"></a></dt>

@@ -210,11 +210,17 @@ Monte Carlo error.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $MC.Error</span></span>
 <span><span class="co">#&gt; [1] 0.0001585333</span></span></code></pre></div>
-<p><code>Estimate</code> is the pooled
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>a</mi><mo accent="true">̂</mo></mover><mover><mi>b</mi><mo accent="true">̂</mo></mover></mrow><annotation encoding="application/x-tex">\hat a \hat b</annotation></semantics></math>,
-and <code>CI</code> its 95% interval. <code>MC.Error</code> is the Monte
-Carlo error of the estimate; raise <code>n.mc</code> if it matters at
-the precision you report.</p>
+<p><code>Estimate</code> is the mean of the Monte Carlo draws of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">a b</annotation></semantics></math>
+(it differs from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>a</mi><mo accent="true">̂</mo></mover><mover><mi>b</mi><mo accent="true">̂</mo></mover></mrow><annotation encoding="application/x-tex">\hat a \hat b</annotation></semantics></math>
+by the pooled covariance of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>a</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat a</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>b</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat b</annotation></semantics></math>),
+and <code>CI</code> is the 95% interval. <code>MC.Error</code> is the
+Monte Carlo error of the estimate; raise <code>n.mc</code> if it matters
+at the precision you report.</p>
 </div>
 <div class="section level2">
 <h2 id="the-test">The test<a class="anchor" aria-label="anchor" href="#the-test"></a>
@@ -390,7 +396,7 @@ a predictor of <code>M</code>:</p>
 <span><span class="va">pred</span><span class="op">[</span><span class="st">"M"</span>, <span class="st">"XM"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
 <span><span class="va">imp2</span> <span class="op">&lt;-</span> <span class="fu">mice</span><span class="fu">::</span><span class="fu"><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice</a></span><span class="op">(</span><span class="va">d2</span>,</span>
 <span>  m <span class="op">=</span> <span class="fl">20</span>, method <span class="op">=</span> <span class="va">meth</span>, predictorMatrix <span class="op">=</span> <span class="va">pred</span>,</span>
-<span>  seed <span class="op">=</span> <span class="fl">3052</span>, printFlag <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  seed <span class="op">=</span> <span class="fl">3053</span>, printFlag <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">imp2</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">*</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
@@ -399,10 +405,10 @@ a predictor of <code>M</code>:</p>
 <span><span class="va">res2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit2</span>, type <span class="op">=</span> <span class="st">"mbco"</span>, ariv <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span></span>
 <span><span class="va">res2</span></span>
 <span><span class="co">#&gt; &lt;MbcoMIResult&gt; D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)</span></span>
-<span><span class="co">#&gt;   D4 = 10.79 on F(2, 352.6), p = 2.839e-05</span></span>
-<span><span class="co">#&gt;   r4 = 0.4302 (ariv = "fixed") | d_S = 30.85 </span></span>
+<span><span class="co">#&gt;   D4 = 10.46 on F(2, 284.2), p = 4.15e-05</span></span>
+<span><span class="co">#&gt;   r4 = 0.5064 (ariv = "fixed") | d_S = 31.5 </span></span>
 <span><span class="co">#&gt;   stacked constrained fit: b = 0 branch</span></span>
-<span><span class="co">#&gt;   imputations on the a = 0 branch: 40% (mixed)</span></span>
+<span><span class="co">#&gt;   imputations on the a = 0 branch: 70% (mixed)</span></span>
 <span><span class="va">res2</span><span class="op">@</span><span class="va">k</span></span>
 <span><span class="co">#&gt; [1] 2</span></span></code></pre></div>
 <p>For the
@@ -420,10 +426,59 @@ and the test is well defined; <code>res2@k</code> reports it. Under
 <code>ariv = "own"</code>, imputations whose own winning branches differ
 remove different numbers of parameters, and the test refuses to
 pool.</p>
-<p>The Monte Carlo interval, <code>infer(type = "mc")</code>, is
-<strong>not yet available for models with an X:M interaction</strong>;
-see <a href="https://github.com/Data-Wise/missingmed/issues/20" class="external-link">issue
-#20</a>.</p>
+<p>With an X:M term the indirect effect is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo>+</mo><msub><mi>θ</mi><mn>3</mn></msub><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">a (b + \theta_3 x)</annotation></semantics></math>,
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mn>3</mn></msub><annotation encoding="application/x-tex">\theta_3</annotation></semantics></math>
+is the X:M coefficient: the effect of a one-unit increase in
+<code>X</code> through <code>M</code>, with <code>X</code> held at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+in the outcome model. It depends on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>,
+so the Monte Carlo interval needs <code>treatment_level</code>. For a
+0/1 treatment, <code>treatment_level = 1</code> gives the total natural
+indirect effect and <code>treatment_level = 0</code> the pure natural
+indirect effect:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit2</span>, type <span class="op">=</span> <span class="st">"mc"</span>, treatment_level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $CI</span></span>
+<span><span class="co">#&gt;     2.5 %    97.5 % </span></span>
+<span><span class="co">#&gt; 0.0342172 0.2572664 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Estimate</span></span>
+<span><span class="co">#&gt; [1] 0.1365794</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $SE</span></span>
+<span><span class="co">#&gt; [1] 0.05684491</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $MC.Error</span></span>
+<span><span class="co">#&gt; [1] 5.684491e-07</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Estimand</span></span>
+<span><span class="co">#&gt; [1] "a * (b + theta3 * 1)"</span></span>
+<span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit2</span>, type <span class="op">=</span> <span class="st">"mc"</span>, treatment_level <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $CI</span></span>
+<span><span class="co">#&gt;     2.5 %    97.5 % </span></span>
+<span><span class="co">#&gt; 0.0873093 0.3175738 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Estimate</span></span>
+<span><span class="co">#&gt; [1] 0.1905933</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $SE</span></span>
+<span><span class="co">#&gt; [1] 0.0590961</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $MC.Error</span></span>
+<span><span class="co">#&gt; [1] 5.90961e-07</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Estimand</span></span>
+<span><span class="co">#&gt; [1] "a * (b + theta3 * 0)"</span></span></code></pre></div>
+<p>Without <code>treatment_level</code>, <code>infer(type = "mc")</code>
+stops and asks for it. MBCO needs no such choice: its null,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">a = 0</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><msub><mi>θ</mi><mn>3</mn></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">b = \theta_3 = 0</annotation></semantics></math>,
+removes the indirect effect at every
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>.</p>
 </div>
 <div class="section level2">
 <h2 id="why-mbco-does-not-commute-with-rubins-rules">Why MBCO does not commute with Rubin’s rules<a class="anchor" aria-label="anchor" href="#why-mbco-does-not-commute-with-rubins-rules"></a>
@@ -479,7 +534,7 @@ the log-likelihood in imputation
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>;
 <code>"own"</code> takes each imputation’s maximum.</p>
 <p>The per-imputation fits are available directly:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">acc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/per_imputation_list.html">per_imputation_list</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="va">acc</span><span class="op">$</span><span class="va">m</span></span>
 <span><span class="co">#&gt; [1] 20</span></span>

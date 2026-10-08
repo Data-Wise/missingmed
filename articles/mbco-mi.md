@@ -121,9 +121,11 @@ infer(fit, type = "mc", level = 0.95, n.mc = 1e5)
 #> [1] 0.0001585333
 ```
 
-`Estimate` is the pooled $`\hat a \hat b`$, and `CI` its 95% interval.
-`MC.Error` is the Monte Carlo error of the estimate; raise `n.mc` if it
-matters at the precision you report.
+`Estimate` is the mean of the Monte Carlo draws of $`a b`$ (it differs
+from $`\hat a \hat b`$ by the pooled covariance of $`\hat a`$ and
+$`\hat b`$), and `CI` is the 95% interval. `MC.Error` is the Monte Carlo
+error of the estimate; raise `n.mc` if it matters at the precision you
+report.
 
 ## The test
 
@@ -279,7 +281,7 @@ pred <- mice::make.predictorMatrix(d2)
 pred["M", "XM"] <- 0
 imp2 <- mice::mice(d2,
   m = 20, method = meth, predictorMatrix = pred,
-  seed = 3052, printFlag = FALSE
+  seed = 3053, printFlag = FALSE
 )
 
 fit2 <- run(set_md_mediation(imp2, Y ~ X * M + C, M ~ X + C,
@@ -288,10 +290,10 @@ fit2 <- run(set_md_mediation(imp2, Y ~ X * M + C, M ~ X + C,
 res2 <- infer(fit2, type = "mbco", ariv = "fixed")
 res2
 #> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)
-#>   D4 = 10.79 on F(2, 352.6), p = 2.839e-05
-#>   r4 = 0.4302 (ariv = "fixed") | d_S = 30.85 
+#>   D4 = 10.46 on F(2, 284.2), p = 4.15e-05
+#>   r4 = 0.5064 (ariv = "fixed") | d_S = 31.5 
 #>   stacked constrained fit: b = 0 branch
-#>   imputations on the a = 0 branch: 40% (mixed)
+#>   imputations on the a = 0 branch: 70% (mixed)
 res2@k
 #> [1] 2
 ```
@@ -304,9 +306,53 @@ the test is well defined; `res2@k` reports it. Under `ariv = "own"`,
 imputations whose own winning branches differ remove different numbers
 of parameters, and the test refuses to pool.
 
-The Monte Carlo interval, `infer(type = "mc")`, is **not yet available
-for models with an X:M interaction**; see [issue
-\#20](https://github.com/Data-Wise/missingmed/issues/20).
+With an X:M term the indirect effect is $`a (b + \theta_3 x)`$, where
+$`\theta_3`$ is the X:M coefficient: the effect of a one-unit increase
+in `X` through `M`, with `X` held at $`x`$ in the outcome model. It
+depends on $`x`$, so the Monte Carlo interval needs `treatment_level`.
+For a 0/1 treatment, `treatment_level = 1` gives the total natural
+indirect effect and `treatment_level = 0` the pure natural indirect
+effect:
+
+``` r
+
+infer(fit2, type = "mc", treatment_level = 1)
+#> $CI
+#>     2.5 %    97.5 % 
+#> 0.0342172 0.2572664 
+#> 
+#> $Estimate
+#> [1] 0.1365794
+#> 
+#> $SE
+#> [1] 0.05684491
+#> 
+#> $MC.Error
+#> [1] 5.684491e-07
+#> 
+#> $Estimand
+#> [1] "a * (b + theta3 * 1)"
+infer(fit2, type = "mc", treatment_level = 0)
+#> $CI
+#>     2.5 %    97.5 % 
+#> 0.0873093 0.3175738 
+#> 
+#> $Estimate
+#> [1] 0.1905933
+#> 
+#> $SE
+#> [1] 0.0590961
+#> 
+#> $MC.Error
+#> [1] 5.90961e-07
+#> 
+#> $Estimand
+#> [1] "a * (b + theta3 * 0)"
+```
+
+Without `treatment_level`, `infer(type = "mc")` stops and asks for it.
+MBCO needs no such choice: its null, $`a = 0`$ or $`b = \theta_3 = 0`$,
+removes the indirect effect at every $`x`$.
 
 ## Why MBCO does not commute with Rubin’s rules
 

@@ -19,6 +19,7 @@ sensitivity_mnar(
   level = NULL,
   n.mc = 1e+05,
   ums = NULL,
+  treatment_level = NULL,
   ...
 )
 ```
@@ -51,10 +52,12 @@ sensitivity_mnar(
   Integer seed pinned across rungs. Defaults to the seed stored in the
   `mids` object, or `20260822L` when that is `NA`.
 
-- level, n.mc:
+- level, n.mc, treatment_level:
 
   Passed to
-  [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md).
+  [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md)
+  for `type = "mc"`. `treatment_level` is required when the outcome
+  model has a treatment-by-mediator interaction and an error otherwise.
 
 - ums:
 

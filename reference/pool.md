@@ -13,6 +13,10 @@ names (`a`, `b`, `c_prime`, ...), the pooled object is valid input to
 [`RMediation::ci_mediation_data()`](https://data-wise.github.io/rmediation/reference/ci_mediation_data.html)
 /
 [`RMediation::medci()`](https://data-wise.github.io/rmediation/reference/medci.html).
+For a model with a treatment-by-mediator interaction, use
+[`infer()`](https://data-wise.github.io/missingmed/reference/infer.md)`(type = "mc", treatment_level = )`
+instead: those RMediation functions use only \\a b\\, the indirect
+effect at treatment level 0.
 
 ## Usage
 

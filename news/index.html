@@ -39,6 +39,16 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
+<div class="section level3">
+<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li>
+<code>infer(type = "mc")</code> supports models with a treatment-by-mediator interaction (<code>Y ~ X * M + ...</code>) through a new <code>treatment_level</code> argument (<a href="https://github.com/Data-Wise/missingmed/issues/20" class="external-link">#20</a>). The indirect effect there is <code>a * (b + theta3 * x)</code>, so the interval is for the treatment level <code>x</code> you choose (for a 0/1 treatment, <code>1</code> is the total and <code>0</code> the pure natural indirect effect); it is drawn from the pooled estimates and pooled covariance of <code>a</code>, <code>b</code> and <code>theta3</code> with <code><a href="https://data-wise.github.io/rmediation/reference/ci.html" class="external-link">RMediation::ci()</a></code>, and the result names the estimand in <code>Estimand</code>. <code>treatment_level</code> is required for such models and an error elsewhere. <code>sensitivity_mnar(type = "mc")</code> passes it through.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<ul><li><p><code><a href="../reference/pool.html">pool()</a></code> no longer errors on models with an <code>X:M</code> term (<a href="https://github.com/Data-Wise/missingmed/issues/20" class="external-link">#20</a>). It set the pooled path coefficients one at a time, which broke the invariants of medfit’s <code>InteractionMediationData</code>; it now sets them together, pools the interaction coefficient with Rubin’s rules, and recomputes the four-way decomposition (<code>pie</code>, <code>int_med</code>, <code>nie</code>, …) from the pooled paths. The pooled <code>theta3</code> and <code>b0</code> rows now take the degrees of freedom of their source rows (<code>y_X:M</code>, <code>m_(Intercept)</code>).</p></li>
+<li><p><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> of a pooled <code>X:M</code> fit report the indirect effect at <code>x = 0</code> and <code>x = 1</code> instead of a single <code>a*b</code>, which is the <code>x = 0</code> value only.</p></li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.0" id="missingmed-050">missingmed 0.5.0<a class="anchor" aria-label="anchor" href="#missingmed-050"></a></h2>

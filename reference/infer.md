@@ -30,13 +30,22 @@ infer(object, ...)
   stacked constrained fit chose; `"own"` uses each imputation's own
   winning branch and reproduces missingmed 0.4.0 on full-rank designs;
   see
-  [`mbco_d4()`](https://data-wise.github.io/missingmed/reference/mbco_d4.md)).
+  [`mbco_d4()`](https://data-wise.github.io/missingmed/reference/mbco_d4.md)),
+  and `treatment_level` (for `"mc"` on a model with an `X:M` term, and
+  only there: the treatment level \\x\\ at which the indirect effect \\a
+  (b + \theta_3 x)\\ is evaluated, that is, the effect of a one-unit
+  increase in X through M with X held at \\x\\ in the outcome model. For
+  a 0/1 treatment, `1` gives the total natural indirect effect and `0`
+  the pure natural indirect effect. Required for such models; an error
+  otherwise).
 
 ## Value
 
 For `"mc"`, the list returned by
-[`RMediation::ci_mediation_data()`](https://data-wise.github.io/rmediation/reference/ci_mediation_data.html).
-For `"mbco"`, an
+[`RMediation::ci_mediation_data()`](https://data-wise.github.io/rmediation/reference/ci_mediation_data.html)
+(`CI`, `Estimate`, `SE`, `MC.Error`); for a model with an `X:M` term,
+the same elements plus `Estimand`, the formula the interval is for. For
+`"mbco"`, an
 [MbcoMIResult](https://data-wise.github.io/missingmed/reference/MbcoMIResult.md):
 the named numeric `c(D4, p, r4, nu, d_S)` (index it with `r["p"]` or
 `r[["p"]]`) with the branch diagnostics as properties.
@@ -48,6 +57,12 @@ the named numeric `c(D4, p, r4, nu, d_S)` (index it with `r["p"]` or
   [`RMediation::ci_mediation_data()`](https://data-wise.github.io/rmediation/reference/ci_mediation_data.html)
   applied to the **pooled** named
   [medfit::MediationData](https://data-wise.github.io/medfit/reference/MediationData.html).
+  When the outcome model has a treatment-by-mediator interaction
+  (`Y ~ X * M + ...`), the indirect effect is \\a (b + \theta_3 x)\\,
+  which depends on the treatment level \\x\\; set `treatment_level` to
+  choose it. The interval then comes from
+  [`RMediation::ci()`](https://data-wise.github.io/rmediation/reference/ci.html)
+  on the pooled estimates and pooled covariance of \\(a, b, \theta_3)\\.
 
 - `type = "mbco"` — **D4-stacked MBCO** likelihood-ratio test of \\H_0:
   a b = 0\\, computed from the per-imputation datasets (MBCO does not
