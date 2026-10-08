@@ -12,7 +12,7 @@
 | # | Decision |
 |---|---|
 | J1 | The engine is built in **medfit** (the shared foundation), not missingmed. missingmed becomes a consumer. |
-| J2 | The v0 gate is lavaan parity **plus** reproducing RMediation's OpenMx `mxCompare` diffLL on its MBCO test cases. |
+| J2 | The v0 gate is **OpenMx** parity (the author's instruction, 17:26: "use openmx for parity not lavaan"), **including** reproducing RMediation's OpenMx `mxCompare` diffLL on its MBCO test cases. lavaan is no longer the parity oracle. |
 | J3 | nloptr is an **Imports** of medfit. |
 | J4 | This repo holds the spec and handoff; a medfit session builds. No cross-repo writes from this session. |
 | J5 | missingmed relicenses to **GPL (>= 3)**. |
@@ -40,6 +40,20 @@ Spike (scratch script `ram.R`, about 120 lines of R, not committed; asked to be 
 
 The last row is the useful warning. `a*b == 0` is the union of two lines, so a local solver returns whichever it reaches. The MBCO test needs the better of the two, so the engine should solve `a == 0` and `b == 0` separately and take the smaller discrepancy (this is the shipped spec's linear-constraint design) instead of relying on one nonlinear solve.
 
+### OpenMx parity spike (added 17:30, per the J2 change) [V]
+
+`dev/spike-ram-nloptr-vs-openmx.R`: the same RAM model and nloptr SLSQP, compared with `OpenMx::mxRun()` (OpenMx 2.22.11; its default optimizer here is **SLSQP**, and `imxHasNPSOL()` is FALSE, so the CRAN build has no NPSOL).
+
+| Model | Result vs OpenMx |
+|---|---|
+| Observed path model (n = 400, 7 free parameters) | estimates and SEs equal to 6 printed digits (max SE difference 1e-6) |
+| Latent mediator (n = 300, 10 free parameters) | max estimate difference 2.3e-6; **max SE difference 2.4e-3** |
+
+Two conventions the gate must fix, both found by the spike:
+- **Covariance input.** OpenMx's `mxData(type = "cov", numObs = n)` treats the matrix as the unbiased (n - 1) sample covariance. Feeding it the divisor-n matrix changed the variance estimates by exactly 399/400. The comparison above passes OpenMx `S * n/(n - 1)`. The oracle code must do the same.
+- **Standard errors.** The native SEs use expected information (they matched lavaan to 2e-8 in the earlier spike). OpenMx's SEs come from the Hessian at the solution, i.e. observed information **[A]**, and differ by 2.4e-3 on the latent model. The native engine should offer an observed-information SE option (the analytic gradient makes the Hessian cheap) so that SE parity with OpenMx is a like-for-like comparison. Until then the latent-model SE tolerance is looser than 1e-5.
+- NLopt's SLSQP sits under both OpenMx's default optimizer and nloptr, consistent with the near-identical solutions **[A]**.
+
 ## 3. Design
 
 | Part | Decision proposed | Why |
@@ -58,7 +72,7 @@ The last row is the useful warning. `a*b == 0` is the union of two lines, so a l
 
 | Tier | Content | Gate |
 |---|---|---|
-| v0 | Parser subset: `=~`, `~`, `~~`, labels, fixed values; ML; observed and latent mediator; SEs; extractor to `MediationData`; convergence and improper-solution diagnostics | **J2:** parity with lavaan at 1e-6 (estimates) and 1e-5 (SEs) on at least 5 models, including every spec section 5 case that applies, **and** reproduction of RMediation's OpenMx `mxCompare` diffLL on its existing MBCO test cases (OpenMx as the test-only oracle) |
+| v0 | Parser subset: `=~`, `~`, `~~`, labels, fixed values; ML; observed and latent mediator; SEs; extractor to `MediationData`; convergence and improper-solution diagnostics | **J2:** parity with **OpenMx** at 1e-6 (estimates) and a stated SE tolerance (see "OpenMx parity spike" in section 2) on at least 5 models, including every spec section 5 case that applies, **and** reproduction of RMediation's OpenMx `mxCompare` diffLL on its existing MBCO test cases (OpenMx as the test-only oracle) |
 | v1 | `sampling.weights` / IPW with sandwich SEs; multi-start retry; `fit_args` for the native engine | IPW point estimates equal the glm IPW path to 1e-6 (the shipped lavaan IPW criterion) |
 | v2 | MBCO for SEM: constrained refits for `a == 0` and `b == 0`, take the better, with the author's ruling on the latent-mediator `b` | Known-answer test against lavaan constrained fits (the case I ran above) |
 | Out of scope | Categorical and ordinal indicators, multilevel, multigroup, FIML, mean structure unless needed, robust estimators other than the sandwich | Not needed for mediation under MI/IPW **[A]** |
@@ -74,7 +88,7 @@ The last row is the useful warning. `a*b == 0` is the union of two lines, so a l
 | N2 | Parser for the subset; parameter table; start values; validation (treatment, mediator, outcome present, `mediator ~ treatment`, `outcome ~ mediator`) | M | Same errors as the lavaan branch's validation; unsupported syntax errors by name |
 | N3 | Fit driver on `nloptr`; convergence and improper-solution diagnostics | S | Planted non-convergence and Heywood cases behave as G2 |
 | N4 | Extractor to `medfit::MediationData`; `engine = "native"` in `run()`; pooling, `infer("mc")` | M | Pooled `a`, `b`, `c_prime` equal the lavaan engine's to 1e-6 |
-| N5 | Parity suite vs lavaan (Suggests only), observed + latent, several n; **MBCO known-answer vs RMediation's OpenMx cases (J2)** | M | Skips cleanly when lavaan or OpenMx is absent; the diffLL values match the OpenMx cases to the tolerance set in the medfit spec |
+| N5 | Parity suite vs **OpenMx** (Suggests only, the J2 oracle), observed + latent, several n; **MBCO known-answer vs RMediation's OpenMx cases** | M | Skips cleanly when OpenMx is absent; the diffLL values match the OpenMx cases to the tolerance set in the medfit spec. lavaan may be an optional second oracle; it is not a gate |
 | N6 | IPW with sandwich SEs (v1) | M | IPW parity as above |
 | N7 | SEM MBCO via constrained refits (v2) | M | Known-answer test; both constraint solves reported |
 | N8 | Docs, NEWS, `_pkgdown.yml`, vignette; decide the default engine | S | Per `pre-pr-testing.md` and `e2e-before-pr.md` |
