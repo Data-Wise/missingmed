@@ -25,6 +25,23 @@ D4-stacked MBCO needs the per-imputation fits, not the pooled estimate. The
 list it returns is the shape consumed by \code{\link[=infer]{infer()}}\code{(type = "mbco")} and by an
 external \code{\link[RMediation:mbco]{RMediation::mbco()}} MI entry point (missingmed issue #2).
 }
+\examples{
+set.seed(1)
+n <- 150
+d <- data.frame(X = rbinom(n, 1, 0.5), C = rnorm(n))
+d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
+d$Y <- 0.3 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+d$M[sample(n, 25)] <- NA
+imp <- mice::mice(d, m = 3, method = "norm", printFlag = FALSE, seed = 1)
+md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M"
+)
+fit <- run(md)
+pl <- per_imputation_list(fit)
+pl$m
+# The a path in each imputation, before pooling
+vapply(pl$per_imputation, function(x) x@a_path, numeric(1))
+}
 \seealso{
 \code{\link[=run]{run()}}, \code{\link[=infer]{infer()}}
 }

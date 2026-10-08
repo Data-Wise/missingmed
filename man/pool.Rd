@@ -32,6 +32,28 @@ Pooling math (migrated from the S4 \code{pool_sem} / \code{pool_tidy} / \code{po
   \quad B = \mathrm{cov}(Q_1, \ldots, Q_m), \quad T = \bar U + (1 + 1/m) B.}
 
 It is the S7 successor of the S4 \code{\link[=pool_sem]{pool_sem()}} method.
+
+The returned tidy table also carries a per-coefficient Wald test
+(\code{statistic}, \code{df}, \code{riv}, \code{fmi}, \code{p_value}) and, when \code{conf_int = TRUE} was
+set in \code{\link[=set_md_mediation]{set_md_mediation()}}, per-coefficient \code{conf_low} and \code{conf_high} at
+\code{conf_level} on the same t reference; see \link{MDMediationResult} for the columns
+and why they do not test or bound the indirect effect.
+}
+\examples{
+set.seed(1)
+n <- 150
+d <- data.frame(X = rbinom(n, 1, 0.5), C = rnorm(n))
+d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
+d$Y <- 0.3 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+d$M[sample(n, 25)] <- NA
+imp <- mice::mice(d, m = 3, method = "norm", printFlag = FALSE, seed = 1)
+md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C, conf_int = TRUE,
+  treatment = "X", mediator = "M"
+)
+res <- pool(run(md))
+res
+# Per-coefficient table, with Rubin's df and conf_low/conf_high
+res@tidy_table[, c("term", "estimate", "std_error", "df", "conf_low", "conf_high")]
 }
 \references{
 Rubin, D. B. (1987). \emph{Multiple Imputation for Nonresponse in
@@ -42,9 +64,4 @@ multiple imputation. \emph{Biometrika}, 86(4), 948--955.
 }
 \seealso{
 \code{\link[=run]{run()}}, \code{\link[=infer]{infer()}}, \code{\link[=pool_sem]{pool_sem()}}
-The returned tidy table also carries a per-coefficient Wald test
-(\code{statistic}, \code{df}, \code{riv}, \code{fmi}, \code{p_value}) and, when \code{conf_int = TRUE} was
-set in \code{\link[=set_md_mediation]{set_md_mediation()}}, per-coefficient \code{conf_low} and \code{conf_high} at
-\code{conf_level} on the same t reference; see \link{MDMediationResult} for the columns
-and why they do not test or bound the indirect effect.
 }

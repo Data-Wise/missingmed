@@ -1,5 +1,19 @@
 # missingmed (development version)
 
+## Documentation
+
+* New articles on the package website: *Supported models* (every model rule
+  of `set_md_mediation()`, each one run when the site builds), *Frequently
+  asked questions*, and *Migrating from the S4 API*.
+* `vignette("technical")` gains section 3A on models with a
+  treatment-by-mediator interaction: the estimand behind `treatment_level`,
+  and how `pool()` recomputes the four-way decomposition from one pooled
+  reference profile.
+* `run()`, `pool()`, `per_imputation_list()`, `n_imputations()` and
+  `sensitivity_mnar()` have runnable examples, and the `set_md_mediation()`
+  example now runs. The `pool()` help page's note on the tidy table's Wald
+  columns moved from *See also* to *Details*.
+
 # missingmed 0.5.1
 
 ## New features

@@ -21,6 +21,7 @@
 #' @param ... Unused.
 #' @return An [MDMediationResult] object.
 #' @seealso [run()], [infer()], [pool_sem()]
+#' @details
 #' The returned tidy table also carries a per-coefficient Wald test
 #' (`statistic`, `df`, `riv`, `fmi`, `p_value`) and, when `conf_int = TRUE` was
 #' set in [set_md_mediation()], per-coefficient `conf_low` and `conf_high` at
@@ -32,6 +33,21 @@
 #'
 #'   Barnard, J., & Rubin, D. B. (1999). Small-sample degrees of freedom with
 #'   multiple imputation. *Biometrika*, 86(4), 948--955.
+#' @examples
+#' set.seed(1)
+#' n <- 150
+#' d <- data.frame(X = rbinom(n, 1, 0.5), C = rnorm(n))
+#' d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
+#' d$Y <- 0.3 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+#' d$M[sample(n, 25)] <- NA
+#' imp <- mice::mice(d, m = 3, method = "norm", printFlag = FALSE, seed = 1)
+#' md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C, conf_int = TRUE,
+#'   treatment = "X", mediator = "M"
+#' )
+#' res <- pool(run(md))
+#' res
+#' # Per-coefficient table, with Rubin's df and conf_low/conf_high
+#' res@tidy_table[, c("term", "estimate", "std_error", "df", "conf_low", "conf_high")]
 #' @export
 #' @name pool
 pool <- S7::new_generic("pool", "object")
