@@ -62,13 +62,25 @@ make_xm_fit_cov <- function() {
 test_that("pooled int_ref comes from one pooled reference profile", {
   fit <- make_xm_fit_cov()
   fits <- fit@per_imputation
-  # The m_ref rebuilt from each imputation's estimates reproduces medfit's
-  # own int_ref there (factor covariate included).
   m_ref <- vapply(fits, missingmed:::.interaction_m_ref, numeric(1))
   int_ref_i <- vapply(fits, function(x) x@int_ref, numeric(1))
   th_i <- vapply(fits, function(x) x@interaction, numeric(1))
   m_star <- fits[[1]]@m_star
   expect_equal(th_i * (m_ref - m_star), int_ref_i, tolerance = 1e-10)
+  # The theta3 = 0 fallback (intercept plus covariate terms at medfit's stored
+  # means, factor covariate included) gives the same m_ref. medfit < 0.4.0
+  # stores no means, so this part needs a newer medfit.
+  if (!is.null(attr(fits[[1]]@data, "medfit_covariate_means"))) {
+    rebuilt <- vapply(fits, function(x) {
+      S7::props(x) <- list(
+        interaction = 0, int_med = 0, int_ref = 0,
+        cde = x@c_prime, nde = x@c_prime, nie = x@pie,
+        total_effect = x@c_prime + x@pie
+      )
+      missingmed:::.interaction_m_ref(x)
+    }, numeric(1))
+    expect_equal(rebuilt, m_ref, tolerance = 1e-10)
+  }
   expect_gt(diff(range(m_ref)), 1e-3) # the imputed covariate moves m_ref
   p <- missingmed::pool(fit)@pooled
   expect_equal(p@int_ref, p@interaction * (mean(m_ref) - m_star), tolerance = 1e-12)

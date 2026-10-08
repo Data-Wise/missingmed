@@ -150,9 +150,9 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
 # * m_ref = b0 + sum_k beta_k * mean(C_k), the mediator's expected value at
 #   the reference treatment level with covariates at their means, depends on
 #   each completed dataset when a covariate is imputed. It is pooled as the
-#   mean of the per-imputation values (each rebuilt from that imputation's
-#   estimates and medfit's stored covariate means, which reproduces medfit's
-#   own int_ref), and int_ref = theta3 (m_ref - m_star) uses the pooled theta3.
+#   mean of the per-imputation values (read back from medfit's own int_ref;
+#   see .interaction_m_ref()), and int_ref = theta3 (m_ref - m_star) uses the
+#   pooled theta3.
 .pool_interaction_effects <- function(object, Qbar) {
   fits <- object@per_imputation
   a <- unname(Qbar[["a"]])
@@ -178,20 +178,26 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
   )
 }
 
-# m_ref for one per-imputation InteractionMediationData: the mediator model's
-# intercept plus each covariate coefficient times that covariate's mean, the
-# quantity medfit's lm extractor computes (int_ref = theta3 (m_ref - m_star)).
-# The covariate means are the ones medfit stored on @data; the coefficients
-# are the m_-prefixed estimates.
+# m_ref for one per-imputation InteractionMediationData: the mediator's
+# expected value at the reference treatment level with covariates at their
+# means. medfit defines int_ref = theta3 (m_ref - m_star), so m_ref is read
+# back from medfit's own int_ref, which works whatever medfit version computed
+# it. Only an exactly zero theta3 hides m_ref; then it is rebuilt from the
+# m_-prefixed estimates and the covariate means medfit (>= 0.4.0) stores on
+# @data, and int_ref is 0 in that imputation either way.
 .interaction_m_ref <- function(fit) {
+  if (fit@interaction != 0) {
+    return(fit@m_star + fit@int_ref / fit@interaction)
+  }
   est <- fit@estimates
   m_terms <- sub("^m_", "", grep("^m_", names(est), value = TRUE))
   covs <- setdiff(m_terms, c("(Intercept)", fit@treatment))
   cbar <- attr(fit@data, "medfit_covariate_means")
   if (length(covs) > 0L && !all(covs %in% names(cbar))) {
-    stop("Cannot pool the interaction decomposition: an imputation's fit does ",
-      "not carry medfit's covariate means for ", paste(covs, collapse = ", "),
-      ".", call. = FALSE)
+    stop("Cannot pool the interaction decomposition: an imputation has an ",
+      "interaction estimate of exactly 0, and its fit does not carry the ",
+      "covariate means needed to recover the mediator's reference value. ",
+      "Update medfit (>= 0.4.0).", call. = FALSE)
   }
   m_ref <- est[["b0"]]
   for (v in covs) m_ref <- m_ref + est[[paste0("m_", v)]] * cbar[[v]]
