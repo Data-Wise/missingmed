@@ -1,0 +1,79 @@
+# Pool per-imputation mediation fits with Rubin's rules
+
+Applies Rubin's (1987) rules to the list of per-imputation **named**
+[medfit::MediationData](https://data-wise.github.io/medfit/reference/MediationData.html)
+objects in an
+[MDMediationFit](https://data-wise.github.io/missingmed/dev/reference/MDMediationFit.md),
+producing a single pooled named
+[medfit::MediationData](https://data-wise.github.io/medfit/reference/MediationData.html)
+(the `pooled` slot of the returned
+[MDMediationResult](https://data-wise.github.io/missingmed/dev/reference/MDMediationResult.md)).
+Because the estimates and variance-covariance carry the mediation path
+names (`a`, `b`, `c_prime`, ...), the pooled object is valid input to
+[`RMediation::ci_mediation_data()`](https://data-wise.github.io/rmediation/reference/ci_mediation_data.html)
+/
+[`RMediation::medci()`](https://data-wise.github.io/rmediation/reference/medci.html).
+For a model with a treatment-by-mediator interaction, use
+[`infer()`](https://data-wise.github.io/missingmed/dev/reference/infer.md)`(type = "mc", treatment_level = )`
+instead: those RMediation functions use only \\a b\\, the indirect
+effect at treatment level 0.
+
+## Usage
+
+``` r
+pool(object, ...)
+```
+
+## Arguments
+
+- object:
+
+  An
+  [MDMediationFit](https://data-wise.github.io/missingmed/dev/reference/MDMediationFit.md)
+  object. Anything else (a
+  [`mice::mira`](https://amices.org/mice/reference/mira.html), say) is
+  forwarded to
+  [`mice::pool()`](https://amices.org/mice/reference/pool.html).
+
+- ...:
+
+  Unused.
+
+## Value
+
+An
+[MDMediationResult](https://data-wise.github.io/missingmed/dev/reference/MDMediationResult.md)
+object.
+
+## Details
+
+Pooling math (migrated from the S4 `pool_sem` / `pool_tidy` /
+`pool_cov`): \$\$\bar Q = \frac{1}{m}\sum_i Q_i, \quad \bar U =
+\frac{1}{m}\sum_i U_i, \quad B = \mathrm{cov}(Q_1, \ldots, Q_m), \quad T
+= \bar U + (1 + 1/m) B.\$\$
+
+It is the S7 successor of the S4
+[`pool_sem()`](https://data-wise.github.io/missingmed/dev/reference/pool_sem.md)
+method.
+
+## References
+
+Rubin, D. B. (1987). *Multiple Imputation for Nonresponse in Surveys*.
+Wiley.
+
+Barnard, J., & Rubin, D. B. (1999). Small-sample degrees of freedom with
+multiple imputation. *Biometrika*, 86(4), 948–955.
+
+## See also
+
+[`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md),
+[`infer()`](https://data-wise.github.io/missingmed/dev/reference/infer.md),
+[`pool_sem()`](https://data-wise.github.io/missingmed/dev/reference/pool_sem.md)
+The returned tidy table also carries a per-coefficient Wald test
+(`statistic`, `df`, `riv`, `fmi`, `p_value`) and, when `conf_int = TRUE`
+was set in
+[`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md),
+per-coefficient `conf_low` and `conf_high` at `conf_level` on the same t
+reference; see
+[MDMediationResult](https://data-wise.github.io/missingmed/dev/reference/MDMediationResult.md)
+for the columns and why they do not test or bound the indirect effect.
