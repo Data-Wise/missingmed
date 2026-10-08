@@ -981,7 +981,7 @@ These changes were made upstream to satisfy missingmed's contracts; each is the
   them, so medfit's identities hold exactly.
 - **IPW = thin `run()` branch + passthrough `pool()`**; weights support both
   joint and sequential models, stabilized and trimmed; sandwich SE by default.
-- **S4 deprecated** with `.Deprecated()` shims; `.Defunct()` stubs in 0.6.0.
+- **S4 removed in 0.6.0**: `.Defunct()` stubs name each replacement and are deleted in 0.7.0; SEM runs through `engine = "lavaan"`.
 
 ---
 
