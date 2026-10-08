@@ -48,6 +48,12 @@ S7::method(run, MDMediationData) <- function(object, ...) {
   implist <- mice::complete(object@data, action = "all")
   m <- length(implist)
   .warn_unimputed(object, implist)
+  if (identical(object@engine, "lavaan") && ...length() > 0L) {
+    stop("`run()` takes no extra arguments for engine = \"lavaan\"; set them ",
+      "with `fit_args` in set_md_mediation().",
+      call. = FALSE
+    )
+  }
   per_imp <- vector("list", m)
   warns <- vector("list", m)
   # If a fit fails, the warnings of the fits before it are still raised.
@@ -61,6 +67,7 @@ S7::method(run, MDMediationData) <- function(object, ...) {
   )
   .md_warn_fits(warns, object@engine, m)
   names(per_imp) <- names(implist)
+  .md_refuse_nonconverged(per_imp, object@engine)
 
   MDMediationFit(
     per_imputation = per_imp,
@@ -86,6 +93,9 @@ S7::method(run, MDMediationData) <- function(object, ...) {
 
 # All variables of both model formulas, with `.` expanded.
 .model_vars <- function(object) {
+  if (identical(object@engine, "lavaan")) {
+    return(lavaan::lavNames(lavaan::lavaanify(object@model), "ov"))
+  }
   unique(c(
     all.vars(.expand_dot(object@formula_y, object@original_data)),
     all.vars(.expand_dot(object@formula_m, object@original_data))
@@ -155,9 +165,54 @@ S7::method(run, MDMediationData) <- function(object, ...) {
   )
 }
 
+# One lavaan::sem() call, kept apart so a test can replace it.
+.lav_sem <- function(model, data, fit_args) {
+  do.call(lavaan::sem, c(list(model = model, data = data), fit_args))
+}
+
+# A lavaan fit, converted by medfit::extract_mediation(). A fit that did not
+# converge returns an "md_nonconverged" marker instead, so run() can refuse once
+# naming every such imputation (G2). A converged but improper solution (for
+# example a negative residual variance) is a warning: lavaan's own is collected
+# by .md_fit_one(), and when lavaan stayed silent one is raised here.
+.md_lavaan_call <- function(object, data) {
+  n_warn <- 0L
+  fit <- withCallingHandlers(
+    .lav_sem(object@model, data, object@fit_args),
+    warning = function(w) n_warn <<- n_warn + 1L
+  )
+  if (!isTRUE(lavaan::lavInspect(fit, "converged"))) {
+    return(structure(list(), class = "md_nonconverged"))
+  }
+  if (!isTRUE(lavaan::lavInspect(fit, "post.check")) && n_warn == 0L) {
+    warning("improper solution (lavaan's post.check failed).", call. = FALSE)
+  }
+  medfit::extract_mediation(fit,
+    treatment = object@treatment, mediator = object@mediator,
+    outcome = object@outcome
+  )
+}
+
+# Refuse to go on when any imputation's lavaan fit did not converge, naming them.
+.md_refuse_nonconverged <- function(per_imp, engine) {
+  bad <- which(vapply(per_imp, inherits, logical(1), what = "md_nonconverged"))
+  if (length(bad)) {
+    stop("engine \"", engine, "\" did not converge on imputation",
+      if (length(bad) > 1L) "s", " ", paste(bad, collapse = ", "), " of ",
+      length(per_imp), ". Simplify the model, or pass `fit_args` such as ",
+      "list(control = list(iter.max = 5000)).",
+      call. = FALSE
+    )
+  }
+  invisible(per_imp)
+}
+
 # The one call into medfit. Kept apart from .md_fit_one() so a test can
 # replace the engine and still exercise the error and warning handling.
 .md_engine_call <- function(object, data, ...) {
+  if (identical(object@engine, "lavaan")) {
+    return(.md_lavaan_call(object, data))
+  }
   fit_mediation(
     formula_y = .expand_dot(object@formula_y, object@original_data),
     formula_m = .expand_dot(object@formula_m, object@original_data),
