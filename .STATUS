@@ -6,7 +6,7 @@ updated: 2026-10-07
 next: #20 FIXED on dev (PR #28) and its pooling follow-up merged (PR #29,
   bbb89b3): pool() now pools the X:M reference profile m_ref, not int_ref,
   and refuses imputations fitted at different m_star. Both ship in the next
-  release. P1 pre-fit validation is PR #31 (open, awaiting merge):
+  release. P1 pre-fit validation merged (PR #31, e49804e):
   set_md_mediation() now refuses a formula_m whose LHS is not the mediator
   (was a silent wrong answer, 0.034 vs 0.191) and any X/M term other than
   main effects + X:M. Spec follow-ups merged in PR #30. OPEN for P3 (spec,
@@ -56,7 +56,8 @@ worktrees:
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
 ## post-0.5.0 (dev 0.5.0.9000)
-- 2026-10-07 (open): PR #31 feature/set-md-validation -> dev (P1). Shared
+- 2026-10-07 (merged): PR #31 feature/set-md-validation -> dev (e49804e,
+  squash; P1). Shared
   .check_roles() for set_md_mediation() and mbco_d4() (mbco_d4 tightened:
   formula_m's response may involve only the mediator; the mediator may not be
   formula_y's response); set_md_mediation()-only .check_md_spec() on
