@@ -68,6 +68,13 @@ worktrees:
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
+## post-0.5.1 (dev 0.5.1.9000)
+- 2026-10-07 (merged): PR #39 feature/docs-audit-new -> dev (169195b, squash).
+  Audit docs 1-5: articles supported-models (rules asserted live), faq,
+  s4-migration; technical.Rmd 3A (X:M pooling); verb examples. Check
+  --as-cran 0/0/0 (medfit 0.4.0 and 0.3.2). PR #38 (169195b's parent line):
+  dev bumped to 0.5.1.9000.
+
 ## 0.5.1 (released 2026-10-07; PRs #28-#36)
 - 2026-10-07 (released): v0.5.1. Bump PR #36 -> dev (b5dcb2a, squash);
   release PR #37 dev -> main (12ad874, merge commit); CI green on main;
