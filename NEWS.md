@@ -45,6 +45,49 @@
   at `x = 0` and `x = 1` instead of a single `a*b`, which is the `x = 0`
   value only.
 
+* The S7 classes validate more of their input, turning silent wrong answers
+  and obscure late crashes into clear errors at construction:
+  `MDMediationData` refuses `treatment == mediator`, missing or empty roles,
+  an `engine` that is not a single string, an IPW `weight_stabilize` that is
+  not `TRUE`/`FALSE` (it used to fit unstabilized weights silently), an NA
+  `weight_trim`, and an `n_imputations` that disagrees with the data;
+  `MDMediationFit` and `MDMediationResult` refuse non-fit objects and an NA
+  `m`; `MDSensitivityResult` refuses zero rungs, rungs whose shape does not
+  match `type`, and a `level` outside (0, 1). `print()` of a result with an
+  empty table no longer errors, and `summary()` of a sensitivity curve with
+  NA rungs lists them (new `na_rungs` element) and declines to name a
+  tipping point.
+
+* `sensitivity_mnar()` checks `seed` and `level` before re-imputing, and
+  refuses a delta grid with duplicate or empty column names (a duplicate
+  name silently reported the wrong rung) and a delta matrix with more than
+  one column. `seed = NA` is refused because it made the curve
+  irreproducible.
+
+* `mbco_d4()` and `infer(type = "mbco")` refuse imputations that differ in
+  row count, columns, or a model variable's type, and NA left in a model
+  variable (which silently dropped different rows per model); a failed fit
+  names its imputation. When the imputations are identical, `r4` is now
+  exactly 0 and `nu` is `Inf` instead of rounding noise.
+
+* The deprecated S4 pipeline works again: `run_sem()` failed on every call
+  (an internal `lav_mice()`/`mx_mice()` with swapped arguments was masked by
+  the exported functions), and `lav_mice()` rejected every valid model
+  syntax (an inverted check). `fit_model()` and `set_sem()` list the
+  accepted model types for anything else; a lavaan or OpenMx failure names
+  its imputation, and per-imputation warnings are collected into one.
+  `pool_sem()` needs at least two imputations (with one, every standard
+  error was NA), `is_pd()` returns `FALSE` for a non-symmetric matrix,
+  `PooledSEMResults` requires its four base columns, `set_sem()` refuses a
+  `conf_level` of 0 or 1, and `mx_mice()` now passes `...` to
+  `OpenMx::mxRun()` as documented (so unknown arguments error) and runs the
+  imputations sequentially (`lapply`, not `omxLapply`).
+
+* New tests: edge cases for every exported function, and end-to-end tests
+  that check the pooled estimates, variances and degrees of freedom against
+  `mice::pool()`, and MC, MBCO, IPW and sensitivity results against known
+  answers.
+
 # missingmed 0.5.0
 
 ## New features
