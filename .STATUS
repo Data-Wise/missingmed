@@ -6,13 +6,12 @@ updated: 2026-10-07
 next: #20 FIXED on dev (PR #28) and its pooling follow-up merged (PR #29,
   bbb89b3): pool() now pools the X:M reference profile m_ref, not int_ref,
   and refuses imputations fitted at different m_star. Both ship in the next
-  release. NEXT (recommended): P1 pre-fit validation in set_md_mediation():
-  formula_m's LHS is never checked against `mediator`, so M ~ X + C vs C ~ X
-  silently gives 0.191 vs 0.034 (reproduced 2026-10-07); also check X/M in
-  formula_y, numeric treatment, engine, X:M + non-Gaussian, other product
-  terms. Then fold P3 (shared outcome role, engine_args) into the SEM spec
-  before implementing it; correct the grill's evidence line (medfit 0.4.0
-  accepts engine = "glm" and "regmedint", not glm only). Roadmap: S7 SEM
+  release. P1 pre-fit validation is PR #31 (open, awaiting merge):
+  set_md_mediation() now refuses a formula_m whose LHS is not the mediator
+  (was a silent wrong answer, 0.034 vs 0.191) and any X/M term other than
+  main effects + X:M. Spec follow-ups merged in PR #30. OPEN for P3 (spec,
+  proposed): medfit 0.4.0 already has its own `engine_args`, and forwarding
+  it needs medfit >= 0.4.0, not yet on CRAN. Roadmap: S7 SEM
   engine + S4 removal in 0.6.0 (docs/specs/SPEC-s7-sem-engine-2026-09-23.md,
   section 4 grilled G1-G7) -> 1.0.0 CRAN. Before CRAN: DESCRIPTION's
   Description: still says "Provides S4 classes". OPEN QUESTION for upstream:
@@ -57,6 +56,19 @@ worktrees:
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
 ## post-0.5.0 (dev 0.5.0.9000)
+- 2026-10-07 (open): PR #31 feature/set-md-validation -> dev (P1). Shared
+  .check_roles() for set_md_mediation() and mbco_d4() (mbco_d4 tightened:
+  formula_m's response may involve only the mediator; the mediator may not be
+  formula_y's response); set_md_mediation()-only .check_md_spec() on
+  data-expanded terms: bare X/M main effects + one X:M in formula_y, X:M needs
+  gaussian identity, numeric treatment (logical refused: medfit errors on
+  XTRUE). E2E: wrong-LHS control silently accepted on dev, refused now; pooled
+  a/b/c_prime identical before/after. Tests 553 pass (dev baseline 503);
+  check --as-cran 0/0/0 locally.
+- 2026-10-07 (merged): PR #30 feature/spec-p3-engine-evidence -> dev
+  (a4e38dd, squash). Grill evidence line corrected (medfit 0.4.0 accepts glm
+  and regmedint; 0.3.2 glm only); P3 added to the SEM spec as a proposed,
+  open amendment.
 - 2026-10-07 (merged): PR #29 feature/pool-mref -> dev (bbb89b3, squash).
   Fixes a Codex adversarial-review finding on #28: averaging int_ref mixed
   each imputation's theta3 with its own m_ref. pool() now averages m_ref
