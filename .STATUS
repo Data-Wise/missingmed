@@ -56,6 +56,15 @@ worktrees:
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
 ## post-0.5.0 (dev 0.5.0.9000)
+- 2026-10-07 (open): PR #32 feature/defensive-tests -> dev. Defensive
+  checks + engine validation/error catching + edge-case and E2E tests across
+  S7, MNAR, MBCO, IPW and S4, from five parallel units (each probed bad input
+  on dev first: silent-wrong -> guard, obscure crash -> clear error, clear ->
+  pin, works -> leave). Fixes: pool() stacked estimates by position;
+  infer() ignored unknown ...; deprecated S4 run_sem() never worked (swapped
+  args) and lav_mice() rejected valid syntax. Gate: tests 1231 pass (medfit
+  0.4.0) / 1227 + 2 skip (0.3.2), check --as-cran 0/0/0, coverage 78.9 ->
+  94.3%. Open questions listed in the PR body.
 - 2026-10-07 (merged): PR #31 feature/set-md-validation -> dev (e49804e,
   squash; P1). Shared
   .check_roles() for set_md_mediation() and mbco_d4() (mbco_d4 tightened:
