@@ -20,8 +20,11 @@
 
 ## Evidence gathered
 
-- medfit 0.4.0 still has only `engine = "glm"` in `fit_mediation()`; the lavaan
-  path fits with `lavaan::sem()` and converts with `medfit::extract_mediation()`.
+- medfit 0.4.0's `fit_mediation()` accepts `engine = "glm"` (the default) and
+  `"regmedint"` (`checkmate::assert_choice(engine, choices = c("glm",
+  "regmedint"), ...)`); 0.3.2 accepted `"glm"` only. Neither is an SEM engine,
+  so the lavaan path still fits with `lavaan::sem()` and converts with
+  `medfit::extract_mediation()`.
 - The glm path records non-convergence only (`pool()` sets
   `@converged <- all(...)`); it neither warns nor errors.
 - IPW probe (n = 500, MAR on M, missingmed's own `.ipw_weights()`): glm IPW
