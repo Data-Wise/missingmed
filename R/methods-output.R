@@ -55,9 +55,14 @@ S7::method(print, MDMediationFit) <- function(x, ...) {
 # print(<MDMediationResult>)
 S7::method(print, MDMediationResult) <- function(x, ...) {
   cat("<MDMediationResult> (pooled, Rubin's rules; m =", x@m, ")\n")
-  key <- x@tidy_table[x@tidy_table$term %in% c("a", "b", "c_prime", "theta3"),
-    c("term", "estimate", "std_error")]
-  print(key, row.names = FALSE)
+  # @tidy_table defaults to an empty data frame; skip it rather than fail.
+  cols <- c("term", "estimate", "std_error")
+  if (all(cols %in% names(x@tidy_table))) {
+    key <- x@tidy_table[x@tidy_table$term %in% c("a", "b", "c_prime", "theta3"), cols]
+    print(key, row.names = FALSE)
+  } else {
+    cat("  (no pooled estimates table)\n")
+  }
   cat(" ", .indirect_line(x@pooled), "\n")
   if (.has_xm(x@pooled)) {
     cat("  -> infer(type = \"mc\", treatment_level = x) for the indirect-effect CI\n")
@@ -110,10 +115,15 @@ S7::method(print, MDSensitivityResult) <- function(x, ...) {
 S7::method(summary, MDSensitivityResult) <- function(object, ...) {
   tb <- tidy(object)
   ordered <- all(vapply(object@grid, is.numeric, logical(1)))
-  tp <- if (ordered) .mnar_tipping(object, tb) else NULL
+  # A rung whose interval or p-value is NA has an unknown verdict, so the
+  # smallest retaining departure is unknown too. Name the rungs instead of
+  # searching around them (which could report a tipping point, or "none",
+  # that the missing rung would contradict).
+  na_rungs <- if (ordered) which(is.na(.mnar_null_retained(object, tb))) else integer()
+  tp <- if (ordered && !length(na_rungs)) .mnar_tipping(object, tb) else NULL
   structure(
     list(table = tb, tipping = tp, target = object@target, type = object@type,
-      ordered = ordered),
+      ordered = ordered, na_rungs = na_rungs),
     class = "summary.MDSensitivityResult"
   )
 }
@@ -162,6 +172,10 @@ print.summary.MDSensitivityResult <- function(x, ...) {
   if (isFALSE(x$ordered)) {
     cat("\nTipping point not computed: a `ums` grid has no numeric ordering of\n")
     cat("departures from MAR, so \"smallest departure\" is undefined.\n")
+  } else if (length(x$na_rungs)) {
+    cat("\nTipping point not computed: rung(s)", paste(x$na_rungs, collapse = ", "),
+      "have a missing (NA)\n")
+    cat("interval or p-value, so whether the null is retained there is unknown.\n")
   } else if (is.null(x$tipping)) {
     cat("\nNo tipping point within the supplied grid.\n")
   } else {
@@ -188,7 +202,8 @@ print.summary.MDSensitivityResult <- function(x, ...) {
 # tidy(<MDSensitivityResult>) -- one row per rung
 S7::method(tidy, MDSensitivityResult) <- function(x, ...) {
   base <- x@grid
-  base$msp <- x@msp
+  # The validator allows an empty @msp; report it as NA rather than fail.
+  base$msp <- if (length(x@msp)) x@msp else NA_real_
   if (identical(x@type, "mc")) {
     base$estimate <- vapply(x@rungs, function(r) as.numeric(r$Estimate)[1], numeric(1))
     base$conf_low <- vapply(x@rungs, function(r) as.numeric(r$CI)[1], numeric(1))

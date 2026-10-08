@@ -80,14 +80,29 @@ MDMediationData <- S7::new_class(
     if (!inherits(self@formula_y, "formula") || !inherits(self@formula_m, "formula")) {
       return("@formula_y and @formula_m must be formula objects.")
     }
-    if (length(self@treatment) != 1L || length(self@mediator) != 1L) {
+    if (length(self@treatment) != 1L || length(self@mediator) != 1L ||
+      is.na(self@treatment) || is.na(self@mediator) ||
+      !nzchar(self@treatment) || !nzchar(self@mediator)) {
       return("@treatment and @mediator must each be a single variable name.")
+    }
+    # A shared name fits without error in run() but is not a mediation model.
+    if (self@treatment == self@mediator) {
+      return("@treatment and @mediator must name different variables.")
+    }
+    if (length(self@engine) != 1L || is.na(self@engine) || !nzchar(self@engine)) {
+      return("@engine must be a single string naming a medfit engine.")
     }
     if (length(self@mechanism) != 1L || !self@mechanism %in% c("mar", "mnar")) {
       return("@mechanism must be a single string: 'mar' or 'mnar'.")
     }
-    if (length(self@weight_trim) != 1L || self@weight_trim <= 0 || self@weight_trim > 1) {
+    if (length(self@weight_trim) != 1L || is.na(self@weight_trim) ||
+      self@weight_trim <= 0 || self@weight_trim > 1) {
       return("@weight_trim must be a single number in (0, 1].")
+    }
+    # run() reads this with isTRUE(), so NA would silently mean "unstabilized".
+    if (self@method == "ipw" &&
+      (length(self@weight_stabilize) != 1L || is.na(self@weight_stabilize))) {
+      return("@weight_stabilize must be TRUE or FALSE.")
     }
     if (length(self@se_type) != 1L || !self@se_type %in% c("model", "sandwich")) {
       return("@se_type must be a single string: 'model' or 'sandwich'.")
@@ -98,6 +113,18 @@ MDMediationData <- S7::new_class(
     if (length(self@conf_level) != 1L || is.na(self@conf_level) ||
       self@conf_level <= 0 || self@conf_level >= 1) {
       return("@conf_level must be a single number in (0, 1).")
+    }
+    # Only print() reads it, so a wrong count would mislabel the object
+    # silently. Left empty, it is not checked.
+    if (length(self@n_imputations)) {
+      m_data <- if (self@method == "mi") self@data$m else 1
+      if (length(self@n_imputations) != 1L || is.na(self@n_imputations) ||
+        self@n_imputations != m_data) {
+        return(paste0(
+          "@n_imputations must equal the number of imputations in @data (",
+          m_data, ")."
+        ))
+      }
     }
     NULL
   }
