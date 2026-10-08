@@ -83,6 +83,14 @@ S7::method(infer, MDMediationFit) <- function(object, type = c("mc", "mbco"),
   }
   # mbco: D4-stacked over the per-imputation datasets
   src <- object@source
+  if (identical(object@engine, "lavaan")) {
+    stop("MBCO inference is not available for engine = \"lavaan\" yet: it ",
+      "refits with glm(), which is not the SEM. Use type = \"mc\". MBCO for ",
+      "SEM needs its own spec (constrained lavaan refits; see ",
+      "docs/specs/SPEC-s7-sem-engine-2026-09-23.md, Q4).",
+      call. = FALSE
+    )
+  }
   if (!inherits(src, "missingmed::MDMediationData") && !S7::S7_inherits(src, MDMediationData)) {
     stop("MBCO needs the originating MDMediationData (imputed datasets). ",
       "Run infer() on the MDMediationFit returned by run().", call. = FALSE)

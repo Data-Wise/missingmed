@@ -306,11 +306,16 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
   dfcom_y <- dfcom_of("y_", family_of("family_y"))
   # Terms outside both models' prefixes and the three aliases get the smaller
   # complete-data df, the conservative choice.
+  lav <- identical(fit@source_package, "lavaan")
   dfcom <- ifelse(startsWith(term, "m_") | term %in% c("a", "b0"), dfcom_m,
     ifelse(startsWith(term, "y_") | term %in% c("b", "c_prime", "theta3"), dfcom_y,
       min(dfcom_m, dfcom_y)
     )
   )
+
+  # lavaan names its parameters (M~C, Y~~Y, user labels), so the m_/y_ prefix
+  # rule does not apply. Its tests are z-tests: the complete-data df is Inf.
+  if (lav) dfcom <- rep(Inf, length(term))
 
   statistic <- tidy_table$estimate / tidy_table$std_error
   if (m == 1) {
@@ -328,5 +333,12 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
   p_value <- ifelse(is.infinite(df), 2 * stats::pnorm(-abs(statistic)),
     2 * stats::pt(-abs(statistic), df)
   )
+  # A (co)variance (`M~~M`) is tested against a boundary null (variance = 0),
+  # where a Wald z-test is not valid: keep the estimate and SE, leave the test NA.
+  if (lav) {
+    vv <- grepl("~~", term, fixed = TRUE)
+    statistic[vv] <- NA_real_
+    p_value[vv] <- NA_real_
+  }
   data.frame(statistic = statistic, df = df, riv = riv, fmi = fmi, p_value = p_value)
 }

@@ -20,23 +20,31 @@ set_md_mediation(
   weight_trim = 1,
   se_type = c("sandwich", "model"),
   conf_int = FALSE,
-  conf_level = 0.95
+  conf_level = 0.95,
+  model = NULL,
+  outcome = NULL,
+  fit_args = list()
 )
 }
 \arguments{
 \item{data}{For \code{method = "mi"}, a \link[mice:mids]{mice::mids} object; for \code{method = "ipw"},
 a \code{data.frame} (may contain \code{NA}s; complete cases are reweighted).}
 
-\item{formula_y}{Outcome model formula (e.g. \code{Y ~ X + M + C}).}
+\item{formula_y}{Outcome model formula (e.g. \code{Y ~ X + M + C}). Not used with
+\code{engine = "lavaan"}.}
 
-\item{formula_m}{Mediator model formula (e.g. \code{M ~ X + C}).}
+\item{formula_m}{Mediator model formula (e.g. \code{M ~ X + C}). Not used with
+\code{engine = "lavaan"}.}
 
 \item{treatment}{Name of the treatment/exposure variable.}
 
 \item{mediator}{Name of the mediator variable.}
 
-\item{engine}{medfit fitting engine: \code{"glm"} (default), or \code{"regmedint"}
-(needs medfit >= 0.4.0 and the regmedint package; \code{method = "mi"} only).}
+\item{engine}{Fitting engine: \code{"glm"} (default), \code{"regmedint"} (needs
+medfit 0.4.0 or later and the regmedint package; \code{method = "mi"} only), or
+\code{"lavaan"}
+(a structural equation model given as \code{model} syntax instead of formulas;
+\code{method = "mi"} only for now).}
 
 \item{family_y, family_m}{\code{stats::family} objects for the outcome and mediator
 models. Default \code{stats::gaussian()}.}
@@ -64,6 +72,18 @@ single coefficients; for the indirect effect use \code{\link[=infer]{infer()}}.}
 
 \item{conf_level}{Numeric in (0, 1); confidence level for \code{conf_int} and the
 default \code{level} of \code{\link[=infer]{infer()}}. Defaults to \code{0.95}.}
+
+\item{model}{(\code{engine = "lavaan"}) lavaan model syntax, a single string, for
+example \code{"M ~ a*X + C\\nY ~ b*M + cp*X + C"}. A latent mediator
+(\code{"Mlat =~ m1 + m2 + m3"}) is allowed. Must be \code{NULL} for other engines.}
+
+\item{outcome}{(\code{engine = "lavaan"}) name of the outcome variable; required
+for lavaan, and it must be regressed on the mediator in \code{model}. Must be
+\code{NULL} for other engines.}
+
+\item{fit_args}{(\code{engine = "lavaan"}) named list of extra arguments for
+\code{\link[lavaan:sem]{lavaan::sem()}}, for example \code{list(estimator = "MLR")}, stored on the
+object. It cannot set \code{model} or \code{data}. Must be empty for other engines.}
 }
 \value{
 An \link{MDMediationData} object.

@@ -1,5 +1,17 @@
 # missingmed (development version)
 
+## New features
+
+* `set_md_mediation()` gains `engine = "lavaan"`: give a structural equation
+  model as lavaan syntax in `model`, name the `outcome`, and pass extra
+  `lavaan::sem()` arguments in `fit_args` (for example `list(estimator =
+  "MLR")`). The model is validated before any fitting. `run()` fits each
+  imputation with lavaan; `pool()` reports z-tests (`df = Inf` at `m = 1`) and
+  leaves the statistic and p-value of variance and covariance rows (`~~`) `NA`;
+  `infer(type = "mc")` works. `infer(type = "mbco")` refuses for lavaan fits
+  until a separate SEM-MBCO design lands. Non-convergence in any imputation
+  refuses, naming the imputations; an improper solution warns once.
+
 ## Documentation
 
 * New articles on the package website: *Supported models* (every model rule
