@@ -23,6 +23,13 @@
 | J10 | RMediation's MBCO migration off OpenMx is a separate follow-up spec after the v0 gate. |
 | J11 | Carried by medfit 0.6.0, GitHub/r-universe first. |
 | J12 | missingmed's copyright is the author's alone (confirmed), so the GPL (>= 3) relicense needs only the author's decision. |
+| J13 | Own subset parser, with lavaan's `lavParseModelString()` as the test oracle. |
+| J14 | Own intermediate table, with converters to lavaan's ParTable and to RAM. |
+| J15 | v0 syntax: core with labels, fixed values and `:=`; `==`/`<`/`>`; `start`/`lower`/`upper`; comma shorthand and CONSTRAINT-style expressions (a dialect, see the syntax ledger). |
+| J16 | `level:` blocks are parsed and the table carries a `level` column; two-level estimation is a later stage. |
+| J17 | Formulas and syntax are separate front ends. |
+
+J13-J17 are detailed in [GRILL-sem-syntax-framework-2026-10-08.md](GRILL-sem-syntax-framework-2026-10-08.md); the tasks that follow from them are listed there and are not yet in section 5.
 
 Where the sections below conflict with this table, the table wins.
 
