@@ -26,8 +26,12 @@
   of medfit’s `InteractionMediationData`; it now sets them together,
   pools the interaction coefficient with Rubin’s rules, and recomputes
   the four-way decomposition (`pie`, `int_med`, `nie`, …) from the
-  pooled paths. The pooled `theta3` and `b0` rows now take the degrees
-  of freedom of their source rows (`y_X:M`, `m_(Intercept)`).
+  pooled paths and one pooled reference profile: `int_ref` uses the
+  pooled `theta3` and the mean of the per-imputation mediator reference
+  values (which differ when a covariate is imputed), and imputations
+  fitted at different `m_star` are refused. The pooled `theta3` and `b0`
+  rows now take the degrees of freedom of their source rows (`y_X:M`,
+  `m_(Intercept)`).
 
 - [`print()`](https://rdrr.io/r/base/print.html) and
   [`summary()`](https://rdrr.io/r/base/summary.html) of a pooled `X:M`
