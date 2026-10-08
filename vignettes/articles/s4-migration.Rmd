@@ -6,36 +6,31 @@ title: "Migrating from the S4 API"
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-The S4 functions `set_sem()`, `run_sem()` and `pool_sem()` and their classes
-are deprecated. They still run, with a deprecation warning, and they are planned
-to become `.Defunct()` stubs in 0.6.0, each naming its replacement. This
-article maps the old calls to the S7 pipeline.
+The S4 API was removed in missingmed 0.6.0. `set_sem()`, `run_sem()`,
+`pool_sem()`, `fit_model()`, `lav_mice()` and `mx_mice()` remain as stubs that
+stop with a message naming their replacement; the stubs are deleted in 0.7.0.
+This article maps the old calls to the S7 pipeline.
 
 ## The mapping
 
-| S4 (deprecated) | S7 | Returns |
-|---|---|---|
-| `set_sem(data, model)` | `set_md_mediation(data, formula_y, formula_m, treatment, mediator)` | `MDMediationData` |
-| `run_sem(object)` | `run(object)` | `MDMediationFit` |
-| `pool_sem(object)` | `pool(object)` | `MDMediationResult` |
-| (none) | `infer(fit, type = "mc" or "mbco")` | interval or test for the indirect effect |
-| `SemImputedData`, `SemResults`, `PooledSEMResults` | `MDMediationData`, `MDMediationFit`, `MDMediationResult` | |
+| Removed | Replacement |
+|---|---|
+| `set_sem(data, model)` | `set_md_mediation(data, model = , treatment = , mediator = , outcome = , engine = "lavaan")` |
+| `run_sem(object)` | `run(object)` |
+| `pool_sem(object)` | `pool(object)` |
+| `fit_model()`, `lav_mice()` | `run()` fits every imputation |
+| `mx_mice()`, OpenMx models | none: use `engine = "lavaan"` |
+| `SemImputedData`, `SemResults`, `PooledSEMResults` | `MDMediationData`, `MDMediationFit`, `MDMediationResult` |
+| `is_fit()`, `is_pd()`, `is_lav_syntax()`, `is_valid_lav_syntax()` | none (deleted without a stub; nothing in the S7 pipeline uses them) |
+| `tidy()` methods for OpenMx models and `logLik` objects | none (deleted) |
+| (new) | `infer(fit, type = "mc")`; `type = "mbco"` for glm models |
 
-## From model syntax to two formulas
+## From a lavaan model to `engine = "lavaan"`
 
-The S4 API took a lavaan model string or an OpenMx model. The S7 API takes the
-mediator model and the outcome model as two formulas, plus the names of the
-treatment and the mediator. An observed-variable lavaan model
-
-```{r, eval = FALSE}
-model <- "
-  M ~ a * X + C
-  Y ~ b * M + cp * X + C
-"
-res_s4 <- pool_sem(run_sem(set_sem(imp, model)))
-```
-
-becomes
+The S4 call took a lavaan model string. The S7 call takes the same string in
+`model`, and names the three roles. `outcome` is required: it must be regressed
+on the mediator in `model`. Extra arguments for `lavaan::sem()` go in
+`fit_args`.
 
 ```{r}
 library(missingmed)
@@ -45,41 +40,53 @@ d <- data.frame(X = rbinom(n, 1, 0.5), C = rnorm(n))
 d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
 d$Y <- 0.3 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
 d$M[sample(n, 40)] <- NA
-imp <- mice::mice(d, m = 5, method = "norm", printFlag = FALSE, seed = 4)
+imp <- mice::mice(d, m = 3, method = "norm", printFlag = FALSE, seed = 4)
 
 md <- set_md_mediation(imp,
-  formula_y = Y ~ X + M + C,
-  formula_m = M ~ X + C,
-  treatment = "X", mediator = "M"
+  model = "M ~ a * X + C\nY ~ b * M + cp * X + C",
+  treatment = "X", mediator = "M", outcome = "Y",
+  engine = "lavaan"
 )
-fit <- run(md)
-res <- pool(fit)
-res
+res <- pool(run(md))
+res@tidy_table[, c("term", "estimate", "std_error", "p_value")]
 ```
 
-The path labels are fixed rather than user-chosen: `a`, `b` and `c_prime` in
-the pooled estimates, plus `theta3` and `b0` for an `X:M` model. The pooled
-table is `res@tidy_table`.
+The p-values are normal-theory z-tests (`df` is `Inf` for a single imputation,
+and Rubin's large-sample df otherwise). Variance and covariance rows (`~~`)
+keep their estimate and standard error, with `NA` for the statistic and
+p-value, because their null (variance = 0) lies on the boundary.
 
-## What the S7 pipeline adds
+A latent mediator uses the same call, with the latent variable as `mediator`:
 
-* `infer()`: a Monte Carlo interval for the indirect effect, or the D4-MBCO
-  test, where the S4 API pooled path coefficients only.
-* `method = "ipw"` for inverse probability weighting.
-* `sensitivity_mnar()` for departures from MAR.
-* Validation of the model before fitting (see the *Supported models* article).
+```{r, eval = FALSE}
+set_md_mediation(imp,
+  model = "Mlat =~ m1 + m2 + m3\nMlat ~ a * X + C\nY ~ b * Mlat + cp * X + C",
+  treatment = "X", mediator = "Mlat", outcome = "Y", engine = "lavaan"
+)
+```
 
-## What has no replacement yet
+## What changed for the formula path
 
-* **Latent mediators and other SEM features.** A lavaan engine for
-  `set_md_mediation()` is planned for 0.6.0.
-* **OpenMx models.** No OpenMx engine is planned for 0.6.0.
+The glm path is unchanged: `formula_y`, `formula_m`, `treatment`, `mediator`
+as before. The path labels `a`, `b` and `c_prime` are fixed in the pooled
+estimates. `res@tidy_table` is the pooled table.
 
-Until then, these models still run through the deprecated S4 functions.
+## What lavaan fits cannot do yet
 
-## Silencing the warning while you migrate
+* **MBCO.** `infer(fit, type = "mbco")` stops for a lavaan fit: the D4 test
+  refits with `glm()`, which is not the SEM. Use `type = "mc"`. MBCO for SEM
+  needs its own design.
+* **IPW** works with `engine = "lavaan"`, with robust (sandwich) standard
+  errors only.
+* **`sensitivity_mnar()`** works for `type = "mc"`. With a latent mediator, name
+  an observed indicator in `target`.
 
-The deprecation warning is an ordinary warning, so a script that must keep the
-S4 call for now can wrap it in `suppressWarnings()`. Note that `pool_sem()`
+## OpenMx
+
+There is no OpenMx engine. Fit the model with lavaan, or fit it yourself and
+pool outside missingmed.
+
+## Pooled p-values since 0.5.1
+
 p-values use Rubin's t reference with Barnard–Rubin df since 0.5.1; results
 from earlier versions can differ.

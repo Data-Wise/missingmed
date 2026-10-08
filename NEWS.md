@@ -1,5 +1,19 @@
 # missingmed (development version)
 
+## Breaking changes
+
+* The S4 API is removed. `set_sem()`, `run_sem()`, `pool_sem()`, `fit_model()`,
+  `lav_mice()` and `mx_mice()` now stop with a message naming their replacement
+  (`.Defunct()` stubs, deleted in 0.7.0): use `set_md_mediation()`, `run()` and
+  `pool()`, with `engine = "lavaan"` for a structural equation model. Removed
+  without a stub, because nothing in the S7 pipeline uses them: the classes
+  `SemImputedData`, `SemResults` and `PooledSEMResults`; the functions
+  `is_fit()`, `is_pd()`, `is_lav_syntax()` and `is_valid_lav_syntax()`; and the
+  `tidy()` methods for OpenMx models and `logLik` objects. There is no OpenMx
+  engine: `OpenMx` is no longer imported, and `dplyr` and `purrr` are no longer
+  imported either. `n_imp()` stays, now a plain function. See *Migrating from
+  the S4 API* on the package website.
+
 ## New features
 
 * `set_md_mediation()` gains `engine = "lavaan"`: give a structural equation

@@ -21,10 +21,10 @@ each imputation with \link[medfit:medfit]{medfit} and delegates \strong{inferenc
 }
 }
 
-\section{Deprecated S4 API}{
+\section{Defunct S4 API}{
 
-\code{\link[=set_sem]{set_sem()}}, \code{\link[=run_sem]{run_sem()}}, and \code{\link[=pool_sem]{pool_sem()}} are superseded by the S7 pipeline
-above. They are replaced by \code{.Defunct()} stubs in 0.6.0.
+\code{\link[=set_sem]{set_sem()}}, \code{\link[=run_sem]{run_sem()}} and \code{\link[=pool_sem]{pool_sem()}} were removed in 0.6.0 and now stop
+with a message naming their replacement; see \link{missingmed-defunct}.
 }
 
 \seealso{
