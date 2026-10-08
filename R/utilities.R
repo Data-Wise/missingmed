@@ -28,8 +28,14 @@ setGeneric("n_imp", function(x) {
 #' @export
 
 setMethod("n_imp", "mids", function(x) {
-  if (!inherits(x, "mids")) {
-    stop("The provided object is not a mids object.")
-  }
   x$m
+})
+
+#' @rdname n_imp
+#' @export
+setMethod("n_imp", "ANY", function(x) {
+  stop("The provided object is not a 'mids' object (it has class '",
+    class(x)[1], "').",
+    call. = FALSE
+  )
 })

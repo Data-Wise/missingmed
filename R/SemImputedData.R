@@ -134,31 +134,25 @@ setGeneric(
 setMethod("run_sem", "SemImputedData", function(object, ...) {
   .Deprecated("run", msg = "run_sem() is deprecated; use run() on an MDMediationData.")
   if (!inherits(object@data, "mids")) {
-    stop("'object@data' must be a 'mids' object from the 'mice' package.")
+    stop("'object@data' must be a 'mids' object from the 'mice' package.",
+      call. = FALSE
+    )
   }
 
-  # Dynamically select the appropriate function based on the SEM method.
-  sem_fn <- switch(tolower(object@method),
-    "lavaan" = lav_mice,
-    "openmx" = mx_mice,
-    stop("Unsupported method specified: ", object@method)
-  )
+  # Select the engine once; lav_mice() and mx_mice() take (model, mids).
+  method <- tolower(object@method)
+  if (identical(method, "lavaan")) {
+    sem_results <- lav_mice(object@model, object@data, ...)
+    vcov_sem <- vcov_lav
+    coef_sem <- lavaan::coef
+  } else if (identical(method, "openmx")) {
+    sem_results <- mx_mice(object@model, object@data, ...)
+    vcov_sem <- vcov
+    coef_sem <- coef
+  } else {
+    stop("Unsupported method specified: ", object@method, call. = FALSE)
+  }
 
-  # Run the SEM model on the imputed datasets
-  sem_results <- sem_fn(object@data, object@model, ...)
-
-  # Extract the results from the imputed datasets
-  vcov_sem <- switch(tolower(object@method),
-    "lavaan" = vcov_lav,
-    "openmx" = vcov,
-    stop("Unsupported method specified: ", object@method)
-  )
-
-  coef_sem <- switch(tolower(object@method),
-    "lavaan" = lavaan::coef,
-    "openmx" = coef,
-    stop("Unsupported method specified: ", object@method)
-  )
   # Extract the tidy results from the estimated SEM models
   estimate_df <- purrr::map_dfr(sem_results, tidy, .id = ".imp") # long tidy table of estimates across imputed datasets
 
@@ -245,18 +239,21 @@ setMethod("set_sem", "mids", function(data, model, conf_int = FALSE, conf_level 
   }
 
   if (!all(model_type(model) %in% c("lavaan_syntax", "lavaan", "MxModel", "OpenMx"))) {
-    stop("The model must be a character string, a lavaan model object, or an OpenMx model object.")
+    stop("The model must be a character string, a lavaan model object, or an OpenMx model object.",
+      call. = FALSE
+    )
   }
 
-  if (!is.logical(conf_int) || length(conf_int) != 1) {
+  if (!is.logical(conf_int) || length(conf_int) != 1 || is.na(conf_int)) {
     stop("'conf_int' must be a single logical value (TRUE or FALSE).",
       call. = FALSE
     )
   }
 
   if (conf_int) {
-    if (!is.numeric(conf_level) ||
-      length(conf_level) != 1 || conf_level < 0 || conf_level > 1) {
+    # Open interval, matching the SemResults validity check run_sem() applies.
+    if (!is.numeric(conf_level) || length(conf_level) != 1 ||
+      is.na(conf_level) || conf_level <= 0 || conf_level >= 1) {
       stop("'conf_level' must be a single numeric value between 0 and 1.",
         call. = FALSE
       )
@@ -280,24 +277,6 @@ setMethod("set_sem", "mids", function(data, model, conf_int = FALSE, conf_level 
   )
 })
 
-### ----------------------------------------------------------------------------
-### Helper internal functions for run_sem method
-### ----------------------------------------------------------------------------
-lav_mice <- function(data, model, ...) {
-  # Extract complete imputed datasets
-  sem_results <-
-    mice::complete(data, action = "all") |> purrr::map(lavaan::sem, model = model, ...)
-  return(sem_results)
-}
-
-mx_mice <- function(data, model, ...) {
-  # Extract complete imputed datasets
-  data_complete <- mice::complete(data, action = "all")
-  # Fit the model to each imputed dataset
-  sem_results <- data_complete |> purrr::map(\(df) {
-    mxDataObj <- OpenMx::mxData(df, type = "raw")
-    updatedModel <- OpenMx::mxModel(model, mxDataObj)
-    OpenMx::mxRun(updatedModel)
-  })
-  return(sem_results)
-}
+# NOTE: run_sem() uses the exported lav_mice(model, mids) and
+# mx_mice(model, mids). Earlier internal helpers with the same names and the
+# reverse argument order were shadowed by them at collation and were removed.

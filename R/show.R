@@ -25,9 +25,14 @@ setMethod("show", "SemImputedData", function(object) {
   cat("Confidence intervals included:", object@conf_int, "\n")
   cat("Confidence level:", object@conf_level, "\n")
   cat("Original data:\n", "Sample Size:", nrow(object@original_data),"\n")
-  print(object@original_data[1:5,])
+  print(object@original_data[seq_len(min(5, nrow(object@original_data))), ])
   cat("Method:", object@method, "\n")
-  cat("Model:", object@model, "\n")
+  if (is.character(object@model)) {
+    cat("Model:", object@model, "\n")
+  } else {
+    # cat() cannot print an S4 model object (e.g., an OpenMx MxModel)
+    cat("Model: an object of class", class(object@model)[1], "\n")
+  }
 })
 
 
