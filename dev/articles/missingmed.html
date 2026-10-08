@@ -243,12 +243,12 @@ reasoning.</p>
 <div class="section level2">
 <h2 id="migrating-from-the-s4-api">Migrating from the S4 API<a class="anchor" aria-label="anchor" href="#migrating-from-the-s4-api"></a>
 </h2>
-<p>The S4 entry points (<code><a href="../reference/set_sem.html">set_sem()</a></code>, <code><a href="../reference/run_sem.html">run_sem()</a></code>,
-<code><a href="../reference/pool_sem.html">pool_sem()</a></code>) are <strong>deprecated</strong> in favor of the
-S7 verbs above. They still work but emit a deprecation warning, and they
-become <code><a href="https://rdrr.io/r/base/Defunct.html" class="external-link">.Defunct()</a></code> stubs in 0.6.0. The <em>Migrating from
-the S4 API</em> article on the package website maps each old call to its
-S7 replacement.</p>
+<p>The S4 entry points (<code><a href="../reference/missingmed-defunct.html">set_sem()</a></code>, <code><a href="../reference/missingmed-defunct.html">run_sem()</a></code>,
+<code><a href="../reference/missingmed-defunct.html">pool_sem()</a></code>) were <strong>removed</strong> in 0.6.0 in favor
+of the S7 verbs above. They remain as <code><a href="https://rdrr.io/r/base/Defunct.html" class="external-link">.Defunct()</a></code> stubs,
+each naming its replacement, until 0.7.0. The <em>Migrating from the S4
+API</em> article on the package website maps each old call to its S7
+replacement.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

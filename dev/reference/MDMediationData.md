@@ -10,9 +10,7 @@ entry point of the missingmed S7 pipeline
 [`pool()`](https://data-wise.github.io/missingmed/dev/reference/pool.md)
 -\>
 [`infer()`](https://data-wise.github.io/missingmed/dev/reference/infer.md))
-and the S7 successor of the S4
-[SemImputedData](https://data-wise.github.io/missingmed/dev/reference/SemImputedData.md)
-class.
+and the S7 successor of the removed S4 `SemImputedData` class.
 
 ## Usage
 
@@ -157,5 +155,4 @@ formulas/engine select the model.
 ## See also
 
 [`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md),
-[`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html),
-[SemImputedData](https://data-wise.github.io/missingmed/dev/reference/SemImputedData.md)
+[`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html)

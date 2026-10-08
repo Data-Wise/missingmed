@@ -140,9 +140,7 @@ moderated models such as `Y ~ X + M * W`. See
 
 ## Latent mediators
 
-Structural equation models are not in the S7 pipeline yet. The
-deprecated S4 API
-([`set_sem()`](https://data-wise.github.io/missingmed/dev/reference/set_sem.md))
-still fits lavaan and OpenMx models; a lavaan engine for
-[`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md)
-is planned for 0.6.0. See the *Migrating from the S4 API* article.
+Structural equation models, including a latent mediator, run through
+`set_md_mediation(engine = "lavaan")`: give the lavaan syntax in `model`
+and name the `outcome`. See the *Migrating from the S4 API* article for
+the call and for what lavaan fits cannot do yet (MBCO).

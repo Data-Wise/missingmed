@@ -1,17 +1,11 @@
-# Get Number of Imputations from a mids Object
+# Get the number of imputations from a mids object
 
-This function returns the number of imputations stored in a `mids`
-object created by the `mice` package.
+Returns the number of imputations `m` stored in a
+[mice::mids](https://amices.org/mice/reference/mids.html) object.
 
 ## Usage
 
 ``` r
-n_imp(x)
-
-# S4 method for class 'mids'
-n_imp(x)
-
-# S4 method for class 'ANY'
 n_imp(x)
 ```
 
@@ -19,17 +13,16 @@ n_imp(x)
 
 - x:
 
-  A `mids` object representing multiple imputed datasets.
+  A [mice::mids](https://amices.org/mice/reference/mids.html) object.
 
 ## Value
 
-An integer representing the number of imputations.
+An integer: the number of imputations.
 
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Assuming `imputed_data` is a mids object created by the mice package
-n_imp(imputed_data)
-} # }
+imp <- mice::mice(mice::nhanes, m = 3, printFlag = FALSE, seed = 1)
+n_imp(imp)
+#> [1] 3
 ```

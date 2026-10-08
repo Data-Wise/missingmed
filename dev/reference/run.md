@@ -47,7 +47,7 @@ of 0 or 1) are collected and raised once, naming the imputations that
 produced them.
 
 It is the S7 successor of the S4
-[`run_sem()`](https://data-wise.github.io/missingmed/dev/reference/run_sem.md)
+[`run_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
 method.
 
 ## See also
@@ -55,7 +55,7 @@ method.
 [`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md),
 [`pool()`](https://data-wise.github.io/missingmed/dev/reference/pool.md),
 [`infer()`](https://data-wise.github.io/missingmed/dev/reference/infer.md),
-[`run_sem()`](https://data-wise.github.io/missingmed/dev/reference/run_sem.md)
+[`run_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
 
 ## Examples
 

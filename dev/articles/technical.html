@@ -147,21 +147,24 @@ R/mbco_mi.R<br>MbcoMIResult”] –&gt;</p>
 <td><code>MDMediationData</code></td>
 <td>data (<code>mids</code> or <code>data.frame</code>) + mediation spec
 + estimator/mechanism axes</td>
-<td><code>SemImputedData</code></td>
+<td>former <code>SemImputedData</code>
+</td>
 </tr>
 <tr class="even">
 <td><code>MDMediationFit</code></td>
 <td>
 <strong>list</strong> of per-imputation named
 <code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code> (+ IPW <code>weights</code>)</td>
-<td><code>SemResults</code></td>
+<td>former <code>SemResults</code>
+</td>
 </tr>
 <tr class="odd">
 <td><code>MDMediationResult</code></td>
 <td>
 <strong>pooled</strong> named <code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code> +
 within/between/total vcov</td>
-<td><code>PooledSEMResults</code></td>
+<td>former <code>PooledSEMResults</code>
+</td>
 </tr>
 <tr class="even">
 <td><code>MbcoMIResult</code></td>
@@ -467,7 +470,7 @@ and
 <code>@vcov =</code><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
 — so all medfit metadata (roles, predictors, families) is inherited and
 the aliases stay name-addressable for
-<code><a href="https://data-wise.github.io/rmediation/reference/ci_mediation_data.html" class="external-link">ci_mediation_data()</a></code>.</p>
+<code>ci_mediation_data()</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md_mi</span><span class="op">)</span>            <span class="co"># m named MediationData</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>             <span class="co"># pooled named MediationData + within/between/total vcov</span></span>

@@ -51,9 +51,9 @@ MbcoMIResult”\] –\>
 
 | S7 class | Carries | S4 ancestor |
 |----|----|----|
-| `MDMediationData` | data (`mids` or `data.frame`) + mediation spec + estimator/mechanism axes | `SemImputedData` |
-| `MDMediationFit` | **list** of per-imputation named [`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html) (+ IPW `weights`) | `SemResults` |
-| `MDMediationResult` | **pooled** named [`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html) + within/between/total vcov | `PooledSEMResults` |
+| `MDMediationData` | data (`mids` or `data.frame`) + mediation spec + estimator/mechanism axes | former `SemImputedData` |
+| `MDMediationFit` | **list** of per-imputation named [`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html) (+ IPW `weights`) | former `SemResults` |
+| `MDMediationResult` | **pooled** named [`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html) + within/between/total vcov | former `PooledSEMResults` |
 | `MbcoMIResult` | D4-stacked MBCO test: numeric `c(D4, p, r4, nu, d_S)` (parent `class_double`) + `ariv`, `k`, `m` and branch diagnostics | — |
 | `MDSensitivityResult` | MNAR sensitivity curve: one inference result per `delta` rung + realized `msp` | — |
 
@@ -248,8 +248,7 @@ The pooled `MediationData` is built by **copy-modifying** a
 per-imputation one (S7 is copy-on-write), replacing only
 `@estimates =`$`\bar Q`$ and `@vcov =`$`T`$ — so all medfit metadata
 (roles, predictors, families) is inherited and the aliases stay
-name-addressable for
-[`ci_mediation_data()`](https://data-wise.github.io/rmediation/reference/ci_mediation_data.html).
+name-addressable for `ci_mediation_data()`.
 
 ``` r
 

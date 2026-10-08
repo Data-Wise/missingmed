@@ -8,9 +8,8 @@ input to
 [`RMediation::ci_mediation_data()`](https://data-wise.github.io/rmediation/reference/ci_mediation_data.html)
 /
 [`RMediation::medci()`](https://data-wise.github.io/rmediation/reference/medci.html)
-(path coefficients resolve by name). It is the S7 successor of the S4
-[PooledSEMResults](https://data-wise.github.io/missingmed/dev/reference/PooledSEMResults-class.md)
-class.
+(path coefficients resolve by name). It is the S7 successor of the
+removed S4 `PooledSEMResults` class.
 
 ## Usage
 
@@ -84,5 +83,4 @@ An `MDMediationResult` S7 object.
 ## See also
 
 [`pool()`](https://data-wise.github.io/missingmed/dev/reference/pool.md),
-[`infer()`](https://data-wise.github.io/missingmed/dev/reference/infer.md),
-[PooledSEMResults](https://data-wise.github.io/missingmed/dev/reference/PooledSEMResults-class.md)
+[`infer()`](https://data-wise.github.io/missingmed/dev/reference/infer.md)

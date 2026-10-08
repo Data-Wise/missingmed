@@ -68,47 +68,51 @@
 
     
     
-<p>The S4 functions <code><a href="../reference/set_sem.html">set_sem()</a></code>, <code><a href="../reference/run_sem.html">run_sem()</a></code> and
-<code><a href="../reference/pool_sem.html">pool_sem()</a></code> and their classes are deprecated. They still
-run, with a deprecation warning, and they are planned to become
-<code><a href="https://rdrr.io/r/base/Defunct.html" class="external-link">.Defunct()</a></code> stubs in 0.6.0, each naming its replacement.
-This article maps the old calls to the S7 pipeline.</p>
+<p>The S4 API was removed in missingmed 0.6.0. <code><a href="../reference/missingmed-defunct.html">set_sem()</a></code>,
+<code><a href="../reference/missingmed-defunct.html">run_sem()</a></code>, <code><a href="../reference/missingmed-defunct.html">pool_sem()</a></code>,
+<code><a href="../reference/missingmed-defunct.html">fit_model()</a></code>, <code><a href="../reference/missingmed-defunct.html">lav_mice()</a></code> and
+<code><a href="../reference/missingmed-defunct.html">mx_mice()</a></code> remain as stubs that stop with a message naming
+their replacement; the stubs are deleted in 0.7.0. This article maps the
+old calls to the S7 pipeline.</p>
 <div class="section level2">
 <h2 id="the-mapping">The mapping<a class="anchor" aria-label="anchor" href="#the-mapping"></a>
 </h2>
 <table class="table">
 <colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
+<col width="50%">
+<col width="50%">
 </colgroup>
 <thead><tr class="header">
-<th>S4 (deprecated)</th>
-<th>S7</th>
-<th>Returns</th>
+<th>Removed</th>
+<th>Replacement</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td><code>set_sem(data, model)</code></td>
-<td><code>set_md_mediation(data, formula_y, formula_m, treatment, mediator)</code></td>
-<td><code>MDMediationData</code></td>
+<td><code>set_md_mediation(data, model = , treatment = , mediator = , outcome = , engine = "lavaan")</code></td>
 </tr>
 <tr class="even">
 <td><code>run_sem(object)</code></td>
 <td><code>run(object)</code></td>
-<td><code>MDMediationFit</code></td>
 </tr>
 <tr class="odd">
 <td><code>pool_sem(object)</code></td>
 <td><code>pool(object)</code></td>
-<td><code>MDMediationResult</code></td>
 </tr>
 <tr class="even">
-<td>(none)</td>
-<td><code>infer(fit, type = "mc" or "mbco")</code></td>
-<td>interval or test for the indirect effect</td>
+<td>
+<code><a href="../reference/missingmed-defunct.html">fit_model()</a></code>, <code><a href="../reference/missingmed-defunct.html">lav_mice()</a></code>
+</td>
+<td>
+<code><a href="../reference/run.html">run()</a></code> fits every imputation</td>
 </tr>
 <tr class="odd">
+<td>
+<code><a href="../reference/missingmed-defunct.html">mx_mice()</a></code>, OpenMx models</td>
+<td>none: use <code>engine = "lavaan"</code>
+</td>
+</tr>
+<tr class="even">
 <td>
 <code>SemImputedData</code>, <code>SemResults</code>,
 <code>PooledSEMResults</code>
@@ -117,26 +121,39 @@ This article maps the old calls to the S7 pipeline.</p>
 <code>MDMediationData</code>, <code>MDMediationFit</code>,
 <code>MDMediationResult</code>
 </td>
-<td></td>
+</tr>
+<tr class="odd">
+<td>
+<code>is_fit()</code>, <code>is_pd()</code>,
+<code>is_lav_syntax()</code>, <code>is_valid_lav_syntax()</code>
+</td>
+<td>none (deleted without a stub; nothing in the S7 pipeline uses
+them)</td>
+</tr>
+<tr class="even">
+<td>
+<code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code> methods for OpenMx models and
+<code>logLik</code> objects</td>
+<td>none (deleted)</td>
+</tr>
+<tr class="odd">
+<td>(new)</td>
+<td>
+<code>infer(fit, type = "mc")</code>; <code>type = "mbco"</code> for
+glm models</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section level2">
-<h2 id="from-model-syntax-to-two-formulas">From model syntax to two formulas<a class="anchor" aria-label="anchor" href="#from-model-syntax-to-two-formulas"></a>
+<h2 id="from-a-lavaan-model-to-engine-lavaan">From a lavaan model to <code>engine = "lavaan"</code><a class="anchor" aria-label="anchor" href="#from-a-lavaan-model-to-engine-lavaan"></a>
 </h2>
-<p>The S4 API took a lavaan model string or an OpenMx model. The S7 API
-takes the mediator model and the outcome model as two formulas, plus the
-names of the treatment and the mediator. An observed-variable lavaan
-model</p>
+<p>The S4 call took a lavaan model string. The S7 call takes the same
+string in <code>model</code>, and names the three roles.
+<code>outcome</code> is required: it must be regressed on the mediator
+in <code>model</code>. Extra arguments for <code><a href="https://rdrr.io/pkg/lavaan/man/sem.html" class="external-link">lavaan::sem()</a></code> go
+in <code>fit_args</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
-<span><span class="st">  M ~ a * X + C</span></span>
-<span><span class="st">  Y ~ b * M + cp * X + C</span></span>
-<span><span class="st">"</span></span>
-<span><span class="va">res_s4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pool_sem.html">pool_sem</a></span><span class="op">(</span><span class="fu"><a href="../reference/run_sem.html">run_sem</a></span><span class="op">(</span><span class="fu"><a href="../reference/set_sem.html">set_sem</a></span><span class="op">(</span><span class="va">imp</span>, <span class="va">model</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>becomes</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Data-Wise/missingmed" class="external-link">missingmed</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">300</span></span>
@@ -144,66 +161,75 @@ model</p>
 <span><span class="va">d</span><span class="op">$</span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">X</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">C</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
 <span><span class="va">d</span><span class="op">$</span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">M</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">X</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">C</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
 <span><span class="va">d</span><span class="op">$</span><span class="va">M</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">40</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
-<span><span class="va">imp</span> <span class="op">&lt;-</span> <span class="fu">mice</span><span class="fu">::</span><span class="fu"><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice</a></span><span class="op">(</span><span class="va">d</span>, m <span class="op">=</span> <span class="fl">5</span>, method <span class="op">=</span> <span class="st">"norm"</span>, printFlag <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="va">imp</span> <span class="op">&lt;-</span> <span class="fu">mice</span><span class="fu">::</span><span class="fu"><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice</a></span><span class="op">(</span><span class="va">d</span>, m <span class="op">=</span> <span class="fl">3</span>, method <span class="op">=</span> <span class="st">"norm"</span>, printFlag <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">md</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">imp</span>,</span>
-<span>  formula_y <span class="op">=</span> <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>,</span>
-<span>  formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
-<span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span></span>
+<span>  model <span class="op">=</span> <span class="st">"M ~ a * X + C\nY ~ b * M + cp * X + C"</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, outcome <span class="op">=</span> <span class="st">"Y"</span>,</span>
+<span>  engine <span class="op">=</span> <span class="st">"lavaan"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span></span>
-<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="va">res</span></span>
-<span><span class="co">#&gt; &lt;MDMediationResult&gt; (pooled, Rubin's rules; m = 5 )</span></span>
-<span><span class="co">#&gt;     term   estimate  std_error</span></span>
-<span><span class="co">#&gt;        a  0.5272309 0.11583499</span></span>
-<span><span class="co">#&gt;        b  0.3428317 0.06713217</span></span>
-<span><span class="co">#&gt;  c_prime -0.0723091 0.11888413</span></span>
-<span><span class="co">#&gt;   indirect effect a*b = 0.1808 </span></span>
-<span><span class="co">#&gt;   -&gt; infer(type = "mc") for the indirect-effect CI</span></span></code></pre></div>
-<p>The path labels are fixed rather than user-chosen: <code>a</code>,
-<code>b</code> and <code>c_prime</code> in the pooled estimates, plus
-<code>theta3</code> and <code>b0</code> for an <code>X:M</code> model.
-The pooled table is <code>res@tidy_table</code>.</p>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">res</span><span class="op">@</span><span class="va">tidy_table</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"term"</span>, <span class="st">"estimate"</span>, <span class="st">"std_error"</span>, <span class="st">"p_value"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;      term    estimate  std_error      p_value</span></span>
+<span><span class="co">#&gt; 1       a  0.51046797 0.11055116 4.309150e-06</span></span>
+<span><span class="co">#&gt; 2     M~C  0.32105479 0.05509479 6.091279e-09</span></span>
+<span><span class="co">#&gt; 3       b  0.34247210 0.06019713 1.367182e-08</span></span>
+<span><span class="co">#&gt; 4      cp -0.06635193 0.11626102 5.681995e-01</span></span>
+<span><span class="co">#&gt; 5     Y~C  0.30234904 0.05931627 3.446507e-07</span></span>
+<span><span class="co">#&gt; 6    M~~M  0.87871811 0.07462166           NA</span></span>
+<span><span class="co">#&gt; 7    Y~~Y  0.93374164 0.07634275           NA</span></span>
+<span><span class="co">#&gt; 8 c_prime -0.06635193 0.11626102 5.681995e-01</span></span></code></pre></div>
+<p>The p-values are normal-theory z-tests (<code>df</code> is
+<code>Inf</code> for a single imputation, and Rubin’s large-sample df
+otherwise). Variance and covariance rows (<code>~~</code>) keep their
+estimate and standard error, with <code>NA</code> for the statistic and
+p-value, because their null (variance = 0) lies on the boundary.</p>
+<p>A latent mediator uses the same call, with the latent variable as
+<code>mediator</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">imp</span>,</span>
+<span>  model <span class="op">=</span> <span class="st">"Mlat =~ m1 + m2 + m3\nMlat ~ a * X + C\nY ~ b * Mlat + cp * X + C"</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"Mlat"</span>, outcome <span class="op">=</span> <span class="st">"Y"</span>, engine <span class="op">=</span> <span class="st">"lavaan"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="what-the-s7-pipeline-adds">What the S7 pipeline adds<a class="anchor" aria-label="anchor" href="#what-the-s7-pipeline-adds"></a>
+<h2 id="what-changed-for-the-formula-path">What changed for the formula path<a class="anchor" aria-label="anchor" href="#what-changed-for-the-formula-path"></a>
+</h2>
+<p>The glm path is unchanged: <code>formula_y</code>,
+<code>formula_m</code>, <code>treatment</code>, <code>mediator</code> as
+before. The path labels <code>a</code>, <code>b</code> and
+<code>c_prime</code> are fixed in the pooled estimates.
+<code>res@tidy_table</code> is the pooled table.</p>
+</div>
+<div class="section level2">
+<h2 id="what-lavaan-fits-cannot-do-yet">What lavaan fits cannot do yet<a class="anchor" aria-label="anchor" href="#what-lavaan-fits-cannot-do-yet"></a>
 </h2>
 <ul>
 <li>
-<code><a href="../reference/infer.html">infer()</a></code>: a Monte Carlo interval for the indirect
-effect, or the D4-MBCO test, where the S4 API pooled path coefficients
-only.</li>
+<strong>MBCO.</strong> <code>infer(fit, type = "mbco")</code> stops
+for a lavaan fit: the D4 test refits with <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code>, which is
+not the SEM. Use <code>type = "mc"</code>. MBCO for SEM needs its own
+design.</li>
 <li>
-<code>method = "ipw"</code> for inverse probability weighting.</li>
+<strong>IPW</strong> works with <code>engine = "lavaan"</code>, with
+robust (sandwich) standard errors only.</li>
 <li>
-<code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> for departures from MAR.</li>
-<li>Validation of the model before fitting (see the <em>Supported
-models</em> article).</li>
+<strong><code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code></strong> works for
+<code>type = "mc"</code>. With a latent mediator, name an observed
+indicator in <code>target</code>.</li>
 </ul>
 </div>
 <div class="section level2">
-<h2 id="what-has-no-replacement-yet">What has no replacement yet<a class="anchor" aria-label="anchor" href="#what-has-no-replacement-yet"></a>
+<h2 id="openmx">OpenMx<a class="anchor" aria-label="anchor" href="#openmx"></a>
 </h2>
-<ul>
-<li>
-<strong>Latent mediators and other SEM features.</strong> A lavaan
-engine for <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> is planned for 0.6.0.</li>
-<li>
-<strong>OpenMx models.</strong> No OpenMx engine is planned for
-0.6.0.</li>
-</ul>
-<p>Until then, these models still run through the deprecated S4
-functions.</p>
+<p>There is no OpenMx engine. Fit the model with lavaan, or fit it
+yourself and pool outside missingmed.</p>
 </div>
 <div class="section level2">
-<h2 id="silencing-the-warning-while-you-migrate">Silencing the warning while you migrate<a class="anchor" aria-label="anchor" href="#silencing-the-warning-while-you-migrate"></a>
+<h2 id="pooled-p-values-since-0-5-1">Pooled p-values since 0.5.1<a class="anchor" aria-label="anchor" href="#pooled-p-values-since-0-5-1"></a>
 </h2>
-<p>The deprecation warning is an ordinary warning, so a script that must
-keep the S4 call for now can wrap it in <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings()</a></code>.
-Note that <code><a href="../reference/pool_sem.html">pool_sem()</a></code> p-values use Rubin’s t reference with
-Barnard–Rubin df since 0.5.1; results from earlier versions can
-differ.</p>
+<p>p-values use Rubin’s t reference with Barnard–Rubin df since 0.5.1;
+results from earlier versions can differ.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
