@@ -100,6 +100,10 @@
 #' # IPW (raw data.frame)
 #' md_ipw <- set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
 #'   treatment = "X", mediator = "M", method = "ipw")
+#' # A structural equation model: lavaan syntax in `model`, and the `outcome`
+#' md_sem <- set_md_mediation(imp,
+#'   model = "M ~ a * X + C\nY ~ b * M + cp * X + C",
+#'   treatment = "X", mediator = "M", outcome = "Y", engine = "lavaan")
 #' @export
 set_md_mediation <- function(data, formula_y, formula_m,
                              treatment, mediator,

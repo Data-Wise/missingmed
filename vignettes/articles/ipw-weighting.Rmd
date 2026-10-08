@@ -1,0 +1,135 @@
+---
+title: "Inverse probability weighting, step by step"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+Multiple imputation fills in the missing values. Inverse probability weighting
+(IPW) does something different: it keeps only the **complete cases** and weights
+each one by the inverse of its estimated probability of being observed, so the
+complete cases stand in for everyone. missingmed runs both through the same
+`set_md_mediation() -> run() -> pool() -> infer()` pipeline, selected by
+`method`.
+
+## Data with a missing mediator
+
+Missingness in `M` depends on the covariate `C` (missing at random).
+
+```{r data}
+library(missingmed)
+set.seed(1)
+n <- 400
+d <- data.frame(X = rbinom(n, 1, 0.5), C = rnorm(n))
+d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
+d$Y <- 0.3 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+d$M[runif(n) < plogis(-1 + 0.8 * d$C)] <- NA
+mean(is.na(d$M))
+```
+
+## Fit
+
+For IPW, `data` is the raw data frame (not a `mids` object), and `method = "ipw"`.
+
+```{r fit}
+md <- set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M", method = "ipw"
+)
+fit <- run(md)
+res <- pool(fit)
+res
+```
+
+There is one fit (`m = 1`), so the pooled table is that fit's table, with robust
+standard errors.
+
+```{r infer}
+set.seed(2)
+infer(fit, type = "mc", n.mc = 20000)
+```
+
+## Look at the weights
+
+`fit@weights` has one entry per row of the data: the weight for a complete case,
+`NA` for an incomplete one.
+
+```{r weights}
+w <- fit@weights
+c(complete = sum(!is.na(w)), incomplete = sum(is.na(w)))
+summary(w)
+```
+
+A few very large weights dominate the fit. If the maximum is many times the
+median, the missingness model has probabilities close to zero for some cases and
+the estimate rests on them. Two remedies, both arguments of `set_md_mediation()`:
+`weight_trim` caps the weights, and a simpler `weight_formula` avoids extreme
+probabilities.
+
+## Choosing the missingness model
+
+By default the missingness model uses every observed predictor. `weight_formula`
+overrides it: a single formula, or a named list with one formula per incomplete
+variable.
+
+```{r wf}
+md2 <- set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M", method = "ipw",
+  weight_formula = list(M = ~ X + C)
+)
+summary(run(md2)@weights)
+```
+
+## Stabilizing and trimming
+
+`weight_stabilize = TRUE` (the default) multiplies by the marginal probability of
+being observed, which leaves the estimate's target unchanged and shrinks the
+weights' spread. `weight_trim` is an upper quantile: `0.95` caps the largest 5% of
+weights at the 95th percentile. `1` (default) means no trimming.
+
+```{r trim}
+md3 <- set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M", method = "ipw", weight_trim = 0.95
+)
+rbind(
+  untrimmed = summary(run(md)@weights)[c("Min.", "Median", "Max.")],
+  trimmed   = summary(run(md3)@weights)[c("Min.", "Median", "Max.")]
+)
+```
+
+Trimming trades a little bias for less variance. Report whether you trimmed.
+
+## Standard errors
+
+`se_type = "sandwich"` (default) uses a heteroskedasticity-robust (HC) variance;
+`"model"` uses the usual model-based one, which is wrong for weighted fits and is
+there for comparison only. The weights are treated as **known**: the uncertainty
+from estimating them is not propagated.
+
+## IPW or imputation?
+
+Compare them on the same data.
+
+```{r compare}
+imp <- mice::mice(d, m = 10, method = "norm", printFlag = FALSE, seed = 3)
+mi <- pool(run(set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M"
+)))
+ipw <- res
+cmp <- function(r) setNames(r@tidy_table$estimate, r@tidy_table$term)[c("a", "b", "c_prime")]
+round(rbind(MI = cmp(mi), IPW = cmp(ipw)), 3)
+```
+
+Both rely on the missing-at-random assumption. Imputation uses every row and
+usually has smaller standard errors; IPW is simpler to describe and does not need
+an imputation model for the mediator, but depends on the missingness model and
+discards incomplete rows. When they disagree by more than their standard errors,
+suspect a misspecified model on one side.
+
+## Limits
+
+* `sensitivity_mnar()` is not available for `method = "ipw"`: delta adjustment
+  shifts imputed values, and IPW has none.
+* `infer(type = "mbco")` is not implemented for IPW. Use `type = "mc"`.
+* `engine = "lavaan"` works with IPW, with robust standard errors only; see the
+  *Structural equation models* article.

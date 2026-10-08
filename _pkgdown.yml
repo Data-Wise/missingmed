@@ -16,7 +16,7 @@ template:
 
 navbar:
   structure:
-    left: [intro, reference, articles]
+    left: [intro, reference, articles, news]
     right: [search, github]
 
 articles:
@@ -26,6 +26,14 @@ articles:
   - missingmed
   - worked-analysis
   - mbco-mi
+- title: Tutorials
+  desc: Task-oriented walk-throughs, each run when the site builds.
+  contents:
+  - articles/choosing-an-analysis
+  - articles/reading-results
+  - articles/ipw-weighting
+  - articles/sensitivity-mnar
+  - articles/lavaan-sem
 - title: Guides
   contents:
   - articles/supported-models
