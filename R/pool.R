@@ -139,23 +139,36 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
 }
 
 # Four-way decomposition (VanderWeele 2014) for a pooled X:M fit, in the form
-# medfit's InteractionMediationData validator checks. Every component that is a
-# function of the path coefficients is recomputed from the pooled a, b, c_prime
-# and theta3, so the identities (pie = a b, int_med = theta3 a, ...) hold
-# exactly. int_ref = theta3 (m_ref - m_star) also needs m_ref, the mediator's
-# expected value at the reference treatment level with covariates at their
-# means; that depends on each completed dataset, so int_ref is the average of
-# the per-imputation values. It enters only through nde, which the validator
-# defines as cde + int_ref.
+# medfit's InteractionMediationData validator checks. Every component is
+# recomputed from one pooled reference profile, so the identities (pie = a b,
+# int_med = theta3 a, nde = cde + int_ref, ...) hold exactly and no component
+# mixes quantities from different imputations:
+#
+# * the path coefficients a, b, c_prime and theta3 are the Rubin estimates;
+# * m_star, the mediator level at which the CDE is evaluated, must be the same
+#   in every imputation (it is a fixed choice, medfit's default 0);
+# * m_ref = b0 + sum_k beta_k * mean(C_k), the mediator's expected value at
+#   the reference treatment level with covariates at their means, depends on
+#   each completed dataset when a covariate is imputed. It is pooled as the
+#   mean of the per-imputation values (read back from medfit's own int_ref;
+#   see .interaction_m_ref()), and int_ref = theta3 (m_ref - m_star) uses the
+#   pooled theta3.
 .pool_interaction_effects <- function(object, Qbar) {
   fits <- object@per_imputation
   a <- unname(Qbar[["a"]])
   b <- unname(Qbar[["b"]])
   c_prime <- unname(Qbar[["c_prime"]])
   theta3 <- unname(Qbar[["theta3"]])
-  m_star <- fits[[1]]@m_star
+  m_stars <- vapply(fits, function(x) x@m_star, numeric(1))
+  if (any(abs(m_stars - m_stars[[1]]) > 1e-12)) {
+    stop("The imputations were fitted at different mediator reference levels ",
+      "(m_star: ", paste(unique(signif(m_stars, 6)), collapse = ", "), "), so ",
+      "their interaction decompositions cannot be pooled.", call. = FALSE)
+  }
+  m_star <- m_stars[[1]]
+  m_ref <- mean(vapply(fits, .interaction_m_ref, numeric(1)))
   cde <- c_prime + theta3 * m_star
-  int_ref <- mean(vapply(fits, function(x) x@int_ref, numeric(1)))
+  int_ref <- theta3 * (m_ref - m_star)
   int_med <- theta3 * a
   pie <- a * b
   list(
@@ -163,6 +176,32 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
     pie = pie, nde = cde + int_ref, nie = int_med + pie,
     total_effect = cde + int_ref + int_med + pie
   )
+}
+
+# m_ref for one per-imputation InteractionMediationData: the mediator's
+# expected value at the reference treatment level with covariates at their
+# means. medfit defines int_ref = theta3 (m_ref - m_star), so m_ref is read
+# back from medfit's own int_ref, which works whatever medfit version computed
+# it. Only an exactly zero theta3 hides m_ref; then it is rebuilt from the
+# m_-prefixed estimates and the covariate means medfit (>= 0.4.0) stores on
+# @data, and int_ref is 0 in that imputation either way.
+.interaction_m_ref <- function(fit) {
+  if (fit@interaction != 0) {
+    return(fit@m_star + fit@int_ref / fit@interaction)
+  }
+  est <- fit@estimates
+  m_terms <- sub("^m_", "", grep("^m_", names(est), value = TRUE))
+  covs <- setdiff(m_terms, c("(Intercept)", fit@treatment))
+  cbar <- attr(fit@data, "medfit_covariate_means")
+  if (length(covs) > 0L && !all(covs %in% names(cbar))) {
+    stop("Cannot pool the interaction decomposition: an imputation has an ",
+      "interaction estimate of exactly 0, and its fit does not carry the ",
+      "covariate means needed to recover the mediator's reference value. ",
+      "Update medfit (>= 0.4.0).", call. = FALSE)
+  }
+  m_ref <- est[["b0"]]
+  for (v in covs) m_ref <- m_ref + est[[paste0("m_", v)]] * cbar[[v]]
+  unname(m_ref)
 }
 
 # Per-term Rubin inference for the pooled tidy table: statistic, df, riv, fmi,
