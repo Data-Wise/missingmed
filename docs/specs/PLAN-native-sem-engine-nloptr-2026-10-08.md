@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-08 |
-| **Status** | GRILLED 2026-10-08 (J1-J6, [GRILL-native-sem-engine-nloptr-2026-10-08.md](GRILL-native-sem-engine-nloptr-2026-10-08.md)); amended to match. Not yet approved for building; open questions 1, 4 and 6 of the ledger gate the start. No package code written. |
+| **Status** | GRILLED 2026-10-08 (J1-J12, [GRILL-native-sem-engine-nloptr-2026-10-08.md](GRILL-native-sem-engine-nloptr-2026-10-08.md)); amended to match. The blocking questions are resolved; not yet approved for building. No package code written. |
 | **Builds on** | [FEASIBILITY-sem-engine-options-2026-10-08.md](FEASIBILITY-sem-engine-options-2026-10-08.md). Option 2 there was "no-go now"; the author asked for a plan anyway, to be independent of lavaan and OpenMx. |
 | **Evidence labels** | **[V]** verified by a command this session; **[A]** assumed or recalled; **[?]** unknown. |
 
@@ -17,6 +17,12 @@
 | J4 | This repo holds the spec and handoff; a medfit session builds. No cross-repo writes from this session. |
 | J5 | missingmed relicenses to **GPL (>= 3)**. |
 | J6 | nloptr is the primary optimizer (SLSQP default, L-BFGS unconstrained). nlminb is not a fallback. |
+| J7 | OpenMx is the parity oracle (not lavaan). |
+| J8 | missingmed keeps both `engine = "lavaan"` and the new `"native"`. |
+| J9 | SEs: `information` option, observed (default) and expected. |
+| J10 | RMediation's MBCO migration off OpenMx is a separate follow-up spec after the v0 gate. |
+| J11 | Carried by medfit 0.6.0, GitHub/r-universe first. |
+| J12 | missingmed's copyright is the author's alone (confirmed), so the GPL (>= 3) relicense needs only the author's decision. |
 
 Where the sections below conflict with this table, the table wins.
 
@@ -124,4 +130,4 @@ Two conventions the gate must fix, both found by the spike:
 
 **Conditional go, staged, in medfit.** A medfit session builds N0-N5 (v0) as `engine = "native"` with lavaan and OpenMx as test-only oracles, then stops at the J2 gate. The spike shows the math and the optimizer work; what remains is engineering and parity testing across more model shapes. Do not remove the lavaan engine until parity holds on those models.
 
-First action: the author answers ledger open questions 1, 4 and 6; then a medfit session starts from this plan, the ledger and `dev/spike-ram-nloptr.R`.
+First action: the author opens a medfit session, which starts from this plan, the ledger and the two spike scripts (`dev/spike-ram-nloptr.R`, `dev/spike-ram-nloptr-vs-openmx.R`).

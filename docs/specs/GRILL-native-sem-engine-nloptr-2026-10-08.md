@@ -5,7 +5,7 @@
 | **Date** | 2026-10-08 |
 | **Target** | [PLAN-native-sem-engine-nloptr-2026-10-08.md](PLAN-native-sem-engine-nloptr-2026-10-08.md) |
 | **Sweep** | Read-only survey of the mediationverse repos (`~/projects/r-packages/active/*`, outside this repo; nothing written there) |
-| **Status** | 5 branches resolved (J1-J5); open items at the end. The PLAN is **not yet amended** to match these decisions. |
+| **Status** | 12 branches resolved (J1-J12); remaining open items at the end. The PLAN is amended to match. |
 
 ## Evidence from the mediationverse sweep [V]
 
@@ -25,18 +25,20 @@
 | J4 | How does the work reach medfit? | **Spec here, a medfit session builds** | No cross-repo writes from this session; the handoff brief is a deliverable of this repo; avoids collision with the Ext D work. |
 | J5 | missingmed license | **GPL (>= 3)** | Aligns with the verse and with nloptr's LGPL (>= 3). Needs every copyright holder's consent (see open items) and a NEWS entry. |
 | J6 | Optimizer (stated by the author, 17:24: "use nloptr first and foremost") | **nloptr is the primary optimizer** for all fits; `NLOPT_LD_SLSQP` default, `NLOPT_LD_LBFGS` for unconstrained | Spike [V]: nlminb was fastest (0.64 s vs 1.5-1.9 s per 100 fits), so the cost is milliseconds per fit. Exclude `LD_MMA` (about 10x slower), `LN_BOBYQA` (82% match at n = 50) and `LN_NEWUOA_BOUND` (76 s on one fit). nlminb is not a fallback unless the author asks. |
-
 | J7 | Parity oracle (author, 17:26: "use openmx for parity not lavaan") | **OpenMx** is the parity oracle; lavaan is not a gate (optional second oracle) | Spike [V] (`dev/spike-ram-nloptr-vs-openmx.R`): estimates match OpenMx to 6 digits on the observed model, 2.3e-6 on the latent one. Pass OpenMx the n/(n - 1) covariance; SEs differ by 2.4e-3 on the latent model (native uses expected, OpenMx observed information **[A]**), so the engine needs an observed-information SE option for a like-for-like gate. CRAN's OpenMx has no NPSOL (`imxHasNPSOL()` FALSE) and defaults to SLSQP, the NLopt algorithm nloptr offers. OpenMx (Apache-2.0) is test-only: no license issue, heavy test dependency. |
+| J8 | Fate of missingmed's `engine = "lavaan"` | **Keep both** engines | lavaan stays in Imports and supported; two SEM paths to test and document; no breaking change for 0.6.0 users. |
+| J9 | Default SE information type | **Both; default observed** (`information` option: observed, expected) | Gate compares observed against OpenMx; expected stays available to match lavaan; two SE paths to test. Whether OpenMx's SEs are observed-information is still **[A]**, to be confirmed first in the gate. |
+| J10 | RMediation's MBCO migration off OpenMx | **Separate follow-up spec after the v0 gate** | The gate reuses RMediation's MBCO cases as the known-answer; RMediation's CRAN submission is on hold (`.STATUS`, 2026-08-17), so nothing touches it now. OpenMx stays an RMediation dependency until then. |
+| J11 | medfit release | **Next minor (0.6.0), GitHub/r-universe first** | CRAN platform and cmake risk (J3) is checked before CRAN. missingmed raises its medfit floor only when it adds the pass-through. Version skew today: GitHub 0.5.0, CRAN 0.3.2. |
+| J12 | Copyright for the J5 relicense | **All "Test User" commits are the author's own work** (confirmed by the author; 62 commits, 2026-06-04 to 2026-08-30, session work under a placeholder git identity; `DESCRIPTION` lists one author and copyright holder) | The author is the sole holder, so GPL (>= 3) needs only the author's decision. Still to do: `License:` in `DESCRIPTION`, LICENSE note, NEWS entry, small PR in missingmed. |
 
-## Open questions (not yet grilled)
+## Open questions (remaining)
 
-1. **After medfit ships `engine = "native"`, what happens to missingmed's shipped `engine = "lavaan"`?** Keep both (Recommended: users depend on it and it shipped in 0.6.0; no longer the parity oracle per J7), or deprecate lavaan?
-2. **Copyright holders for the J5 relicense**: is "Test User" the author's own CI/test identity? Any third-party code bundled in `R/`?
-3. **RMediation**: does the author want the MBCO migration off OpenMx planned in the same effort (the verse-wide payoff), or left as a follow-up spec? Cross-repo; the author's call.
-4. **Version targets**: medfit 0.5.0 is GitHub-only (CRAN 0.3.2). Which medfit release carries the native engine, and does missingmed's `medfit (>= ...)` floor move with it?
-5. **lavaan floor in missingmed** (`>= 0.7-3`, per the report) and the snake_case guard fix: land separately, ahead of this effort.
-6. **Plan amendments** needed to match J1-J6: re-home N1-N8 to medfit, add the MBCO known-answer to the gate (N5), replace "relicense to GPL (>= 2)" with GPL (>= 3), move nloptr to Imports, add the CRAN/cmake risk.
+1. **Plan amendments for J8-J12.** Applied in the PLAN's section 0 table (J8-J12 rows) in the same commit as this ledger.
+2. **missingmed relicense PR**: not started (J12 follows). Small, separate from the engine work.
+3. **lavaan floor and snake_case guard fix** in missingmed (lavaan report, section 2a): land separately, ahead of this effort.
+4. **Whether OpenMx's SEs are observed-information**: the gate's first task confirms it (J9).
 
 ## Handoff to a medfit session (draft; for when the author opens one)
 
-Read: the PLAN, this ledger, `dev/spike-ram-nloptr.R` (RAM model, analytic gradient, SLSQP; matched lavaan to 3e-7), and the lavaan 0.7-3 report. Deliver: `engine = "native"` in `fit_mediation()` behind the v0 gate (J2). Do not start before the author answers open questions 1, 4 and 6.
+Read: the PLAN, this ledger, `dev/spike-ram-nloptr.R` (RAM model, analytic gradient, SLSQP; matched lavaan to 3e-7), and the lavaan 0.7-3 report. Deliver: `engine = "native"` in `fit_mediation()` behind the v0 gate (J2). The grill's blocking questions are resolved; start from the PLAN section 0 table (J1-J12).
