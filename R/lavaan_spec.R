@@ -121,7 +121,19 @@
   invisible(TRUE)
 }
 
-# IPW with lavaan fits on the complete cases with `sampling.weights` and always
+# lavaan (>= 0.7-2) accepts option names with dots or underscores, in any case
+# (`sampling.weights` = `sampling_weights`), and (>= 0.7-3) the same for keyword
+# values (`robust.huber.white` = `robust_huber_white`). The G1 guards compare
+# normalized spellings so that no spelling slips past them.
+.lav_key <- function(x) tolower(gsub(".", "_", x, fixed = TRUE))
+
+# The value of the `fit_args` entry named `name`, under any lavaan spelling.
+.lav_arg <- function(fit_args, name) {
+  hit <- which(.lav_key(names(fit_args)) == name)
+  if (length(hit)) fit_args[[hit[1L]]] else NULL
+}
+
+# IPW with lavaan fits on the complete cases with `sampling_weights` and always
 # uses robust (sandwich) SEs, like the glm IPW path (G1). A request for naive SEs
 # is refused rather than overridden silently.
 .check_lavaan_ipw_args <- function(fit_args, se_type = "sandwich") {
@@ -131,20 +143,21 @@
       call. = FALSE
     )
   }
-  if ("sampling.weights" %in% names(fit_args)) {
-    stop("`fit_args` cannot set `sampling.weights`: the IPW weights are used.",
+  if ("sampling_weights" %in% .lav_key(names(fit_args))) {
+    stop("`fit_args` cannot set `sampling_weights` (or `sampling.weights`): ",
+      "the IPW weights are used.",
       call. = FALSE
     )
   }
-  se <- fit_args[["se"]]
-  if (!is.null(se) && !identical(se, "robust.huber.white")) {
+  se <- .lav_arg(fit_args, "se")
+  if (!is.null(se) && !identical(.lav_key(se), "robust_huber_white")) {
     stop("`fit_args$se` = ", deparse(se), " is not allowed for method = ",
       "\"ipw\": SEs must be robust (\"robust.huber.white\"), because the ",
       "weights make the model-based SEs wrong.",
       call. = FALSE
     )
   }
-  est <- fit_args[["estimator"]]
+  est <- .lav_arg(fit_args, "estimator")
   if (!is.null(est) && !toupper(est[1L]) %in% c("ML", "MLR")) {
     stop("`fit_args$estimator` = ", deparse(est), " has no sandwich SEs with ",
       "sampling weights; use \"ML\" or \"MLR\" with method = \"ipw\".",

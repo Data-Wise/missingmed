@@ -4,7 +4,7 @@
 [![R-CMD-check](https://github.com/Data-Wise/missingmed/actions/workflows/check.yml/badge.svg)](https://github.com/Data-Wise/missingmed/actions/workflows/check.yml)
 [![missingmed status badge](https://data-wise.r-universe.dev/badges/missingmed)](https://data-wise.r-universe.dev/missingmed)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![License: GPL v2](https://img.shields.io/badge/License-GPL_v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL_v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
 <!-- badges: end -->
 
 ## Overview
@@ -98,4 +98,4 @@ citation("missingmed")
 
 ## License
 
-GPL-2 · Davood Tofighi (dtofighi@gmail.com) · ORCID 0000-0001-8523-7776
+GPL (>= 3) · Davood Tofighi (dtofighi@gmail.com) · ORCID 0000-0001-8523-7776

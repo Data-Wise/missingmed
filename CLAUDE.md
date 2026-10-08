@@ -29,7 +29,7 @@ The **S4 API was removed in 0.6.0**: `set_sem`/`run_sem`/`pool_sem`/`fit_model`/
 
 ## Dependencies (gotchas)
 
-- Imports: `S7`, **`medfit (>= 0.3.1)`** (needs `weights=`/`se_type=`), **`RMediation (>= 1.5.0)`**, `mice`, `lavaan`, `sandwich`, `tibble`, `broom`, `rlang`.
+- Imports: `S7`, **`medfit (>= 0.3.1)`** (needs `weights=`/`se_type=`), **`RMediation (>= 1.5.0)`**, `mice`, **`lavaan (>= 0.7-3)`**, `sandwich`, `tibble`, `broom`, `rlang`.
 - **medfit and RMediation are on CRAN** (0.3.2 and 1.6.1, checked 2026-09-23), so `DESCRIPTION` has no `Remotes:` or `Additional_repositories:`, and pak resolves everything from CRAN. If an unreleased GitHub version is ever needed, `Remotes:` must **name-qualify RMediation**: `RMediation=data-wise/rmediation` (the repo is `rmediation`, the package `RMediation`, and the plain form breaks pak).
 - Inference namespace is **`RMediation`** (capital), not `rmediation`.
 
