@@ -43,6 +43,9 @@ relevant statistics (e.g., estimates, standard errors) across
 all imputations, considering the specified confidence interval settings.
 }
 \details{
+\strong{Deprecated.} Use \code{\link[=pool]{pool()}} on an \link{MDMediationFit} from \code{\link[=run]{run()}} instead; \code{pool_sem()} becomes a \code{.Defunct()} stub in
+missingmed 0.6.0.
+
 A generic function to pool SEM analysis results from multiple datasets or imputations.
 
 Refer to method-specific documentation for details on pooling process and assumptions.

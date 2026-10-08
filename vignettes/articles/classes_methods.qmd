@@ -174,8 +174,8 @@ S7::S7_data(r)
 # Deprecated S4 classes
 
 The S4 API (`set_sem()`, `run_sem()`, `pool_sem()` with the classes
-`SemImputedData`, `SemResults` and `PooledSEMResults`) is deprecated and kept
-for one release cycle behind `.Deprecated()` shims. Each S7 class above
+`SemImputedData`, `SemResults` and `PooledSEMResults`) is deprecated behind
+`.Deprecated()` shims and becomes `.Defunct()` stubs in 0.6.0. Each S7 class above
 replaces one of them:
 
 | S7 class | Replaces |

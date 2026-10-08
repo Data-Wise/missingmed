@@ -63,9 +63,12 @@
 #' @param weight_stabilize (IPW) Use stabilized weights? Default `TRUE`.
 #' @param weight_trim (IPW) Upper quantile to cap weights; `1` (default) = none.
 #' @param se_type (IPW) `"sandwich"` (default, HC robust) or `"model"`.
-#' @param conf_int Logical; whether downstream output carries confidence
-#'   intervals. Defaults to `FALSE`.
-#' @param conf_level Numeric in (0, 1); confidence level. Defaults to `0.95`.
+#' @param conf_int Logical; if `TRUE`, [pool()] adds per-coefficient
+#'   `conf_low` and `conf_high` columns to the pooled tidy table, at
+#'   `conf_level` on Rubin's t reference. Defaults to `FALSE`. These bound
+#'   single coefficients; for the indirect effect use [infer()].
+#' @param conf_level Numeric in (0, 1); confidence level for `conf_int` and the
+#'   default `level` of [infer()]. Defaults to `0.95`.
 #'
 #' @return An [MDMediationData] object.
 #' @seealso [MDMediationData], [run()], [pool()], [infer()], [medfit::fit_mediation()]

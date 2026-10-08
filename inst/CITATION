@@ -1,0 +1,9 @@
+bibentry(
+  bibtype = "Manual",
+  title = "{missingmed}: Mediation Analysis with Multiple Imputation for Missing Data",
+  author = person("Davood", "Tofighi", email = "dtofighi@gmail.com",
+    comment = c(ORCID = "0000-0001-8523-7776")),
+  year = if (is.null(meta$Date)) format(Sys.Date(), "%Y") else sub("-.*", "", meta$Date),
+  note = paste("R package version", meta$Version),
+  url = "https://github.com/Data-Wise/missingmed"
+)

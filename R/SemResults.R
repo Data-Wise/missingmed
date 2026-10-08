@@ -93,6 +93,9 @@ setValidity("SemResults", function(object) {
 
 #' Pool SEM Analysis Results
 #'
+#' **Deprecated.** Use [pool()] on an [MDMediationFit] from [run()] instead; `pool_sem()` becomes a `.Defunct()` stub in
+#' missingmed 0.6.0.
+#'
 #' A generic function to pool SEM analysis results from multiple datasets or imputations.
 #'
 #' @description
