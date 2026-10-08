@@ -260,9 +260,10 @@ S7::method(tidy, MDSensitivityResult) <- function(x, ...) {
 }
 
 # print(<MbcoMIResult>). Registered on base::print, not the namespace's
-# `print`: import(OpenMx) makes that an S4 generic, and MbcoMIResult cannot be
-# S4_register()ed (see R/MbcoMIResult.R). The S4 default falls through to
-# base::print's S3 dispatch.
+# `print`: that can be an S4 generic (the S4 classes and the OpenMx import
+# removed in 0.6.0 made it one), and MbcoMIResult cannot be S4_register()ed (see
+# R/MbcoMIResult.R). The S4 default falls through to base::print's S3 dispatch;
+# registering on base::print works whether or not `print` is an S4 generic.
 S7::`method<-`(base::print, MbcoMIResult, value = function(x, ...) {
   v <- S7::S7_data(x)
   cat("<MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m =", x@m, "imputations)\n")

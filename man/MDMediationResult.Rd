@@ -53,8 +53,8 @@ An S7 class holding the Rubin's-rules pooled mediation result. Its defining
 feature is \code{pooled}: a single \strong{named} \link[medfit:MediationData]{medfit::MediationData} built from the
 pooled estimates and total variance-covariance, valid as input to
 \code{\link[RMediation:ci_mediation_data]{RMediation::ci_mediation_data()}} / \code{\link[RMediation:medci]{RMediation::medci()}} (path coefficients
-resolve by name). It is the S7 successor of the S4 \link{PooledSEMResults} class.
+resolve by name). It is the S7 successor of the removed S4 \code{PooledSEMResults} class.
 }
 \seealso{
-\code{\link[=pool]{pool()}}, \code{\link[=infer]{infer()}}, \link{PooledSEMResults}
+\code{\link[=pool]{pool()}}, \code{\link[=infer]{infer()}}
 }

@@ -62,3 +62,23 @@ n_imputations <- S7::new_generic("n_imputations", "object")
 
 S7::method(n_imputations, MDMediationFit) <- function(object) object@m
 S7::method(n_imputations, MDMediationResult) <- function(object) object@m
+
+#' Get the number of imputations from a mids object
+#'
+#' Returns the number of imputations `m` stored in a [mice::mids] object.
+#'
+#' @param x A [mice::mids] object.
+#' @return An integer: the number of imputations.
+#' @examples
+#' imp <- mice::mice(mice::nhanes, m = 3, printFlag = FALSE, seed = 1)
+#' n_imp(imp)
+#' @export
+n_imp <- function(x) {
+  if (!inherits(x, "mids")) {
+    stop("The provided object is not a 'mids' object (it has class '",
+      class(x)[1], "').",
+      call. = FALSE
+    )
+  }
+  x$m
+}

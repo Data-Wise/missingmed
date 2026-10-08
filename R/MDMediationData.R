@@ -4,7 +4,7 @@
 #' mediation specification** (outcome/mediator formulas + roles). It is the entry
 #' point of the missingmed S7 pipeline
 #' (`set_md_mediation()` -> [run()] -> [pool()] -> [infer()]) and the S7
-#' successor of the S4 [SemImputedData] class.
+#' successor of the removed S4 `SemImputedData` class.
 #'
 #' Fitting is delegated to [medfit::fit_mediation()] (one call per imputation),
 #' so the per-imputation fits carry **named** path coefficients (`a`, `b`,
@@ -46,7 +46,7 @@
 #'   frame for IPW).
 #'
 #' @return An `MDMediationData` S7 object.
-#' @seealso [set_md_mediation()], [medfit::fit_mediation()], [SemImputedData]
+#' @seealso [set_md_mediation()], [medfit::fit_mediation()]
 #' @export
 #' @name MDMediationData
 MDMediationData <- S7::new_class(

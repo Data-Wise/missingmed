@@ -14,14 +14,16 @@
 #'   \item [per_imputation_list()]: per-imputation fits for MBCO (which does not commute with Rubin's rules)
 #' }
 #'
-#' @section Deprecated S4 API:
-#' [set_sem()], [run_sem()], and [pool_sem()] are superseded by the S7 pipeline
-#' above. They are replaced by `.Defunct()` stubs in 0.6.0.
+#' @section Defunct S4 API:
+#' [set_sem()], [run_sem()] and [pool_sem()] were removed in 0.6.0 and now stop
+#' with a message naming their replacement; see [missingmed-defunct].
 #'
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #'
 #' @importFrom stats coef var vcov
 #' @importFrom rlang %||%
+#' @importFrom tibble as_tibble
+#' @importFrom methods is
 "_PACKAGE"
 
 ## usethis namespace: start

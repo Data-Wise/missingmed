@@ -18,7 +18,7 @@ MDMediationFit(
 \arguments{
 \item{per_imputation}{A list of named \link[medfit:MediationData]{medfit::MediationData} objects (length \code{m}).}
 
-\item{fits}{A list of the raw backend fits (\code{lavaan}/\code{OpenMx}), one per imputation.}
+\item{fits}{A list of the raw backend fits (\code{lavaan}), one per imputation.}
 
 \item{m}{Integer number of imputations.}
 
@@ -45,8 +45,8 @@ MBCO-MI path consumes, because MBCO does not commute with Rubin's rules
 (D4-stacked MBCO needs the per-imputation fits, not the pooled estimate).
 }
 \details{
-It is the S7 successor of the S4 \link{SemResults} class.
+It is the S7 successor of the removed S4 \code{SemResults} class.
 }
 \seealso{
-\code{\link[=run]{run()}}, \code{\link[=per_imputation_list]{per_imputation_list()}}, \link{SemResults}
+\code{\link[=run]{run()}}, \code{\link[=per_imputation_list]{per_imputation_list()}}
 }
