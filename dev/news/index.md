@@ -2,6 +2,10 @@
 
 ## missingmed (development version)
 
+- No user-visible changes yet.
+
+## missingmed 0.6.0
+
 ### Breaking changes
 
 - The S4 API is removed.

@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="index.html">missingmed</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.5.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.6.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,7 @@
     <li><a class="dropdown-item" href="articles/index.html">More articles...</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -75,7 +76,12 @@
 <strong>Multiple imputation</strong> (<code>method = "mi"</code>) — pools per-imputation fits with Rubin’s rules.</li>
 <li>
 <strong>Inverse-probability weighting</strong> (<code>method = "ipw"</code>) — reweights complete cases (stabilized weights, trimming, HC sandwich SEs).</li>
+<li>
+<strong>Structural equation models</strong> (<code>engine = "lavaan"</code>) — give lavaan syntax in <code>model</code>, including a latent mediator; works with both estimators.</li>
+<li>
+<strong>Sensitivity to missing not at random</strong> (<code><a href="reference/sensitivity_mnar.html">sensitivity_mnar()</a></code>) — repeats the analysis with the imputed values shifted, giving a sensitivity curve.</li>
 </ul>
+<p>New to the package? Start with <em>Choosing an analysis</em> on the <a href="https://data-wise.github.io/missingmed/">website</a>.</p>
 <p>For the indirect effect it provides both a <strong>Monte-Carlo confidence interval</strong> and a <strong>D4-stacked MBCO</strong> likelihood-ratio test (which, unlike pooling, respects the union-null geometry of <code>H0: ab = 0</code>).</p>
 </div>
 <div class="section level2">

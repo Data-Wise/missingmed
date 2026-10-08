@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.5.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.6.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,6 +24,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
+<li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/Data-Wise/missingmed/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -40,19 +41,23 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
+<ul><li>No user-visible changes yet.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.0" id="missingmed-060">missingmed 0.6.0<a class="anchor" aria-label="anchor" href="#missingmed-060"></a></h2>
 <div class="section level3">
-<h3 id="breaking-changes-development-version">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-development-version"></a></h3>
+<h3 id="breaking-changes-0-6-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-6-0"></a></h3>
 <ul><li>The S4 API is removed. <code><a href="../reference/missingmed-defunct.html">set_sem()</a></code>, <code><a href="../reference/missingmed-defunct.html">run_sem()</a></code>, <code><a href="../reference/missingmed-defunct.html">pool_sem()</a></code>, <code><a href="../reference/missingmed-defunct.html">fit_model()</a></code>, <code><a href="../reference/missingmed-defunct.html">lav_mice()</a></code> and <code><a href="../reference/missingmed-defunct.html">mx_mice()</a></code> now stop with a message naming their replacement (<code><a href="https://rdrr.io/r/base/Defunct.html" class="external-link">.Defunct()</a></code> stubs, deleted in 0.7.0): use <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code>, <code><a href="../reference/run.html">run()</a></code> and <code><a href="../reference/pool.html">pool()</a></code>, with <code>engine = "lavaan"</code> for a structural equation model. Removed without a stub, because nothing in the S7 pipeline uses them: the classes <code>SemImputedData</code>, <code>SemResults</code> and <code>PooledSEMResults</code>; the functions <code>is_fit()</code>, <code>is_pd()</code>, <code>is_lav_syntax()</code> and <code>is_valid_lav_syntax()</code>; and the <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code> methods for OpenMx models and <code>logLik</code> objects. There is no OpenMx engine: <code>OpenMx</code> is no longer imported, and <code>dplyr</code> and <code>purrr</code> are no longer imported either. <code><a href="../reference/n_imp.html">n_imp()</a></code> stays, now a plain function. See <em>Migrating from the S4 API</em> on the package website.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<h3 id="new-features-0-6-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-6-0"></a></h3>
 <ul><li>
 <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> gains <code>engine = "lavaan"</code>: give a structural equation model as lavaan syntax in <code>model</code>, name the <code>outcome</code>, and pass extra <code><a href="https://rdrr.io/pkg/lavaan/man/sem.html" class="external-link">lavaan::sem()</a></code> arguments in <code>fit_args</code> (for example <code>list(estimator = "MLR")</code>). The model is validated before any fitting. <code><a href="../reference/run.html">run()</a></code> fits each imputation with lavaan; <code><a href="../reference/pool.html">pool()</a></code> reports z-tests (<code>df = Inf</code> at <code>m = 1</code>) and leaves the statistic and p-value of variance and covariance rows (<code>~~</code>) <code>NA</code>; <code>infer(type = "mc")</code> works. <code>infer(type = "mbco")</code> refuses for lavaan fits until a separate SEM-MBCO design lands. Non-convergence in any imputation refuses, naming the imputations; an improper solution warns once.</li>
 <li>
 <code>engine = "lavaan"</code> also works with <code>method = "ipw"</code>: the complete cases are fit with <code>sampling.weights</code> and always with robust (sandwich) SEs. A non-robust <code>se</code>, an estimator without sandwich SEs, or <code>se_type = "model"</code> is refused. <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> accepts lavaan fits for <code>type = "mc"</code>; a latent mediator needs an explicit observed <code>target</code>.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="documentation-development-version">Documentation<a class="anchor" aria-label="anchor" href="#documentation-development-version"></a></h3>
+<h3 id="documentation-0-6-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-6-0"></a></h3>
 <ul><li>New articles on the package website: <em>Supported models</em> (every model rule of <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code>, each one run when the site builds), <em>Frequently asked questions</em>, and <em>Migrating from the S4 API</em>.</li>
 <li>
 <code><a href="../articles/technical.html">vignette("technical")</a></code> gains section 3A on models with a treatment-by-mediator interaction: the estimand behind <code>treatment_level</code>, and how <code><a href="../reference/pool.html">pool()</a></code> recomputes the four-way decomposition from one pooled reference profile.</li>

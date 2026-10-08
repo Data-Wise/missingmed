@@ -21,7 +21,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.5.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.6.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,7 @@
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -187,10 +188,12 @@ is not silently dropped.</p>
 <div class="section level3">
 <h3 id="structural-equation-models-and-latent-mediators">Structural equation models and latent mediators?<a class="anchor" aria-label="anchor" href="#structural-equation-models-and-latent-mediators"></a>
 </h3>
-<p>The S7 pipeline fits regression models through medfit. Latent
-mediators are available only through the deprecated S4 API for now; a
-lavaan engine for <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> is planned for 0.6.0.
-See the <em>Migrating from the S4 API</em> article.</p>
+<p>Yes, since 0.6.0. The glm path fits regression models through medfit;
+for a structural equation model, including a latent mediator, use
+<code>set_md_mediation(engine = "lavaan")</code> with the lavaan syntax
+in <code>model</code> and the <code>outcome</code> named. MBCO is not
+available for lavaan fits yet (use <code>infer(type = "mc")</code>). See
+the <em>Migrating from the S4 API</em> article.</p>
 </div>
 <div class="section level3">
 <h3 id="how-do-i-cite-missingmed">How do I cite missingmed?<a class="anchor" aria-label="anchor" href="#how-do-i-cite-missingmed"></a>
