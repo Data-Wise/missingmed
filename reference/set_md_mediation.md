@@ -130,6 +130,40 @@ Two estimators share the interface (`method`):
   reweights the complete cases by inverse missingness probability and
   fits once.
 
+The model is validated before anything is fit. Formulas are first
+expanded against the data, so `Y ~ .` is checked as the model that
+[`run()`](https://data-wise.github.io/missingmed/reference/run.md) fits.
+`set_md_mediation()` refuses:
+
+- a one-sided formula, or a `treatment`/`mediator` that is not a single
+  variable name;
+
+- a variable in either formula that is neither a column of the data nor
+  defined in the formula's environment (the treatment and mediator must
+  be columns);
+
+- a `formula_m` whose response is not the bare `mediator` column (a
+  transform such as `log(M)` needs its own column), or a `formula_y`
+  whose response involves the mediator;
+
+- a `treatment` that is not a main effect of `formula_m` and of
+  `formula_y`, or a `mediator` that is not a main effect of `formula_y`;
+
+- any other term involving the treatment or mediator. Both enter only as
+  main effects, plus, in `formula_y` only, one treatment-by-mediator
+  interaction (`X:M`, `M:X` or from `X * M`). Products such as `X:C`,
+  `M:W` or `X:M:W`, transforms such as `I(X^2)`, `poly(X, 2)` or
+  `log(M)`, and offsets involving either variable are refused. For
+  moderated models,
+  [`mbco_d4()`](https://data-wise.github.io/missingmed/reference/mbco_d4.md)
+  tests the indirect effect on the completed datasets;
+
+- an `X:M` term when `family_y` or `family_m` is not Gaussian with an
+  identity link;
+
+- a treatment column that is not numeric. Factor, character and logical
+  treatments must be recoded to numeric (0/1 for a binary treatment).
+
 ## See also
 
 [MDMediationData](https://data-wise.github.io/missingmed/reference/MDMediationData.md),

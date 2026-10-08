@@ -78,7 +78,10 @@ other packages can call it on a plain list of completed datasets.</p>
 
 
 <dt id="arg-formula-y-formula-m">formula_y, formula_m<a class="anchor" aria-label="anchor" href="#arg-formula-y-formula-m"></a></dt>
-<dd><p>Outcome and mediator model formulas.</p></dd>
+<dd><p>Outcome and mediator model formulas. The
+response of <code>formula_m</code> must involve the mediator and nothing else (<code>M</code>
+or a transform such as <code>log(M)</code>), and the mediator may not appear in the
+response of <code>formula_y</code>.</p></dd>
 
 
 <dt id="arg-family-y-family-m">family_y, family_m<a class="anchor" aria-label="anchor" href="#arg-family-y-family-m"></a></dt>

@@ -31,7 +31,10 @@ mbco_d4(
 
 - formula_y, formula_m:
 
-  Outcome and mediator model formulas.
+  Outcome and mediator model formulas. The response of `formula_m` must
+  involve the mediator and nothing else (`M` or a transform such as
+  `log(M)`), and the mediator may not appear in the response of
+  `formula_y`.
 
 - family_y, family_m:
 

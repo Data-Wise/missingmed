@@ -156,6 +156,28 @@ intervals. Defaults to <code>FALSE</code>.</p></dd>
     <p>Two estimators share the interface (<code>method</code>):</p><ul><li><p><code>"mi"</code> — <code>data</code> is a <a href="https://amices.org/mice/reference/mids.html" class="external-link">mice::mids</a> object; <code><a href="run.html">run()</a></code> fits every imputation.</p></li>
 <li><p><code>"ipw"</code> — <code>data</code> is a raw <code>data.frame</code>; <code><a href="run.html">run()</a></code> reweights the complete cases
 by inverse missingness probability and fits once.</p></li>
+</ul><p>The model is validated before anything is fit. Formulas are first expanded
+against the data, so <code>Y ~ .</code> is checked as the model that <code><a href="run.html">run()</a></code> fits.
+<code>set_md_mediation()</code> refuses:</p><ul><li><p>a one-sided formula, or a <code>treatment</code>/<code>mediator</code> that is not a single
+variable name;</p></li>
+<li><p>a variable in either formula that is neither a column of the data nor
+defined in the formula's environment (the treatment and mediator must be
+columns);</p></li>
+<li><p>a <code>formula_m</code> whose response is not the bare <code>mediator</code> column (a
+transform such as <code>log(M)</code> needs its own column), or a <code>formula_y</code> whose
+response involves the mediator;</p></li>
+<li><p>a <code>treatment</code> that is not a main effect of <code>formula_m</code> and of
+<code>formula_y</code>, or a <code>mediator</code> that is not a main effect of <code>formula_y</code>;</p></li>
+<li><p>any other term involving the treatment or mediator. Both enter only as
+main effects, plus, in <code>formula_y</code> only, one treatment-by-mediator
+interaction (<code>X:M</code>, <code>M:X</code> or from <code>X * M</code>). Products such as <code>X:C</code>,
+<code>M:W</code> or <code>X:M:W</code>, transforms such as <code>I(X^2)</code>, <code>poly(X, 2)</code> or <code>log(M)</code>,
+and offsets involving either variable are refused. For moderated models,
+<code><a href="mbco_d4.html">mbco_d4()</a></code> tests the indirect effect on the completed datasets;</p></li>
+<li><p>an <code>X:M</code> term when <code>family_y</code> or <code>family_m</code> is not Gaussian with an
+identity link;</p></li>
+<li><p>a treatment column that is not numeric. Factor, character and logical
+treatments must be recoded to numeric (0/1 for a binary treatment).</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
