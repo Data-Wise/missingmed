@@ -30,6 +30,14 @@
   [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md);
   `ariv` for `"mc"`), instead of ignoring them.
 
+- New vignette,
+  [`vignette("worked-analysis")`](https://data-wise.github.io/missingmed/articles/worked-analysis.md):
+  a step-by-step tutorial of a mediation analysis with a missing
+  mediator (complete-data reference, MAR deletion, imputation, pooled
+  Monte Carlo interval, D4-MBCO test with both `ariv` choices, MNAR
+  sensitivity), with a second part showing what the development version
+  adds over 0.5.0.
+
 ### Bug fixes
 
 - [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)

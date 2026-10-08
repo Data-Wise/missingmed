@@ -19,7 +19,8 @@
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/mbco-mi.html">Testing an indirect effect with incomplete data</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/worked-analysis.html">A worked analysis with a missing mediator</a></li>
+    <li><a class="dropdown-item" href="../articles/mbco-mi.html">Testing an indirect effect with incomplete data</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
@@ -44,6 +45,7 @@
 <ul><li><p><code>infer(type = "mc")</code> supports models with a treatment-by-mediator interaction (<code>Y ~ X * M + ...</code>) through a new <code>treatment_level</code> argument (<a href="https://github.com/Data-Wise/missingmed/issues/20" class="external-link">#20</a>). The indirect effect there is <code>a * (b + theta3 * x)</code>, so the interval is for the treatment level <code>x</code> you choose (for a 0/1 treatment, <code>1</code> is the total and <code>0</code> the pure natural indirect effect); it is drawn from the pooled estimates and pooled covariance of <code>a</code>, <code>b</code> and <code>theta3</code> with <code><a href="https://data-wise.github.io/rmediation/reference/ci.html" class="external-link">RMediation::ci()</a></code>, and the result names the estimand in <code>Estimand</code>. <code>treatment_level</code> is required for such models and an error elsewhere. <code>sensitivity_mnar(type = "mc")</code> passes it through.</p></li>
 <li><p><code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> gains <code>ariv</code>, passed to <code>infer(type = "mbco")</code> for every rung (it was always <code>"fixed"</code>); <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> of an MBCO curve shows it.</p></li>
 <li><p><code><a href="../reference/infer.html">infer()</a></code> and <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> warn, naming them, about arguments that do not apply to the chosen <code>type</code> (<code>level</code>, <code>n.mc</code> and <code>treatment_level</code> for <code>"mbco"</code> in <code><a href="../reference/infer.html">infer()</a></code>; <code>ariv</code> for <code>"mc"</code>), instead of ignoring them.</p></li>
+<li><p>New vignette, <code><a href="../articles/worked-analysis.html">vignette("worked-analysis")</a></code>: a step-by-step tutorial of a mediation analysis with a missing mediator (complete-data reference, MAR deletion, imputation, pooled Monte Carlo interval, D4-MBCO test with both <code>ariv</code> choices, MNAR sensitivity), with a second part showing what the development version adds over 0.5.0.</p></li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
