@@ -44,7 +44,8 @@ a \code{data.frame} (may contain \code{NA}s; complete cases are reweighted).}
 medfit 0.4.0 or later and the regmedint package; \code{method = "mi"} only), or
 \code{"lavaan"}
 (a structural equation model given as \code{model} syntax instead of formulas;
-\code{method = "mi"} only for now).}
+with \code{method = "ipw"} too: complete cases are weighted and the SEs are
+robust).}
 
 \item{family_y, family_m}{\code{stats::family} objects for the outcome and mediator
 models. Default \code{stats::gaussian()}.}

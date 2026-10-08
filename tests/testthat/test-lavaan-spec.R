@@ -166,16 +166,6 @@ test_that("fit_args must be a named list and cannot override the model or data",
   expect_error(slav(fit_args = "x"), "`fit_args`.*list")
 })
 
-test_that("IPW with lavaan is refused until it is supported", {
-  expect_error(
-    set_md_mediation(gen_lav(),
-      model = mod_obs, treatment = "X", mediator = "M",
-      outcome = "Y", engine = "lavaan", method = "ipw"
-    ),
-    "ipw"
-  )
-})
-
 test_that("glm construction is unchanged", {
   md <- set_md_mediation(imp_lav, Y ~ X + M + C, M ~ X + C,
     treatment = "X", mediator = "M"
