@@ -19,6 +19,13 @@
   fits until a separate SEM-MBCO design lands. Non-convergence in any
   imputation refuses, naming the imputations; an improper solution warns
   once.
+- `engine = "lavaan"` also works with `method = "ipw"`: the complete
+  cases are fit with `sampling.weights` and always with robust
+  (sandwich) SEs. A non-robust `se`, an estimator without sandwich SEs,
+  or `se_type = "model"` is refused.
+  [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/dev/reference/sensitivity_mnar.md)
+  accepts lavaan fits for `type = "mc"`; a latent mediator needs an
+  explicit observed `target`.
 
 ### Documentation
 

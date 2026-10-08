@@ -71,7 +71,8 @@ set_md_mediation(
   Fitting engine: `"glm"` (default), `"regmedint"` (needs medfit 0.4.0
   or later and the regmedint package; `method = "mi"` only), or
   `"lavaan"` (a structural equation model given as `model` syntax
-  instead of formulas; `method = "mi"` only for now).
+  instead of formulas; with `method = "ipw"` too: complete cases are
+  weighted and the SEs are robust).
 
 - family_y, family_m:
 
