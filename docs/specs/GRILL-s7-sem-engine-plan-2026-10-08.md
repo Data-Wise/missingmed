@@ -35,3 +35,7 @@ Note: the recorded hook claim that `tests/testthat.R` is missing is stale; it wa
 
 - **H5 amended:** PR 4 is T9 only; T11 (version bump, `dev -> main` release PR) becomes a post-merge release workflow. Reason: the release PR is a separate PR by the repo's workflow, so listing it in PR 4 blurred the order.
 - **H2 reaffirmed, gap closed:** the review asked to stub the deleted predicates and classes. Kept as decided (no callers; classes cannot be stubbed; leaf package), but T8/T9 now require every removed export to appear in NEWS and the migration article with its fate and replacement, checked by a script against `origin/main`'s `NAMESPACE`.
+
+## T0 results (2026-10-08)
+
+All three remaining spikes passed (vcov covers loadings; `outcome =` honored; `post.check` flags a planted Heywood case). Non-S4 baseline: 273 tests / 1125 expectations, all passing. New hazard: `n_imp` is defined in `R/utilities.R` but called by `set_md_mediation()`, so T8 must keep it. Details in the plan's T0 section.

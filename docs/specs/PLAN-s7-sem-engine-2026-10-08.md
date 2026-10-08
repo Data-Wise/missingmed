@@ -5,7 +5,7 @@
 | **Spec** | [SPEC-s7-sem-engine-2026-09-23.md](SPEC-s7-sem-engine-2026-09-23.md) (Q1-Q4, G1-G7) |
 | **Grill** | [GRILL-s7-sem-engine-section4-2026-10-07.md](GRILL-s7-sem-engine-section4-2026-10-07.md) |
 | **Date** | 2026-10-08 |
-| **Status** | GRILLED 2026-10-08 (H1-H5, [GRILL-s7-sem-engine-plan-2026-10-08.md](GRILL-s7-sem-engine-plan-2026-10-08.md)); awaiting T0. No code written. |
+| **Status** | GRILLED 2026-10-08 (H1-H5, [GRILL-s7-sem-engine-plan-2026-10-08.md](GRILL-s7-sem-engine-plan-2026-10-08.md)); T0 done 2026-10-08. No package code written. |
 | **Target** | v0.6.0 (lavaan engine + S4 `.Defunct()` stubs + `OpenMx` dropped); stubs deleted in 0.7.0 (G7). `run(...)` deprecation moves to 0.7.0 (H1). |
 
 ## 1. Review of the spec
@@ -49,14 +49,18 @@ T8 (S4 removal) is independent of the engine work and can proceed in parallel on
 
 Sizes: XS 1 file, S 1-2, M 3-5. Nothing above M.
 
-### T0: Decisions, inventory, spikes (S, no package code)
+### T0: Decisions, inventory, spikes (S, no package code) — DONE 2026-10-08
 
-- Done in the grill: F1, F2, F3 decided (H1, H2, H4); latent extraction and IPW parity spiked (IPW glm vs lavaan `sampling.weights`: max difference 8e-16); spec Q4 wording fixed.
-- Remaining spikes (scratch dir, not committed): the lavaan vcov covers the loadings; `extract_mediation(outcome =)` is honored when two variables are regressed on the mediator; `lavInspect(fit, "post.check")` on a planted improper solution.
-- Confirm the H2 delete/stub list against `NAMESPACE`; record the non-S4 test baseline count.
+Scratch scripts only; nothing committed.
 
-**Acceptance:** the three remaining spikes recorded; baseline `FAIL 0 | WARN 0 | PASS N` for non-S4 files recorded.
-**Verify:** scratch scripts rerun clean. **Files:** this plan (results).
+| Check | Result |
+|---|---|
+| lavaan vcov covers the loadings | **Yes.** `extract_mediation()` on `M =~ m1+m2+m3` returns a 19 x 19 vcov whose rows include `M=~m2`, `M=~m3`, the `~~` rows and the `b`/`c_prime` aliases. |
+| `outcome =` honored | **Yes.** With two variables regressed on `M`, `outcome = "Y1"` gives `b` 0.3814 and `outcome = "Y2"` gives 0.9391, each equal to lavaan's `b1`/`b2`. Without `outcome`, medfit silently takes the first (Y1), which confirms G3's rationale. |
+| `post.check` flags an improper solution | **Yes.** On a planted Heywood case: `converged` TRUE, `post.check` FALSE, min residual variance -0.0017, and lavaan raises exactly one warning ("some estimated ov variances are negative"). `.md_fit_one()` already collects fit warnings, so G2's warn-once is largely the existing machinery plus naming the imputations; the explicit `post.check` call covers cases where lavaan stays silent. |
+| Latent extraction; IPW parity | Done in the grill (see the ledger): works; glm vs lavaan `sampling.weights` max difference 8e-16. |
+| Non-S4 test baseline | **`devtools::test()`: all files 311 tests / 1281 expectations, 0 failed, 0 skipped, 0 warnings. S4 files (`s4-legacy`, `tidy_mxmodel`, `tidy_logLik`): 38 tests / 156 expectations. Non-S4 baseline: 273 tests / 1125 expectations, 0 failed / skipped / warned.** H4's "must not fall below" refers to these 273 / 1125. |
+| H2 list vs `NAMESPACE` | Confirmed, with **one addition**: `n_imp` (S4 generic and `exportMethods`, defined in `R/utilities.R`) is **called by the S7 `set_md_mediation()`**, so it is not S4-only. T8 must keep it (move it out of `utilities.R` before deleting that file). `n_imputations`, `tidy` (broom re-export) and the S7 methods stay. |
 
 ### T1: `set_md_mediation(engine = "lavaan")` object and pre-fit validation (M)
 
@@ -147,6 +151,7 @@ Sizes: XS 1 file, S 1-2, M 3-5. Nothing above M.
 
 ### T8: S4 removal with `.Defunct()` stubs (M, own branch, merges after Checkpoint B)
 
+- **Keep `n_imp`** (S4 generic in `R/utilities.R`, called by `set_md_mediation()`): relocate it before deleting `utilities.R` and keep its `exportMethods` entry. Add a test that `set_md_mediation()` still builds an MI object after the removal.
 - Stub `set_sem`, `run_sem`, `pool_sem`, `fit_model`, `lav_mice`, `mx_mice` with `.Defunct()` naming the replacement (G7, H2). Delete `is_pd`, `is_fit`, `is_lav_syntax`, `is_valid_lav_syntax`, the S4 classes and the OpenMx/logLik tidy helpers, with a NEWS entry.
 - Every removed export, stubbed or deleted, gets a line in NEWS (symbol, fate, replacement or "none"). The deleted ones are a documented break, not a stub (H2); the review that questioned this (Codex, 2026-10-08) is answered by T9's mechanical coverage check.
 - Rewrite DESCRIPTION's `Description:` sentence "A deprecated structural equation modeling interface ('lavaan', 'OpenMx') remains until version 0.6.0" (it names OpenMx and a removed interface).
@@ -223,4 +228,4 @@ Resolved in the grill: P3 scope (H1), S4 fate (H2), print registration (H3), tes
 
 Amended after the Codex adversarial review (2026-10-08): T11 moved out of PR 4 into a post-merge release workflow (accepted: the release PR is a separate `dev -> main` PR); H2 is unchanged, with its documentation gap closed by the T9 coverage check instead of more stubs (the deleted symbols have no callers and no replacement to name).
 
-Still open (T0 checks, not decisions): vcov covers loadings; `outcome =` honored; improper-solution detection via `post.check`.
+No open T0 items. New T8 hazard found in T0: `n_imp` lives in an S4 file but is used by the S7 path (see T8).
