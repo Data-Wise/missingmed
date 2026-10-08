@@ -18,6 +18,7 @@ articles:
   navbar: ~
   contents:
   - missingmed
+  - worked-analysis
   - mbco-mi
 - title: Technical
   contents:
