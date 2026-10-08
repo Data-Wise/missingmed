@@ -61,7 +61,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>A worked analysis with a missing mediator</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/main/vignettes/worked-analysis.Rmd" class="external-link"><code>vignettes/worked-analysis.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/v0.5.1/vignettes/worked-analysis.Rmd" class="external-link"><code>vignettes/worked-analysis.Rmd</code></a></small>
       <div class="d-none name"><code>worked-analysis.Rmd</code></div>
     </div>
 
@@ -445,11 +445,11 @@ level <code>x</code> at which the mediator’s effect is evaluated.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit_xm</span>, type <span class="op">=</span> <span class="st">"mc"</span>, treatment_level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">$</span><span class="va">CI</span></span>
 <span><span class="co">#&gt;      2.5 %     97.5 % </span></span>
-<span><span class="co">#&gt; 0.03630311 0.19849593</span></span>
+<span><span class="co">#&gt; 0.03588194 0.19881073</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit_xm</span>, type <span class="op">=</span> <span class="st">"mc"</span>, treatment_level <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">$</span><span class="va">CI</span></span>
 <span><span class="co">#&gt;      2.5 %     97.5 % </span></span>
-<span><span class="co">#&gt; 0.02329601 0.15239549</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.02306856 0.15259671</span></span></code></pre></div>
 <p>For a 0/1 treatment, <code>treatment_level = 1</code> gives the total
 natural indirect effect and <code>0</code> the pure natural indirect
 effect. In these data there is no true interaction, so the two intervals
