@@ -17,6 +17,19 @@
 #' @param ... Additional arguments forwarded to [medfit::fit_mediation()].
 #' @return An [MDMediationFit] object.
 #' @seealso [set_md_mediation()], [pool()], [infer()], [run_sem()]
+#' @examples
+#' set.seed(1)
+#' n <- 150
+#' d <- data.frame(X = rbinom(n, 1, 0.5), C = rnorm(n))
+#' d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
+#' d$Y <- 0.3 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+#' d$M[sample(n, 25)] <- NA
+#' imp <- mice::mice(d, m = 3, method = "norm", printFlag = FALSE, seed = 1)
+#' md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+#'   treatment = "X", mediator = "M"
+#' )
+#' fit <- run(md)
+#' fit
 #' @importFrom medfit fit_mediation
 #' @export
 #' @name run

@@ -1,0 +1,85 @@
+---
+title: "Migrating from the S4 API"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+The S4 functions `set_sem()`, `run_sem()` and `pool_sem()` and their classes
+are deprecated. They still run, with a deprecation warning, and they are planned
+to become `.Defunct()` stubs in 0.6.0, each naming its replacement. This
+article maps the old calls to the S7 pipeline.
+
+## The mapping
+
+| S4 (deprecated) | S7 | Returns |
+|---|---|---|
+| `set_sem(data, model)` | `set_md_mediation(data, formula_y, formula_m, treatment, mediator)` | `MDMediationData` |
+| `run_sem(object)` | `run(object)` | `MDMediationFit` |
+| `pool_sem(object)` | `pool(object)` | `MDMediationResult` |
+| (none) | `infer(fit, type = "mc" or "mbco")` | interval or test for the indirect effect |
+| `SemImputedData`, `SemResults`, `PooledSEMResults` | `MDMediationData`, `MDMediationFit`, `MDMediationResult` | |
+
+## From model syntax to two formulas
+
+The S4 API took a lavaan model string or an OpenMx model. The S7 API takes the
+mediator model and the outcome model as two formulas, plus the names of the
+treatment and the mediator. An observed-variable lavaan model
+
+```{r, eval = FALSE}
+model <- "
+  M ~ a * X + C
+  Y ~ b * M + cp * X + C
+"
+res_s4 <- pool_sem(run_sem(set_sem(imp, model)))
+```
+
+becomes
+
+```{r}
+library(missingmed)
+set.seed(4)
+n <- 300
+d <- data.frame(X = rbinom(n, 1, 0.5), C = rnorm(n))
+d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
+d$Y <- 0.3 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+d$M[sample(n, 40)] <- NA
+imp <- mice::mice(d, m = 5, method = "norm", printFlag = FALSE, seed = 4)
+
+md <- set_md_mediation(imp,
+  formula_y = Y ~ X + M + C,
+  formula_m = M ~ X + C,
+  treatment = "X", mediator = "M"
+)
+fit <- run(md)
+res <- pool(fit)
+res
+```
+
+The path labels are fixed rather than user-chosen: `a`, `b` and `c_prime` in
+the pooled estimates, plus `theta3` and `b0` for an `X:M` model. The pooled
+table is `res@tidy_table`.
+
+## What the S7 pipeline adds
+
+* `infer()`: a Monte Carlo interval for the indirect effect, or the D4-MBCO
+  test, where the S4 API pooled path coefficients only.
+* `method = "ipw"` for inverse probability weighting.
+* `sensitivity_mnar()` for departures from MAR.
+* Validation of the model before fitting (see the *Supported models* article).
+
+## What has no replacement yet
+
+* **Latent mediators and other SEM features.** A lavaan engine for
+  `set_md_mediation()` is planned for 0.6.0.
+* **OpenMx models.** No OpenMx engine is planned for 0.6.0.
+
+Until then, these models still run through the deprecated S4 functions.
+
+## Silencing the warning while you migrate
+
+The deprecation warning is an ordinary warning, so a script that must keep the
+S4 call for now can wrap it in `suppressWarnings()`. Note that `pool_sem()`
+p-values use Rubin's t reference with Barnard–Rubin df since 0.5.1; results
+from earlier versions can differ.

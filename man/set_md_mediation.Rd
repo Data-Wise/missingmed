@@ -117,20 +117,18 @@ environment.
 }
 }
 \examples{
-\dontrun{
 set.seed(1)
 d <- data.frame(X = rbinom(200, 1, .5), C = rnorm(200))
 d$M <- .5 * d$X + .3 * d$C + rnorm(200)
 d$Y <- .2 * d$X + .4 * d$M + .3 * d$C + rnorm(200)
 d$M[sample(200, 30)] <- NA
 # MI
-imp <- mice::mice(d, m = 5, printFlag = FALSE)
+imp <- mice::mice(d, m = 5, printFlag = FALSE, seed = 1)
 md_mi <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
   treatment = "X", mediator = "M")
 # IPW (raw data.frame)
 md_ipw <- set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
   treatment = "X", mediator = "M", method = "ipw")
-}
 }
 \seealso{
 \link{MDMediationData}, \code{\link[=run]{run()}}, \code{\link[=pool]{pool()}}, \code{\link[=infer]{infer()}}, \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}}

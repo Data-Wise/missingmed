@@ -26,6 +26,11 @@ articles:
   - missingmed
   - worked-analysis
   - mbco-mi
+- title: Guides
+  contents:
+  - articles/supported-models
+  - articles/faq
+  - articles/s4-migration
 - title: Technical
   contents:
   - technical
