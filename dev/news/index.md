@@ -2,6 +2,8 @@
 
 ## missingmed (development version)
 
+## missingmed 0.5.1
+
 ### New features
 
 - `infer(type = "mc")` supports models with a treatment-by-mediator
