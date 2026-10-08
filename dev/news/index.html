@@ -41,8 +41,18 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
-<ul><li>No user-visible changes yet.</li>
+<div class="section level3">
+<h3 id="licensing-and-dependencies-development-version">Licensing and dependencies<a class="anchor" aria-label="anchor" href="#licensing-and-dependencies-development-version"></a></h3>
+<ul><li>missingmed is now licensed GPL (&gt;= 3) (was GPL-2), matching <code>medfit</code>, <code>RMediation</code> and <code>medsim</code>, which missingmed already imports.</li>
+<li>
+<code>lavaan (&gt;= 0.7-3)</code> is required (was <code>&gt;= 0.6-0</code>). lavaan 0.7-2 could return a fit marked converged that broke its own constraints (<code>optim_parscale = "standardized"</code>, also used in the automatic retries), and could report convergence for a runaway solution; 0.7-3 fixes both.</li>
 </ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<ul><li>
+<code>set_md_mediation(method = "ipw", engine = "lavaan")</code> now guards every spelling of the options it controls. lavaan &gt;= 0.7-2 accepts <code>sampling_weights</code> as well as <code>sampling.weights</code>; <code>fit_args = list(sampling_weights = ...)</code> used to pass the check and be dropped silently in favor of the IPW weights, and is now an error. <code>se = "robust_huber_white"</code> (or any case) is accepted as the robust SE request. The lavaan call itself uses the snake_case names.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="missingmed-060">missingmed 0.6.0<a class="anchor" aria-label="anchor" href="#missingmed-060"></a></h2>
 <div class="section level3">
