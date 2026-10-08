@@ -81,23 +81,31 @@ data).
 | Part | Proposed rule |
 |---|---|
 | Roles | One role triple across engines: `treatment`, `mediator`, `outcome`. On glm, `outcome` is optional, taken from `formula_y`'s left-hand side, and validated against it if given. On lavaan it stays required (G3). |
-| Engine options | `engine_args = list()` on `set_md_mediation()`, stored on the `MDMediationData` object. It replaces Q1's set-time `...` (if accepted, Q1's `...` becomes `engine_args`) and the current `run(...)`. |
-| Precedence | `engine_args` is the only stored path. `run(...)` warns as deprecated for one cycle and errors if it repeats a name in `engine_args`. `sensitivity_mnar()` reads the stored `engine_args`; its `...` follows the same deprecation path. |
-| G1 constraint | `engine_args` must not override G1: on the IPW + lavaan path, a non-robust `se` or an estimator without a sandwich in `engine_args` errors, exactly as G1 specifies for `...`. |
+| Engine options | `fit_args = list()` on `set_md_mediation()`, stored on the `MDMediationData` object. It replaces Q1's set-time `...` (if accepted, Q1's `...` becomes `fit_args`) and the current `run(...)`. |
+| Precedence | `fit_args` is the only stored path. `run(...)` warns as deprecated for one cycle and errors if it repeats a name in `fit_args`. `sensitivity_mnar()` reads the stored `fit_args`; its `...` follows the same deprecation path. |
+| G1 constraint | `fit_args` must not override G1: on the IPW + lavaan path, a non-robust `se` or an estimator without a sandwich in `fit_args` errors, exactly as G1 specifies for `...`. |
 
 **Trade-offs:** one more argument and a deprecation cycle for `run(...)`, against
 one place for engine options and `sensitivity_mnar()` refits that reproduce the
 original fit without restating its options.
 
-**Open sub-questions (not decided here):**
+**Naming (decided 2026-10-07, author):** the stored list is `fit_args`, not
+`engine_args`. medfit 0.4.0's `fit_mediation()` already has an argument called
+`engine_args = list()` (absent in 0.3.2), so the same name on
+`set_md_mediation()` would mean two different lists in one call chain.
 
-- **Name collision with medfit.** medfit 0.4.0's `fit_mediation()` has its own
-  `engine_args = list()` (checked 2026-10-07; absent in 0.3.2). Under 0.4.0, a
-  literal `run(obj, engine_args = list(...))` already reaches medfit through
-  `run()`'s `...`; the deprecation rule must say how that call is treated.
-- **medfit floor.** Forwarding the stored `engine_args` to medfit's argument of
-  the same name on the glm path raises `Imports: medfit (>= 0.3.1)` to
-  `>= 0.4.0`.
+**Sub-questions:**
+
+- **Name collision with medfit (resolved by the rename).** `fit_args` holds
+  arguments for `medfit::fit_mediation()` (or, on the lavaan path, for
+  `lavaan::sem()`). medfit's own `engine_args` is then an ordinary entry,
+  `fit_args = list(engine_args = list(...))`, with no special case. A literal
+  `run(obj, engine_args = list(...))` is a `run(...)` argument like any other and
+  follows the deprecation rule above.
+- **medfit floor (open).** `fit_args` itself needs no newer medfit; only an
+  entry that is a 0.4.0-only argument (such as `engine_args`) does. Raising
+  `Imports: medfit (>= 0.3.1)` to `>= 0.4.0` is needed only if missingmed
+  itself starts relying on such an argument.
 
 ## 5. Acceptance criteria
 
