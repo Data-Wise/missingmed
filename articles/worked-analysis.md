@@ -418,11 +418,11 @@ fit_xm <- run(set_md_mediation(imp,
 set.seed(3)
 infer(fit_xm, type = "mc", treatment_level = 1)$CI
 #>      2.5 %     97.5 % 
-#> 0.03588194 0.19881073
+#> 0.03630311 0.19849593
 set.seed(3)
 infer(fit_xm, type = "mc", treatment_level = 0)$CI
 #>      2.5 %     97.5 % 
-#> 0.02306856 0.15259671
+#> 0.02329601 0.15239549
 ```
 
 For a 0/1 treatment, `treatment_level = 1` gives the total natural
