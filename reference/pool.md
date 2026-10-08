@@ -70,6 +70,10 @@ multiple imputation. *Biometrika*, 86(4), 948–955.
 [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md),
 [`pool_sem()`](https://data-wise.github.io/missingmed/reference/pool_sem.md)
 The returned tidy table also carries a per-coefficient Wald test
-(`statistic`, `df`, `riv`, `fmi`, `p_value`); see
+(`statistic`, `df`, `riv`, `fmi`, `p_value`) and, when `conf_int = TRUE`
+was set in
+[`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md),
+per-coefficient `conf_low` and `conf_high` at `conf_level` on the same t
+reference; see
 [MDMediationResult](https://data-wise.github.io/missingmed/reference/MDMediationResult.md)
-for the columns and why they do not test the indirect effect.
+for the columns and why they do not test or bound the indirect effect.

@@ -76,7 +76,8 @@ Fitting and validation utilities used by the pipeline.
 
 ## Deprecated (S4)
 
-Superseded by the S7 pipeline; kept for one release cycle.
+Deprecated; superseded by the S7 pipeline. Replaced by
+[`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs in 0.6.0.
 
 - [`set_sem()`](https://data-wise.github.io/missingmed/reference/set_sem.md)
   : Set up an SEM model with multiply imputed data.

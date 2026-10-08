@@ -1,9 +1,9 @@
 # A worked analysis with a missing mediator
 
 This tutorial walks through a complete mediation analysis when the
-mediator is partly missing. It follows the steps of the illustrative
-analysis in the methods paper behind missingmed, on simulated data so
-that every number here can be reproduced from this page:
+mediator is partly missing. It follows the steps of a typical applied
+analysis of a randomized study, on simulated data so that every number
+here can be reproduced from this page:
 
 1.  analyze the complete data, as a reference;
 2.  delete part of the mediator at random, given observed variables
@@ -15,11 +15,11 @@ that every number here can be reproduced from this page:
 7.  ask how far the conclusion depends on MAR.
 
 The tutorial has two parts. **Part 1** is the core analysis, which works
-the same way in missingmed 0.5.0. **Part 2** shows what the development
-version adds: checks that catch a mis-specified model before it is
-fitted, clearer errors, a treatment-by-mediator interaction, and more
-control over the sensitivity analysis. Each Part 2 section says what
-0.5.0 did instead.
+the same way in missingmed 0.5.0. **Part 2** shows what later versions
+add: checks that catch a mis-specified model before it is fitted,
+clearer errors, a treatment-by-mediator interaction, and more control
+over the sensitivity analysis. Each Part 2 section says what 0.5.0 did
+instead.
 
 ``` r
 
@@ -327,11 +327,10 @@ Compare each row’s `msp` with the `delta = 0` row to see how much the
 shift moved the imputations, and judge whether a departure that large is
 plausible for your study.
 
-## Part 2: what the development version adds
+## Part 2: new since missingmed 0.5.0
 
 Everything in Part 1 runs the same way in missingmed 0.5.0. The sections
-below show behavior that is new in the development version, and what
-0.5.0 did instead.
+below show behavior added after 0.5.0, and what 0.5.0 did instead.
 
 ### The model is checked before it is fitted
 

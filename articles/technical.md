@@ -361,9 +361,9 @@ list: $`\bar d`$ cannot be recovered from the pooled result alone.
 
 D4-MBCO under multiple imputation **lives in missingmed**
 (`R/mbco_mi.R`), and `RMediation` keeps complete-data MBCO (author
-decision, 2026-10-07; issue \#19). The code was ported from the
-Missing-Effect research prototype and reproduces it **exactly** (max abs
-diff $`\approx 5\times10^{-11}`$ across design cells). The exported
+decision, 2026-10-07; issue \#19). The code was ported from a research
+prototype and reproduces it **exactly** (max abs diff
+$`\approx 5\times10^{-11}`$ across design cells). The exported
 [`mbco_d4()`](https://data-wise.github.io/missingmed/reference/mbco_d4.md)
 runs the same test on a plain list of completed data frames, so other
 packages can call it directly.
@@ -372,9 +372,9 @@ packages can call it directly.
 
 ## 5. The IPW estimator
 
-IPW is a robustness complement to MI (manuscript appendix): instead of
-imputing, it **reweights the observed complete cases** to represent the
-full sample under MAR. The whole estimator is a single internal branch,
+IPW is a robustness complement to MI: instead of imputing, it
+**reweights the observed complete cases** to represent the full sample
+under MAR. The whole estimator is a single internal branch,
 `.ipw_run()`;
 [`pool()`](https://data-wise.github.io/missingmed/reference/pool.md) and
 `infer(type = "mc")` are unchanged.
@@ -791,8 +791,9 @@ is the “small upstream fix” that a new capability turned out to need.
   `MediationData` naming canonical.
 - **Names are the API**: pooled estimates/vcov stay named so RMediation
   resolves paths by label.
-- **MBCO hosted locally** until RMediation offers an MI entry point;
-  exact parity with the research prototype is the acceptance bar.
+- **MBCO hosted here by decision** (section 4.3): D4-MBCO under multiple
+  imputation lives in missingmed and RMediation keeps complete-data
+  MBCO; exact parity with the research prototype was the acceptance bar.
 - **IPW = thin
   [`run()`](https://data-wise.github.io/missingmed/reference/run.md)
   branch + passthrough
@@ -800,8 +801,8 @@ is the “small upstream fix” that a new capability turned out to need.
   weights support both joint and sequential models, stabilized and
   trimmed; sandwich SE by default.
 - **S4 deprecated** with
-  [`.Deprecated()`](https://rdrr.io/r/base/Deprecated.html) shims for
-  one cycle.
+  [`.Deprecated()`](https://rdrr.io/r/base/Deprecated.html) shims;
+  [`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs in 0.6.0.
 
 ------------------------------------------------------------------------
 

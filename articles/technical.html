@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -599,9 +599,8 @@ cannot be recovered from the pooled result alone.</p>
 <p>D4-MBCO under multiple imputation <strong>lives in
 missingmed</strong> (<code>R/mbco_mi.R</code>), and
 <code>RMediation</code> keeps complete-data MBCO (author decision,
-2026-10-07; issue #19). The code was ported from the Missing-Effect
-research prototype and reproduces it <strong>exactly</strong> (max abs
-diff
+2026-10-07; issue #19). The code was ported from a research prototype
+and reproduces it <strong>exactly</strong> (max abs diff
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>5</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>11</mn></mrow></msup></mrow><annotation encoding="application/x-tex">\approx 5\times10^{-11}</annotation></semantics></math>
 across design cells). The exported <code><a href="../reference/mbco_d4.html">mbco_d4()</a></code> runs the same
 test on a plain list of completed data frames, so other packages can
@@ -612,10 +611,10 @@ call it directly.</p>
 <div class="section level2">
 <h2 id="the-ipw-estimator">5. The IPW estimator<a class="anchor" aria-label="anchor" href="#the-ipw-estimator"></a>
 </h2>
-<p>IPW is a robustness complement to MI (manuscript appendix): instead
-of imputing, it <strong>reweights the observed complete cases</strong>
-to represent the full sample under MAR. The whole estimator is a single
-internal branch, <code>.ipw_run()</code>; <code><a href="../reference/pool.html">pool()</a></code> and
+<p>IPW is a robustness complement to MI: instead of imputing, it
+<strong>reweights the observed complete cases</strong> to represent the
+full sample under MAR. The whole estimator is a single internal branch,
+<code>.ipw_run()</code>; <code><a href="../reference/pool.html">pool()</a></code> and
 <code>infer(type = "mc")</code> are unchanged.</p>
 <div class="section level3">
 <h3 id="pipeline">5.1 Pipeline<a class="anchor" aria-label="anchor" href="#pipeline"></a>
@@ -1313,16 +1312,17 @@ canonical.</li>
 <strong>Names are the API</strong>: pooled estimates/vcov stay named
 so RMediation resolves paths by label.</li>
 <li>
-<strong>MBCO hosted locally</strong> until RMediation offers an MI
-entry point; exact parity with the research prototype is the acceptance
-bar.</li>
+<strong>MBCO hosted here by decision</strong> (section 4.3): D4-MBCO
+under multiple imputation lives in missingmed and RMediation keeps
+complete-data MBCO; exact parity with the research prototype was the
+acceptance bar.</li>
 <li>
 <strong>IPW = thin <code><a href="../reference/run.html">run()</a></code> branch + passthrough
 <code><a href="../reference/pool.html">pool()</a></code></strong>; weights support both joint and sequential
 models, stabilized and trimmed; sandwich SE by default.</li>
 <li>
-<strong>S4 deprecated</strong> with <code><a href="https://rdrr.io/r/base/Deprecated.html" class="external-link">.Deprecated()</a></code> shims
-for one cycle.</li>
+<strong>S4 deprecated</strong> with <code><a href="https://rdrr.io/r/base/Deprecated.html" class="external-link">.Deprecated()</a></code>
+shims; <code><a href="https://rdrr.io/r/base/Defunct.html" class="external-link">.Defunct()</a></code> stubs in 0.6.0.</li>
 </ul>
 <hr>
 </div>

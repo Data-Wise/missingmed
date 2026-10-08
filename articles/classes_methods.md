@@ -167,9 +167,10 @@ The S4 API
 [`run_sem()`](https://data-wise.github.io/missingmed/reference/run_sem.md),
 [`pool_sem()`](https://data-wise.github.io/missingmed/reference/pool_sem.md)
 with the classes `SemImputedData`, `SemResults` and `PooledSEMResults`)
-is deprecated and kept for one release cycle behind
-[`.Deprecated()`](https://rdrr.io/r/base/Deprecated.html) shims. Each S7
-class above replaces one of them:
+is deprecated behind
+[`.Deprecated()`](https://rdrr.io/r/base/Deprecated.html) shims and
+becomes [`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs in
+0.6.0. Each S7 class above replaces one of them:
 
 | S7 class            | Replaces           |
 |---------------------|--------------------|

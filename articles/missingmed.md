@@ -1,8 +1,8 @@
 # Getting started with missingmed
 
-**missingmed** runs SEM-based mediation across multiply imputed datasets
-and pools with Rubin’s rules. It is a thin orchestration layer: it
-**fits** each imputation with
+**missingmed** runs regression-based mediation across multiply imputed
+datasets and pools with Rubin’s rules. It is a thin orchestration layer:
+it **fits** each imputation with
 [medfit](https://data-wise.github.io/medfit/) and delegates
 **inference** to [RMediation](https://data-wise.github.io/rmediation/).
 The S7 pipeline is four verbs:
@@ -201,5 +201,6 @@ The S4 entry points
 ([`set_sem()`](https://data-wise.github.io/missingmed/reference/set_sem.md),
 [`run_sem()`](https://data-wise.github.io/missingmed/reference/run_sem.md),
 [`pool_sem()`](https://data-wise.github.io/missingmed/reference/pool_sem.md))
-are **deprecated** in favor of the S7 verbs above. They still work for
-one release cycle but emit a deprecation warning.
+are **deprecated** in favor of the S7 verbs above. They still work but
+emit a deprecation warning, and they become
+[`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs in 0.6.0.

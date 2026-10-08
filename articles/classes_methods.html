@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -294,7 +294,7 @@
 <li>Every exported class and function needs an entry in the <code>reference:</code> index of <code>_pkgdown.yml</code>; <code>R CMD check</code> does not read it, but the pkgdown CI job fails without it.</li>
 </ul></section><section class="section level2"><h2 id="deprecated-s4-classes">Deprecated S4 classes<a class="anchor" aria-label="anchor" href="#deprecated-s4-classes"></a>
 </h2>
-<p>The S4 API (<code><a href="../reference/set_sem.html">set_sem()</a></code>, <code><a href="../reference/run_sem.html">run_sem()</a></code>, <code><a href="../reference/pool_sem.html">pool_sem()</a></code> with the classes <code>SemImputedData</code>, <code>SemResults</code> and <code>PooledSEMResults</code>) is deprecated and kept for one release cycle behind <code><a href="https://rdrr.io/r/base/Deprecated.html" class="external-link">.Deprecated()</a></code> shims. Each S7 class above replaces one of them:</p>
+<p>The S4 API (<code><a href="../reference/set_sem.html">set_sem()</a></code>, <code><a href="../reference/run_sem.html">run_sem()</a></code>, <code><a href="../reference/pool_sem.html">pool_sem()</a></code> with the classes <code>SemImputedData</code>, <code>SemResults</code> and <code>PooledSEMResults</code>) is deprecated behind <code><a href="https://rdrr.io/r/base/Deprecated.html" class="external-link">.Deprecated()</a></code> shims and becomes <code><a href="https://rdrr.io/r/base/Defunct.html" class="external-link">.Defunct()</a></code> stubs in 0.6.0. Each S7 class above replaces one of them:</p>
 <table class="table caption-top">
 <thead><tr class="header">
 <th>S7 class</th>

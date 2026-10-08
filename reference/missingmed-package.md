@@ -1,8 +1,8 @@
 # missingmed: Mediation Analysis with Multiple Imputation for Missing Data
 
-missingmed runs SEM-based mediation analysis across multiply imputed
-datasets and pools with Rubin's rules. It is a thin orchestration layer:
-it **fits** each imputation with
+missingmed runs regression-based mediation analysis across multiply
+imputed datasets and pools with Rubin's rules. It is a thin
+orchestration layer: it **fits** each imputation with
 [medfit](https://data-wise.github.io/medfit/reference/medfit-package.html)
 and delegates **inference** to
 [RMediation](https://data-wise.github.io/rmediation/reference/RMediation-package.html).
@@ -41,7 +41,8 @@ and delegates **inference** to
 [`run_sem()`](https://data-wise.github.io/missingmed/reference/run_sem.md),
 and
 [`pool_sem()`](https://data-wise.github.io/missingmed/reference/pool_sem.md)
-are superseded by the S7 pipeline above and kept for one release cycle.
+are superseded by the S7 pipeline above. They are replaced by
+[`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs in 0.6.0.
 
 ## See also
 

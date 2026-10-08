@@ -57,6 +57,15 @@ columns:
 
 ## Details
 
+**Deprecated.** Use
+[`pool()`](https://data-wise.github.io/missingmed/reference/pool.md) on
+an
+[MDMediationFit](https://data-wise.github.io/missingmed/reference/MDMediationFit.md)
+from [`run()`](https://data-wise.github.io/missingmed/reference/run.md)
+instead; `pool_sem()` becomes a
+[`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stub in missingmed
+0.6.0.
+
 A generic function to pool SEM analysis results from multiple datasets
 or imputations.
 

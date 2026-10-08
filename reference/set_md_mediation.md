@@ -104,12 +104,19 @@ set_md_mediation(
 
 - conf_int:
 
-  Logical; whether downstream output carries confidence intervals.
-  Defaults to `FALSE`.
+  Logical; if `TRUE`,
+  [`pool()`](https://data-wise.github.io/missingmed/reference/pool.md)
+  adds per-coefficient `conf_low` and `conf_high` columns to the pooled
+  tidy table, at `conf_level` on Rubin's t reference. Defaults to
+  `FALSE`. These bound single coefficients; for the indirect effect use
+  [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md).
 
 - conf_level:
 
-  Numeric in (0, 1); confidence level. Defaults to `0.95`.
+  Numeric in (0, 1); confidence level for `conf_int` and the default
+  `level` of
+  [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md).
+  Defaults to `0.95`.
 
 ## Value
 

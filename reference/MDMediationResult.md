@@ -69,7 +69,9 @@ MDMediationResult(
 
 - conf_int:
 
-  Logical; whether the tidy table carries confidence intervals.
+  Logical; whether the tidy table carries per-coefficient `conf_low` and
+  `conf_high` columns (set in
+  [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)).
 
 - conf_level:
 

@@ -1,6 +1,13 @@
 # Run a SEM model
 
-A generic function to run and analyze multiply imputed data sets.
+**Deprecated.** Use
+[`run()`](https://data-wise.github.io/missingmed/reference/run.md) on an
+[MDMediationData](https://data-wise.github.io/missingmed/reference/MDMediationData.md)
+from
+[`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)
+instead; `run_sem()` becomes a
+[`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stub in missingmed
+0.6.0.
 
 This method facilitates running SEM analysis using either lavaan or
 OpenMx on multiply imputed datasets contained within a
@@ -33,6 +40,10 @@ run_sem(object, ...)
 A
 [SemResults](https://data-wise.github.io/missingmed/reference/SemResults.md)
 object
+
+## Details
+
+A generic function to run and analyze multiply imputed data sets.
 
 ## Author
 

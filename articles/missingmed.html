@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,8 +67,8 @@
 
     
     
-<p><strong>missingmed</strong> runs SEM-based mediation across multiply
-imputed datasets and pools with Rubin’s rules. It is a thin
+<p><strong>missingmed</strong> runs regression-based mediation across
+multiply imputed datasets and pools with Rubin’s rules. It is a thin
 orchestration layer: it <strong>fits</strong> each imputation with <a href="https://data-wise.github.io/medfit/" class="external-link">medfit</a> and delegates
 <strong>inference</strong> to <a href="https://data-wise.github.io/rmediation/" class="external-link">RMediation</a>. The S7
 pipeline is four verbs:</p>
@@ -244,8 +244,8 @@ reasoning.</p>
 </h2>
 <p>The S4 entry points (<code><a href="../reference/set_sem.html">set_sem()</a></code>, <code><a href="../reference/run_sem.html">run_sem()</a></code>,
 <code><a href="../reference/pool_sem.html">pool_sem()</a></code>) are <strong>deprecated</strong> in favor of the
-S7 verbs above. They still work for one release cycle but emit a
-deprecation warning.</p>
+S7 verbs above. They still work but emit a deprecation warning, and they
+become <code><a href="https://rdrr.io/r/base/Defunct.html" class="external-link">.Defunct()</a></code> stubs in 0.6.0.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -1,17 +1,10 @@
 # Set up an SEM model with multiply imputed data.
 
-This function sets up an SEM model with multiply imputed data for
-analysis. The function accepts a
-[mice::mids](https://amices.org/mice/reference/mids.html) object and a
-model syntax for either
-[lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) or
-[OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html) and returns a
-[SemImputedData](https://data-wise.github.io/missingmed/reference/SemImputedData.md)
-object for analysis. It returns an error if the provided data is not a
-[mice::mids](https://amices.org/mice/reference/mids.html) object or if
-the specified SEM analysis method is not supported. It returns an object
-of class
-[SemImputedData](https://data-wise.github.io/missingmed/reference/SemImputedData.md).
+**Deprecated.** Use
+[`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)
+instead; `set_sem()` becomes a
+[`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stub in missingmed
+0.6.0.
 
 ## Usage
 
@@ -61,6 +54,19 @@ An object of class SemImputedData. See
 for the details of the slots.
 
 ## Details
+
+This function sets up an SEM model with multiply imputed data for
+analysis. The function accepts a
+[mice::mids](https://amices.org/mice/reference/mids.html) object and a
+model syntax for either
+[lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) or
+[OpenMx](https://rdrr.io/pkg/OpenMx/man/OpenMx.html) and returns a
+[SemImputedData](https://data-wise.github.io/missingmed/reference/SemImputedData.md)
+object for analysis. It returns an error if the provided data is not a
+[mice::mids](https://amices.org/mice/reference/mids.html) object or if
+the specified SEM analysis method is not supported. It returns an object
+of class
+[SemImputedData](https://data-wise.github.io/missingmed/reference/SemImputedData.md).
 
 The function technically constructs a new
 [SemImputedData](https://data-wise.github.io/missingmed/reference/SemImputedData.md)

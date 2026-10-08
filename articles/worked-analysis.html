@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,9 +68,9 @@
     
     
 <p>This tutorial walks through a complete mediation analysis when the
-mediator is partly missing. It follows the steps of the illustrative
-analysis in the methods paper behind missingmed, on simulated data so
-that every number here can be reproduced from this page:</p>
+mediator is partly missing. It follows the steps of a typical applied
+analysis of a randomized study, on simulated data so that every number
+here can be reproduced from this page:</p>
 <ol style="list-style-type: decimal">
 <li>analyze the complete data, as a reference;</li>
 <li>delete part of the mediator at random, given observed variables
@@ -83,7 +83,7 @@ that every number here can be reproduced from this page:</p>
 </ol>
 <p>The tutorial has two parts. <strong>Part 1</strong> is the core
 analysis, which works the same way in missingmed 0.5.0. <strong>Part
-2</strong> shows what the development version adds: checks that catch a
+2</strong> shows what later versions add: checks that catch a
 mis-specified model before it is fitted, clearer errors, a
 treatment-by-mediator interaction, and more control over the sensitivity
 analysis. Each Part 2 section says what 0.5.0 did instead.</p>
@@ -366,11 +366,11 @@ your study.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="part-2-what-the-development-version-adds">Part 2: what the development version adds<a class="anchor" aria-label="anchor" href="#part-2-what-the-development-version-adds"></a>
+<h2 id="part-2-new-since-missingmed-0-5-0">Part 2: new since missingmed 0.5.0<a class="anchor" aria-label="anchor" href="#part-2-new-since-missingmed-0-5-0"></a>
 </h2>
 <p>Everything in Part 1 runs the same way in missingmed 0.5.0. The
-sections below show behavior that is new in the development version, and
-what 0.5.0 did instead.</p>
+sections below show behavior added after 0.5.0, and what 0.5.0 did
+instead.</p>
 <div class="section level3">
 <h3 id="the-model-is-checked-before-it-is-fitted">The model is checked before it is fitted<a class="anchor" aria-label="anchor" href="#the-model-is-checked-before-it-is-fitted"></a>
 </h3>
