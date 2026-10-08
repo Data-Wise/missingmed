@@ -37,6 +37,64 @@ test_that("pool() returns a valid pooled InteractionMediationData (#20 reprex)",
   expect_equal(p@interaction, mean(th))
 })
 
+# A covariate that is itself imputed makes m_ref (the mediator's expected
+# value at the reference treatment with covariates at their means) differ
+# across imputations; a factor covariate checks the coefficient/mean naming.
+make_xm_fit_cov <- function() {
+  set.seed(202)
+  n <- 400
+  C <- rnorm(n)
+  G <- factor(sample(c("u", "v", "w"), n, replace = TRUE))
+  X <- rbinom(n, 1, 0.5)
+  M <- 0.5 * X + 0.3 * C + 0.4 * (G == "v") + rnorm(n)
+  Y <- 0.2 * X + 0.3 * M + 0.4 * X * M + 0.3 * C + rnorm(n)
+  d <- data.frame(X, M, Y, C, G)
+  d$M[sample(n, 60)] <- NA
+  d$C[sample(n, 80)] <- NA
+  imp <- mice::mice(d, m = 5, printFlag = FALSE, seed = 4,
+    method = c(X = "", M = "norm", Y = "", C = "norm", G = "")
+  )
+  run(set_md_mediation(imp, Y ~ X * M + C + G, M ~ X + C + G,
+    treatment = "X", mediator = "M"
+  ))
+}
+
+test_that("pooled int_ref comes from one pooled reference profile", {
+  fit <- make_xm_fit_cov()
+  fits <- fit@per_imputation
+  # The m_ref rebuilt from each imputation's estimates reproduces medfit's
+  # own int_ref there (factor covariate included).
+  m_ref <- vapply(fits, missingmed:::.interaction_m_ref, numeric(1))
+  int_ref_i <- vapply(fits, function(x) x@int_ref, numeric(1))
+  th_i <- vapply(fits, function(x) x@interaction, numeric(1))
+  m_star <- fits[[1]]@m_star
+  expect_equal(th_i * (m_ref - m_star), int_ref_i, tolerance = 1e-10)
+  expect_gt(diff(range(m_ref)), 1e-3) # the imputed covariate moves m_ref
+  p <- missingmed::pool(fit)@pooled
+  expect_equal(p@int_ref, p@interaction * (mean(m_ref) - m_star), tolerance = 1e-12)
+  # Not the average of the per-imputation int_ref, which mixes each
+  # imputation's theta3 with its own m_ref.
+  expect_gt(abs(p@int_ref - mean(int_ref_i)), 1e-8)
+  expect_equal(p@nde, p@cde + p@int_ref)
+})
+
+test_that("pool() refuses imputations fitted at different m_star", {
+  fit <- xm_fit
+  o <- fit@per_imputation[[2]]
+  m_ref <- missingmed:::.interaction_m_ref(o)
+  ms <- 1
+  cde <- o@c_prime + o@interaction * ms
+  int_ref <- o@interaction * (m_ref - ms)
+  S7::props(o) <- list(
+    m_star = ms, cde = cde, int_ref = int_ref, nde = cde + int_ref,
+    total_effect = cde + int_ref + o@int_med + o@pie
+  )
+  pis <- fit@per_imputation
+  pis[[2]] <- o
+  fit@per_imputation <- pis
+  expect_error(missingmed::pool(fit), "different mediator reference levels")
+})
+
 test_that("theta3 and b0 rows take their source rows' df", {
   tt <- xm_res@tidy_table
   row <- function(t) tt[tt$term == t, c("df", "p_value")]
