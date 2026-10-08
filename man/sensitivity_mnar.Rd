@@ -14,6 +14,7 @@ sensitivity_mnar(
   n.mc = 1e+05,
   ums = NULL,
   treatment_level = NULL,
+  ariv = c("fixed", "own"),
   ...
 )
 }
@@ -30,11 +31,15 @@ be \code{NULL} when \code{delta} is a data frame.}
 \item{type}{Inference per rung: \code{"mc"} (default) or \code{"mbco"}.}
 
 \item{seed}{Integer seed pinned across rungs. Defaults to the seed stored in
-the \code{mids} object, or \code{20260822L} when that is \code{NA}.}
+the \code{mids} object, or \code{20260822L} when that is \code{NA}. A fractional value is
+truncated, as \code{\link[=set.seed]{set.seed()}} does, and the result records the integer used.}
 
 \item{level, n.mc, treatment_level}{Passed to \code{\link[=infer]{infer()}} for \code{type = "mc"}.
 \code{treatment_level} is required when the outcome model has a
-treatment-by-mediator interaction and an error otherwise.}
+treatment-by-mediator interaction and an error otherwise. For
+\code{type = "mbco"}, \code{level} sets the test size used to find the tipping point
+(p > 1 - \code{level} retains the null), and \code{n.mc} and \code{treatment_level} do not
+apply (a warning names them if supplied).}
 
 \item{ums}{Optional character vector for a \strong{covariate-varying} delta, one
 rung per string, passed verbatim to \code{mice}'s NARFCS \code{ums} (e.g.
@@ -42,6 +47,10 @@ rung per string, passed verbatim to \code{mice}'s NARFCS \code{ums} (e.g.
 one intercept term. Only for a single target routed to \code{mnar.norm} or
 \code{mnar.logreg}. A \code{ums} grid has no numeric ordering, so \code{summary()} does
 not compute a tipping point for it.}
+
+\item{ariv}{For \code{type = "mbco"}: passed to \code{\link[=infer]{infer()}} for every rung
+(\code{"fixed"}, the default, or \code{"own"}; see \code{\link[=mbco_d4]{mbco_d4()}}). Ignored, with a
+warning, for \code{type = "mc"}.}
 
 \item{...}{Passed to \code{\link[=run]{run()}}.}
 }

@@ -580,3 +580,30 @@ test_that("an aliased path coefficient is a clear error; an aliased covariate is
   fit_k <- run(edge_md(suppressWarnings(edge_imp(dk)), fy = Y ~ X + M + C + K))
   expect_true(all(is.finite(infer(fit_k, n.mc = 1000)$CI)))
 })
+
+test_that("infer() warns about arguments the chosen type does not use", {
+  set.seed(61)
+  n <- 120
+  d <- data.frame(X = rnorm(n), C = rnorm(n))
+  d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
+  d$Y <- 0.4 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+  d$M[sample(n, 20)] <- NA
+  imp <- mice::mice(d, m = 2, maxit = 2, method = "norm", printFlag = FALSE, seed = 4)
+  fit <- run(set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M"
+  ))
+  # v0.5.0 dropped these silently.
+  expect_warning(r <- infer(fit, type = "mbco", level = 0.9, n.mc = 100),
+    "Ignored for type = \"mbco\": `level`, `n.mc`.", fixed = TRUE
+  )
+  expect_equal(S7::S7_data(r), S7::S7_data(infer(fit, type = "mbco")))
+  expect_warning(infer(fit, type = "mbco", treatment_level = 1),
+    "`treatment_level`", fixed = TRUE
+  )
+  expect_warning(infer(fit, type = "mc", ariv = "own", n.mc = 1000),
+    "Ignored for type = \"mc\": `ariv`.", fixed = TRUE
+  )
+  # Defaults and the arguments a type does use stay silent.
+  expect_silent(infer(fit, type = "mbco", ariv = "own"))
+  expect_silent(infer(fit, type = "mc", level = 0.9, n.mc = 1000))
+})

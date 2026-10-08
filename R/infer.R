@@ -66,9 +66,13 @@ S7::method(infer, MDMediationFit) <- function(object, type = c("mc", "mbco"),
                                               level = NULL, n.mc = 1e5,
                                               ariv = c("fixed", "own"),
                                               treatment_level = NULL, ...) {
+  # missing() is only reliable before an argument is reassigned, so read it first.
+  supplied <- c(level = !missing(level), n.mc = !missing(n.mc),
+    treatment_level = !missing(treatment_level), ariv = !missing(ariv))
   type <- match.arg(type)
   ariv <- match.arg(ariv)
   .check_infer_dots(...)
+  .warn_ignored(supplied, type)
   # NULL (not 0.95) is the default so that "unspecified" is distinguishable from
   # "specified as 0.95": an explicit level= still wins, and otherwise the level
   # the user set once on the data object is honoured instead of ignored.
@@ -111,6 +115,26 @@ S7::method(infer, MDMediationResult) <- function(object, type = c("mc", "mbco"),
 # infer()'s `...` exists only because the S7 generic needs it. Anything that
 # lands there is a misspelled or misplaced argument (`conf.level = 0.9`,
 # `nmc = 1e4`) that would otherwise be dropped while the default is used.
+# Arguments that are valid for infer() but do not apply to the chosen `type`:
+# MBCO is a likelihood-ratio test of a * b = 0, with no interval (`level`), no
+# Monte Carlo draws (`n.mc`) and no treatment level (`treatment_level`); `ariv`
+# applies only to MBCO. Warn once, naming them, instead of ignoring them.
+.warn_ignored <- function(supplied, type) {
+  unused <- if (identical(type, "mbco")) {
+    c("level", "n.mc", "treatment_level")
+  } else {
+    "ariv"
+  }
+  hit <- intersect(unused, names(supplied)[supplied])
+  if (length(hit)) {
+    warning("Ignored for type = \"", type, "\": ",
+      paste0("`", hit, "`", collapse = ", "), ".",
+      call. = FALSE
+    )
+  }
+  invisible(hit)
+}
+
 .check_infer_dots <- function(...) {
   if (...length() == 0L) {
     return(invisible(TRUE))

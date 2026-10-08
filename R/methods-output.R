@@ -90,7 +90,11 @@ S7::method(tidy, MDMediationResult) <- function(x, ...) {
 S7::method(print, MDSensitivityResult) <- function(x, ...) {
   cat("<MDSensitivityResult>  MNAR sensitivity curve\n")
   cat("  target(s):", paste(x@target, collapse = ", "),
-    "| rungs:", nrow(x@grid), "| inference:", x@type, "\n"
+    "| rungs:", nrow(x@grid), "| inference:", x@type,
+    if (S7::S7_inherits(x@rungs[[1]], MbcoMIResult)) {
+      paste0("(ariv = \"", x@rungs[[1]]@ariv, "\")")
+    },
+    "\n"
   )
   cat("  seed:", x@seed, paste0("(from ", x@seed_source, ")"),
     "| target imputed by:", x@method_target, "\n"
@@ -115,15 +119,22 @@ S7::method(print, MDSensitivityResult) <- function(x, ...) {
 S7::method(summary, MDSensitivityResult) <- function(object, ...) {
   tb <- tidy(object)
   ordered <- all(vapply(object@grid, is.numeric, logical(1)))
-  # A rung whose interval or p-value is NA has an unknown verdict, so the
-  # smallest retaining departure is unknown too. Name the rungs instead of
-  # searching around them (which could report a tipping point, or "none",
-  # that the missing rung would contradict).
-  na_rungs <- if (ordered) which(is.na(.mnar_null_retained(object, tb))) else integer()
-  tp <- if (ordered && !length(na_rungs)) .mnar_tipping(object, tb) else NULL
+  # A rung whose interval or p-value is NA has an unknown verdict. The tipping
+  # point is still known when every such rung lies farther from MAR than it
+  # (the unknown verdicts cannot move the smallest retaining departure);
+  # otherwise it is undetermined and the NA rungs are named instead.
+  keep <- if (ordered) .mnar_null_retained(object, tb) else NULL
+  na_rungs <- if (ordered) which(is.na(keep)) else integer()
+  tp <- NULL
+  undetermined <- FALSE
+  if (ordered) {
+    tp <- .mnar_tipping(object, tb, keep)
+    undetermined <- .mnar_tipping_undetermined(object, keep, tp)
+    if (undetermined) tp <- NULL
+  }
   structure(
     list(table = tb, tipping = tp, target = object@target, type = object@type,
-      ordered = ordered, na_rungs = na_rungs),
+      ordered = ordered, na_rungs = na_rungs, undetermined = undetermined),
     class = "summary.MDSensitivityResult"
   )
 }
@@ -146,10 +157,12 @@ S7::method(summary, MDSensitivityResult) <- function(object, ...) {
 # retained -- not the first such rung in whatever order the grid was supplied.
 # Distance is measured from the all-zero (MAR) row, so a multi-column grid has a
 # defined ordering too; for a single column it reduces to abs(delta).
-.mnar_tipping <- function(object, tb) {
-  keep <- .mnar_null_retained(object, tb)
-  if (is.null(keep) || !any(keep)) return(NULL)
-  dist <- sqrt(rowSums(as.matrix(object@grid)^2))
+.mnar_tipping <- function(object, tb, keep = .mnar_null_retained(object, tb)) {
+  # NA verdicts are skipped here; .mnar_tipping_undetermined() decides whether
+  # they could have changed the answer.
+  keep <- keep %in% TRUE
+  if (!any(keep)) return(NULL)
+  dist <- .mnar_dist(object)
   # The null already retained at MAR itself: nothing tips, the analysis is null
   # before any departure is assumed.
   if (any(dist == 0 & keep)) return(NULL)
@@ -163,6 +176,25 @@ S7::method(summary, MDSensitivityResult) <- function(object, ...) {
   tb[cand[which.min(dist[cand])], , drop = FALSE]
 }
 
+# Distance of each rung from the all-zero (MAR) row.
+.mnar_dist <- function(object) sqrt(rowSums(as.matrix(object@grid)^2))
+
+# Could the rungs with an NA verdict change the tipping point? Not when the
+# null is retained at MAR (there is no tipping point either way), and not when
+# every NA rung is farther from MAR than the tipping point found among the
+# known rungs. Otherwise yes: an NA rung at MAR, an NA rung at or inside the
+# found tipping point, or no retaining rung at all (so "none" would be a claim
+# about rungs whose verdict is unknown).
+.mnar_tipping_undetermined <- function(object, keep, tp) {
+  na <- is.na(keep)
+  if (!any(na)) return(FALSE)
+  dist <- .mnar_dist(object)
+  retained <- keep %in% TRUE
+  if (any(dist == 0 & retained)) return(FALSE)
+  if (any(dist == 0 & na) || is.null(tp)) return(TRUE)
+  any(dist[na] <= min(dist[retained]))
+}
+
 #' @exportS3Method base::print
 print.summary.MDSensitivityResult <- function(x, ...) {
   cat("MNAR sensitivity curve --", x$type, "| target:",
@@ -172,7 +204,7 @@ print.summary.MDSensitivityResult <- function(x, ...) {
   if (isFALSE(x$ordered)) {
     cat("\nTipping point not computed: a `ums` grid has no numeric ordering of\n")
     cat("departures from MAR, so \"smallest departure\" is undefined.\n")
-  } else if (length(x$na_rungs)) {
+  } else if (isTRUE(x$undetermined)) {
     cat("\nTipping point not computed: rung(s)", paste(x$na_rungs, collapse = ", "),
       "have a missing (NA)\n")
     cat("interval or p-value, so whether the null is retained there is unknown.\n")
@@ -187,6 +219,10 @@ print.summary.MDSensitivityResult <- function(x, ...) {
     cat("A CSP-scale tipping point has no direct clinical reading -- judge\n")
     cat("plausibility on the realized msp, and only call the result fragile if\n")
     cat("that departure from MAR is itself plausible.\n")
+  }
+  if (length(x$na_rungs) && !isTRUE(x$undetermined) && !isFALSE(x$ordered)) {
+    cat("Rung(s)", paste(x$na_rungs, collapse = ", "), "have a missing (NA) verdict",
+      "but cannot change this conclusion.\n")
   }
   invisible(x)
 }

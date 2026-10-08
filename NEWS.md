@@ -12,6 +12,13 @@
   `treatment_level` is required for such models and an error elsewhere.
   `sensitivity_mnar(type = "mc")` passes it through.
 
+* `sensitivity_mnar()` gains `ariv`, passed to `infer(type = "mbco")` for
+  every rung (it was always `"fixed"`); `print()` of an MBCO curve shows it.
+
+* `infer()` and `sensitivity_mnar()` warn, naming them, about arguments that
+  do not apply to the chosen `type` (`level`, `n.mc` and `treatment_level`
+  for `"mbco"` in `infer()`; `ariv` for `"mc"`), instead of ignoring them.
+
 ## Bug fixes
 
 * `set_md_mediation()` now validates the model before fitting; previously a
@@ -44,6 +51,18 @@
 * `print()` and `summary()` of a pooled `X:M` fit report the indirect effect
   at `x = 0` and `x = 1` instead of a single `a*b`, which is the `x = 0`
   value only.
+
+* `pool_sem()` (deprecated) reported the geometric mean of the
+  per-imputation p-values, which is not a valid pooled test. It now reports
+  Rubin's pooled Wald `statistic`, `df` and `riv`, the p-value of the t test on
+  those degrees of freedom, and, with `conf_int = TRUE` in `set_sem()`,
+  `conf_low` and `conf_high` (which were documented but never computed).
+
+* `summary()` of a sensitivity curve with NA rungs still reports the tipping
+  point when every NA rung lies farther from MAR than it, since the unknown
+  verdicts cannot change it; it declines (`undetermined = TRUE`) only when an
+  NA rung could. `sensitivity_mnar()` records a fractional `seed` as the
+  integer `set.seed()` used.
 
 * The S7 classes validate more of their input, turning silent wrong answers
   and obscure late crashes into clear errors at construction:
