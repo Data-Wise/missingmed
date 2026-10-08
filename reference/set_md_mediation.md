@@ -10,7 +10,7 @@ delegated to
 downstream by
 [`run()`](https://data-wise.github.io/missingmed/reference/run.md). It
 is the S7 successor of the S4
-[`set_sem()`](https://data-wise.github.io/missingmed/reference/set_sem.md)
+[`set_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md)
 constructor.
 
 ## Usage
@@ -32,7 +32,10 @@ set_md_mediation(
   weight_trim = 1,
   se_type = c("sandwich", "model"),
   conf_int = FALSE,
-  conf_level = 0.95
+  conf_level = 0.95,
+  model = NULL,
+  outcome = NULL,
+  fit_args = list()
 )
 ```
 
@@ -47,11 +50,13 @@ set_md_mediation(
 
 - formula_y:
 
-  Outcome model formula (e.g. `Y ~ X + M + C`).
+  Outcome model formula (e.g. `Y ~ X + M + C`). Not used with
+  `engine = "lavaan"`.
 
 - formula_m:
 
-  Mediator model formula (e.g. `M ~ X + C`).
+  Mediator model formula (e.g. `M ~ X + C`). Not used with
+  `engine = "lavaan"`.
 
 - treatment:
 
@@ -63,8 +68,11 @@ set_md_mediation(
 
 - engine:
 
-  medfit fitting engine: `"glm"` (default), or `"regmedint"` (needs
-  medfit \>= 0.4.0 and the regmedint package; `method = "mi"` only).
+  Fitting engine: `"glm"` (default), `"regmedint"` (needs medfit 0.4.0
+  or later and the regmedint package; `method = "mi"` only), or
+  `"lavaan"` (a structural equation model given as `model` syntax
+  instead of formulas; with `method = "ipw"` too: complete cases are
+  weighted and the SEs are robust).
 
 - family_y, family_m:
 
@@ -117,6 +125,26 @@ set_md_mediation(
   `level` of
   [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md).
   Defaults to `0.95`.
+
+- model:
+
+  (`engine = "lavaan"`) lavaan model syntax, a single string, for
+  example `"M ~ a*X + C\nY ~ b*M + cp*X + C"`. A latent mediator
+  (`"Mlat =~ m1 + m2 + m3"`) is allowed. Must be `NULL` for other
+  engines.
+
+- outcome:
+
+  (`engine = "lavaan"`) name of the outcome variable; required for
+  lavaan, and it must be regressed on the mediator in `model`. Must be
+  `NULL` for other engines.
+
+- fit_args:
+
+  (`engine = "lavaan"`) named list of extra arguments for
+  [`lavaan::sem()`](https://rdrr.io/pkg/lavaan/man/sem.html), for
+  example `list(estimator = "MLR")`, stored on the object. It cannot set
+  `model` or `data`. Must be empty for other engines.
 
 ## Value
 
@@ -193,18 +221,16 @@ expanded against the data, so `Y ~ .` is checked as the model that
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 set.seed(1)
 d <- data.frame(X = rbinom(200, 1, .5), C = rnorm(200))
 d$M <- .5 * d$X + .3 * d$C + rnorm(200)
 d$Y <- .2 * d$X + .4 * d$M + .3 * d$C + rnorm(200)
 d$M[sample(200, 30)] <- NA
 # MI
-imp <- mice::mice(d, m = 5, printFlag = FALSE)
+imp <- mice::mice(d, m = 5, printFlag = FALSE, seed = 1)
 md_mi <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
   treatment = "X", mediator = "M")
 # IPW (raw data.frame)
 md_ipw <- set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
   treatment = "X", mediator = "M", method = "ipw")
-} # }
 ```

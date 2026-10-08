@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -146,21 +146,24 @@ R/mbco_mi.R<br>MbcoMIResult”] –&gt;</p>
 <td><code>MDMediationData</code></td>
 <td>data (<code>mids</code> or <code>data.frame</code>) + mediation spec
 + estimator/mechanism axes</td>
-<td><code>SemImputedData</code></td>
+<td>former <code>SemImputedData</code>
+</td>
 </tr>
 <tr class="even">
 <td><code>MDMediationFit</code></td>
 <td>
 <strong>list</strong> of per-imputation named
 <code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code> (+ IPW <code>weights</code>)</td>
-<td><code>SemResults</code></td>
+<td>former <code>SemResults</code>
+</td>
 </tr>
 <tr class="odd">
 <td><code>MDMediationResult</code></td>
 <td>
 <strong>pooled</strong> named <code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code> +
 within/between/total vcov</td>
-<td><code>PooledSEMResults</code></td>
+<td>former <code>PooledSEMResults</code>
+</td>
 </tr>
 <tr class="even">
 <td><code>MbcoMIResult</code></td>
@@ -466,11 +469,189 @@ and
 <code>@vcov =</code><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
 — so all medfit metadata (roles, predictors, families) is inherited and
 the aliases stay name-addressable for
-<code><a href="https://data-wise.github.io/rmediation/reference/ci_mediation_data.html" class="external-link">ci_mediation_data()</a></code>.</p>
+<code>ci_mediation_data()</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md_mi</span><span class="op">)</span>            <span class="co"># m named MediationData</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>             <span class="co"># pooled named MediationData + within/between/total vcov</span></span>
 <span><span class="va">res</span><span class="op">@</span><span class="va">tidy_table</span>               <span class="co"># + statistic, df, riv, fmi, p_value (per path)</span></span></code></pre></div>
+<hr>
+</div>
+</div>
+<div class="section level2">
+<h2 id="a--treatment-by-mediator-interaction-xm">3A. Treatment-by-mediator interaction (<code>X:M</code>)<a class="anchor" aria-label="anchor" href="#a--treatment-by-mediator-interaction-xm"></a>
+</h2>
+<p><code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> accepts one product term, the
+treatment-by-mediator interaction in the outcome model
+(<code>Y ~ X * M + C</code>), for Gaussian identity-link models only.
+This section covers what changes in pooling and in the Monte Carlo
+interval. The MBCO side is in <code><a href="../articles/mbco-mi.html">vignette("mbco-mi")</a></code>, section
+“Models with an X:M interaction”.</p>
+<div class="section level3">
+<h3 id="a-1-estimand">3A.1 Estimand<a class="anchor" aria-label="anchor" href="#a-1-estimand"></a>
+</h3>
+<p>With mediator model
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>=</mo><msub><mi>β</mi><mn>0</mn></msub><mo>+</mo><mi>a</mi><mi>X</mi><mo>+</mo><msub><mo>∑</mo><mi>k</mi></msub><msub><mi>β</mi><mi>k</mi></msub><msub><mi>C</mi><mi>k</mi></msub><mo>+</mo><msub><mi>e</mi><mi>M</mi></msub></mrow><annotation encoding="application/x-tex">M = \beta_0 + aX + \sum_k \beta_k C_k + e_M</annotation></semantics></math>
+and outcome model
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><msub><mi>γ</mi><mn>0</mn></msub><mo>+</mo><msup><mi>c</mi><mo>′</mo></msup><mi>X</mi><mo>+</mo><mi>b</mi><mi>M</mi><mo>+</mo><msub><mi>θ</mi><mn>3</mn></msub><mi>X</mi><mi>M</mi><mo>+</mo><mi>…</mi><mo>+</mo><msub><mi>e</mi><mi>Y</mi></msub></mrow><annotation encoding="application/x-tex">Y = \gamma_0 + c'X + bM + \theta_3 XM + \dots + e_Y</annotation></semantics></math>,
+the effect of a one-unit increase in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+through
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>,
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+held at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+in the outcome model, is</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo>+</mo><msub><mi>θ</mi><mn>3</mn></msub><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex"> a\,(b + \theta_3 x). </annotation></semantics></math></p>
+<p>It depends on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>,
+so <code>infer(type = "mc")</code> requires <code>treatment_level</code>
+on such a model and refuses it on a model without <code>X:M</code>. For
+a 0/1 treatment, <code>treatment_level = 1</code> gives the total
+natural indirect effect and <code>0</code> the pure natural indirect
+effect. The draws come from the pooled estimates of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>,</mo><msub><mi>θ</mi><mn>3</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(a, b, \theta_3)</annotation></semantics></math>
+and the matching block of the pooled total covariance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>.
+That block is not block-diagonal: the between-imputation part couples
+the mediator and outcome models, because both are fitted to the same
+completed dataset.</p>
+</div>
+<div class="section level3">
+<h3 id="a-2-the-four-way-decomposition-pooled">3A.2 The four-way decomposition, pooled<a class="anchor" aria-label="anchor" href="#a-2-the-four-way-decomposition-pooled"></a>
+</h3>
+<p>medfit returns an <code>InteractionMediationData</code> per
+imputation, carrying the four-way decomposition (VanderWeele 2014):</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Component</th>
+<th>Formula</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>controlled direct effect</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">cde</mtext><mo>=</mo><msup><mi>c</mi><mo>′</mo></msup><mo>+</mo><msub><mi>θ</mi><mn>3</mn></msub><msup><mi>m</mi><mo>*</mo></msup></mrow><annotation encoding="application/x-tex">\text{cde} = c' + \theta_3 m^*</annotation></semantics></math></td>
+</tr>
+<tr class="even">
+<td>reference interaction</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">int_ref</mtext><mo>=</mo><msub><mi>θ</mi><mn>3</mn></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>m</mi><mtext mathvariant="normal">ref</mtext></msub><mo>−</mo><msup><mi>m</mi><mo>*</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{int\_ref} = \theta_3 (m_{\text{ref}} - m^*)</annotation></semantics></math></td>
+</tr>
+<tr class="odd">
+<td>mediated interaction</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">int_med</mtext><mo>=</mo><msub><mi>θ</mi><mn>3</mn></msub><mi>a</mi></mrow><annotation encoding="application/x-tex">\text{int\_med} = \theta_3 a</annotation></semantics></math></td>
+</tr>
+<tr class="even">
+<td>pure indirect effect</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">pie</mtext><mo>=</mo><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">\text{pie} = a b</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+<p>with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">nde</mtext><mo>=</mo><mtext mathvariant="normal">cde</mtext><mo>+</mo><mtext mathvariant="normal">int_ref</mtext></mrow><annotation encoding="application/x-tex">\text{nde} = \text{cde} + \text{int\_ref}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">nie</mtext><mo>=</mo><mtext mathvariant="normal">int_med</mtext><mo>+</mo><mtext mathvariant="normal">pie</mtext></mrow><annotation encoding="application/x-tex">\text{nie} = \text{int\_med} + \text{pie}</annotation></semantics></math>,
+and the total effect their sum.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>m</mi><mo>*</mo></msup><annotation encoding="application/x-tex">m^*</annotation></semantics></math>
+is the mediator level at which the CDE is evaluated (medfit’s default is
+0).
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mtext mathvariant="normal">ref</mtext></msub><mo>=</mo><msub><mi>β</mi><mn>0</mn></msub><mo>+</mo><msub><mo>∑</mo><mi>k</mi></msub><msub><mi>β</mi><mi>k</mi></msub><msub><mover><mi>C</mi><mo accent="true">‾</mo></mover><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">m_{\text{ref}} = \beta_0 + \sum_k \beta_k \bar C_k</annotation></semantics></math>
+is the mediator’s expected value at the reference treatment level with
+covariates at their means.</p>
+<p><code><a href="../reference/pool.html">pool()</a></code> does <strong>not</strong> average these
+components one by one. It recomputes all of them from one pooled
+reference profile:</p>
+<ol style="list-style-type: decimal">
+<li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>,</mo><mi>b</mi><mo>,</mo><msup><mi>c</mi><mo>′</mo></msup><mo>,</mo><msub><mi>θ</mi><mn>3</mn></msub></mrow><annotation encoding="application/x-tex">a, b, c', \theta_3</annotation></semantics></math>
+are the Rubin estimates
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>Q</mi><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar Q</annotation></semantics></math>.</li>
+<li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>m</mi><mo>*</mo></msup><annotation encoding="application/x-tex">m^*</annotation></semantics></math>
+must be the same in every imputation; otherwise <code><a href="../reference/pool.html">pool()</a></code>
+stops, because the decompositions refer to different mediator
+levels.</li>
+<li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>m</mi><mtext mathvariant="normal">ref</mtext></msub><annotation encoding="application/x-tex">m_{\text{ref}}</annotation></semantics></math>
+changes across imputations whenever a covariate is imputed, since
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>C</mi><mo accent="true">‾</mo></mover><mi>k</mi></msub><annotation encoding="application/x-tex">\bar C_k</annotation></semantics></math>
+is a mean over the completed data. It is pooled as the mean of the
+per-imputation values. Each value is read back from medfit’s own
+<code>int_ref</code> as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>m</mi><mo>*</mo></msup><mo>+</mo><mtext mathvariant="normal">int_ref</mtext><mi>/</mi><msub><mi>θ</mi><mn>3</mn></msub></mrow><annotation encoding="application/x-tex">m^* + \text{int\_ref}/\theta_3</annotation></semantics></math>.
+When an imputation’s
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mn>3</mn></msub><annotation encoding="application/x-tex">\theta_3</annotation></semantics></math>
+is exactly 0, <code>int_ref</code> carries no information about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>m</mi><mtext mathvariant="normal">ref</mtext></msub><annotation encoding="application/x-tex">m_{\text{ref}}</annotation></semantics></math>,
+and it is rebuilt from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\beta_0</annotation></semantics></math>
+and the covariate means medfit stores (medfit &gt;= 0.4.0).</li>
+<li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">int_ref</mtext><mo>=</mo><msub><mover><mi>θ</mi><mo accent="true">‾</mo></mover><mn>3</mn></msub><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>m</mi><mo accent="true">‾</mo></mover><mtext mathvariant="normal">ref</mtext></msub><mo>−</mo><msup><mi>m</mi><mo>*</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{int\_ref} = \bar\theta_3(\bar m_{\text{ref}} - m^*)</annotation></semantics></math>,
+and the other components follow from the formulas above.</li>
+</ol>
+<p>The mean of the per-imputation <code>int_ref</code> values would be
+the mean of the products
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mrow><mn>3</mn><mo>,</mo><mi>i</mi></mrow></msub><mspace width="0.167em"></mspace><msub><mi>m</mi><mrow><mtext mathvariant="normal">ref</mtext><mo>,</mo><mi>i</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\theta_{3,i}\, m_{\text{ref},i}</annotation></semantics></math>.
+That is not
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>θ</mi><mo accent="true">‾</mo></mover><mn>3</mn></msub><msub><mover><mi>m</mi><mo accent="true">‾</mo></mover><mtext mathvariant="normal">ref</mtext></msub></mrow><annotation encoding="application/x-tex">\bar\theta_3 \bar m_{\text{ref}}</annotation></semantics></math>,
+and the pooled object would then fail medfit’s own identities (for
+example
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">nde</mtext><mo>=</mo><mtext mathvariant="normal">cde</mtext><mo>+</mo><mtext mathvariant="normal">int_ref</mtext></mrow><annotation encoding="application/x-tex">\text{nde} = \text{cde} +
+\text{int\_ref}</annotation></semantics></math> built from pooled
+parts). Recomputing from one profile keeps every identity exact.</p>
+<p>In the tidy table, the <code>theta3</code> row takes the df of its
+source row (<code>y_X:M</code>), and <code>b0</code> that of
+<code>m_(Intercept)</code>, like the <code>a</code>, <code>b</code> and
+<code>c_prime</code> aliases in section 3.</p>
+<p>The check below fits a model whose covariate is imputed, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>m</mi><mtext mathvariant="normal">ref</mtext></msub><annotation encoding="application/x-tex">m_{\text{ref}}</annotation></semantics></math>
+differs across imputations, and fails the build if the pooled
+decomposition does not come from one profile:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Data-Wise/missingmed" class="external-link">missingmed</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">300</span></span>
+<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span>, C <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">d</span><span class="op">$</span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">X</span> <span class="op">+</span> <span class="fl">0.4</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">C</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="va">d</span><span class="op">$</span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">X</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">M</span> <span class="op">+</span> <span class="fl">0.25</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">X</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">M</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">C</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="va">d</span><span class="op">$</span><span class="va">M</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">40</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
+<span><span class="va">d</span><span class="op">$</span><span class="va">C</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">50</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
+<span><span class="va">imp_xm</span> <span class="op">&lt;-</span> <span class="fu">mice</span><span class="fu">::</span><span class="fu"><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice</a></span><span class="op">(</span><span class="va">d</span>, m <span class="op">=</span> <span class="fl">5</span>, method <span class="op">=</span> <span class="st">"norm"</span>, printFlag <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
+<span><span class="va">fit_xm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">imp_xm</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">*</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span></span>
+<span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">missingmed</span><span class="fu">::</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">fit_xm</span><span class="op">)</span><span class="op">@</span><span class="va">pooled</span></span>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="va">fit_xm</span><span class="op">@</span><span class="va">per_imputation</span></span>
+<span><span class="va">m_ref</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="va">f</span><span class="op">@</span><span class="va">m_star</span> <span class="op">+</span> <span class="va">f</span><span class="op">@</span><span class="va">int_ref</span> <span class="op">/</span> <span class="va">f</span><span class="op">@</span><span class="va">interaction</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">m_ref</span>, <span class="fl">4</span><span class="op">)</span> <span class="co"># differs across imputations: C is imputed</span></span>
+<span><span class="co">#&gt;       1       2       3       4       5 </span></span>
+<span><span class="co">#&gt; -0.0918 -0.1236  0.0431 -0.0605 -0.0239</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">p</span><span class="op">@</span><span class="va">int_ref</span>, <span class="va">p</span><span class="op">@</span><span class="va">interaction</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">m_ref</span><span class="op">)</span> <span class="op">-</span> <span class="va">p</span><span class="op">@</span><span class="va">m_star</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">p</span><span class="op">@</span><span class="va">nde</span>, <span class="va">p</span><span class="op">@</span><span class="va">cde</span> <span class="op">+</span> <span class="va">p</span><span class="op">@</span><span class="va">int_ref</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">p</span><span class="op">@</span><span class="va">nie</span>, <span class="va">p</span><span class="op">@</span><span class="va">int_med</span> <span class="op">+</span> <span class="va">p</span><span class="op">@</span><span class="va">pie</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>pooled_int_ref <span class="op">=</span> <span class="va">p</span><span class="op">@</span><span class="va">int_ref</span>,</span>
+<span>  mean_of_int_ref <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="va">f</span><span class="op">@</span><span class="va">int_ref</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  pooled_int_ref mean_of_int_ref </span></span>
+<span><span class="co">#&gt;     -0.01289910     -0.01314089</span></span></code></pre></div>
+<p>The last line shows the two candidates side by side. They differ, and
+only the first is consistent with the pooled
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mn>3</mn></msub><annotation encoding="application/x-tex">\theta_3</annotation></semantics></math>.</p>
+</div>
+<div class="section level3">
+<h3 id="a-3-what-stays-refused">3A.3 What stays refused<a class="anchor" aria-label="anchor" href="#a-3-what-stays-refused"></a>
+</h3>
+<p>Only one product term is supported, and only in the outcome model.
+<code>X:C</code>, <code>M:W</code>, <code>X:M:W</code>, transforms of
+<code>X</code> or <code>M</code> and an <code>X:M</code> term in a
+non-Gaussian model are refused before fitting (the <em>Supported
+models</em> article lists every rule). For moderated models,
+<code><a href="../reference/mbco_d4.html">mbco_d4()</a></code> tests the indirect effect on the completed
+datasets directly.</p>
 <hr>
 </div>
 </div>
@@ -619,7 +800,7 @@ full sample under MAR. The whole estimator is a single internal branch,
 <div class="section level3">
 <h3 id="pipeline">5.1 Pipeline<a class="anchor" aria-label="anchor" href="#pipeline"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">md</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>, treatment <span class="op">=</span> <span class="st">"X"</span>,</span>
 <span>  mediator <span class="op">=</span> <span class="st">"M"</span>, method <span class="op">=</span> <span class="st">"ipw"</span>,</span>
 <span>  weight_formula <span class="op">=</span> <span class="cn">NULL</span>, weight_stabilize <span class="op">=</span> <span class="cn">TRUE</span>, weight_trim <span class="op">=</span> <span class="fl">0.99</span>,</span>
@@ -975,7 +1156,7 @@ not compute a tipping point for it.</p>
 <code>call</code> — a <code>mids</code> built inside a function stores a
 call referencing that function’s local variables, which does not resolve
 anywhere else.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sens</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sensitivity_mnar.html">sensitivity_mnar</a></span><span class="op">(</span><span class="va">md</span>, delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1.5</span>, <span class="op">-</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">sens</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sens</span><span class="op">)</span>   <span class="co"># adds the tipping point, if the grid contains one</span></span></code></pre></div>
@@ -999,7 +1180,7 @@ but it can show you the realized one. Every rung reports
 <code>msp</code>. The run below uses a data set where <code>M</code> and
 <code>Y</code> are both incomplete and <code>M</code>’s missingness
 depends on <code>X</code>:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Data-Wise/missingmed" class="external-link">missingmed</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">9</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">400</span></span>
@@ -1100,7 +1281,7 @@ depending on where it starts. The chunk below imputes a binary mediator
 with <code>mnar.logreg</code> at three log-odds deltas and reports the
 mean imputed prevalence (it runs when the vignette is built, so the
 numbers always come from the code shown):</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">600</span></span>
 <span><span class="va">C</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
@@ -1317,6 +1498,11 @@ under multiple imputation lives in missingmed and RMediation keeps
 complete-data MBCO; exact parity with the research prototype was the
 acceptance bar.</li>
 <li>
+<strong><code>X:M</code> pooled from one reference profile</strong>
+(section 3A): path coefficients by Rubin’s rules, the four-way
+decomposition recomputed from them, so medfit’s identities hold
+exactly.</li>
+<li>
 <strong>IPW = thin <code><a href="../reference/run.html">run()</a></code> branch + passthrough
 <code><a href="../reference/pool.html">pool()</a></code></strong>; weights support both joint and sequential
 models, stabilized and trimmed; sandwich SE by default.</li>
@@ -1476,6 +1662,9 @@ not of a bug.</p>
 <ul>
 <li>Rubin, D. B. (1987). <em>Multiple Imputation for Nonresponse in
 Surveys</em>. Wiley.</li>
+<li>VanderWeele, T. J. (2014). A unification of mediation and
+interaction: a 4-way decomposition. <em>Epidemiology</em>, 25(5),
+749–761.</li>
 <li>Chan, K. W., &amp; Meng, X.-L. (2022). Multiple improvements of
 multiple imputation likelihood ratio tests. <em>Statistica
 Sinica</em>.</li>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -165,29 +165,6 @@
         </dt>
         <dd>MbcoMIResult: D4-stacked MBCO test result (S7)</dd>
       </dl></div><div class="section level2">
-      <h2 id="tidiers">Tidiers<a class="anchor" aria-label="anchor" href="#tidiers"></a></h2>
-
-
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="tidy_logLik.html">tidy(<i>&lt;logLik&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Creates a data.frame for a log-likelihood object</dd>
-
-        <dt>
-
-          <code><a href="tidy_MxModel.html">tidy(<i>&lt;MxModel&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Tidy an MxModel Object</dd>
-      </dl></div><div class="section level2">
       <h2 id="low-level-helpers">Low-level helpers<a class="anchor" aria-label="anchor" href="#low-level-helpers"></a></h2>
 
       <div class="section-desc"><p>Fitting and validation utilities used by the pipeline.</p></div>
@@ -199,63 +176,14 @@
 
       <dl><dt>
 
-          <code><a href="fit_model.html">fit_model()</a></code>
-
-        </dt>
-        <dd>Fit a Structural Equation Model</dd>
-
-        <dt>
-
-          <code><a href="lav_mice.html">lav_mice()</a></code>
-
-        </dt>
-        <dd>Fit SEM Model to Each Dataset in a MIDS Object Without Pooling</dd>
-
-        <dt>
-
-          <code><a href="mx_mice.html">mx_mice()</a></code>
-
-        </dt>
-        <dd>Fit OpenMx model to multiply imputed datasets</dd>
-
-        <dt>
-
           <code><a href="n_imp.html">n_imp()</a></code>
 
         </dt>
-        <dd>Get Number of Imputations from a mids Object</dd>
-
-        <dt>
-
-          <code><a href="is_fit.html">is_fit()</a></code>
-
-        </dt>
-        <dd>Determine If a SEM Model Has Been Fitted</dd>
-
-        <dt>
-
-          <code><a href="is_pd.html">is_pd()</a></code>
-
-        </dt>
-        <dd>Checks if a matrix object is positive definite</dd>
-
-        <dt>
-
-          <code><a href="is_lav_syntax.html">is_lav_syntax()</a></code>
-
-        </dt>
-        <dd>Function to check if lavaan model syntax is valid</dd>
-
-        <dt>
-
-          <code><a href="is_valid_lav_syntax.html">is_valid_lav_syntax()</a></code>
-
-        </dt>
-        <dd>Function to check if lavaan model syntax is valid</dd>
+        <dd>Get the number of imputations from a mids object</dd>
       </dl></div><div class="section level2">
-      <h2 id="deprecated-s-">Deprecated (S4)<a class="anchor" aria-label="anchor" href="#deprecated-s-"></a></h2>
+      <h2 id="defunct-s-">Defunct (S4)<a class="anchor" aria-label="anchor" href="#defunct-s-"></a></h2>
 
-      <div class="section-desc"><p>Deprecated; superseded by the S7 pipeline. Replaced by <code><a href="https://rdrr.io/r/base/Defunct.html" class="external-link">.Defunct()</a></code> stubs in 0.6.0.</p></div>
+      <div class="section-desc"><p>Removed in 0.6.0; each stub stops with a message naming its replacement.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -264,59 +192,10 @@
 
       <dl><dt>
 
-          <code><a href="set_sem.html">set_sem()</a></code>
+          <code><a href="missingmed-defunct.html">set_sem()</a></code> <code><a href="missingmed-defunct.html">run_sem()</a></code> <code><a href="missingmed-defunct.html">pool_sem()</a></code> <code><a href="missingmed-defunct.html">fit_model()</a></code> <code><a href="missingmed-defunct.html">lav_mice()</a></code> <code><a href="missingmed-defunct.html">mx_mice()</a></code>
 
         </dt>
-        <dd>Set up an SEM model with multiply imputed data.</dd>
-
-        <dt>
-
-          <code><a href="run_sem.html">run_sem()</a></code>
-
-        </dt>
-        <dd>Run a SEM model</dd>
-
-        <dt>
-
-          <code><a href="pool_sem.html">pool_sem()</a></code>
-
-        </dt>
-        <dd>Pool SEM Analysis Results</dd>
-
-        <dt>
-
-          <code><a href="SemImputedData.html">SemImputedData</a></code> <code><a href="SemImputedData.html">SemImputedData-class</a></code>
-
-        </dt>
-        <dd>SemImputedData Class</dd>
-
-        <dt>
-
-          <code><a href="SemResults.html">SemResults</a></code> <code><a href="SemResults.html">SemResults-class</a></code>
-
-        </dt>
-        <dd>SemResults Class</dd>
-
-        <dt>
-
-          <code><a href="PooledSEMResults-class.html">PooledSEMResults</a></code> <code><a href="PooledSEMResults-class.html">PooledSEMResults-class</a></code>
-
-        </dt>
-        <dd>Pooled SEM Analysis Results Class</dd>
-
-        <dt>
-
-          <code><a href="show-SemImputedData-method.html">show(<i>&lt;SemImputedData&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Show SemImputedData</dd>
-
-        <dt>
-
-          <code><a href="summary-SemImputedData-method.html">summary(<i>&lt;SemImputedData&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Summary Method for SemImputedData Objects</dd>
+        <dd>Defunct S4 functions</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

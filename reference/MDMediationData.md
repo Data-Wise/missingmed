@@ -8,9 +8,7 @@ entry point of the missingmed S7 pipeline
 -\> [`pool()`](https://data-wise.github.io/missingmed/reference/pool.md)
 -\>
 [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md))
-and the S7 successor of the S4
-[SemImputedData](https://data-wise.github.io/missingmed/reference/SemImputedData.md)
-class.
+and the S7 successor of the removed S4 `SemImputedData` class.
 
 ## Usage
 
@@ -33,6 +31,9 @@ MDMediationData(
   conf_int = FALSE,
   conf_level = 0.95,
   n_imputations = integer(0),
+  model = character(0),
+  outcome = character(0),
+  fit_args = list(),
   original_data = data.frame()
 )
 ```
@@ -115,6 +116,21 @@ MDMediationData(
 
   Number of imputations (MI) or `1` (IPW).
 
+- model:
+
+  For `engine = "lavaan"`, the lavaan model syntax (a single string);
+  `NULL`-equivalent (`character(0)`) otherwise.
+
+- outcome:
+
+  For `engine = "lavaan"`, the name of the outcome variable.
+
+- fit_args:
+
+  For `engine = "lavaan"`, a named list of extra arguments for
+  [`lavaan::sem()`](https://rdrr.io/pkg/lavaan/man/sem.html). Empty
+  otherwise.
+
 - original_data:
 
   The original data (pre-imputation for MI; the supplied frame for IPW).
@@ -137,5 +153,4 @@ formulas/engine select the model.
 ## See also
 
 [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md),
-[`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html),
-[SemImputedData](https://data-wise.github.io/missingmed/reference/SemImputedData.md)
+[`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html)

@@ -35,14 +35,15 @@ and delegates **inference** to
   per-imputation fits for MBCO (which does not commute with Rubin's
   rules)
 
-## Deprecated S4 API
+## Defunct S4 API
 
-[`set_sem()`](https://data-wise.github.io/missingmed/reference/set_sem.md),
-[`run_sem()`](https://data-wise.github.io/missingmed/reference/run_sem.md),
+[`set_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md),
+[`run_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md)
 and
-[`pool_sem()`](https://data-wise.github.io/missingmed/reference/pool_sem.md)
-are superseded by the S7 pipeline above. They are replaced by
-[`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs in 0.6.0.
+[`pool_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md)
+were removed in 0.6.0 and now stop with a message naming their
+replacement; see
+[missingmed-defunct](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md).
 
 ## See also
 

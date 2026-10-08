@@ -33,8 +33,7 @@ MDMediationFit(
 
 - fits:
 
-  A list of the raw backend fits (`lavaan`/`OpenMx`), one per
-  imputation.
+  A list of the raw backend fits (`lavaan`), one per imputation.
 
 - m:
 
@@ -70,12 +69,9 @@ An `MDMediationFit` S7 object.
 
 ## Details
 
-It is the S7 successor of the S4
-[SemResults](https://data-wise.github.io/missingmed/reference/SemResults.md)
-class.
+It is the S7 successor of the removed S4 `SemResults` class.
 
 ## See also
 
 [`run()`](https://data-wise.github.io/missingmed/reference/run.md),
-[`per_imputation_list()`](https://data-wise.github.io/missingmed/reference/per_imputation_list.md),
-[SemResults](https://data-wise.github.io/missingmed/reference/SemResults.md)
+[`per_imputation_list()`](https://data-wise.github.io/missingmed/reference/per_imputation_list.md)

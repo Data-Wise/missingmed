@@ -37,7 +37,7 @@ class objects when this page is built.
 
 | class | parent | properties |
 |:---|:---|:---|
-| MDMediationData | S7_object | `data`, `formula_y`, `formula_m`, `treatment`, `mediator`, `engine`, `family_y`, `family_m`, `method`, `mechanism`, `weight_formula`, `weight_stabilize`, `weight_trim`, `se_type`, `conf_int`, `conf_level`, `n_imputations`, `original_data` |
+| MDMediationData | S7_object | `data`, `formula_y`, `formula_m`, `treatment`, `mediator`, `engine`, `family_y`, `family_m`, `method`, `mechanism`, `weight_formula`, `weight_stabilize`, `weight_trim`, `se_type`, `conf_int`, `conf_level`, `n_imputations`, `model`, `outcome`, `fit_args`, `original_data` |
 | MDMediationFit | S7_object | `per_imputation`, `fits`, `m`, `engine`, `conf_int`, `conf_level`, `weights`, `source` |
 | MDMediationResult | S7_object | `pooled`, `tidy_table`, `cov_total`, `cov_between`, `cov_within`, `m`, `engine`, `conf_int`, `conf_level` |
 | MbcoMIResult | class_double | `ariv`, `k`, `m`, `stacked_branch`, `branch_mix`, `p_branch_a` |
@@ -147,10 +147,12 @@ S7::S7_data(r)
   [`setOldClass()`](https://rdrr.io/r/methods/setOldClass.html) cannot
   build an S4 prototype for an S7 class whose parent is `class_double`.
   Two consequences:
-  - Inside the namespace, `print` is an S4 generic (`import(OpenMx)`
-    makes it one), and S7 refuses to add a method for an unregistered
-    class to an S4 generic. Its print method is therefore registered on
-    [`base::print`](https://rdrr.io/r/base/print.html).
+  - S7 refuses to add a method for an unregistered class to an S4
+    generic, and `print` can be one inside the namespace (it was made
+    one by the S4 classes and the `OpenMx` import that 0.6.0 removed).
+    Its print method is therefore registered on
+    [`base::print`](https://rdrr.io/r/base/print.html), which works
+    either way.
   - Register methods for it with the functional form,
     `` S7::`method<-`(generic, MbcoMIResult, value = f) ``. The
     assignment form `S7::method(generic, MbcoMIResult) <- f` assigns the
@@ -160,17 +162,16 @@ S7::S7_data(r)
   index of `_pkgdown.yml`; `R CMD check` does not read it, but the
   pkgdown CI job fails without it.
 
-## Deprecated S4 classes
+## Removed S4 classes
 
 The S4 API
-([`set_sem()`](https://data-wise.github.io/missingmed/reference/set_sem.md),
-[`run_sem()`](https://data-wise.github.io/missingmed/reference/run_sem.md),
-[`pool_sem()`](https://data-wise.github.io/missingmed/reference/pool_sem.md)
+([`set_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md),
+[`run_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md),
+[`pool_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md)
 with the classes `SemImputedData`, `SemResults` and `PooledSEMResults`)
-is deprecated behind
-[`.Deprecated()`](https://rdrr.io/r/base/Deprecated.html) shims and
-becomes [`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs in
-0.6.0. Each S7 class above replaces one of them:
+was removed in 0.6.0; the functions are
+[`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs until 0.7.0.
+Each S7 class above replaced one of the classes:
 
 | S7 class            | Replaces           |
 |---------------------|--------------------|

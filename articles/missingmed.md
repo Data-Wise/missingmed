@@ -198,9 +198,10 @@ has the full table and the reasoning.
 ## Migrating from the S4 API
 
 The S4 entry points
-([`set_sem()`](https://data-wise.github.io/missingmed/reference/set_sem.md),
-[`run_sem()`](https://data-wise.github.io/missingmed/reference/run_sem.md),
-[`pool_sem()`](https://data-wise.github.io/missingmed/reference/pool_sem.md))
-are **deprecated** in favor of the S7 verbs above. They still work but
-emit a deprecation warning, and they become
-[`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs in 0.6.0.
+([`set_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md),
+[`run_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md),
+[`pool_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md))
+were **removed** in 0.6.0 in favor of the S7 verbs above. They remain as
+[`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs, each naming
+its replacement, until 0.7.0. The *Migrating from the S4 API* article on
+the package website maps each old call to its S7 replacement.

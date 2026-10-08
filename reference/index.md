@@ -46,55 +46,21 @@ curves.
 - [`MbcoMIResult()`](https://data-wise.github.io/missingmed/reference/MbcoMIResult.md)
   : MbcoMIResult: D4-stacked MBCO test result (S7)
 
-## Tidiers
-
-- [`tidy(`*`<logLik>`*`)`](https://data-wise.github.io/missingmed/reference/tidy_logLik.md)
-  : Creates a data.frame for a log-likelihood object
-- [`tidy(`*`<MxModel>`*`)`](https://data-wise.github.io/missingmed/reference/tidy_MxModel.md)
-  : Tidy an MxModel Object
-
 ## Low-level helpers
 
 Fitting and validation utilities used by the pipeline.
 
-- [`fit_model()`](https://data-wise.github.io/missingmed/reference/fit_model.md)
-  : Fit a Structural Equation Model
-- [`lav_mice()`](https://data-wise.github.io/missingmed/reference/lav_mice.md)
-  : Fit SEM Model to Each Dataset in a MIDS Object Without Pooling
-- [`mx_mice()`](https://data-wise.github.io/missingmed/reference/mx_mice.md)
-  : Fit OpenMx model to multiply imputed datasets
 - [`n_imp()`](https://data-wise.github.io/missingmed/reference/n_imp.md)
-  : Get Number of Imputations from a mids Object
-- [`is_fit()`](https://data-wise.github.io/missingmed/reference/is_fit.md)
-  : Determine If a SEM Model Has Been Fitted
-- [`is_pd()`](https://data-wise.github.io/missingmed/reference/is_pd.md)
-  : Checks if a matrix object is positive definite
-- [`is_lav_syntax()`](https://data-wise.github.io/missingmed/reference/is_lav_syntax.md)
-  : Function to check if lavaan model syntax is valid
-- [`is_valid_lav_syntax()`](https://data-wise.github.io/missingmed/reference/is_valid_lav_syntax.md)
-  : Function to check if lavaan model syntax is valid
+  : Get the number of imputations from a mids object
 
-## Deprecated (S4)
+## Defunct (S4)
 
-Deprecated; superseded by the S7 pipeline. Replaced by
-[`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs in 0.6.0.
+Removed in 0.6.0; each stub stops with a message naming its replacement.
 
-- [`set_sem()`](https://data-wise.github.io/missingmed/reference/set_sem.md)
-  : Set up an SEM model with multiply imputed data.
-- [`run_sem()`](https://data-wise.github.io/missingmed/reference/run_sem.md)
-  : Run a SEM model
-- [`pool_sem()`](https://data-wise.github.io/missingmed/reference/pool_sem.md)
-  : Pool SEM Analysis Results
-- [`SemImputedData`](https://data-wise.github.io/missingmed/reference/SemImputedData.md)
-  [`SemImputedData-class`](https://data-wise.github.io/missingmed/reference/SemImputedData.md)
-  : SemImputedData Class
-- [`SemResults`](https://data-wise.github.io/missingmed/reference/SemResults.md)
-  [`SemResults-class`](https://data-wise.github.io/missingmed/reference/SemResults.md)
-  : SemResults Class
-- [`PooledSEMResults`](https://data-wise.github.io/missingmed/reference/PooledSEMResults-class.md)
-  [`PooledSEMResults-class`](https://data-wise.github.io/missingmed/reference/PooledSEMResults-class.md)
-  : Pooled SEM Analysis Results Class
-- [`show(`*`<SemImputedData>`*`)`](https://data-wise.github.io/missingmed/reference/show-SemImputedData-method.md)
-  : Show SemImputedData
-- [`summary(`*`<SemImputedData>`*`)`](https://data-wise.github.io/missingmed/reference/summary-SemImputedData-method.md)
-  : Summary Method for SemImputedData Objects
+- [`set_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md)
+  [`run_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md)
+  [`pool_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md)
+  [`fit_model()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md)
+  [`lav_mice()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md)
+  [`mx_mice()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md)
+  : Defunct S4 functions

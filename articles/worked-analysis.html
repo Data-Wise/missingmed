@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -404,7 +404,7 @@ moderated models for testing);</li>
 <span>  treatment <span class="op">=</span> <span class="st">"treat"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, engine <span class="op">=</span> <span class="st">"lavaan"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;">:</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> `engine` "lavaan" is not supported. Supported: "glm". A lavaan engine is planned for missingmed 0.6.0; until then, the deprecated set_sem() fits lavaan models.</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> `formula_y` and `formula_m` cannot be used with engine = "lavaan"; give the lavaan syntax in `model`.</span></span></code></pre></div>
 <p>In 0.5.0 an unsupported engine failed later, inside
 <code><a href="../reference/run.html">run()</a></code>, with an error from medfit. When a fit does fail, the
 error now names the engine and the imputation
@@ -445,11 +445,11 @@ level <code>x</code> at which the mediator’s effect is evaluated.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit_xm</span>, type <span class="op">=</span> <span class="st">"mc"</span>, treatment_level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">$</span><span class="va">CI</span></span>
 <span><span class="co">#&gt;      2.5 %     97.5 % </span></span>
-<span><span class="co">#&gt; 0.03630311 0.19849593</span></span>
+<span><span class="co">#&gt; 0.03588194 0.19881073</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit_xm</span>, type <span class="op">=</span> <span class="st">"mc"</span>, treatment_level <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">$</span><span class="va">CI</span></span>
 <span><span class="co">#&gt;      2.5 %     97.5 % </span></span>
-<span><span class="co">#&gt; 0.02329601 0.15239549</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.02306856 0.15259671</span></span></code></pre></div>
 <p>For a 0/1 treatment, <code>treatment_level = 1</code> gives the total
 natural indirect effect and <code>0</code> the pure natural indirect
 effect. In these data there is no true interaction, so the two intervals

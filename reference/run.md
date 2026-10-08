@@ -47,7 +47,7 @@ of 0 or 1) are collected and raised once, naming the imputations that
 produced them.
 
 It is the S7 successor of the S4
-[`run_sem()`](https://data-wise.github.io/missingmed/reference/run_sem.md)
+[`run_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md)
 method.
 
 ## See also
@@ -55,4 +55,26 @@ method.
 [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md),
 [`pool()`](https://data-wise.github.io/missingmed/reference/pool.md),
 [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md),
-[`run_sem()`](https://data-wise.github.io/missingmed/reference/run_sem.md)
+[`run_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md)
+
+## Examples
+
+``` r
+set.seed(1)
+n <- 150
+d <- data.frame(X = rbinom(n, 1, 0.5), C = rnorm(n))
+d$M <- 0.5 * d$X + 0.3 * d$C + rnorm(n)
+d$Y <- 0.3 * d$M + 0.2 * d$X + 0.3 * d$C + rnorm(n)
+d$M[sample(n, 25)] <- NA
+imp <- mice::mice(d, m = 3, method = "norm", printFlag = FALSE, seed = 1)
+md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M"
+)
+fit <- run(md)
+fit
+#> <MDMediationFit>
+#>   per-imputation fits: 3 named medfit::MediationData
+#>   engine: glm 
+#>   per-imputation a*b: mean = 0.0396 (range 0.0097 to 0.0663 )
+#>   -> pool() for Rubin's-rules estimates; infer() for CIs / MBCO
+```
