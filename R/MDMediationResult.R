@@ -51,8 +51,12 @@ MDMediationResult <- S7::new_class(
       return("@conf_level must be a single number in (0, 1).")
     }
 
-    if (length(self@m) != 1L || self@m < 1) {
+    if (length(self@m) != 1L || is.na(self@m) || self@m < 1) {
       return("@m must be a single positive number of imputations.")
+    }
+    # print(), summary() and infer() all read the pooled paths.
+    if (!.is_path_fit(self@pooled)) {
+      return("@pooled must be a medfit mediation fit (an S7 object with @a_path and @b_path).")
     }
     NULL
   }

@@ -53,6 +53,9 @@ MDSensitivityResult <- S7::new_class(
     source = S7::class_any
   ),
   validator = function(self) {
+    if (!length(self@rungs)) {
+      return("@rungs must hold at least one inference result.")
+    }
     if (nrow(self@grid) != length(self@rungs)) {
       return("@grid must have one row per element of @rungs.")
     }
@@ -61,6 +64,22 @@ MDSensitivityResult <- S7::new_class(
     }
     if (length(self@type) != 1L || !self@type %in% c("mc", "mbco")) {
       return("@type must be a single string: 'mc' or 'mbco'.")
+    }
+    # tidy() reads $Estimate/$CI from an "mc" rung and [["D4"]]/[["p"]] from an
+    # "mbco" rung. Checked by name, so a plain named vector still passes.
+    need <- if (self@type == "mc") c("Estimate", "CI") else c("D4", "p")
+    bad <- which(!vapply(self@rungs, function(r) all(need %in% names(r)), logical(1)))
+    if (length(bad)) {
+      return(paste0(
+        "@rungs must all be '", self@type, "' inference results (with ",
+        paste(need, collapse = " and "), "); rung(s) ",
+        paste(bad, collapse = ", "), " are not."
+      ))
+    }
+    # summary() compares mbco p-values against 1 - @level.
+    if (length(self@level) != 1L || is.na(self@level) ||
+      self@level <= 0 || self@level >= 1) {
+      return("@level must be a single number in (0, 1).")
     }
     if (!all(is.na(self@mechanism_used) |
       self@mechanism_used %in% c("post", "mnar.norm", "mnar.logreg"))) {
