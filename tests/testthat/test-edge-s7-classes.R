@@ -119,6 +119,7 @@ test_that("engine must be a single string", {
 
 test_that("weight_stabilize must be TRUE or FALSE for IPW", {
   # run() read NA via isTRUE() and silently fitted unstabilized weights.
+  # set_md_mediation() names the argument before the validator runs.
   expect_error(
     new_md(method = "ipw", data = edge_d, n_imputations = 1, weight_stabilize = NA),
     "@weight_stabilize must be TRUE or FALSE", fixed = TRUE
@@ -131,7 +132,7 @@ test_that("weight_stabilize must be TRUE or FALSE for IPW", {
     set_md_mediation(edge_d, Y ~ X + M + C, M ~ X + C,
       treatment = "X", mediator = "M", method = "ipw", weight_stabilize = NA
     ),
-    "@weight_stabilize must be TRUE or FALSE", fixed = TRUE
+    "`weight_stabilize` must be TRUE or FALSE", fixed = TRUE
   )
   # Ignored under MI, so not checked there.
   expect_s7_class(new_md(weight_stabilize = NA), MDMediationData)

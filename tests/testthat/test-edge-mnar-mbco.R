@@ -340,14 +340,16 @@ test_that("infer(type = 'mbco') refuses NA left in a variable the constraint dro
   # A treatment with method "" keeps its NA in mice::complete(). Unguarded, the
   # full mediator model dropped those rows and the a = 0 model kept them, so
   # the reported statistic compared two different samples.
-  expect_error(infer(em_unimputed("X"), type = "mbco"),
+  expect_warning(fit <- em_unimputed("X"), "'X' still has missing values")
+  expect_error(infer(fit, type = "mbco"),
     "Imputation 1 .*'X', which the MBCO constraint drops")
 })
 
 test_that("NA left in a covariate both fits keep is a consistent complete-case MBCO", {
   # C stays in the full and the constrained models, so both drop the same rows
   # in every imputation -- the same complete-case analysis the MC path runs.
-  r <- infer(em_unimputed("C"), type = "mbco")
+  expect_warning(fit <- em_unimputed("C"), "'C' still has missing values")
+  r <- infer(fit, type = "mbco")
   expect_true(all(is.finite(S7::S7_data(r)[c("D4", "p", "d_S")])))
 })
 
