@@ -15,8 +15,14 @@ S7::method(print, MDMediationData) <- function(x, ...) {
   cat("  estimator (method):", x@method, "| mechanism:", x@mechanism, "\n")
   cat("  imputations (m)   :", x@n_imputations, "\n")
   cat("  treatment / mediator:", x@treatment, "/", x@mediator, "\n")
-  cat("  outcome model :", deparse(x@formula_y), "\n")
-  cat("  mediator model:", deparse(x@formula_m), "\n")
+  if (identical(x@engine, "lavaan")) {
+    cat("  outcome:", x@outcome, "\n")
+    cat("  lavaan model:\n")
+    cat(paste0("    ", strsplit(x@model, "\n", fixed = TRUE)[[1]]), sep = "\n")
+  } else {
+    cat("  outcome model :", deparse(x@formula_y), "\n")
+    cat("  mediator model:", deparse(x@formula_m), "\n")
+  }
   cat("  engine:", x@engine, "\n")
   invisible(x)
 }

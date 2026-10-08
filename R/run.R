@@ -120,7 +120,9 @@ S7::method(run, MDMediationData) <- function(object, ...) {
   if (identical(method, "ipw")) {
     return("glm")
   }
-  if (.medfit_version() >= "0.4.0") c("glm", "regmedint") else "glm"
+  # "lavaan" is fit by lavaan::sem() and converted by medfit::extract_mediation(),
+  # so it does not depend on the medfit engine list.
+  if (.medfit_version() >= "0.4.0") c("glm", "regmedint", "lavaan") else c("glm", "lavaan")
 }
 
 .medfit_version <- function() numeric_version(getNamespaceVersion("medfit"))
@@ -141,9 +143,8 @@ S7::method(run, MDMediationData) <- function(object, ...) {
   } else if (identical(engine, "regmedint")) {
     paste0(" engine = \"regmedint\" needs medfit >= 0.4.0 (installed: ",
       format(.medfit_version()), ").")
-  } else if (identical(engine, "lavaan")) {
-    paste0(" A lavaan engine is planned for missingmed 0.6.0; until then, the ",
-      "deprecated set_sem() fits lavaan models.")
+  } else if (identical(method, "ipw") && identical(engine, "lavaan")) {
+    " IPW with engine = \"lavaan\" is not supported yet."
   } else {
     ""
   }

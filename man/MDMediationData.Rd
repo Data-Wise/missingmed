@@ -22,6 +22,9 @@ MDMediationData(
   conf_int = FALSE,
   conf_level = 0.95,
   n_imputations = integer(0),
+  model = character(0),
+  outcome = character(0),
+  fit_args = list(),
   original_data = data.frame()
 )
 }
@@ -66,6 +69,14 @@ intervals. Defaults to \code{FALSE}.}
 \item{conf_level}{Numeric in (0, 1); confidence level. Defaults to \code{0.95}.}
 
 \item{n_imputations}{Number of imputations (MI) or \code{1} (IPW).}
+
+\item{model}{For \code{engine = "lavaan"}, the lavaan model syntax (a single
+string); \code{NULL}-equivalent (\code{character(0)}) otherwise.}
+
+\item{outcome}{For \code{engine = "lavaan"}, the name of the outcome variable.}
+
+\item{fit_args}{For \code{engine = "lavaan"}, a named list of extra arguments
+for \code{\link[lavaan:sem]{lavaan::sem()}}. Empty otherwise.}
 
 \item{original_data}{The original data (pre-imputation for MI; the supplied
 frame for IPW).}
