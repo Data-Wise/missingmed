@@ -58,6 +58,14 @@ worktrees:
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
 ## post-0.5.0 (dev 0.5.0.9000)
+- 2026-10-07 (open): PR #35 feature/docs-site -> dev. Website audit items
+  1-2: pkgdown development mode auto (site deployed dev builds at the root;
+  root stays dev-built until the next main build or a manual
+  workflow_dispatch on main); conf_int implemented (pool() adds per-coef
+  conf_low/high on Rubin t); DESCRIPTION rewritten; inst/CITATION; S4 pages
+  marked deprecated (0.6.0); paper references made generic. Tests 1281 /
+  1277+2 skip; check 0/0/0. Remaining audit items: new docs 1-5 (supported-
+  models article, X:M technical section, verb examples, FAQ, S4 migration).
 - 2026-10-07 (merged): PR #34 feature/vignette-replication -> dev
   (29daa69, squash). New vignette worked-analysis.Rmd: tutorial of
   the paper's illustrative-analysis steps on simulated data (no manuscript
