@@ -85,6 +85,9 @@ setValidity("SemImputedData", function(object) {
 ### ----------------------------------------------------------------------------
 #' Run a SEM model
 #'
+#' **Deprecated.** Use [run()] on an [MDMediationData] from [set_md_mediation()] instead; `run_sem()` becomes a `.Defunct()` stub in
+#' missingmed 0.6.0.
+#'
 #' A generic function to run and analyze multiply imputed data sets.
 #'
 #' @param object A `SemImputedData` object
@@ -176,6 +179,9 @@ setMethod("run_sem", "SemImputedData", function(object, ...) {
 ### ----------------------------------------------------------------------------
 
 #' Set up an SEM model with multiply imputed data.
+#'
+#' **Deprecated.** Use [set_md_mediation()] instead; `set_sem()` becomes a `.Defunct()` stub in
+#' missingmed 0.6.0.
 #'
 #' This function sets up an SEM model with multiply imputed data for analysis. The function
 #' accepts a [mice::mids] object and a model syntax for either [lavaan] or [OpenMx] and

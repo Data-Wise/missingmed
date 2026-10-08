@@ -22,8 +22,13 @@
 * New vignette, `vignette("worked-analysis")`: a step-by-step tutorial of a
   mediation analysis with a missing mediator (complete-data reference, MAR
   deletion, imputation, pooled Monte Carlo interval, D4-MBCO test with both
-  `ariv` choices, MNAR sensitivity), with a second part showing what the
-  development version adds over 0.5.0.
+  `ariv` choices, MNAR sensitivity), with a second part showing what was
+  added after 0.5.0.
+
+* `set_md_mediation(conf_int = TRUE)` now does what it documented: `pool()`
+  adds per-coefficient `conf_low` and `conf_high` columns to the pooled tidy
+  table, at `conf_level` on Rubin's t reference. Before, the argument was
+  stored and ignored.
 
 ## Bug fixes
 
@@ -145,6 +150,14 @@
   that check the pooled estimates, variances and degrees of freedom against
   `mice::pool()`, and MC, MBCO, IPW and sensitivity results against known
   answers.
+
+## Documentation
+
+* The package Description no longer calls missingmed an S4/SEM
+  package; the README cites `citation("missingmed")` (new `inst/CITATION`)
+  instead of a stale version string; the deprecated S4 functions say so on
+  their help pages and name the 0.6.0 removal; the pkgdown site builds
+  development versions under `/dev/` so the root documents the release.
 
 # missingmed 0.5.0
 

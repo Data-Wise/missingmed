@@ -57,10 +57,13 @@ predictors), a single \code{formula}, or a named \code{list} of per-variable for
 
 \item{se_type}{(IPW) \code{"sandwich"} (default, HC robust) or \code{"model"}.}
 
-\item{conf_int}{Logical; whether downstream output carries confidence
-intervals. Defaults to \code{FALSE}.}
+\item{conf_int}{Logical; if \code{TRUE}, \code{\link[=pool]{pool()}} adds per-coefficient
+\code{conf_low} and \code{conf_high} columns to the pooled tidy table, at
+\code{conf_level} on Rubin's t reference. Defaults to \code{FALSE}. These bound
+single coefficients; for the indirect effect use \code{\link[=infer]{infer()}}.}
 
-\item{conf_level}{Numeric in (0, 1); confidence level. Defaults to \code{0.95}.}
+\item{conf_level}{Numeric in (0, 1); confidence level for \code{conf_int} and the
+default \code{level} of \code{\link[=infer]{infer()}}. Defaults to \code{0.95}.}
 }
 \value{
 An \link{MDMediationData} object.

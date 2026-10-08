@@ -9,7 +9,7 @@
 
 ## Overview
 
-**missingmed** runs SEM/GLM-based mediation analysis across incomplete data and
+**missingmed** runs regression (GLM)-based mediation analysis across incomplete data and
 pools with Rubin's rules. It is the *missing-data middle* of the
 [mediationverse](https://github.com/Data-Wise/mediationverse): a thin
 orchestration layer that **fits** each analysis with
@@ -83,10 +83,10 @@ contracts, and methodology.
 
 ## Citation
 
-```
-Tofighi, D. (2026). missingmed: Mediation Analysis with Multiple Imputation
-for Missing Data. R package version 0.3.1.
-https://github.com/Data-Wise/missingmed
+Cite the version you used:
+
+```r
+citation("missingmed")
 ```
 
 ## License

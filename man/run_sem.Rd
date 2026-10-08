@@ -18,10 +18,14 @@ run_sem(object, ...)
 A \link{SemResults} object
 }
 \description{
-A generic function to run and analyze multiply imputed data sets.
+\strong{Deprecated.} Use \code{\link[=run]{run()}} on an \link{MDMediationData} from \code{\link[=set_md_mediation]{set_md_mediation()}} instead; \code{run_sem()} becomes a \code{.Defunct()} stub in
+missingmed 0.6.0.
 
 This method facilitates running SEM analysis using either lavaan or OpenMx
 on multiply imputed datasets contained within a \link[=SemImputedData-class]{SemImputedData} object.
+}
+\details{
+A generic function to run and analyze multiply imputed data sets.
 }
 \examples{
 \dontrun{

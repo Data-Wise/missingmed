@@ -22,8 +22,10 @@
 #' @return An [MDMediationResult] object.
 #' @seealso [run()], [infer()], [pool_sem()]
 #' The returned tidy table also carries a per-coefficient Wald test
-#' (`statistic`, `df`, `riv`, `fmi`, `p_value`); see [MDMediationResult] for the
-#' columns and why they do not test the indirect effect.
+#' (`statistic`, `df`, `riv`, `fmi`, `p_value`) and, when `conf_int = TRUE` was
+#' set in [set_md_mediation()], per-coefficient `conf_low` and `conf_high` at
+#' `conf_level` on the same t reference; see [MDMediationResult] for the columns
+#' and why they do not test or bound the indirect effect.
 #'
 #' @references Rubin, D. B. (1987). *Multiple Imputation for Nonresponse in
 #'   Surveys*. Wiley.
@@ -134,6 +136,9 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
   tidy_table <- cbind(tidy_table, .pool_wald(
     tidy_table, m = m, fit = object@per_imputation[[1]]
   ))
+  if (isTRUE(object@conf_int)) {
+    tidy_table <- .pool_conf_int(tidy_table, object@conf_level)
+  }
 
   MDMediationResult(
     pooled = pooled,
@@ -245,6 +250,16 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
   m_ref <- est[["b0"]]
   for (v in covs) m_ref <- m_ref + est[[paste0("m_", v)]] * cbar[[v]]
   unname(m_ref)
+}
+
+# Per-coefficient interval at `level` on the Rubin t reference already in the
+# table (qt() with df = Inf is the normal quantile). Like the Wald columns,
+# these bound single coefficients, not the indirect effect: use infer().
+.pool_conf_int <- function(tidy_table, level) {
+  q <- stats::qt(1 - (1 - level) / 2, tidy_table$df)
+  tidy_table$conf_low <- tidy_table$estimate - q * tidy_table$std_error
+  tidy_table$conf_high <- tidy_table$estimate + q * tidy_table$std_error
+  tidy_table
 }
 
 # Per-term Rubin inference for the pooled tidy table: statistic, df, riv, fmi,

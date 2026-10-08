@@ -33,11 +33,15 @@ Suggests:
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
-Description: Provides S4 classes and methods for conducting mediation analysis with multiply imputed datasets.
-    Integrates with the 'mice' package for multiple imputation and supports structural equation modeling (SEM)
-    using either 'lavaan' or 'OpenMx'. Implements Rubin's rules for pooling parameter estimates and standard
-    errors across imputations. Designed to work seamlessly with 'RMediation' for computing confidence intervals
-    of indirect effects in the presence of missing data.
+Description: Mediation analysis with incomplete data. Fits the mediator and
+    outcome regressions on each dataset imputed with 'mice' (through 'medfit'),
+    pools them with Rubin's rules, and infers the indirect effect with a Monte
+    Carlo confidence interval ('RMediation') or a D4-stacked model-based
+    constrained optimization (MBCO) likelihood-ratio test. Also provides an
+    inverse probability weighting estimator, treatment-by-mediator interaction
+    models, and a delta-adjustment sensitivity analysis for departures from
+    missing at random. A deprecated structural equation modeling interface
+    ('lavaan', 'OpenMx') remains until version 0.6.0.
 License: GPL-2
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, roclets = c("rd","collate","namespace"))

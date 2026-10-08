@@ -25,12 +25,15 @@ If \code{conf_int} is \code{FALSE}, this argument is ignored.}
 An object of class SemImputedData. See \link{SemImputedData} for the details of the slots.
 }
 \description{
+\strong{Deprecated.} Use \code{\link[=set_md_mediation]{set_md_mediation()}} instead; \code{set_sem()} becomes a \code{.Defunct()} stub in
+missingmed 0.6.0.
+}
+\details{
 This function sets up an SEM model with multiply imputed data for analysis. The function
 accepts a \link[mice:mids]{mice::mids} object and a model syntax for either \link[lavaan:lavaan]{lavaan} or \link[OpenMx:OpenMx]{OpenMx} and
 returns a \link{SemImputedData} object for analysis. It returns an error if the provided
 data is not a \link[mice:mids]{mice::mids} object or if the specified SEM analysis method is not supported. It returns an object of class \link{SemImputedData}.
-}
-\details{
+
 The function technically constructs a new \link{SemImputedData} object for structural equation modeling (SEM) analysis using either \link[lavaan:lavaan]{lavaan} or \link[OpenMx:OpenMx]{OpenMx} on multiply imputed datasets. This function ensures that the provided data is a \link[mice:mids]{mice::mids} object from the \code{mice} package and that the specified SEM analysis method is supported.
 
 All the arguments \code{data}, \code{method}, \code{conf_int}, and \code{conf_level} are used to specify the SEM analysis. \code{set_sem} is a constructor function for \code{SemImputedData} class. These methods are used as constructors for the \code{SemImputedData} class.

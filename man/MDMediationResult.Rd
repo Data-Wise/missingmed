@@ -40,7 +40,8 @@ within-imputation covariance matrices.}
 
 \item{engine}{medfit fitting engine used (e.g. \code{"glm"}).}
 
-\item{conf_int}{Logical; whether the tidy table carries confidence intervals.}
+\item{conf_int}{Logical; whether the tidy table carries per-coefficient
+\code{conf_low} and \code{conf_high} columns (set in \code{\link[=set_md_mediation]{set_md_mediation()}}).}
 
 \item{conf_level}{Numeric in (0, 1); confidence level.}
 }

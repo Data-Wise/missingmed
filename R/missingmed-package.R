@@ -1,7 +1,7 @@
 #' @keywords internal
 #'
 #' @description
-#' missingmed runs SEM-based mediation analysis across multiply imputed datasets
+#' missingmed runs regression-based mediation analysis across multiply imputed datasets
 #' and pools with Rubin's rules. It is a thin orchestration layer: it **fits**
 #' each imputation with [medfit] and delegates **inference** to [RMediation].
 #'
@@ -16,7 +16,7 @@
 #'
 #' @section Deprecated S4 API:
 #' [set_sem()], [run_sem()], and [pool_sem()] are superseded by the S7 pipeline
-#' above and kept for one release cycle.
+#' above. They are replaced by `.Defunct()` stubs in 0.6.0.
 #'
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #'
