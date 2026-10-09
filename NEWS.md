@@ -24,6 +24,13 @@
   data). For K = 5 and k = 1 the two formulas coincide. The 0.8.0 test was
   slightly conservative relative to the published procedure; the size gap at
   K = 20 is at most about 0.002.
+* `run()` with `method = "ipw"` and a per-variable `weight_formula = list(...)` now
+  refuses a list that omits an incomplete model variable. Complete cases are selected on every
+  incomplete variable, so weights built from a subset left the rest of the selection
+  uncorrected and still returned plausible estimates and standard errors. The error
+  names the missing variables. A list that covers every incomplete variable, a single
+  formula, and the default are unchanged; an analysis that relied on the old
+  behavior must now name the missing variable (for example `Y = ~ X + C`).
 
 ## Documentation
 

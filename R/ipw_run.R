@@ -57,6 +57,23 @@
       )
     }
   }
+  # A per-variable specification must cover every incomplete model variable:
+  # rows are selected on all of them, so a missing one leaves its share of the
+  # selection uncorrected and still returns plausible estimates.
+  if (per_var) {
+    incomplete <- model_vars[vapply(data[model_vars], anyNA, logical(1))]
+    uncovered <- setdiff(incomplete, names(wf))
+    if (length(uncovered)) {
+      stop("`weight_formula` must name every incomplete model variable, but ",
+        paste0("'", uncovered, "'", collapse = ", "), " ",
+        if (length(uncovered) > 1L) "are" else "is", " missing from it. ",
+        "Complete cases are selected on all of them, so weights that omit one ",
+        "leave that selection uncorrected. Add e.g. `",
+        uncovered[1L], " = ~ X + C`.",
+        call. = FALSE
+      )
+    }
+  }
   # No missing values: P(R = 1 | Z) = 1 and every weight is 1. Fitting the
   # missingness model to a constant response would only warn that it did not
   # converge.
