@@ -2,6 +2,8 @@
 
 ## missingmed (development version)
 
+## missingmed 0.7.0
+
 ### Deprecations
 
 - Passing arguments through `run(...)` or `sensitivity_mnar(...)` is

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.6.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.7.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,29 +41,32 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.0" id="missingmed-070">missingmed 0.7.0<a class="anchor" aria-label="anchor" href="#missingmed-070"></a></h2>
 <div class="section level3">
-<h3 id="deprecations-development-version">Deprecations<a class="anchor" aria-label="anchor" href="#deprecations-development-version"></a></h3>
+<h3 id="deprecations-0-7-0">Deprecations<a class="anchor" aria-label="anchor" href="#deprecations-0-7-0"></a></h3>
 <ul><li>Passing arguments through <code>run(...)</code> or <code>sensitivity_mnar(...)</code> is deprecated: set them with the new <code>fit_args</code> of <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code>. They are still forwarded, with a warning (class <code>md_dots_deprecated</code>; <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> warns once, not once per rung), and a name that is already in <code>fit_args</code> is an error. <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> now reads the stored <code>fit_args</code>, so its refits reproduce the original fit’s options without restating them.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<h3 id="new-features-0-7-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-7-0"></a></h3>
 <ul><li>
 <code>fit_args</code> (a named list stored on the object) now works for the <code>glm</code> and <code>regmedint</code> engines, where it goes to <code><a href="https://data-wise.github.io/medfit/reference/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code> (it already existed for <code>engine = "lavaan"</code>, where it goes to <code><a href="https://rdrr.io/pkg/lavaan/man/sem.html" class="external-link">lavaan::sem()</a></code>). It cannot restate what <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> passes itself (<code>formula_y</code>, <code>formula_m</code>, <code>data</code>, <code>treatment</code>, <code>mediator</code>, <code>engine</code>, <code>family_y</code>, <code>family_m</code>; on the IPW path also <code>weights</code> and <code>se_type</code>).</li>
 <li>
 <code>outcome</code> is optional for the <code>glm</code> engines: it defaults to the response of <code>formula_y</code> and, when given, must match it (it stays required for lavaan).</li>
 </ul></div>
 <div class="section level3">
-<h3 id="breaking-changes-development-version">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-development-version"></a></h3>
+<h3 id="breaking-changes-0-7-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-7-0"></a></h3>
 <ul><li>The <code><a href="https://rdrr.io/r/base/Defunct.html" class="external-link">.Defunct()</a></code> stubs for the removed S4 API are deleted: <code>set_sem()</code>, <code>run_sem()</code>, <code>pool_sem()</code>, <code>fit_model()</code>, <code>lav_mice()</code> and <code>mx_mice()</code> are no longer exported, so calling one now gives R’s “could not find function” error instead of a message naming the replacement. The replacements are unchanged: <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code>, <code><a href="../reference/run.html">run()</a></code> and <code><a href="../reference/pool.html">pool()</a></code>, with <code>engine = "lavaan"</code> for a structural equation model; see <code>vignette("s4-migration")</code>. The help page <code>?"missingmed-defunct"</code> is gone with them.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="licensing-and-dependencies-development-version">Licensing and dependencies<a class="anchor" aria-label="anchor" href="#licensing-and-dependencies-development-version"></a></h3>
+<h3 id="licensing-and-dependencies-0-7-0">Licensing and dependencies<a class="anchor" aria-label="anchor" href="#licensing-and-dependencies-0-7-0"></a></h3>
 <ul><li>missingmed is now licensed GPL (&gt;= 3) (was GPL-2), matching <code>medfit</code>, <code>RMediation</code> and <code>medsim</code>, which missingmed already imports.</li>
 <li>
 <code>lavaan (&gt;= 0.7-3)</code> is required (was <code>&gt;= 0.6-0</code>). lavaan 0.7-2 could return a fit marked converged that broke its own constraints (<code>optim_parscale = "standardized"</code>, also used in the automatic retries), and could report convergence for a runaway solution; 0.7-3 fixes both.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<h3 id="bug-fixes-0-7-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-7-0"></a></h3>
 <ul><li><p><code><a href="../reference/pool.html">pool()</a></code> for <code>engine = "lavaan"</code> no longer blanks the Wald test of a covariance between two different variables (for example the residual covariance <code>Y~~Y2</code>). Only variances (<code>M~~M</code>) keep an <code>NA</code> statistic and p-value, because their null lies on the boundary; a covariance’s null is interior, so its z-test is valid. Found by an adversarial review of 0.6.0.</p></li>
 <li><p><code>set_md_mediation(method = "ipw", engine = "lavaan")</code> now guards every spelling of the options it controls. lavaan &gt;= 0.7-2 accepts <code>sampling_weights</code> as well as <code>sampling.weights</code>; <code>fit_args = list(sampling_weights = ...)</code> used to pass the check and be dropped silently in favor of the IPW weights, and is now an error. <code>se = "robust_huber_white"</code> (or any case) is accepted as the robust SE request. The lavaan call itself uses the snake_case names.</p></li>
 </ul></div>
