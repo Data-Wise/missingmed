@@ -56,10 +56,10 @@ Ledger: [GRILL-open-items-2026-10-09.md](GRILL-open-items-2026-10-09.md).
 | B | glm MBCO through the same 20-cell grid as lavaan ML, on hopper, reusing `dev/sim-sem-mbco-*` |
 | C | Build MLR (T7, T8b), simulation-gated: the gate decides enabled or refused |
 | E | Stack the weight-model score (cross-repo, medfit); design note first; all medfit writes need permission |
-| H | Investigate once; fix only if the cause is clear |
+| H | Investigated 2026-10-09: **no fix needed.** Slow, not hung. In the successful rerun of run 37949320808, `setup-r` took ~12 min (apt system requirements 8.5 min, R install 3 min, runner side) and `setup-r-dependencies` 12 min (cold cache for the `dev` ref); the PR-event run on the same commit took 50 s there (warm cache). The rerun wrote the cache (`Cache mode: write`), so later `dev` runs should be warm. Re-open only if it recurs with a warm cache |
 | I | Dropped: no CRAN this year |
 | J | `AGENTS.md` deleted; the remaining stray worktrees and branches are left to the author |
 
-Revised order: A, D, B, G, H, E (design note), C. F stays a medfit-session task; `.lav_round_nobs()` stays.
+Revised order: A, D, B, G, E (design note), C (H is closed). F stays a medfit-session task; `.lav_round_nobs()` stays.
 
 Consequence of dropping I: with no CRAN submission, missingmed may depend on an unreleased medfit through `Remotes:` (`Data-Wise/medfit`), which makes E shippable without waiting for a medfit CRAN release.
