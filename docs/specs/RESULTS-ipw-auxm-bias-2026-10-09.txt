@@ -1,0 +1,14 @@
+missingmed 0.8.0.9000, auxm P4 miss = 0.40, nominal b = 0.30
+
+PART 1: mean b by weights
+n=   500 reps=40  full 0.297 | unweighted cc 0.227 | TRUE weights 0.265 | spv 0.269 | uj 0.255 | sj 0.256  (ESS/n_cc 0.59)
+n=  5000 reps=40  full 0.301 | unweighted cc 0.239 | TRUE weights 0.302 | spv 0.302 | uj 0.281 | sj 0.281  (ESS/n_cc 0.46)
+n= 20000 reps= 8  full 0.301 | unweighted cc 0.239 | TRUE weights 0.297 | spv 0.297 | uj 0.277 | sj 0.277  (ESS/n_cc 0.48)
+n=100000 reps= 8  full 0.300 | unweighted cc 0.235 | TRUE weights 0.299 | spv 0.300 | uj 0.278 | sj 0.278  (ESS/n_cc 0.46)
+
+PART 2: decay of the spv bias (300 replications per n)
+n=  200 spv b: mean 0.282 (se 0.009), median 0.277, sd 0.150
+n=  500 spv b: mean 0.288 (se 0.006), median 0.281, sd 0.110
+n= 1000 spv b: mean 0.303 (se 0.005), median 0.297, sd 0.087
+n= 2000 spv b: mean 0.289 (se 0.003), median 0.285, sd 0.060
+n= 5000 spv b: mean 0.301 (se 0.003), median 0.296, sd 0.046
