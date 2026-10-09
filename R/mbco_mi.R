@@ -542,6 +542,8 @@ mbco_d4 <- function(implist, formula_y, formula_m,
       call. = FALSE
     )
   }
+  # An empty list would fail below on implist[[1]] before the K check.
+  if (!length(implist)) .mm_check_K(0L)
   if (!is.null(model)) {
     # lavaan SEM: `model` replaces the two formulas and the families.
     given <- c(

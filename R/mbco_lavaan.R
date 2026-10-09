@@ -3,11 +3,15 @@
 # .mm_d4_pool() is estimator-free; this supplies, per dataset, the lavaan
 # log-likelihoods of the full model and of the a = 0 / b = 0 nulls.
 
-# The refit options carried over from the user's `fit_args`: the ones that
-# change how a model is estimated, not how its syntax is read. A parameter
-# table already holds everything the syntax options decided (std.lv, auto.*,
-# meanstructure, ...), so re-passing those would be redundant at best.
-.mm_lav_refit_keys <- c("estimator", "information", "optim_method", "control")
+# The `fit_args` carried to the null refits: all of them except those the
+# provider sets itself. The nulls must be fit on the same footing as the full
+# model: options that change the likelihood (`fixed.x`, `likelihood`,
+# `conditional.x`, `missing`, ...) would otherwise be dropped from the nulls and
+# make 2 * (ll_full - ll_null) compare two different likelihoods. Options the
+# parameter table already decided (std.lv, auto.*, ...) are harmless to repeat.
+.mm_lav_refit_args <- function(fit_args) {
+  fit_args[!.lav_key(names(fit_args)) %in% c("se", "model", "data")]
+}
 
 # The row of the FITTED model's parameter table for `lhs ~ rhs`. Exactly one is
 # required: none means the path is not in the model, more than one means a
@@ -20,6 +24,15 @@
       call. = FALSE
     )
   }
+  # A path fixed to a value in the syntax (`M ~ 0.5*X`, `M ~ 0*X`) has nothing
+  # to test: nulling it would remove no parameter.
+  if (!is.na(pt$free[hit]) && pt$free[hit] == 0L) {
+    stop("The `", lhs, " ~ ", rhs, "` path (the ", role, " path) is fixed in ",
+      "the lavaan model, not estimated, so there is no parameter to test. Free ",
+      "it, or use type = \"mc\".",
+      call. = FALSE
+    )
+  }
   hit
 }
 
@@ -29,6 +42,11 @@
 # latent model (more free parameters, an uninvertible information matrix).
 .mm_lav_null <- function(fit, row, data, refit_args) {
   pt <- lavaan::parTable(fit)
+  # `:=` rows define quantities from labels (the indirect effect a*b); they do
+  # not enter the likelihood, and lavaan refuses one whose label is now fixed.
+  keep <- pt$op != ":="
+  row <- match(row, which(keep))
+  pt <- pt[keep, , drop = FALSE]
   pt$free[row] <- 0L
   pt$ustart[row] <- 0
   pt[c("est", "se", "start")] <- NULL
@@ -92,8 +110,7 @@
 # model/outcome/fit_args as stored by set_md_mediation(engine = "lavaan").
 .mm_lav_provider <- function(model, treatment, mediator, outcome, fit_args = list()) {
   force(model)
-  keep <- .lav_key(names(fit_args)) %in% .mm_lav_refit_keys
-  refit_args <- fit_args[keep]
+  refit_args <- .mm_lav_refit_args(fit_args)
   function(d) {
     # The full fit is the one run() makes, so the nulls start from the same
     # model the user fitted.
@@ -113,7 +130,10 @@
     # An improper solution (a Heywood case, post.check failed) is not refused
     # (S6): the pooling warns once, naming the datasets.
     fits <- list(full = full, `a = 0` = a0, `b = 0` = b0)
-    bad <- !vapply(fits, function(f) isTRUE(lavaan::lavInspect(f, "post.check")), NA)
+    # lavInspect(, "post.check") itself warns on a failed check; the pooling
+    # raises the one warning, so this one is silenced.
+    ok <- function(f) isTRUE(suppressWarnings(lavaan::lavInspect(f, "post.check")))
+    bad <- !vapply(fits, ok, NA)
     attr(out, "improper") <- names(fits)[bad]
     out
   }
