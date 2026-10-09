@@ -14,6 +14,14 @@
 
 ### Bug fixes
 
+- [`pool()`](https://data-wise.github.io/missingmed/dev/reference/pool.md)
+  for `engine = "lavaan"` no longer blanks the Wald test of a covariance
+  between two different variables (for example the residual covariance
+  `Y~~Y2`). Only variances (`M~~M`) keep an `NA` statistic and p-value,
+  because their null lies on the boundary; a covariance’s null is
+  interior, so its z-test is valid. Found by an adversarial review of
+  0.6.0.
+
 - `set_md_mediation(method = "ipw", engine = "lavaan")` now guards every
   spelling of the options it controls. lavaan \>= 0.7-2 accepts
   `sampling_weights` as well as `sampling.weights`;

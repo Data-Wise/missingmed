@@ -182,9 +182,10 @@ in <code>fit_args</code>.</p>
 <span><span class="co">#&gt; 8 c_prime -0.06635193 0.11626102 5.681995e-01</span></span></code></pre></div>
 <p>The p-values are normal-theory z-tests (<code>df</code> is
 <code>Inf</code> for a single imputation, and Rubin’s large-sample df
-otherwise). Variance and covariance rows (<code>~~</code>) keep their
-estimate and standard error, with <code>NA</code> for the statistic and
-p-value, because their null (variance = 0) lies on the boundary.</p>
+otherwise). Variance rows (<code>M~~M</code>) keep their estimate and
+standard error, with <code>NA</code> for the statistic and p-value,
+because their null (variance = 0) lies on the boundary. A covariance
+between two different variables (<code>Y~~Y2</code>) keeps its test.</p>
 <p>A latent mediator uses the same call, with the latent variable as
 <code>mediator</code>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">

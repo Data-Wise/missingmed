@@ -155,6 +155,6 @@ article.
   missingmed does not pretend to give one.
   [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/dev/reference/sensitivity_mnar.md)
   shows how far a conclusion moves when MAR fails.
-- For lavaan fits, the variance and covariance rows (`~~`) have `NA`
-  statistic and p-value by design; see the *Structural equation models*
-  article.
+- For lavaan fits, the variance rows (`M~~M`) have `NA` statistic and
+  p-value by design (covariances between different variables keep their
+  test); see the *Structural equation models* article.

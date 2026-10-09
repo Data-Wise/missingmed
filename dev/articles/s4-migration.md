@@ -64,10 +64,11 @@ res@tidy_table[, c("term", "estimate", "std_error", "p_value")]
 ```
 
 The p-values are normal-theory z-tests (`df` is `Inf` for a single
-imputation, and Rubin’s large-sample df otherwise). Variance and
-covariance rows (`~~`) keep their estimate and standard error, with `NA`
-for the statistic and p-value, because their null (variance = 0) lies on
-the boundary.
+imputation, and Rubin’s large-sample df otherwise). Variance rows
+(`M~~M`) keep their estimate and standard error, with `NA` for the
+statistic and p-value, because their null (variance = 0) lies on the
+boundary. A covariance between two different variables (`Y~~Y2`) keeps
+its test.
 
 A latent mediator uses the same call, with the latent variable as
 `mediator`:

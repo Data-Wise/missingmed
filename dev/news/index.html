@@ -49,8 +49,8 @@
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
-<ul><li>
-<code>set_md_mediation(method = "ipw", engine = "lavaan")</code> now guards every spelling of the options it controls. lavaan &gt;= 0.7-2 accepts <code>sampling_weights</code> as well as <code>sampling.weights</code>; <code>fit_args = list(sampling_weights = ...)</code> used to pass the check and be dropped silently in favor of the IPW weights, and is now an error. <code>se = "robust_huber_white"</code> (or any case) is accepted as the robust SE request. The lavaan call itself uses the snake_case names.</li>
+<ul><li><p><code><a href="../reference/pool.html">pool()</a></code> for <code>engine = "lavaan"</code> no longer blanks the Wald test of a covariance between two different variables (for example the residual covariance <code>Y~~Y2</code>). Only variances (<code>M~~M</code>) keep an <code>NA</code> statistic and p-value, because their null lies on the boundary; a covariance’s null is interior, so its z-test is valid. Found by an adversarial review of 0.6.0.</p></li>
+<li><p><code>set_md_mediation(method = "ipw", engine = "lavaan")</code> now guards every spelling of the options it controls. lavaan &gt;= 0.7-2 accepts <code>sampling_weights</code> as well as <code>sampling.weights</code>; <code>fit_args = list(sampling_weights = ...)</code> used to pass the check and be dropped silently in favor of the IPW weights, and is now an error. <code>se = "robust_huber_white"</code> (or any case) is accepted as the robust SE request. The lavaan call itself uses the snake_case names.</p></li>
 </ul></div>
 </div>
     <div class="section level2">
