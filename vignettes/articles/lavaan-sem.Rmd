@@ -101,7 +101,8 @@ Two things to read in that table:
 * The **variance rows** (`m1~~m1`, `Mlat~~Mlat`, ...) keep their estimate and
   standard error, but `statistic` and `p_value` are `NA`. A variance is tested
   against zero, which is on the boundary of its range, so a Wald z-test is not
-  valid there.
+  valid there. A covariance between two different variables (for example a
+  residual covariance `Y~~Y2`) has an interior null, so it keeps its test.
 
 The indirect effect and its Monte Carlo interval:
 

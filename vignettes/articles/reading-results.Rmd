@@ -119,5 +119,5 @@ denominator degrees of freedom. See the *Testing an indirect effect* article.
 * A test of the missing-at-random assumption: none exists, and missingmed does not
   pretend to give one. `sensitivity_mnar()` shows how far a conclusion moves when
   MAR fails.
-* For lavaan fits, the variance and covariance rows (`~~`) have `NA` statistic and
-  p-value by design; see the *Structural equation models* article.
+* For lavaan fits, the variance rows (`M~~M`) have `NA` statistic and p-value by
+  design (covariances between different variables keep their test); see the *Structural equation models* article.
