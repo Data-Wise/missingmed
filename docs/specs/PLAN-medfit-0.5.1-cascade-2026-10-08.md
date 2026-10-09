@@ -49,10 +49,12 @@ No dependent needs code changes.
 - [ ] **Checkpoint B:** `medfit-0.5.1-gates.sh post` prints ALL GATES PASS
 
 ### Phase 2: dependents (check only; one session each)
-- [ ] T2.1 probmed: suite against medfit 0.5.1 (floor ≥ 0.3.0)
-- [ ] T2.2 medsim: suite against 0.5.1 (floor ≥ 0.2.0)
-- [ ] T2.3 RMediation: suite against 0.5.1
-- [ ] T2.4 mediationverse: suite against 0.5.1 (floor ≥ 0.2.0)
+- [x] T2.1 probmed: suite against medfit 0.5.1 (floor ≥ 0.3.0)
+- [x] T2.2 medsim: suite against 0.5.1 (floor ≥ 0.2.0)
+- [x] T2.3 RMediation: suite against 0.5.1
+- [x] T2.4 mediationverse: suite against 0.5.1 (floor ≥ 0.2.0)
+  - Audited read-only 2026-10-08 (no suites run): none of the four touches lavaan with sampling weights, so #85 does not affect them; CI green on `main` for all four (mediationverse's one 09-21 failure was a Windows 504 timeout). Remaining check after the release: CI green once 0.5.1 is on r-universe.
+  - Note: probmed pins `Remotes: data-wise/medfit@v0.3.0`, so it never resolves 0.5.1; revisit at its next release.
   - Verify each: record command and pass/fail counts. Any failure: reproduce on medfit 0.5.0 before blaming 0.5.1.
 
 ### Phase 3: missingmed (deferred until medfit 0.5.1 is on CRAN)
