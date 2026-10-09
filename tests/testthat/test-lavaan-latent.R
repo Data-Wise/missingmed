@@ -73,9 +73,16 @@ test_that("a latent mediator with target = NULL errors before re-imputing, listi
   )
 })
 
-test_that("type = 'mbco' is refused for lavaan before re-imputing", {
-  expect_error(
-    sensitivity_mnar(md_lat, delta = c(0, 0.5), target = "m1", type = "mbco"),
-    "not available for engine"
-  )
+test_that("a latent mediator runs through infer('mbco') with k = 1", {
+  r <- infer(run(md_lat), type = "mbco")
+  expect_s3_class(r, "missingmed::MbcoMIResult")
+  expect_true(is.finite(r["p"]) && r["p"] >= 0 && r["p"] <= 1)
+  expect_equal(r@k, 1)
+})
+
+test_that("sensitivity_mnar(type = 'mbco') runs for a latent-mediator lavaan fit", {
+  s <- sensitivity_mnar(md_lat, delta = c(0, 0.5), target = "m1", type = "mbco", seed = 1)
+  expect_s3_class(s, "missingmed::MDSensitivityResult")
+  expect_equal(length(s@rungs), 2L)
+  expect_true(all(vapply(s@rungs, function(r) is.finite(r["p"]), NA)))
 })

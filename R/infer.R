@@ -15,7 +15,13 @@
 #'   \eqn{H_0: a b = 0}, computed from the per-imputation datasets (MBCO does not
 #'   commute with Rubin's rules; see [per_imputation_list()]). The engine is
 #'   [mbco_d4()]; see there for `ariv`, the branch diagnostics and the cost.
-#'   At least two imputations are required.
+#'   At least two imputations are required. It also works for
+#'   `engine = "lavaan"` fits (including a latent mediator), with lavaan doing
+#'   the refits: the tested paths are the structural regressions `mediator ~
+#'   treatment` and `outcome ~ mediator`. Only `estimator = "ML"` (the default)
+#'   is supported; `MLR`, `MLM`, `WLSMV`, `group`, `ordered`, `sampling.weights`
+#'   and `method = "ipw"` are refused, naming the option. A refit that did not
+#'   converge stops the test, naming the dataset, the branch and the model.
 #'
 #' @param object An [MDMediationFit] (supports both `"mc"` and `"mbco"`) or an
 #'   [MDMediationResult] (supports `"mc"`).
@@ -83,14 +89,6 @@ S7::method(infer, MDMediationFit) <- function(object, type = c("mc", "mbco"),
   }
   # mbco: D4-stacked over the per-imputation datasets
   src <- object@source
-  if (identical(object@engine, "lavaan")) {
-    stop("MBCO inference is not available for engine = \"lavaan\" yet: it ",
-      "refits with glm(), which is not the SEM. Use type = \"mc\". MBCO for ",
-      "SEM needs its own spec (constrained lavaan refits; see ",
-      "docs/specs/SPEC-s7-sem-engine-2026-09-23.md, Q4).",
-      call. = FALSE
-    )
-  }
   if (!inherits(src, "missingmed::MDMediationData") && !S7::S7_inherits(src, MDMediationData)) {
     stop("MBCO needs the originating MDMediationData (imputed datasets). ",
       "Run infer() on the MDMediationFit returned by run().", call. = FALSE)
@@ -100,6 +98,12 @@ S7::method(infer, MDMediationFit) <- function(object, type = c("mc", "mbco"),
       "IPW objects (weighted Monte-Carlo CI).", call. = FALSE)
   }
   implist <- mice::complete(src@data, action = "all")
+  if (identical(object@engine, "lavaan")) {
+    .mm_lav_check_mbco(src)
+    return(.mm_d4_pool(implist, .mm_lav_provider(
+      src@model, src@treatment, src@mediator, src@outcome, src@fit_args
+    ), ariv))
+  }
   .mm_d4_mbco(implist,
     .expand_dot(src@formula_y, src@original_data),
     .expand_dot(src@formula_m, src@original_data),

@@ -34,9 +34,11 @@ articles:
   - articles/ipw-weighting
   - articles/sensitivity-mnar
   - articles/lavaan-sem
+  - articles/cookbook
 - title: Guides
   contents:
   - articles/supported-models
+  - articles/refcard
   - articles/faq
   - articles/s4-migration
 - title: Technical

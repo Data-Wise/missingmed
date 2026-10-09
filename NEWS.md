@@ -1,3 +1,29 @@
+# missingmed 0.8.0
+
+## New features
+
+* **MBCO for `engine = "lavaan"`.** `infer(type = "mbco")` and
+  `sensitivity_mnar(type = "mbco")` now work for lavaan fits, including a latent
+  mediator, with the same D4-stacked test, `MbcoMIResult` and `ariv` options as
+  the glm engine. On an observed-variable model it agrees with the glm engine to
+  numerical precision. The tested paths are the structural regressions `mediator
+  ~ treatment` (a) and `outcome ~ mediator` (b); a latent mediator's measurement
+  model and any direct effects of its indicators stay free. Only `estimator =
+  "ML"` is supported: `MLR`, `MLM`, `WLSMV`, `group`, `ordered` and
+  `sampling.weights` are refused, naming the option. A non-converged refit
+  refuses; an improper solution warns once.
+* `mbco_d4()` gains `model`, `outcome` and `fit_args` for a lavaan model on a
+  plain list of data frames. `model` cannot be combined with `formula_y`,
+  `formula_m` or the families.
+
+## Bug fixes
+
+* `infer(type = "mbco")` and `mbco_d4()` now refuse when a `glm()` refit did not
+  converge or has a non-finite log-likelihood, instead of returning a p-value
+  computed from it. The error names the dataset (imputation or stacked data),
+  the branch (`full`, `a = 0`, `b = 0`) and the model. `sensitivity_mnar(type =
+  "mbco")` names the failing rung and delta. Converged fits are unchanged.
+
 # missingmed 0.7.0
 
 ## Deprecations

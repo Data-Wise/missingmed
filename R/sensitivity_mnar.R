@@ -59,7 +59,11 @@
 #'   either `delta` or `ums`, not both.
 #' @param target Name of the variable to shift. Defaults to the mediator. Must
 #'   be `NULL` when `delta` is a data frame.
-#' @param type Inference per rung: `"mc"` (default) or `"mbco"`.
+#' @param type Inference per rung: `"mc"` (default) or `"mbco"`. `"mbco"` works
+#'   for `engine = "glm"` and for `engine = "lavaan"` (maximum likelihood only,
+#'   see [infer()]). If an MBCO refit does not converge at a rung, the sweep
+#'   stops and the error names the rung and its delta; no partial result is
+#'   returned.
 #' @param seed Integer seed pinned across rungs. Defaults to the seed stored in
 #'   the `mids` object, or `20260822L` when that is `NA`. A fractional value is
 #'   truncated, as [set.seed()] does, and the result records the integer used.
@@ -284,7 +288,14 @@ sensitivity_mnar <- function(object, delta, target = NULL,
       infer(pool(fit_i), type = "mc", level = level, n.mc = n.mc,
         treatment_level = treatment_level)
     } else {
-      infer(fit_i, type = "mbco", ariv = ariv)
+      # A failing MBCO refit aborts the sweep; the error names the rung.
+      tryCatch(infer(fit_i, type = "mbco", ariv = ariv), error = function(e) {
+        stop("sensitivity rung ", i, " of ", nrow(grid), " (",
+          paste(names(grid), "=", unlist(grid[i, , drop = FALSE]), collapse = ", "),
+          "): ", conditionMessage(e),
+          call. = FALSE
+        )
+      })
     }
   }
 
@@ -606,17 +617,10 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   invisible(NULL)
 }
 
-# engine = "lavaan": MBCO is refused (as in infer(), Q4), and a latent mediator
-# has no data column, so the default `target` (the mediator) must be named
+# engine = "lavaan": a latent mediator has no data column, so the default `target` (the mediator) must be named
 # explicitly (G4). Checked before any re-imputation. A data-frame `delta` names
 # its own target columns, so only a vector `delta` or `ums` needs `target`.
 .check_lavaan_sensitivity <- function(object, target, type, delta, ums, mids) {
-  if (identical(type, "mbco")) {
-    stop("`type = \"mbco\"` is not available for engine = \"lavaan\" yet; ",
-      "use type = \"mc\". See infer().",
-      call. = FALSE
-    )
-  }
   needs_target <- !is.null(ums) || (!missing(delta) && !is.data.frame(delta))
   latent <- !object@mediator %in% names(mids$data)
   if (is.null(target) && needs_target && latent) {
