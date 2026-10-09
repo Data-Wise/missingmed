@@ -27,7 +27,7 @@ on. Engine warnings (a \code{glm} that did not converge, fitted probabilities of
 0 or 1) are collected and raised once, naming the imputations that produced
 them.
 
-It is the S7 successor of the S4 \code{\link[=run_sem]{run_sem()}} method.
+It is the S7 successor of the S4 \code{run_sem()} method.
 }
 \examples{
 set.seed(1)
@@ -44,5 +44,5 @@ fit <- run(md)
 fit
 }
 \seealso{
-\code{\link[=set_md_mediation]{set_md_mediation()}}, \code{\link[=pool]{pool()}}, \code{\link[=infer]{infer()}}, \code{\link[=run_sem]{run_sem()}}
+\code{\link[=set_md_mediation]{set_md_mediation()}}, \code{\link[=pool]{pool()}}, \code{\link[=infer]{infer()}}
 }

@@ -14,9 +14,11 @@
 #'   \item [per_imputation_list()]: per-imputation fits for MBCO (which does not commute with Rubin's rules)
 #' }
 #'
-#' @section Defunct S4 API:
-#' [set_sem()], [run_sem()] and [pool_sem()] were removed in 0.6.0 and now stop
-#' with a message naming their replacement; see [missingmed-defunct].
+#' @section Removed S4 API:
+#' The S4 functions `set_sem()`, `run_sem()`, `pool_sem()`, `fit_model()`,
+#' `lav_mice()` and `mx_mice()` were deprecated in 0.5.0, turned into
+#' `.Defunct()` stubs in 0.6.0 and removed in 0.7.0. See
+#' `vignette("s4-migration", package = "missingmed")` for the replacements.
 #'
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #'

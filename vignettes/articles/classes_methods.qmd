@@ -176,7 +176,7 @@ S7::S7_data(r)
 
 The S4 API (`set_sem()`, `run_sem()`, `pool_sem()` with the classes
 `SemImputedData`, `SemResults` and `PooledSEMResults`) was removed in 0.6.0; the
-functions are `.Defunct()` stubs until 0.7.0. Each S7 class above replaced one
+functions were `.Defunct()` stubs in 0.6.0 and were deleted in 0.7.0. Each S7 class above replaced one
 of the classes:
 
 | S7 class | Replaces |

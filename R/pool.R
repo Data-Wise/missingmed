@@ -14,13 +14,13 @@
 #' \deqn{\bar Q = \frac{1}{m}\sum_i Q_i, \quad \bar U = \frac{1}{m}\sum_i U_i,
 #'   \quad B = \mathrm{cov}(Q_1, \ldots, Q_m), \quad T = \bar U + (1 + 1/m) B.}
 #'
-#' It is the S7 successor of the S4 [pool_sem()] method.
+#' It is the S7 successor of the S4 `pool_sem()` method.
 #'
 #' @param object An [MDMediationFit] object. Anything else (a `mice::mira`,
 #'   say) is forwarded to [mice::pool()].
 #' @param ... Unused.
 #' @return An [MDMediationResult] object.
-#' @seealso [run()], [infer()], [pool_sem()]
+#' @seealso [run()], [infer()]
 #' @details
 #' The returned tidy table also carries a per-coefficient Wald test
 #' (`statistic`, `df`, `riv`, `fmi`, `p_value`) and, when `conf_int = TRUE` was
