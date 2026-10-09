@@ -112,6 +112,28 @@ Same harness as the earlier gates (`dev/sim-ipw-stack-*`, hopper array, per-colu
 | T5 | If D: implement in `.ipw_weights_info()` (TDD), NEWS, man pages | known-answer test (weights equal the product of the conditional fits); planted-defect test (marginal fails under simultaneous at n = 2e4); degenerate-factor test; order test | full suite, counts quoted; `R CMD check` clean |
 | T6 | If D: documentation per section 7 plus the literature check in section 3 | each claim matches a result | docs render; links resolve |
 
+## 8a. Addendum A (T1, before any grid result): what the harness pilot changed
+
+Written after the T1 harness and its 40-replication control pilot (`dev/sim-ipw-mech-smoke.R --controls 40`, n = 5000, 40% missing, P4, 26 s), before the grid has run. The pilot's mean bias in `b`:
+
+| Mechanism / DGM | joint | marginal | sequential | reversed | true weights |
+|---|---|---|---|---|---|
+| independent / auxm | -0.023 | -0.001 | -0.002 | -0.002 | -0.000 |
+| simultaneous / auxm | +0.001 | **+0.046** | +0.001 | +0.001 | +0.001 |
+| monotone / auxm | -0.011 | +0.018 | +0.001 | -0.011 | +0.001 |
+
+In `std` and `aux` every form is within 0.007 of zero in all three mechanisms: with no auxiliary variable acting on both M and Y, a wrong weight model does not move `b`. **Only `auxm` discriminates between forms.** The `std` and `aux` cells stay in the grid as no-harm cells for C2 to C4, and C1 is read in `auxm`.
+
+Corrections to section 5, all declared now:
+
+1. **Planted-defect bar.** "Fails C1 by more than 0.03" (bias above 0.04) is replaced by: in `sim` / `auxm` / P4 / 40% missing / n = 5000, the marginal form's absolute mean bias in `b` exceeds **0.03**. The pilot gave +0.046 with 40 replications, too close to 0.04 for a control that voids the run if it misses.
+2. **Known-weights control.** The `true` arm (the DGM's own P(complete)) must have absolute mean bias in `b` at most 0.010 in every n = 5000 cell, or the run is void.
+3. **C2 was incomplete in two ways.** (a) Scope: at P4 the bar is coverage of the indirect effect at least 0.93; at the null points P1 and P2 it is rejection of zero at most 0.065 (the earlier gates' size bar), since coverage of a near-zero truth is not the question there. (b) Escape clause, as in the earlier gates' C1*: a cell also passes if sequential is within 0.01 of the `true` arm in that cell (coverage not more than 0.01 lower, rejection not more than 0.01 higher), because the shipped variance's own limit is not what the default decision is about.
+4. **A C2 failure alone** was unassigned in the decision rule. It follows the C3/C4 branch: keep the joint default, add warning B, ship the sequential form as opt-in.
+5. **C3 scope.** All `sim` cells at n = 200 and 500 (the mechanism where the joint default is correct): at P4 coverage, at nulls rejection, each paired against the joint form's on the same replications; RMSE of `b` against the stored population `b` in every such cell.
+6. **C4 failure** is a replication that errors, returns a non-converged model, or has no interval (non-positive-definite block). A degenerate factor (the second factor under simultaneous missingness) is expected, is not a failure, and is counted separately.
+7. **Cost.** 0.07 s per replication at n = 5000, so the grid is about 2.5 core-hours (about 10 minutes on hopper at 40 concurrent tasks), below the 15 to 30 minutes estimated above.
+
 ## 9. Boundaries
 
 - **Always:** pre-register before running; report failure shares per column; stage explicit paths; US spelling.
