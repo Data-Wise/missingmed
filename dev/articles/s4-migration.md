@@ -1,16 +1,11 @@
 # Migrating from the S4 API
 
-The S4 API was removed in missingmed 0.6.0.
-[`set_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md),
-[`run_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md),
-[`pool_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md),
-[`fit_model()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md),
-[`lav_mice()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-and
-[`mx_mice()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-remain as stubs that stop with a message naming their replacement; the
-stubs are deleted in 0.7.0. This article maps the old calls to the S7
-pipeline.
+The S4 API was removed in missingmed 0.6.0. `set_sem()`, `run_sem()`,
+`pool_sem()`, `fit_model()`, `lav_mice()` and `mx_mice()` were left as
+stubs for one release that stopped with a message naming their
+replacement; the stubs were deleted in 0.7.0, so calling them now gives
+R’s “could not find function” error. This article maps the old calls to
+the S7 pipeline.
 
 ## The mapping
 
@@ -19,8 +14,8 @@ pipeline.
 | `set_sem(data, model)` | `set_md_mediation(data, model = , treatment = , mediator = , outcome = , engine = "lavaan")` |
 | `run_sem(object)` | `run(object)` |
 | `pool_sem(object)` | `pool(object)` |
-| [`fit_model()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md), [`lav_mice()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md) | [`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md) fits every imputation |
-| [`mx_mice()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md), OpenMx models | none: use `engine = "lavaan"` |
+| `fit_model()`, `lav_mice()` | [`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md) fits every imputation |
+| `mx_mice()`, OpenMx models | none: use `engine = "lavaan"` |
 | `SemImputedData`, `SemResults`, `PooledSEMResults` | `MDMediationData`, `MDMediationFit`, `MDMediationResult` |
 | `is_fit()`, `is_pd()`, `is_lav_syntax()`, `is_valid_lav_syntax()` | none (deleted without a stub; nothing in the S7 pipeline uses them) |
 | [`tidy()`](https://generics.r-lib.org/reference/tidy.html) methods for OpenMx models and `logLik` objects | none (deleted) |

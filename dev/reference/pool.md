@@ -52,9 +52,7 @@ Pooling math (migrated from the S4 `pool_sem` / `pool_tidy` /
 \frac{1}{m}\sum_i U_i, \quad B = \mathrm{cov}(Q_1, \ldots, Q_m), \quad T
 = \bar U + (1 + 1/m) B.\$\$
 
-It is the S7 successor of the S4
-[`pool_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-method.
+It is the S7 successor of the S4 `pool_sem()` method.
 
 The returned tidy table also carries a per-coefficient Wald test
 (`statistic`, `df`, `riv`, `fmi`, `p_value`) and, when `conf_int = TRUE`
@@ -76,8 +74,7 @@ multiple imputation. *Biometrika*, 86(4), 948–955.
 ## See also
 
 [`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md),
-[`infer()`](https://data-wise.github.io/missingmed/dev/reference/infer.md),
-[`pool_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
+[`infer()`](https://data-wise.github.io/missingmed/dev/reference/infer.md)
 
 ## Examples
 

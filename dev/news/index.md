@@ -2,6 +2,21 @@
 
 ## missingmed (development version)
 
+### Breaking changes
+
+- The [`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs for the
+  removed S4 API are deleted: `set_sem()`, `run_sem()`, `pool_sem()`,
+  `fit_model()`, `lav_mice()` and `mx_mice()` are no longer exported, so
+  calling one now gives R’s “could not find function” error instead of a
+  message naming the replacement. The replacements are unchanged:
+  [`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md),
+  [`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md)
+  and
+  [`pool()`](https://data-wise.github.io/missingmed/dev/reference/pool.md),
+  with `engine = "lavaan"` for a structural equation model; see
+  `vignette("s4-migration")`. The help page `?"missingmed-defunct"` is
+  gone with them.
+
 ### Licensing and dependencies
 
 - missingmed is now licensed GPL (\>= 3) (was GPL-2), matching `medfit`,
@@ -34,15 +49,9 @@
 
 ### Breaking changes
 
-- The S4 API is removed.
-  [`set_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md),
-  [`run_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md),
-  [`pool_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md),
-  [`fit_model()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md),
-  [`lav_mice()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-  and
-  [`mx_mice()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-  now stop with a message naming their replacement
+- The S4 API is removed. `set_sem()`, `run_sem()`, `pool_sem()`,
+  `fit_model()`, `lav_mice()` and `mx_mice()` now stop with a message
+  naming their replacement
   ([`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs, deleted in
   0.7.0): use
   [`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md),
@@ -195,13 +204,12 @@
   fit report the indirect effect at `x = 0` and `x = 1` instead of a
   single `a*b`, which is the `x = 0` value only.
 
-- [`pool_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-  (deprecated) reported the geometric mean of the per-imputation
-  p-values, which is not a valid pooled test. It now reports Rubin’s
-  pooled Wald `statistic`, `df` and `riv`, the p-value of the t test on
-  those degrees of freedom, and, with `conf_int = TRUE` in
-  [`set_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md),
-  `conf_low` and `conf_high` (which were documented but never computed).
+- `pool_sem()` (deprecated) reported the geometric mean of the
+  per-imputation p-values, which is not a valid pooled test. It now
+  reports Rubin’s pooled Wald `statistic`, `df` and `riv`, the p-value
+  of the t test on those degrees of freedom, and, with `conf_int = TRUE`
+  in `set_sem()`, `conf_low` and `conf_high` (which were documented but
+  never computed).
 
 - [`summary()`](https://rdrr.io/r/base/summary.html) of a sensitivity
   curve with NA rungs still reports the tipping point when every NA rung
@@ -231,8 +239,7 @@
 - Engines are checked when the model is set up: `engine` must be one of
   the engines missingmed supports with the installed medfit (`"glm"`,
   plus `"regmedint"` with medfit \>= 0.4.0 and the MI estimator);
-  anything else, including `"lavaan"` (planned for 0.6.0;
-  [`set_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
+  anything else, including `"lavaan"` (planned for 0.6.0; `set_sem()`
   exists today), errors in
   [`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md)
   instead of inside
@@ -285,26 +292,16 @@
   fit names its imputation. When the imputations are identical, `r4` is
   now exactly 0 and `nu` is `Inf` instead of rounding noise.
 
-- The deprecated S4 pipeline works again:
-  [`run_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-  failed on every call (an internal
-  [`lav_mice()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)/[`mx_mice()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-  with swapped arguments was masked by the exported functions), and
-  [`lav_mice()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-  rejected every valid model syntax (an inverted check).
-  [`fit_model()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-  and
-  [`set_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
+- The deprecated S4 pipeline works again: `run_sem()` failed on every
+  call (an internal `lav_mice()`/`mx_mice()` with swapped arguments was
+  masked by the exported functions), and `lav_mice()` rejected every
+  valid model syntax (an inverted check). `fit_model()` and `set_sem()`
   list the accepted model types for anything else; a lavaan or OpenMx
   failure names its imputation, and per-imputation warnings are
-  collected into one.
-  [`pool_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-  needs at least two imputations (with one, every standard error was
-  NA), `is_pd()` returns `FALSE` for a non-symmetric matrix,
-  `PooledSEMResults` requires its four base columns,
-  [`set_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-  refuses a `conf_level` of 0 or 1, and
-  [`mx_mice()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
+  collected into one. `pool_sem()` needs at least two imputations (with
+  one, every standard error was NA), `is_pd()` returns `FALSE` for a
+  non-symmetric matrix, `PooledSEMResults` requires its four base
+  columns, `set_sem()` refuses a `conf_level` of 0 or 1, and `mx_mice()`
   now passes `...` to
   [`OpenMx::mxRun()`](https://rdrr.io/pkg/OpenMx/man/mxRun.html) as
   documented (so unknown arguments error) and runs the imputations
@@ -405,10 +402,8 @@
   [`summary.glm()`](https://rdrr.io/r/stats/summary.glm.html). These
   test **one path at a time**, not the indirect effect; use
   [`infer()`](https://data-wise.github.io/missingmed/dev/reference/infer.md)
-  for that. The S4
-  [`pool_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)’s
-  `p_value` meant something else, a geometric mean of per-imputation
-  p-values.
+  for that. The S4 `pool_sem()`’s `p_value` meant something else, a
+  geometric mean of per-imputation p-values.
 
 - **[`sensitivity_mnar()`](https://data-wise.github.io/missingmed/dev/reference/sensitivity_mnar.md)
   delegates to `mice`’s NARFCS methods** (Tompsett et al. 2018;
@@ -756,12 +751,9 @@ New S7 classes: `MDMediationData`, `MDMediationFit`,
 
 ### Deprecations
 
-- The S4 API
-  ([`set_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md),
-  [`run_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md),
-  [`pool_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md),
-  and the `SemImputedData` / `SemResults` / `PooledSEMResults` classes)
-  is **deprecated** in favor of the S7 pipeline above. The shims emit a
+- The S4 API (`set_sem()`, `run_sem()`, `pool_sem()`, and the
+  `SemImputedData` / `SemResults` / `PooledSEMResults` classes) is
+  **deprecated** in favor of the S7 pipeline above. The shims emit a
   [`.Deprecated()`](https://rdrr.io/r/base/Deprecated.html) warning and
   will be removed in a future release.
 

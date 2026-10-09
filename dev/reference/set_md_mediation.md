@@ -9,9 +9,8 @@ delegated to
 [`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html)
 downstream by
 [`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md).
-It is the S7 successor of the S4
-[`set_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-constructor.
+It is the S7 successor of the S4 `set_sem()` constructor (removed in
+0.7.0).
 
 ## Usage
 

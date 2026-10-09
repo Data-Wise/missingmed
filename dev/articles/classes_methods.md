@@ -164,14 +164,11 @@ S7::S7_data(r)
 
 ## Removed S4 classes
 
-The S4 API
-([`set_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md),
-[`run_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md),
-[`pool_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-with the classes `SemImputedData`, `SemResults` and `PooledSEMResults`)
-was removed in 0.6.0; the functions are
-[`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs until 0.7.0.
-Each S7 class above replaced one of the classes:
+The S4 API (`set_sem()`, `run_sem()`, `pool_sem()` with the classes
+`SemImputedData`, `SemResults` and `PooledSEMResults`) was removed in
+0.6.0; the functions were
+[`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs in 0.6.0 and
+were deleted in 0.7.0. Each S7 class above replaced one of the classes:
 
 | S7 class            | Replaces           |
 |---------------------|--------------------|

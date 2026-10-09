@@ -161,18 +161,6 @@ Fitting and validation utilities used by the pipeline.
 - [`n_imp()`](https://data-wise.github.io/missingmed/dev/reference/n_imp.md)
   : Get the number of imputations from a mids object
 
-## Defunct (S4)
-
-Removed in 0.6.0; each stub stops with a message naming its replacement.
-
-- [`set_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-  [`run_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-  [`pool_sem()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-  [`fit_model()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-  [`lav_mice()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-  [`mx_mice()`](https://data-wise.github.io/missingmed/dev/reference/missingmed-defunct.md)
-  : Defunct S4 functions
-
 # Articles
 
 ### Get started

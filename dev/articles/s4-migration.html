@@ -69,12 +69,13 @@
 
     
     
-<p>The S4 API was removed in missingmed 0.6.0. <code><a href="../reference/missingmed-defunct.html">set_sem()</a></code>,
-<code><a href="../reference/missingmed-defunct.html">run_sem()</a></code>, <code><a href="../reference/missingmed-defunct.html">pool_sem()</a></code>,
-<code><a href="../reference/missingmed-defunct.html">fit_model()</a></code>, <code><a href="../reference/missingmed-defunct.html">lav_mice()</a></code> and
-<code><a href="../reference/missingmed-defunct.html">mx_mice()</a></code> remain as stubs that stop with a message naming
-their replacement; the stubs are deleted in 0.7.0. This article maps the
-old calls to the S7 pipeline.</p>
+<p>The S4 API was removed in missingmed 0.6.0. <code>set_sem()</code>,
+<code>run_sem()</code>, <code>pool_sem()</code>,
+<code>fit_model()</code>, <code>lav_mice()</code> and
+<code>mx_mice()</code> were left as stubs for one release that stopped
+with a message naming their replacement; the stubs were deleted in
+0.7.0, so calling them now gives R’s “could not find function” error.
+This article maps the old calls to the S7 pipeline.</p>
 <div class="section level2">
 <h2 id="the-mapping">The mapping<a class="anchor" aria-label="anchor" href="#the-mapping"></a>
 </h2>
@@ -102,14 +103,14 @@ old calls to the S7 pipeline.</p>
 </tr>
 <tr class="even">
 <td>
-<code><a href="../reference/missingmed-defunct.html">fit_model()</a></code>, <code><a href="../reference/missingmed-defunct.html">lav_mice()</a></code>
+<code>fit_model()</code>, <code>lav_mice()</code>
 </td>
 <td>
 <code><a href="../reference/run.html">run()</a></code> fits every imputation</td>
 </tr>
 <tr class="odd">
 <td>
-<code><a href="../reference/missingmed-defunct.html">mx_mice()</a></code>, OpenMx models</td>
+<code>mx_mice()</code>, OpenMx models</td>
 <td>none: use <code>engine = "lavaan"</code>
 </td>
 </tr>
