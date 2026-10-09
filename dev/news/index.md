@@ -2,6 +2,8 @@
 
 ## missingmed (development version)
 
+## missingmed 0.8.0
+
 ### New features
 
 - **MBCO for `engine = "lavaan"`.** `infer(type = "mbco")` and
