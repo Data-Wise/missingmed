@@ -60,7 +60,7 @@
 #' @param family_y,family_m `stats::family` objects for the outcome and mediator
 #'   models. Default `stats::gaussian()`.
 #' @param method Estimator axis: `"mi"` (default) or `"ipw"`.
-#' @param mechanism **Deprecated.** The pipeline estimates under MAR regardless,
+#' @param mechanism `r lifecycle::badge("deprecated")` The pipeline estimates under MAR regardless,
 #'   so this argument never changed behavior. Passing `"mnar"` warns and is
 #'   ignored. Use [sensitivity_mnar()] to assess departures from MAR; it sets
 #'   `mechanism = "mnar"` on the objects it creates.
@@ -146,11 +146,14 @@ set_md_mediation <- function(data, formula_y, formula_m,
   # regardless of what is passed here, so accepting "mnar" silently would imply
   # an estimator change that does not happen. Only sensitivity_mnar() stamps it.
   if (!missing(mechanism) && identical(match.arg(mechanism), "mnar")) {
-    warning(
-      "`mechanism = \"mnar\"` is deprecated and has no effect: run() estimates ",
-      "under MAR either way. Use sensitivity_mnar() to assess departures from ",
-      "MAR; it stamps mechanism = \"mnar\" on the objects it produces.",
-      call. = FALSE
+    lifecycle::deprecate_warn(
+      when = "0.3.0",
+      what = I("Setting `mechanism = \"mnar\"` in `set_md_mediation()`"),
+      details = c(i = paste0("It has no effect: run() estimates under MAR either way. ",
+        "Use sensitivity_mnar() to assess departures from MAR; it stamps ",
+        "mechanism = \"mnar\" on the objects it produces.")),
+      id = "missingmed-mechanism-mnar",
+      user_env = rlang::global_env()
     )
   }
   mechanism <- "mar"

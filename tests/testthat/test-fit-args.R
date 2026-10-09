@@ -80,8 +80,8 @@ test_that("the IPW path forwards fit_args and refuses weights/se_type in them", 
 test_that("run(...) still forwards, with a deprecation warning naming fit_args", {
   env <- new.env()
   local_mocked_bindings(.md_engine_call = record_dots(env))
-  expect_warning(run(fa_md(), m_star = 0), class = "md_dots_deprecated")
-  expect_warning(run(fa_md(), m_star = 0), "`m_star` with `fit_args`")
+  lifecycle::expect_deprecated(run(fa_md(), m_star = 0), "Passing arguments through `run\\(\\.\\.\\.\\)` was deprecated in\\s+missingmed 0\\.7\\.0")
+  lifecycle::expect_deprecated(run(fa_md(), m_star = 0), "`m_star` with `fit_args`")
   expect_true(all(vapply(env$seen, function(n) "m_star" %in% n, logical(1))))
 })
 
@@ -119,6 +119,7 @@ test_that("sensitivity_mnar() reuses the stored fit_args on every rung", {
 test_that("sensitivity_mnar(...) warns once, not once per rung", {
   skip_if_not_installed("RMediation")
   local_mocked_bindings(.md_engine_call = record_dots(new.env()))
+  rlang::local_options(lifecycle_verbosity = "warning")
   warns <- character()
   withCallingHandlers(
     sensitivity_mnar(fa_md(), delta = c(0, -0.5, -1), n.mc = 500, m_star = 0),
@@ -129,7 +130,7 @@ test_that("sensitivity_mnar(...) warns once, not once per rung", {
   )
   dep <- grep("deprecated", warns, value = TRUE)
   expect_length(dep, 1L)
-  expect_match(dep, "`sensitivity_mnar\\(\\)`")
+  expect_match(dep, "`sensitivity_mnar\\(\\.\\.\\.\\)`")
 })
 
 # ── outcome on glm ──────────────────────────────────────────────────────────

@@ -75,7 +75,7 @@
 #' @param ariv For `type = "mbco"`: passed to [infer()] for every rung
 #'   (`"fixed"`, the default, or `"own"`; see [mbco_d4()]). Ignored, with a
 #'   warning, for `type = "mc"`.
-#' @param on_error What to do when fitting or inference fails at a rung (a refit
+#' @param on_error `r lifecycle::badge("experimental")` What to do when fitting or inference fails at a rung (a refit
 #'   that did not converge, a non-finite likelihood). `"stop"` (default) aborts
 #'   the sweep and the error names the rung and its delta. `"continue"` keeps
 #'   the rungs that succeeded, records the message of each failed rung in
@@ -91,7 +91,7 @@
 #'   one intercept term. Only for a single target routed to `mnar.norm` or
 #'   `mnar.logreg`. A `ums` grid has no numeric ordering, so `summary()` does
 #'   not compute a tipping point for it.
-#' @param ... Deprecated. Extra arguments for the engine; set them with
+#' @param ... `r lifecycle::badge("deprecated")` Extra arguments for the engine; set them with
 #'   `fit_args` in [set_md_mediation()], which every refit here reads. They
 #'   are still honored, with one warning, and may not repeat a name already in
 #'   `fit_args`.

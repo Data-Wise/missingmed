@@ -98,7 +98,8 @@ IPW has no MBCO test and no delta sensitivity analysis: it has no imputations.
 ## 5. Move fitting options out of `run()`
 
 Options belong in `fit_args` on `set_md_mediation()`. Passing them through
-`run(...)` still works but warns (class `md_dots_deprecated`).
+`run(...)` still works but warns (a lifecycle deprecation warning, shown once per
+session).
 
 ```{r fit-args, eval = FALSE}
 # before: warns

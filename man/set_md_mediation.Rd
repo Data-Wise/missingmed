@@ -52,7 +52,7 @@ models. Default \code{stats::gaussian()}.}
 
 \item{method}{Estimator axis: \code{"mi"} (default) or \code{"ipw"}.}
 
-\item{mechanism}{\strong{Deprecated.} The pipeline estimates under MAR regardless,
+\item{mechanism}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The pipeline estimates under MAR regardless,
 so this argument never changed behavior. Passing \code{"mnar"} warns and is
 ignored. Use \code{\link[=sensitivity_mnar]{sensitivity_mnar()}} to assess departures from MAR; it sets
 \code{mechanism = "mnar"} on the objects it creates.}

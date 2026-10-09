@@ -96,7 +96,8 @@ models* article and the *Migrating from the S4 API* article.
 Since 0.7.0, fitting options belong in `set_md_mediation()`, where they are stored
 on the object and reused by every later refit (including the refits inside
 `sensitivity_mnar()`). Passing them through `run(...)` or `sensitivity_mnar(...)`
-still works but warns, with class `md_dots_deprecated`. Move the argument:
+still works but warns (a lifecycle deprecation warning, shown once per session; set
+`options(lifecycle_verbosity = "warning")` to see every one). Move the argument:
 
 ```{r fit-args-before-after, eval = FALSE}
 # before (warns)

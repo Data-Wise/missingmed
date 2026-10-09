@@ -14,7 +14,7 @@
 #' It is the S7 successor of the S4 `run_sem()` method.
 #'
 #' @param object An [MDMediationData] object.
-#' @param ... Deprecated. Additional arguments forwarded to
+#' @param ... `r lifecycle::badge("deprecated")` Additional arguments forwarded to
 #'   [medfit::fit_mediation()]; set them with `fit_args` in
 #'   [set_md_mediation()] instead. They are still honored, with a warning, and
 #'   may not repeat a name already in `fit_args`.
