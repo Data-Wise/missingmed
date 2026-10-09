@@ -143,3 +143,37 @@ Two flaws in the approved spec were found while building the harness. Both are r
 Install: `dev` tip `ec51884` (contains `.ipw_stacked_vcov()` and the #70 guard) built with `R CMD build --no-build-vignettes`, installed to `~/Rlib-sem` by batch job 4334215 (previous install backed up to `~/Rlib-backup/missingmed-before-ec51884`). Pilot: job 4334216, `ONLY_CELLS=1,40 REPS=20`, 8 array tasks (cell 1 = `std`, n = 200, 25% missing, P1; cell 40 = `auxm`, n = 200, 40% missing, P4), all COMPLETED, 0.7 to 0.8 s per task.
 
 Failure shares (520 rows = 40 replications x 13 arm-form rows): error rows 0, NA intervals 0, non-positive-definite stacked blocks 0, refused or non-converged fits 0; the trimmed form trimmed 5.2 rows per replication on average. No column is near the 1% bar. This is a plumbing check: 20 replications cannot show a rare failure below about 5%, so `combine` on the full run is what reads C5. Throughput is about 0.16 s per replication, so the 192-task full run is about 80 s per task.
+
+## 13. Results of the full run (2026-10-09)
+
+Hopper job 4334224, 192 tasks, all COMPLETED; 48 cells x 2000 replications; `dev` build `ec51884`. Raw output: [RESULTS-ipw-stack-coverage-2026-10-09.txt](RESULTS-ipw-stack-coverage-2026-10-09.txt); reproduce with `dev/sim-ipw-stack-combine.R` and `dev/sim-ipw-stack-attribution.R`.
+
+**Controls.** Control 2 (the model-based arm shows a detectable size distortion in `aux`/`auxm`): **PASS**, so the grid can see a wrong variance. Controls 1 and 3 passed on the laptop (section 11). **C5:** no arm has more than 1% dropped replications (no error rows, NA intervals or non-positive-definite stacked blocks), so no size is conditional.
+
+**Decision by the pre-registered rule: no default change for any weight form.** C3 passes for all four; **C2 fails for all four** (stacked is worse than the shipped path by more than 0.010 in some cell); C1 fails for stacked and, in `auxm`, also for the shipped path. Stacked stays opt-in, and `known_hc3` is not validated in the failing `auxm` cells either.
+
+| Form | C1 stacked | C1 shipped (`known_hc3`) | C2 | C3 | Decision |
+|---|---|---|---|---|---|
+| `uj` unstabilized joint | fail | fail | fail | pass | opt-in |
+| `sj` stabilized joint | fail | fail | fail | pass | opt-in |
+| `sjt` stabilized joint, trim .95 | fail | fail | fail | pass | opt-in |
+| `spv` stabilized per-variable | fail | fail | fail | pass | opt-in |
+
+(The "refuse stacking with trim" branch of the rule does not apply: the shipped path also fails C1 for `sjt`.)
+
+**What the grid shows.**
+
+1. **Where the failures are.** Null size is mostly fine: the largest stacked sizes are 0.060 (`uj`, `sj`), 0.056 (`sjt`) and 0.070 (`spv`, two cells at 0.066 and 0.070). The C1 failures are mainly **coverage at P4** (a = b = .3). Cells failing C1 (of 12 per DGM), `known_hc3` / `known_hc0` / stacked, form `sj`: `std` 0 / 1 / 1, `aux` 0 / 2 / 4, `auxm` 1 / 4 / 4.
+2. **Estimating the weights is a small effect; the HC correction is a larger one (addendum A1).** Mean paired differences over the cells (form `sj`): stacked minus `known_hc0` (weight estimation and `cov(a, b)`): size +0.001 to +0.004, coverage -0.003 to -0.010. `known_hc0` minus `known_hc3` (small-sample correction): size +0.005 to +0.008, coverage -0.013 to -0.027, two to three times larger. Stacked intervals are 7.5% narrower than the shipped ones (median width ratio 0.925, sj), mostly the HC3 to HC0 change. Per addendum A1, read the failures by comparing `known_hc0` with stacked. In `std` (form `sj`) stacked fails one cell and `known_hc0` fails the same one (n = 200, 40% missing, P4: 0.929 vs 0.921), so the cause is the missing small-sample correction. In `aux` `known_hc0` fails 2 cells and stacked 4, so there the weight-score term also contributes (coverage -0.005 on average, up to -0.011 in a cell); an HC correction alone may not bring every `aux` cell above 0.935. The follow-up is an HC-corrected stacked variance and a re-run, not rejecting stacking.
+3. **The direction agrees with theory, and it hurts here.** Stacked rejects more often than known-weights (the weight-score term shrinks the variance, as Robins, Rotnitzky and Zhao predict). Where the point estimate is unbiased that costs little; where it is biased (below) it makes under-coverage worse.
+4. **`auxm` coverage is damaged by bias in `b`, not by the variance.** Mean `b` at P4 is 0.265 to 0.285 for the joint forms against a nominal 0.30 (n = 500, 40% missing: 0.265; n = 200: 0.268, so it does not shrink with n); 0.278 to 0.293 for `spv`; 0.237 to 0.264 for the trimmed form. In `std` and `aux` the bias is at most 0.008. The shipped intervals also fall to 0.904 to 0.921 in the worst `auxm` cells. This is a finding about the existing IPW path under heavy weights, independent of the variance question.
+
+**Correction to the spec (found at results).** Section 2 states the missingness model is "correctly specified in all cells". That is false for the **joint** forms (`uj`, `sj`, `sjt`) in `aux` and `auxm`: M and Y are each missing with a logistic probability in `Z`, so P(both observed | X, C, Z) is a product of two logistics, which a single logistic model for the complete-case indicator cannot represent. Only `spv` (sequential factorization) is correctly specified, and it shows less bias (0.278 to 0.293) but is not unbiased at n = 500 with 40% missing, consistent with very heavy weights (`Z` slope 1.0, about 36% complete cases). The joint-form results in `aux`/`auxm` therefore mix variance error with model misspecification; read `spv` as the cleaner comparison there. Whether the residual `spv` bias is finite-sample weight instability was not isolated.
+
+**What this does not settle.** It does not show stacking is wrong; it shows that as built (HC0-type) it is not better than the shipped HC3 path on coverage in small samples. It does not show the shipped path is right: it under-covers under heavy weights. The binary-outcome block, lavaan and misspecified missingness models remain out of scope.
+
+**Options for the author (recommendation first).**
+
+1. **Add a small-sample correction to the stacked variance and re-run the same grid (Recommended).** The paired decomposition says the missing HC correction is the larger part of the stacked deficit on average (coverage -0.013 to -0.027 against -0.003 to -0.010), so this is the cheapest way to learn whether stacking plus a correction passes C1-C3. It is not certain to: in `aux` the weight-score term adds failures beyond `known_hc0`. Design: an HC3-style leverage inflation of the regression-score term (and report the HC2/HC3 options); same 48 cells, same criteria, same controls; about 30 minutes on hopper.
+2. **Stop at the decision: leave IPW as is** (known weights, HC3), document the stacked estimator as internal, and record the `auxm` under-coverage in the IPW docs. Cheapest; leaves the `cov(a, b)` question unmeasured.
+3. **Split the `auxm` finding off first:** diagnose the heavy-weight bias (weight diagnostics, effective sample size, a milder `Z` slope) before touching the variance. Valuable independently of stacking, but it does not answer the stacking question.
