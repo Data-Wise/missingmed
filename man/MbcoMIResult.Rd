@@ -36,8 +36,8 @@ winning branch.}
 An \code{MbcoMIResult} S7 object.
 }
 \description{
-The value of \verb{infer(<MDMediationFit>, type = "mbco")} and \code{\link[=mbco_d4]{mbco_d4()}}. It is
-an S7 object whose parent is \code{class_double}: its data is the named numeric
+The value of \verb{infer(<MDMediationFit>, type = "mbco")} and \code{\link[=mbco_d4]{mbco_d4()}}, for the
+glm and the lavaan (maximum likelihood) engines alike. It is an S7 object whose parent is \code{class_double}: its data is the named numeric
 vector \code{c(D4, p, r4, nu, d_S)}, and the properties carry how it was computed
 and the branch diagnostics.
 }

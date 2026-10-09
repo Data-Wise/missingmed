@@ -185,7 +185,10 @@ infer(fit_lat, type = "mbco")
 Read it as for the glm engine (see `vignette("mbco-mi")`): `D4` and `p` are the
 test, `r4` and `nu` describe the between-imputation variability, and
 `branch_mix` reports whether the imputations disagreed about which path is the
-weaker one. Two properties to know:
+weaker one. `r4 = 0` (so `F(1, Inf)`) is a legitimate result: `r4` is clamped at
+0 when the average per-imputation statistic is not above the stacked one, which
+happens when the imputations differ little for this statistic. Two properties to
+know:
 
 * **It is conservative at a = b = 0.** The statistic is the smaller of two
   likelihood-ratio statistics, so when both paths are null the test rejects less

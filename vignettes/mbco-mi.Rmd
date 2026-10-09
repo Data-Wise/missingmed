@@ -188,6 +188,17 @@ mbco_d4(implist, Y ~ X + M + C, M ~ X + C,
 )
 ```
 
+For a structural equation model, give a lavaan model string and the outcome name
+instead of the two formulas (maximum likelihood only; `model` cannot be combined
+with the formula or family arguments):
+
+```{r mbco-d4-model}
+mbco_d4(implist,
+  model = "M ~ X + C\nY ~ M + X + C",
+  treatment = "X", mediator = "M", outcome = "Y"
+)
+```
+
 ### A single imputation
 
 D4 needs at least two imputations, so \(K = 1\) is an informative error. For
@@ -317,7 +328,9 @@ length(acc$per_imputation)
 
 ## Not covered here
 
-- SEM (lavaan) models and latent variables (planned).
+- Models with a latent variable or a lavaan model string: the same test runs with
+  `engine = "lavaan"` (maximum likelihood only); see
+  `vignette("lavaan-sem")` (the *Structural equation models* article).
 - FIML-based MBCO.
 - IPW: `method = "ipw"` has no MBCO test.
 

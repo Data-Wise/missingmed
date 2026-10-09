@@ -86,8 +86,10 @@ type warns, so a typo or a mismatched argument is not silently dropped.
 Yes, since 0.6.0. The glm path fits regression models through medfit; for a
 structural equation model, including a latent mediator, use
 `set_md_mediation(engine = "lavaan")` with the lavaan syntax in `model` and the
-`outcome` named. MBCO is not available for lavaan fits yet (use
-`infer(type = "mc")`). See the *Migrating from the S4 API* article.
+`outcome` named. `infer(type = "mc")` and `infer(type = "mbco")` both work for
+lavaan fits (MBCO with maximum likelihood only; it is refused for `MLR`, `MLM`,
+`WLSMV`, `group`, `ordered` and `sampling.weights`). See the *Structural equation
+models* article and the *Migrating from the S4 API* article.
 
 ### How do I cite missingmed?
 

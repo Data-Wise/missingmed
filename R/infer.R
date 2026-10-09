@@ -15,7 +15,13 @@
 #'   \eqn{H_0: a b = 0}, computed from the per-imputation datasets (MBCO does not
 #'   commute with Rubin's rules; see [per_imputation_list()]). The engine is
 #'   [mbco_d4()]; see there for `ariv`, the branch diagnostics and the cost.
-#'   At least two imputations are required.
+#'   At least two imputations are required. It also works for
+#'   `engine = "lavaan"` fits (including a latent mediator), with lavaan doing
+#'   the refits: the tested paths are the structural regressions `mediator ~
+#'   treatment` and `outcome ~ mediator`. Only `estimator = "ML"` (the default)
+#'   is supported; `MLR`, `MLM`, `WLSMV`, `group`, `ordered`, `sampling.weights`
+#'   and `method = "ipw"` are refused, naming the option. A refit that did not
+#'   converge stops the test, naming the dataset, the branch and the model.
 #'
 #' @param object An [MDMediationFit] (supports both `"mc"` and `"mbco"`) or an
 #'   [MDMediationResult] (supports `"mc"`).

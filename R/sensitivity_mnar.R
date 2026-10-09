@@ -59,7 +59,11 @@
 #'   either `delta` or `ums`, not both.
 #' @param target Name of the variable to shift. Defaults to the mediator. Must
 #'   be `NULL` when `delta` is a data frame.
-#' @param type Inference per rung: `"mc"` (default) or `"mbco"`.
+#' @param type Inference per rung: `"mc"` (default) or `"mbco"`. `"mbco"` works
+#'   for `engine = "glm"` and for `engine = "lavaan"` (maximum likelihood only,
+#'   see [infer()]). If an MBCO refit does not converge at a rung, the sweep
+#'   stops and the error names the rung and its delta; no partial result is
+#'   returned.
 #' @param seed Integer seed pinned across rungs. Defaults to the seed stored in
 #'   the `mids` object, or `20260822L` when that is `NA`. A fractional value is
 #'   truncated, as [set.seed()] does, and the result records the integer used.

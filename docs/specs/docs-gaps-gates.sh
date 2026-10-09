@@ -10,7 +10,7 @@ absent() { ! grep -q -i -E "$1" "$2"; }       # pattern absent from file
 present() { grep -q -i -E "$1" "$2"; }        # pattern present in file
 A() {
   chk "A1 mbco-mi: no 'planned' SEM line"            absent "SEM \(lavaan\) models and latent variables \(planned\)" vignettes/mbco-mi.Rmd
-  chk "A1 mbco-mi: shows mbco_d4(model = )"           present "mbco_d4\([^)]*model *=|model *= *mod" vignettes/mbco-mi.Rmd
+  chk "A1 mbco-mi: shows mbco_d4(model = )"           present 'model = "M ~ X' vignettes/mbco-mi.Rmd
   chk "A2 faq: no 'not available for lavaan'"          absent "MBCO is not available for lavaan" vignettes/articles/faq.Rmd
   chk "A3 supported-models: no 'cannot do yet (MBCO)'" absent "cannot do yet \(MBCO\)" vignettes/articles/supported-models.Rmd
   chk "A4 choosing: MBCO line names lavaan"            present "type = \"mbco\"\).*lavaan|lavaan.*type = \"mbco\"" vignettes/articles/choosing-an-analysis.Rmd
