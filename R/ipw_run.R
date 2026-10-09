@@ -68,8 +68,8 @@
         paste0("'", uncovered, "'", collapse = ", "), " ",
         if (length(uncovered) > 1L) "are" else "is", " missing from it. ",
         "Complete cases are selected on all of them, so weights that omit one ",
-        "leave that selection uncorrected. Add e.g. `",
-        uncovered[1L], " = ~ X + C`.",
+        "leave that selection uncorrected. Add an entry for each, e.g. `",
+        uncovered[1L], " = ~ <predictors of missingness>`.",
         call. = FALSE
       )
     }
