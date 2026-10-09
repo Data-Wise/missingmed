@@ -3,22 +3,24 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-10-08
-next: v0.6.0 RELEASED 2026-10-08 (tag v0.6.0 on d4cc31c; GitHub release; r-universe serves 0.6.0).
+next: v0.7.0 PREPARED 2026-10-08 (release PR pending; contents: #50 stubs deleted, #51 fit_args for glm +
+  run(...)/sensitivity_mnar(...) deprecation + optional outcome on glm). v0.6.0 RELEASED 2026-10-08 (tag v0.6.0 on d4cc31c; GitHub release; r-universe serves 0.6.0).
   Contents: engine = "lavaan" (set_md_mediation(model, outcome, fit_args) -> run -> pool ->
   infer("mc"); latent mediators; IPW with robust SEs; sensitivity_mnar mc) and the S4
   removal (six .Defunct() stubs in R/defunct.R; OpenMx/dplyr/purrr no longer imported).
-  PRs #40-#47. dev is 0.6.0.9000. Five tutorials added (#46: choosing-an-analysis,
+  PRs #40-#47. dev was 0.6.0.9000 after it. Five tutorials added (#46: choosing-an-analysis,
   reading-results, ipw-weighting, sensitivity-mnar, lavaan-sem) and two stale passages
   fixed (#45). Plan/grill: docs/specs/PLAN-s7-sem-engine-2026-10-08.md,
   GRILL-s7-sem-engine-plan-2026-10-08.md. Mediationverse check (2026-10-08): nothing
   imports missingmed, so the S4 removal does not cascade; the ecosystem manifest entry is
   stale ("S4, multiple imputation"); lavaan 0.7-3 (CRAN 2026-10-08) passes the full suite.
-  NEXT: (1) 0.7.0: run(...) deprecation into fit_args (H1), delete the .Defunct() stubs.
+  NEXT: (1) DONE 2026-10-08 (#50, #51): 0.7.0 = run(...) deprecation into fit_args (H1) + .Defunct() stubs deleted.
   (2) SEM-MBCO spec: constrained lavaan refits, what "b = 0" means for a latent mediator.
   (3) DONE 2026-10-08 (PR #48): lavaan floor >= 0.7-3, IPW guards normalize every lavaan
   spelling, license now GPL (>= 3). (4) medfit extract_mediation() truncates lavaan's weighted nobs
   (355.99999999999994 -> 355) with as.integer() at 4 sites in R/extract-lavaan.R; fix is
-  round(); missingmed works around it in .lav_round_nobs(), remove once medfit ships it.
+  round(); missingmed works around it in .lav_round_nobs(), remove once medfit >= 0.5.1 is on CRAN
+  (medfit 0.5.1 release requested; plan docs/specs/PLAN-medfit-0.5.1-cascade-2026-10-08.md).
   (5) Update the missingmed entry in mediation-planning/ECOSYSTEM-MANIFEST.yaml (other
   repo; needs permission). (6) Add lavaan 0.7-3's information_bread/information_meat_hc
   to the lavaan tutorial. Before CRAN: 1.0.0. Open question for upstream: whether medfit's
