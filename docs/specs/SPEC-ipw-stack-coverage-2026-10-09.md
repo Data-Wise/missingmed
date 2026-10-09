@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | DRAFT for author approval. Nothing is run or built until approved. |
+| **Status** | APPROVED 2026-10-09 ("I approve"). The author did not answer the four questions in section 10 individually; the recommended answer to each was adopted and is recorded there. Plan: [PLAN-ipw-stack-coverage-2026-10-09.md](PLAN-ipw-stack-coverage-2026-10-09.md). |
 | **Parent** | [NOTE-ipw-weight-score-stacking-2026-10-09.md](NOTE-ipw-weight-score-stacking-2026-10-09.md) section 6.3 (steps 1-3 merged: #68, #69); plan item E |
 | **Decision it serves** | Whether `method = "ipw"` should account for estimating the weights by default (note step 4, the `weights_known` argument), and for which weight forms. |
 
@@ -117,9 +117,11 @@ lavaan IPW; wrong missingness models; non-glm families beyond Gaussian (the weig
 - **Trimming** is the approximate case; the oracle's one failure was there. A C1 failure for that weight form has a defined consequence.
 - **Positive definiteness of the stacked 2x2 block** is not guaranteed in small samples; C5 counts it.
 
-## 10. Open questions for the author
+## 10. Questions and decisions (2026-10-09)
 
-1. **Replications: 2000 per cell (recommended)** versus 1000 as in the glm gate. Cost difference is negligible; the extra precision is what makes the paired comparison informative.
-2. **Include `auxm` (recommended).** It is the only DGM where the shared-weight `cov(a, b)` is large. Drop it only if you want a smaller grid.
-3. **Decision threshold for "stacked becomes the default":** as written (C1-C3 everywhere; a difference is not required). The stricter alternative requires a significant benefit before changing any default.
-4. **Binary outcome block** as a follow-up now, or after the Gaussian decision (recommended: after).
+Adopted as recommended on the author's blanket approval; change any of them before the full run and record it here.
+
+1. **Replications: 2000 per cell (recommended)** — ADOPTED versus 1000 as in the glm gate. Cost difference is negligible; the extra precision is what makes the paired comparison informative.
+2. **Include `auxm` (recommended).** ADOPTED. It is the only DGM where the shared-weight `cov(a, b)` is large. Drop it only if you want a smaller grid.
+3. ADOPTED as written. **Decision threshold for "stacked becomes the default":** as written (C1-C3 everywhere; a difference is not required). The stricter alternative requires a significant benefit before changing any default.
+4. **Binary outcome block:** ADOPTED, after the Gaussian decision.
