@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | DRAFT for the grill. No code written. |
+| **Status** | DECIDED in the grill (section 4). No code written. |
 | **Baseline** | `dev` 0.8.0.9000 (`75fcc02`); v0.8.0 released and on r-universe |
 | **Sources** | `.STATUS`, `SPEC-sem-mbco-2026-10-08.md` sections 8-11, `PLAN-medfit-0.5.1-cascade-2026-10-08.md`, session notes |
 
@@ -52,10 +52,10 @@ Ledger: [GRILL-open-items-2026-10-09.md](GRILL-open-items-2026-10-09.md).
 
 | Item | Decision |
 |---|---|
-| A | `sensitivity_mnar(on_error = c("stop", "continue"))`, default `"stop"`; per-rung status; `"continue"` keeps successful rungs and marks failures `NA` with the message |
-| B | glm MBCO through the same 20-cell grid as lavaan ML, on hopper, reusing `dev/sim-sem-mbco-*` |
+| A | `sensitivity_mnar(on_error = c("stop", "continue"))`, default `"stop"`; per-rung status; `"continue"` keeps successful rungs and marks failures `NA` with the message. The spec must state the scope (MBCO refit failure only, or any rung error), catch `error` conditions only, still error when every rung fails, report tipping-point gaps without interpolating, and test that successful rungs are bit-identical to the same rungs under `"stop"` |
+| B | glm-specific calibration on hopper (reusing `dev/sim-sem-mbco-*`): binary and count families, `X:M` with `treatment_level`, near-separated fits that still converge. Not the lavaan grid: its observed cells are Gaussian (glm equals lavaan there) and its latent cells cannot run on glm |
 | C | Build MLR (T7, T8b), simulation-gated: the gate decides enabled or refused |
-| E | Stack the weight-model score (cross-repo, medfit); design note first; all medfit writes need permission |
+| E | Stack the weight-model score. Design note first; it settles whether this lives in missingmed (the weights are estimated in `.ipw_weights()`) or needs medfit (then every write there needs per-instance permission). Must cover trimming, stabilization and the `a`-`b` covariance |
 | H | Investigated 2026-10-09: **no fix needed.** Slow, not hung. In the successful rerun of run 37949320808, `setup-r` took ~12 min (apt system requirements 8.5 min, R install 3 min, runner side) and `setup-r-dependencies` 12 min (cold cache for the `dev` ref); the PR-event run on the same commit took 50 s there (warm cache). The rerun wrote the cache (`Cache mode: write`), so later `dev` runs should be warm. Re-open only if it recurs with a warm cache |
 | I | Dropped: no CRAN this year |
 | J | `AGENTS.md` deleted; the remaining stray worktrees and branches are left to the author |
