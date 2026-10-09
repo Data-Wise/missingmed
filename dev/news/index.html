@@ -42,6 +42,17 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
 <div class="section level3">
+<h3 id="deprecations-development-version">Deprecations<a class="anchor" aria-label="anchor" href="#deprecations-development-version"></a></h3>
+<ul><li>Passing arguments through <code>run(...)</code> or <code>sensitivity_mnar(...)</code> is deprecated: set them with the new <code>fit_args</code> of <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code>. They are still forwarded, with a warning (class <code>md_dots_deprecated</code>; <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> warns once, not once per rung), and a name that is already in <code>fit_args</code> is an error. <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> now reads the stored <code>fit_args</code>, so its refits reproduce the original fit’s options without restating them.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li>
+<code>fit_args</code> (a named list stored on the object) now works for the <code>glm</code> and <code>regmedint</code> engines, where it goes to <code><a href="https://data-wise.github.io/medfit/reference/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code> (it already existed for <code>engine = "lavaan"</code>, where it goes to <code><a href="https://rdrr.io/pkg/lavaan/man/sem.html" class="external-link">lavaan::sem()</a></code>). It cannot restate what <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> passes itself (<code>formula_y</code>, <code>formula_m</code>, <code>data</code>, <code>treatment</code>, <code>mediator</code>, <code>engine</code>, <code>family_y</code>, <code>family_m</code>; on the IPW path also <code>weights</code> and <code>se_type</code>).</li>
+<li>
+<code>outcome</code> is optional for the <code>glm</code> engines: it defaults to the response of <code>formula_y</code> and, when given, must match it (it stays required for lavaan).</li>
+</ul></div>
+<div class="section level3">
 <h3 id="breaking-changes-development-version">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-development-version"></a></h3>
 <ul><li>The <code><a href="https://rdrr.io/r/base/Defunct.html" class="external-link">.Defunct()</a></code> stubs for the removed S4 API are deleted: <code>set_sem()</code>, <code>run_sem()</code>, <code>pool_sem()</code>, <code>fit_model()</code>, <code>lav_mice()</code> and <code>mx_mice()</code> are no longer exported, so calling one now gives R’s “could not find function” error instead of a message naming the replacement. The replacements are unchanged: <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code>, <code><a href="../reference/run.html">run()</a></code> and <code><a href="../reference/pool.html">pool()</a></code>, with <code>engine = "lavaan"</code> for a structural equation model; see <code>vignette("s4-migration")</code>. The help page <code>?"missingmed-defunct"</code> is gone with them.</li>
 </ul></div>

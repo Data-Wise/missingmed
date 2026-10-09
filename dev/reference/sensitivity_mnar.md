@@ -85,8 +85,11 @@ sensitivity_mnar(
 
 - ...:
 
-  Passed to
-  [`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md).
+  Deprecated. Extra arguments for the engine; set them with `fit_args`
+  in
+  [`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md),
+  which every refit here reads. They are still honored, with one
+  warning, and may not repeat a name already in `fit_args`.
 
 ## Value
 

@@ -134,16 +134,27 @@ set_md_mediation(
 
 - outcome:
 
-  (`engine = "lavaan"`) name of the outcome variable; required for
-  lavaan, and it must be regressed on the mediator in `model`. Must be
-  `NULL` for other engines.
+  Name of the outcome variable. Required for `engine = "lavaan"`, where
+  it must be regressed on the mediator in `model`. For the other engines
+  it is optional: it defaults to the response of `formula_y` and, when
+  given, must match it.
 
 - fit_args:
 
-  (`engine = "lavaan"`) named list of extra arguments for
+  Named list of extra arguments for the engine, stored on the object and
+  used by
+  [`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md)
+  and
+  [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/dev/reference/sensitivity_mnar.md).
+  For `engine = "lavaan"` they go to
   [`lavaan::sem()`](https://rdrr.io/pkg/lavaan/man/sem.html), for
-  example `list(estimator = "MLR")`, stored on the object. It cannot set
-  `model` or `data`. Must be empty for other engines.
+  example `list(estimator = "MLR")`, and cannot set `model` or `data`.
+  For the other engines they go to
+  [`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html)
+  (for example `list(engine_args = list(...))` with a medfit that has
+  it) and cannot restate what this function sets (`formula_y`,
+  `formula_m`, `data`, `treatment`, `mediator`, `engine`, `family_y`,
+  `family_m`).
 
 ## Value
 
