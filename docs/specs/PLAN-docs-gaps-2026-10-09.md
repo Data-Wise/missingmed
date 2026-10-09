@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | A, B and C executed 2026-10-09 on `feature/mbco-provider` (gate 22/22); D1, D2, D4 resolved as noted in section 4; D3 pending the author (see SEM-MBCO spec section 11) |
+| **Status** | A, B and C executed 2026-10-09 on `feature/mbco-provider` (gate 22/22); D1, D2, D4 resolved as noted in section 4; D3 resolved 2026-10-09 (restate criterion; SEM-MBCO spec section 11) |
 | **Source** | Doc-gap audit of README, vignettes, articles, reference pages, CLAUDE.md, `.STATUS` against the tree at `feature/mbco-provider` (lavaan MBCO) |
 | **Harness** | `sh docs/specs/docs-gaps-gates.sh A\|B\|C\|all`: 22 read-only checks, **22 FAIL today** (verified 2026-10-09); each phase ends when its gate is green |
 | **Related** | [SPEC-sem-mbco-2026-10-08.md](SPEC-sem-mbco-2026-10-08.md) (T9) |

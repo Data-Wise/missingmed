@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | ML IMPLEMENTED on `feature/mbco-provider` (T1-T6, T9) 2026-10-08, ML calibration gate (T8a) run, one cell below the stated lower band, decision D3 pending (section 11). MLR (T7, T8b) DEFERRED: refused until its own gate runs. Design amended after adverse review (S3 reversed to structural-only; section 10); S1-S10 grilled ([GRILL-sem-mbco-2026-10-08.md](GRILL-sem-mbco-2026-10-08.md)) |
+| **Status** | ML IMPLEMENTED on `feature/mbco-provider` (T1-T6, T9) 2026-10-08, ML calibration gate (T8a) PASSED under the restated criterion (D3 resolved 2026-10-09, section 11). MLR (T7, T8b) DEFERRED: refused until its own gate runs. Design amended after adverse review (S3 reversed to structural-only; section 10); S1-S10 grilled ([GRILL-sem-mbco-2026-10-08.md](GRILL-sem-mbco-2026-10-08.md)) |
 | **Date** | 2026-10-08 |
 | **Target** | 0.8.0 (feature; 0.7.0 shipped without it) |
 | **Closes** | SPEC-s7-sem-engine-2026-09-23.md, Q4 ("MBCO for SEM gets its own spec") |
@@ -84,7 +84,7 @@ Each criterion must be able to fail; the probe's PASS lines are the seed tests.
 - [ ] **Refusals** before fitting, each naming the option: IPW, `MLM`, `WLSMV`, `ordered`, `group`, `sampling_weights`; a model without exactly one `mediator ~ treatment` row and one `outcome ~ mediator` row.
 - [ ] **Convergence:** a non-converging null fit refuses naming the dataset and the fit; an improper solution warns once naming the datasets.
 - [ ] **`mbco_d4(model = )`** equals `infer(type = "mbco")` on the same imputed data to 1e-12; supplying `model` together with a formula errors.
-- [ ] **ML calibration gate (medsim; blocks the 0.8.0 release).** Normal data, MAR missingness, m = 20, 1000 replications per cell. Cells: DGP {observed path model; latent mediator, 3 indicators, loadings .8/.7/.6} x n {200, 500} x missingness {25%, 40% of the mediator or its indicators, logistic in observed variables} x null {(a, b) = (0, .3), (.3, 0), (0, 0), (0, .1), (.1, 0)}. Pass: single-null cells (0, .3) and (.3, 0) have size in 3.5-6.5% at the 5% level (about 2 Monte Carlo se at 1000 reps); intersection and near-intersection cells have size at most 6.5% (conservative is allowed and reported). Report size per cell, never pooled. Fail: the release waits and the spec is reopened.
+- [ ] **ML calibration gate (medsim; blocks the 0.8.0 release).** Normal data, MAR missingness, m = 20, 1000 replications per cell. Cells: DGP {observed path model; latent mediator, 3 indicators, loadings .8/.7/.6} x n {200, 500} x missingness {25%, 40% of the mediator or its indicators, logistic in observed variables} x null {(a, b) = (0, .3), (.3, 0), (0, 0), (0, .1), (.1, 0)}. Pass (as restated 2026-10-09, D3): size at most 6.5% at the 5% level in **every** cell, including the intersection and near-intersection cells (conservative is allowed and reported); the size of the single-null cells (0, .3) and (.3, 0) is reported per cell with its Monte Carlo se (about 0.007 at 1000 reps) and is not held to a lower band. The original criterion also required 3.5-6.5% in those cells. Report size per cell, never pooled. Fail: the release waits and the spec is reopened.
 - [ ] **MLR simulation gate (medsim; run before enabling MLR).** The same cells with non-normal data (skewed: chi-square(4) errors rescaled to unit variance; heavy-tailed: t(5) errors). The statistic is fixed in advance, so the gate evaluates one formula: per-imputation and stacked-data scaled difference tests (Satorra-Bentler 2001 via `lavTestLRT`), D4 applied to the naive LRTs, then divided by the arithmetic mean of the per-imputation scaling corrections of the winning branch (the `lavaan.mi` `pool.robust = FALSE` construction); D2 (`pool.robust = TRUE`) is run as a secondary comparison only. Pass criterion per cell as for ML, and every cell must pass: a failure in any cell keeps MLR refused in 0.8.0 and gives it its own spec.
 - [ ] **`sensitivity_mnar(type = "mbco")`** runs for lavaan and matches the glm engine rung by rung on an observed model; the Q4 refusal text is gone.
 - [ ] **No regression:** every existing glm MBCO test passes unchanged.
@@ -182,12 +182,14 @@ conservative tilt, not liberality. Read as a calibration claim, "the test contro
 Type I error and is mildly conservative" is supported on all 40 cells; read as the
 literal band 3.5-6.5%, one cell misses by 0.002.
 
-**Decision D3 (author):** keep the band and reopen the spec (the section 5 rule), or
-restate the criterion. Recommendation: restate as "size at most 6.5% in every cell
-(Type I control, met 40/40), and report the single-null size with its Monte Carlo se",
-because 15/16 inside the band, a mean of 4.2% and one cell 0.002 below the edge is
-what a test with a true size near 4.2% produces at 1000 replications (about one miss
-in sixteen is expected), whereas a liberal test would show cells above 6.5%.
+**Decision D3 (author, 2026-10-09): restate the criterion**, as in section 5: size at
+most 6.5% in every cell (Type I control, met 40/40), with the single-null sizes
+reported with their Monte Carlo se instead of held to a 3.5% lower band. Reason: 15 of
+16 inside the original band, a mean of 4.2% and one cell 0.002 below the edge is what
+a test with a true size near 4.2% produces at 1000 replications (about one miss in
+sixteen is expected), whereas a liberal test would show cells above 6.5%. Under the
+restated criterion the ML gate **passes**. The 0.033 cell is reported, not hidden; it
+was not rerun.
 
 The glm engine shares the pooling code but was not run through this grid; its only
 calibration evidence is the prototype (size 0.050 at a = 0, b = 0.3; 0.007 at the
