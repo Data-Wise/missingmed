@@ -4,7 +4,7 @@
 |---|---|
 | **Date** | 2026-10-09 |
 | **Plan item** | E in [PLAN-open-items-2026-10-09.md](PLAN-open-items-2026-10-09.md); decision Q4 in [GRILL-open-items-2026-10-09.md](GRILL-open-items-2026-10-09.md): stack the weight-model score |
-| **Status** | Design only. No code written. Nothing in medfit or RMediation was edited (both read-only for this note). |
+| **Status** | Design. Steps 1-2 of section 8 implemented 2026-10-09 (`.ipw_weights_info()`, `.ipw_stacked_vcov()` in `R/ipw_stack.R`, not yet wired into `run()`; tests `test-ipw-stack.R`). Nothing in medfit or RMediation was edited (both read-only for this note). |
 | **Reads** | `medfit/R/fit-glm.R:411-420`, `medfit/R/extract-lm.R:70-90, 396-434, 768-780`, `medfit/R/classes.R:82-120` (medfit `dev`, `2767072`); `RMediation::ci_mediation_data` (installed 1.6.1); `R/ipw_run.R` here. |
 
 ## 1. The question, answered

@@ -9,7 +9,24 @@
 #' @return Numeric vector, length `nrow(object@data)`.
 #' @keywords internal
 #' @noRd
-.ipw_weights <- function(object) {
+.ipw_weights <- function(object) .ipw_weights_info(object)$w
+
+#' IPW weights plus the quantities their estimation depends on
+#'
+#' Internal. The weights of [.ipw_weights()] and, for a variance that accounts
+#' for estimating them (docs/specs/NOTE-ipw-weight-score-stacking-2026-10-09.md),
+#' the fitted missingness models. `info$blocks` has one entry per fitted model:
+#' `kind` is `"miss"` (P(R = 1 | z), the denominator) or `"num"` (the
+#' stabilization numerator), `var` the variable of a per-variable model (`NA`
+#' for the joint model), `model` the `glm`, and `p` the full-length fitted
+#' probability (`NA` where a predictor is missing). `info$cc` flags the complete
+#' cases, `info$trimmed` the complete cases whose weight was capped, and
+#' `info$w_untrimmed` the weights before the cap.
+#' @inheritParams .ipw_weights
+#' @return A list with `w` (as [.ipw_weights()]) and `info`.
+#' @keywords internal
+#' @noRd
+.ipw_weights_info <- function(object) {
   data <- as.data.frame(object@data)
   n <- nrow(data)
   model_vars <- intersect(.model_vars(object), names(data))
@@ -44,8 +61,12 @@
   # missingness model to a constant response would only warn that it did not
   # converge.
   if (all(cc)) {
-    return(rep(1, n))
+    return(list(w = rep(1, n), info = list(
+      cc = cc, stabilize = stabilize, per_var = per_var, blocks = list(),
+      trimmed = rep(FALSE, n), cap = NA_real_, w_untrimmed = rep(1, n)
+    )))
   }
+  blocks <- list()
 
   # Probability of being observed, P(R = 1 | Z), per row.
   if (per_var) {
@@ -63,11 +84,17 @@
         stats::reformulate(rhs, ".R_v", env = environment(wf[[v]])),
         data = dd, family = stats::binomial()
       )
-      p <- p * .ipw_prob(mod, dd)
+      p_v <- .ipw_prob(mod, dd)
+      p <- p * p_v
+      blocks[[length(blocks) + 1L]] <- list(kind = "miss", var = v, model = mod,
+        p = p_v)
       if (stabilize) {
         num <- stats::glm(stats::reformulate(treatment, ".R_v"), data = dd,
           family = stats::binomial())
-        p_num <- p_num * .ipw_prob(num, dd)
+        q_v <- .ipw_prob(num, dd)
+        p_num <- p_num * q_v
+        blocks[[length(blocks) + 1L]] <- list(kind = "num", var = v, model = num,
+          p = q_v)
       }
     }
   } else {
@@ -87,11 +114,14 @@
     mod <- stats::glm(stats::reformulate(rhs, ".R_ind", env = wf_env),
       data = dd, family = stats::binomial())
     p <- .ipw_prob(mod, dd)
-    p_num <- if (stabilize) {
-      .ipw_prob(stats::glm(stats::reformulate(treatment, ".R_ind"), data = dd,
-        family = stats::binomial()), dd)
-    } else {
-      rep(1, n)
+    blocks[[1L]] <- list(kind = "miss", var = NA_character_, model = mod, p = p)
+    p_num <- rep(1, n)
+    if (stabilize) {
+      num <- stats::glm(stats::reformulate(treatment, ".R_ind"), data = dd,
+        family = stats::binomial())
+      p_num <- .ipw_prob(num, dd)
+      blocks[[2L]] <- list(kind = "num", var = NA_character_, model = num,
+        p = p_num)
     }
   }
 
@@ -110,13 +140,20 @@
     )
   }
   w[!cc] <- NA_real_ # incomplete rows are dropped from the fit
+  w_untrimmed <- w
 
   # Trim at the requested upper quantile (computed on complete cases).
+  trimmed <- rep(FALSE, n)
+  cap <- NA_real_
   if (object@weight_trim < 1) {
     cap <- stats::quantile(w[cc], probs = object@weight_trim, names = FALSE)
-    w[cc & w > cap] <- cap
+    trimmed <- cc & w > cap
+    w[trimmed] <- cap
   }
-  w
+  list(w = w, info = list(
+    cc = cc, stabilize = stabilize, per_var = per_var, blocks = blocks,
+    trimmed = trimmed, cap = cap, w_untrimmed = w_untrimmed
+  ))
 }
 
 #' IPW run path
