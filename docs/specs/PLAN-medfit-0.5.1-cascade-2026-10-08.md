@@ -56,7 +56,7 @@ No dependent needs code changes.
   - Verify each: record command and pass/fail counts. Any failure: reproduce on medfit 0.5.0 before blaming 0.5.1.
 
 ### Phase 3: missingmed (deferred until medfit 0.5.1 is on CRAN)
-- [ ] T3.1 Add a comment to `.lav_round_nobs()` (`R/run.R`) naming medfit PR #85 and the 0.5.1 floor that makes it removable
+- [x] T3.1 Add a comment to `.lav_round_nobs()` (`R/run.R`) naming medfit PR #85 and the 0.5.1 floor that makes it removable (done, `cf71018`)
 - [ ] T3.2 When medfit ≥ 0.5.1 is on CRAN: raise the `medfit` floor in `DESCRIPTION`, delete `.lav_round_nobs()` and its test, run the IPW + lavaan test
 - [ ] T3.3 Decide CRAN submission for medfit (separate decision; 0.3.2 → 0.5.x includes result-changing fixes #81, #82)
 
