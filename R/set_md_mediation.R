@@ -72,12 +72,18 @@
 #' @param model (`engine = "lavaan"`) lavaan model syntax, a single string, for
 #'   example `"M ~ a*X + C\nY ~ b*M + cp*X + C"`. A latent mediator
 #'   (`"Mlat =~ m1 + m2 + m3"`) is allowed. Must be `NULL` for other engines.
-#' @param outcome (`engine = "lavaan"`) name of the outcome variable; required
-#'   for lavaan, and it must be regressed on the mediator in `model`. Must be
-#'   `NULL` for other engines.
-#' @param fit_args (`engine = "lavaan"`) named list of extra arguments for
-#'   [lavaan::sem()], for example `list(estimator = "MLR")`, stored on the
-#'   object. It cannot set `model` or `data`. Must be empty for other engines.
+#' @param outcome Name of the outcome variable. Required for
+#'   `engine = "lavaan"`, where it must be regressed on the mediator in `model`.
+#'   For the other engines it is optional: it defaults to the response of
+#'   `formula_y` and, when given, must match it.
+#' @param fit_args Named list of extra arguments for the engine, stored on the
+#'   object and used by [run()] and [sensitivity_mnar()]. For `engine = "lavaan"`
+#'   they go to [lavaan::sem()], for example `list(estimator = "MLR")`, and
+#'   cannot set `model` or `data`. For the other engines they go to
+#'   [medfit::fit_mediation()] (for example `list(engine_args = list(...))` with
+#'   a medfit that has it) and cannot restate what this function sets
+#'   (`formula_y`, `formula_m`, `data`, `treatment`, `mediator`, `engine`,
+#'   `family_y`, `family_m`).
 #' @param conf_int Logical; if `TRUE`, [pool()] adds per-coefficient
 #'   `conf_low` and `conf_high` columns to the pooled tidy table, at
 #'   `conf_level` on Rubin's t reference. Defaults to `FALSE`. These bound
@@ -134,6 +140,7 @@ set_md_mediation <- function(data, formula_y, formula_m,
   if (!lav && (missing(formula_y) || missing(formula_m))) {
     stop("Both 'formula_y' and 'formula_m' must be supplied.", call. = FALSE)
   }
+  if (!lav) .check_glm_outcome(outcome, formula_y)
   method <- match.arg(method)
   # D1: `mechanism` is derived, not user-set. The pipeline estimates under MAR
   # regardless of what is passed here, so accepting "mnar" silently would imply
@@ -192,7 +199,7 @@ set_md_mediation <- function(data, formula_y, formula_m,
     formula_m = if (lav) NULL else formula_m,
     model = if (lav) model else character(0),
     outcome = if (lav) outcome else character(0),
-    fit_args = if (lav) fit_args else list(),
+    fit_args = fit_args,
     treatment = treatment,
     mediator = mediator,
     engine = engine,

@@ -14,7 +14,10 @@
 #' It is the S7 successor of the S4 `run_sem()` method.
 #'
 #' @param object An [MDMediationData] object.
-#' @param ... Additional arguments forwarded to [medfit::fit_mediation()].
+#' @param ... Deprecated. Additional arguments forwarded to
+#'   [medfit::fit_mediation()]; set them with `fit_args` in
+#'   [set_md_mediation()] instead. They are still honored, with a warning, and
+#'   may not repeat a name already in `fit_args`.
 #' @return An [MDMediationFit] object.
 #' @seealso [set_md_mediation()], [pool()], [infer()]
 #' @examples
@@ -54,12 +57,17 @@ S7::method(run, MDMediationData) <- function(object, ...) {
       call. = FALSE
     )
   }
+  extra <- if (identical(object@engine, "lavaan")) list() else {
+    .md_extra_args(object, list(...))
+  }
   per_imp <- vector("list", m)
   warns <- vector("list", m)
   # If a fit fails, the warnings of the fits before it are still raised.
   withCallingHandlers(
     for (i in seq_len(m)) {
-      r <- .md_fit_one(object, implist[[i]], sprintf("imputation %d of %d", i, m), ...)
+      r <- do.call(.md_fit_one, c(
+        list(object, implist[[i]], sprintf("imputation %d of %d", i, m)), extra
+      ))
       per_imp[[i]] <- r$fit
       warns[[i]] <- r$warnings
     },

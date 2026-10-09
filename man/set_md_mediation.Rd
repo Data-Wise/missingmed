@@ -78,13 +78,19 @@ default \code{level} of \code{\link[=infer]{infer()}}. Defaults to \code{0.95}.}
 example \code{"M ~ a*X + C\\nY ~ b*M + cp*X + C"}. A latent mediator
 (\code{"Mlat =~ m1 + m2 + m3"}) is allowed. Must be \code{NULL} for other engines.}
 
-\item{outcome}{(\code{engine = "lavaan"}) name of the outcome variable; required
-for lavaan, and it must be regressed on the mediator in \code{model}. Must be
-\code{NULL} for other engines.}
+\item{outcome}{Name of the outcome variable. Required for
+\code{engine = "lavaan"}, where it must be regressed on the mediator in \code{model}.
+For the other engines it is optional: it defaults to the response of
+\code{formula_y} and, when given, must match it.}
 
-\item{fit_args}{(\code{engine = "lavaan"}) named list of extra arguments for
-\code{\link[lavaan:sem]{lavaan::sem()}}, for example \code{list(estimator = "MLR")}, stored on the
-object. It cannot set \code{model} or \code{data}. Must be empty for other engines.}
+\item{fit_args}{Named list of extra arguments for the engine, stored on the
+object and used by \code{\link[=run]{run()}} and \code{\link[=sensitivity_mnar]{sensitivity_mnar()}}. For \code{engine = "lavaan"}
+they go to \code{\link[lavaan:sem]{lavaan::sem()}}, for example \code{list(estimator = "MLR")}, and
+cannot set \code{model} or \code{data}. For the other engines they go to
+\code{\link[medfit:fit_mediation]{medfit::fit_mediation()}} (for example \code{list(engine_args = list(...))} with
+a medfit that has it) and cannot restate what this function sets
+(\code{formula_y}, \code{formula_m}, \code{data}, \code{treatment}, \code{mediator}, \code{engine},
+\code{family_y}, \code{family_m}).}
 }
 \value{
 An \link{MDMediationData} object.

@@ -1,5 +1,25 @@
 # missingmed (development version)
 
+## Deprecations
+
+* Passing arguments through `run(...)` or `sensitivity_mnar(...)` is deprecated:
+  set them with the new `fit_args` of `set_md_mediation()`. They are still
+  forwarded, with a warning (class `md_dots_deprecated`; `sensitivity_mnar()` warns
+  once, not once per rung), and a name that is already in `fit_args` is an error.
+  `sensitivity_mnar()` now reads the stored `fit_args`, so its refits reproduce the
+  original fit's options without restating them.
+
+## New features
+
+* `fit_args` (a named list stored on the object) now works for the `glm` and
+  `regmedint` engines, where it goes to `medfit::fit_mediation()` (it already
+  existed for `engine = "lavaan"`, where it goes to `lavaan::sem()`). It cannot
+  restate what `set_md_mediation()` passes itself (`formula_y`, `formula_m`, `data`,
+  `treatment`, `mediator`, `engine`, `family_y`, `family_m`; on the IPW path also
+  `weights` and `se_type`).
+* `outcome` is optional for the `glm` engines: it defaults to the response of
+  `formula_y` and, when given, must match it (it stays required for lavaan).
+
 ## Breaking changes
 
 * The `.Defunct()` stubs for the removed S4 API are deleted: `set_sem()`,

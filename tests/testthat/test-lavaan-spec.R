@@ -84,18 +84,26 @@ test_that("`model` with engine = 'glm' is refused", {
   )
 })
 
-test_that("`outcome` and `fit_args` with engine = 'glm' are refused", {
+test_that("`model` is refused with engine = 'glm'; `outcome` and `fit_args` are accepted", {
+  # `outcome` and `fit_args` are valid for the glm engines since 0.7.0 (see
+  # test-fit-args.R for their rules); `model` is lavaan syntax only.
+  expect_error(
+    set_md_mediation(imp_lav, Y ~ X + M, M ~ X,
+      treatment = "X", mediator = "M", model = "Y ~ M"
+    ),
+    "`model`.*lavaan"
+  )
   expect_error(
     set_md_mediation(imp_lav, Y ~ X + M, M ~ X,
       treatment = "X", mediator = "M", outcome = "Y"
     ),
-    "`outcome`.*lavaan"
+    NA
   )
   expect_error(
     set_md_mediation(imp_lav, Y ~ X + M, M ~ X,
       treatment = "X", mediator = "M", fit_args = list(a = 1)
     ),
-    "`fit_args`.*lavaan"
+    NA
   )
 })
 

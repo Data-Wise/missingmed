@@ -26,18 +26,98 @@
     }
     return(invisible(TRUE))
   }
-  given <- c(model = !is.null(model), outcome = !is.null(outcome))
-  if (any(given)) {
-    nm <- names(given)[given][1L]
-    stop("`", nm, "` is only used with engine = \"lavaan\".", call. = FALSE)
+  if (!is.null(model)) {
+    stop("`model` is only used with engine = \"lavaan\".", call. = FALSE)
   }
-  if (length(fit_args)) {
-    stop("`fit_args` is only used with engine = \"lavaan\"; pass extra ",
-      "arguments for the other engines through run().",
+  .check_fit_args(fit_args)
+  invisible(TRUE)
+}
+
+# Arguments that set_md_mediation() or run() already pass to
+# medfit::fit_mediation() cannot also come from `fit_args` or run(...).
+.md_reserved_args <- c("formula_y", "formula_m", "data", "treatment", "mediator",
+                       "engine", "family_y", "family_m")
+
+# `fit_args` for the glm and regmedint engines: a named list forwarded to
+# medfit::fit_mediation(); it cannot restate what set_md_mediation() sets.
+.check_fit_args <- function(fit_args, reserved = .md_reserved_args) {
+  if (!is.list(fit_args)) {
+    stop("`fit_args` must be a list.", call. = FALSE)
+  }
+  if (!length(fit_args)) {
+    return(invisible(TRUE))
+  }
+  if (is.null(names(fit_args)) || !all(nzchar(names(fit_args)))) {
+    stop("`fit_args` must be a named list.", call. = FALSE)
+  }
+  bad <- intersect(names(fit_args), reserved)
+  if (length(bad)) {
+    stop("`fit_args` cannot set ", paste0("`", bad, "`", collapse = ", "),
+      "; set_md_mediation() passes ",
+      if (length(bad) > 1L) "them" else "it", " itself.",
       call. = FALSE
     )
   }
   invisible(TRUE)
+}
+
+# `outcome` on the glm engines is optional: it is the response of `formula_y`,
+# and is checked against it when given.
+.check_glm_outcome <- function(outcome, formula_y) {
+  if (is.null(outcome)) {
+    return(invisible(TRUE))
+  }
+  resp <- all.vars(formula_y[[2L]])
+  if (!is.character(outcome) || length(outcome) != 1L || is.na(outcome) ||
+    !identical(outcome, resp[1L]) || length(resp) != 1L) {
+    stop("`outcome` is '", paste(outcome, collapse = ", "),
+      "' but the response of `formula_y` is '", paste(resp, collapse = ", "),
+      "'. Drop `outcome` (it defaults to the response of `formula_y`) or make ",
+      "them match.",
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+# What run() and sensitivity_mnar() pass on to medfit::fit_mediation(): the
+# stored `fit_args`, then any extra `...`. Extras are deprecated (set them with
+# `fit_args`), still honored for one cycle, and may not repeat a stored name.
+# `ipw` adds the two arguments the IPW fit supplies itself.
+.md_extra_args <- function(object, dots, caller = "run()", ipw = FALSE) {
+  fa <- object@fit_args
+  if (length(dots)) {
+    nms <- names(dots)
+    if (is.null(nms) || !all(nzchar(nms))) {
+      stop("Extra arguments to `", caller, "` must be named.", call. = FALSE)
+    }
+    dup <- intersect(nms, names(fa))
+    if (length(dup)) {
+      stop("`", caller, "` repeats ", paste0("`", dup, "`", collapse = ", "),
+        ", already set in `fit_args`. Remove ",
+        if (length(dup) > 1L) "them" else "it", " from `", caller, "`.",
+        call. = FALSE
+      )
+    }
+    warning(warningCondition(
+      paste0("Passing arguments through `", caller, "` is deprecated and will ",
+        "be removed in a future release: set ",
+        paste0("`", nms, "`", collapse = ", "),
+        " with `fit_args` in set_md_mediation()."),
+      class = "md_dots_deprecated", call = NULL
+    ))
+  }
+  extra <- c(fa, dots)
+  reserved <- c(.md_reserved_args, if (ipw) c("weights", "se_type"))
+  bad <- intersect(names(extra), reserved)
+  if (length(bad)) {
+    stop(paste0("`", bad, "`", collapse = ", "), " cannot be passed as ",
+      "an extra argument: the pipeline sets ",
+      if (length(bad) > 1L) "them" else "it", " itself.",
+      call. = FALSE
+    )
+  }
+  extra
 }
 
 # The model parses, the three roles are distinct and present, `mediator ~

@@ -142,9 +142,11 @@
     cc_data$.md_ipw_w <- w_cc
     res <- .md_fit_one(object, cc_data, "the IPW fit")
   } else {
-    res <- .md_fit_one(object, cc_data, "the IPW fit",
-      weights = w_cc, se_type = object@se_type, ...
-    )
+    extra <- .md_extra_args(object, list(...), ipw = TRUE)
+    res <- do.call(.md_fit_one, c(
+      list(object, cc_data, "the IPW fit", weights = w_cc, se_type = object@se_type),
+      extra
+    ))
   }
   .md_warn_fits(list(res$warnings), object@engine)
   med <- res$fit
