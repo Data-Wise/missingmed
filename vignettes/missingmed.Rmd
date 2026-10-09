@@ -128,6 +128,15 @@ a change in `Y` per log-odds of `M`. It is not a risk difference or an odds
 ratio, and exponentiating it does not make one. `vignette("technical")` has the
 full table and the reasoning.
 
+## Structural equation models and latent mediators
+
+For a model that is easier to state as lavaan syntax, or a mediator measured by
+several indicators, use `engine = "lavaan"`: give the syntax in `model` and name
+the `outcome`. The verbs are the same, and so are `infer(type = "mc")` and
+`infer(type = "mbco")` (maximum likelihood only). The *Structural equation models*
+article on the package website works through an observed path model and a latent
+mediator, and the *Reference card* shows what each engine supports.
+
 ## Migrating from the S4 API
 
 The S4 entry points (`set_sem()`, `run_sem()`, `pool_sem()`) were **removed**

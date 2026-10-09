@@ -91,6 +91,39 @@ lavaan fits (MBCO with maximum likelihood only; it is refused for `MLR`, `MLM`,
 `WLSMV`, `group`, `ordered` and `sampling.weights`). See the *Structural equation
 models* article and the *Migrating from the S4 API* article.
 
+### Why does `run()` or `sensitivity_mnar()` warn that passing arguments is deprecated?
+
+Since 0.7.0, fitting options belong in `set_md_mediation()`, where they are stored
+on the object and reused by every later refit (including the refits inside
+`sensitivity_mnar()`). Passing them through `run(...)` or `sensitivity_mnar(...)`
+still works but warns, with class `md_dots_deprecated`. Move the argument:
+
+```{r fit-args-before-after, eval = FALSE}
+# before (warns)
+fit <- run(md, m_star = 0)
+
+# after
+md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+  treatment = "X", mediator = "M", fit_args = list(m_star = 0)
+)
+fit <- run(md)
+```
+
+A name that is already in `fit_args` cannot also be passed through `run(...)`; that
+is an error. For `engine = "lavaan"`, `fit_args` holds options for `lavaan::sem()`.
+
+### `infer(type = "mbco")` stopped with "model did not converge"
+
+One of the refits behind the test did not converge, and a likelihood-ratio
+statistic from a non-converged fit is not a likelihood ratio, so the test stops
+rather than return a p-value. The message names the dataset (an imputation, or the
+stacked data), the branch (`full`, `a = 0` or `b = 0`) and the model (`mediator`
+or `outcome`). The usual causes are a binary outcome that a predictor separates
+almost perfectly, a sparse factor level, or variables on very different scales:
+rescale, merge sparse levels, or simplify the model. A fit that converged but
+carries glm's "fitted probabilities numerically 0 or 1" warning is not refused;
+treat its p-value with care. The *Reference card* lists the other messages.
+
 ### How do I cite missingmed?
 
 ```{r}
