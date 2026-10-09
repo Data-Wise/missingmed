@@ -209,8 +209,9 @@ that passing arguments is deprecated?<a class="anchor" aria-label="anchor" href=
 reused by every later refit (including the refits inside
 <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code>). Passing them through
 <code>run(...)</code> or <code>sensitivity_mnar(...)</code> still works
-but warns, with class <code>md_dots_deprecated</code>. Move the
-argument:</p>
+but warns (a lifecycle deprecation warning, shown once per session; set
+<code>options(lifecycle_verbosity = "warning")</code> to see every one).
+Move the argument:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># before (warns)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span>, m_star <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>

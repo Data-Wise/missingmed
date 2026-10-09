@@ -249,7 +249,10 @@ sensitivity analysis.</li>
 <p>Pass fitting options with <code>fit_args</code> in
 <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code>. Passing them through
 <code>run(...)</code> or <code>sensitivity_mnar(...)</code> still works
-but warns (class <code>md_dots_deprecated</code>).</p>
+but warns (a lifecycle deprecation warning, class
+<code>lifecycle_warning_deprecated</code>, shown once per session; set
+<code>options(lifecycle_verbosity = "warning")</code> to see every
+one).</p>
 </div>
 <div class="section level2">
 <h2 id="errors-and-warnings">Errors and warnings<a class="anchor" aria-label="anchor" href="#errors-and-warnings"></a>
@@ -269,7 +272,7 @@ but warns (class <code>md_dots_deprecated</code>).</p>
 <tr class="odd">
 <td>arguments passed through <code>run(...)</code>
 </td>
-<td><code>is deprecated and will</code></td>
+<td><code>was deprecated in missingmed</code></td>
 <td>set them with <code>fit_args</code> in
 <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code>
 </td>

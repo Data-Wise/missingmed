@@ -53,6 +53,11 @@
 <ol start="1991" style="list-style-type: decimal"><li>df, which Chan and Meng show approximates this test worse. <code>D4</code> and <code>r4</code> are unchanged; <code>nu</code> is larger and <code>p</code> slightly smaller when <code>k (K - 1) &gt; 4</code> (for example K = 20, k = 1: <code>nu</code> 62.6 -&gt; 83.1, p 0.0422 -&gt; 0.0412 on the probe data). For K = 5 and k = 1 the two formulas coincide. The 0.8.0 test was slightly conservative relative to the published procedure; the size gap at K = 20 is at most about 0.002.</li>
 </ol></li>
 </ul></div>
+<div class="section level3">
+<h3 id="lifecycle-development-version">Lifecycle<a class="anchor" aria-label="anchor" href="#lifecycle-development-version"></a></h3>
+<ul><li>missingmed now uses the lifecycle package. The deprecations of <code>run(...)</code> and <code>sensitivity_mnar(...)</code> extra arguments (0.7.0) and of <code>set_md_mediation(mechanism = "mnar")</code> (0.3.0) warn through <code><a href="https://lifecycle.r-lib.org/reference/deprecate_soft.html" class="external-link">lifecycle::deprecate_warn()</a></code>: once per session by default, and every time with <code>options(lifecycle_verbosity = "warning")</code>. <strong>The warning class changes</strong> from <code>md_dots_deprecated</code> to <code>lifecycle_warning_deprecated</code> (the dots warning was introduced in 0.7.0); code that caught the old class should catch the new one.</li>
+<li>Stage badges on the help pages: <code>sensitivity_mnar(on_error =)</code> is experimental and the deprecated arguments are badged; the lavaan engine and its MBCO are stable (maximum likelihood only; the refusals for <code>MLR</code>, <code>group</code>, <code>ordered</code> and <code>sampling.weights</code> are documented scope limits). <code>?missingmed-package</code> has a <em>Lifecycle</em> section.</li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.8.0" id="missingmed-080">missingmed 0.8.0<a class="anchor" aria-label="anchor" href="#missingmed-080"></a></h2>

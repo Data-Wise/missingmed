@@ -180,8 +180,8 @@ imputations.</p>
 </h2>
 <p>Options belong in <code>fit_args</code> on
 <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code>. Passing them through
-<code>run(...)</code> still works but warns (class
-<code>md_dots_deprecated</code>).</p>
+<code>run(...)</code> still works but warns (a lifecycle deprecation
+warning, shown once per session).</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># before: warns</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span>, m_star <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>

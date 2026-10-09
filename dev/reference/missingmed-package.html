@@ -71,6 +71,22 @@ each imputation with <a href="https://data-wise.github.io/medfit/reference/medfi
 <code>vignette("s4-migration", package = "missingmed")</code> for the replacements.</p>
     </div>
     <div class="section level2">
+    <h2 id="lifecycle">Lifecycle<a class="anchor" aria-label="anchor" href="#lifecycle"></a></h2>
+
+
+<p>Stages follow the <a href="https://lifecycle.r-lib.org/articles/stages.html" class="external-link">tidyverse lifecycle</a>.
+Features not listed here carry no stage badge.</p><ul><li><p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a> <code>sensitivity_mnar(on_error =)</code>
+(since 0.9.0).</p></li>
+<li><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> extra arguments in <code>run(...)</code> and
+<code>sensitivity_mnar(...)</code> (since 0.7.0): use <code>fit_args</code> in
+<code><a href="set_md_mediation.html">set_md_mediation()</a></code>.</p></li>
+<li><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> <code>set_md_mediation(mechanism = "mnar")</code>
+(since 0.3.0): it has no effect.</p></li>
+</ul><p>Deprecations warn through the lifecycle package: once per session (every
+eight hours) by default; set <code>options(lifecycle_verbosity = "warning")</code> to see
+every one. The S4 functions listed above are removed, not deprecated.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Useful links:</p><ul><li><p><a href="https://github.com/Data-Wise/missingmed" class="external-link">https://github.com/Data-Wise/missingmed</a></p></li>
 <li><p><a href="https://data-wise.github.io/missingmed/">https://data-wise.github.io/missingmed/</a></p></li>

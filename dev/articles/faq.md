@@ -122,7 +122,9 @@ where they are stored on the object and reused by every later refit
 (including the refits inside
 [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/dev/reference/sensitivity_mnar.md)).
 Passing them through `run(...)` or `sensitivity_mnar(...)` still works
-but warns, with class `md_dots_deprecated`. Move the argument:
+but warns (a lifecycle deprecation warning, shown once per session; set
+`options(lifecycle_verbosity = "warning")` to see every one). Move the
+argument:
 
 ``` r
 

@@ -44,6 +44,26 @@ The S4 functions `set_sem()`, `run_sem()`, `pool_sem()`, `fit_model()`,
 removed in 0.7.0. See `vignette("s4-migration", package = "missingmed")`
 for the replacements.
 
+## Lifecycle
+
+Stages follow the [tidyverse
+lifecycle](https://lifecycle.r-lib.org/articles/stages.html). Features
+not listed here carry no stage badge.
+
+- **\[experimental\]** `sensitivity_mnar(on_error =)` (since 0.9.0).
+
+- **\[deprecated\]** extra arguments in `run(...)` and
+  `sensitivity_mnar(...)` (since 0.7.0): use `fit_args` in
+  [`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md).
+
+- **\[deprecated\]** `set_md_mediation(mechanism = "mnar")` (since
+  0.3.0): it has no effect.
+
+Deprecations warn through the lifecycle package: once per session (every
+eight hours) by default; set `options(lifecycle_verbosity = "warning")`
+to see every one. The S4 functions listed above are removed, not
+deprecated.
+
 ## See also
 
 Useful links:

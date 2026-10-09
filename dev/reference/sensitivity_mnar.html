@@ -134,7 +134,7 @@ warning, for <code>type = "mc"</code>.</p></dd>
 
 
 <dt id="arg-on-error">on_error<a class="anchor" aria-label="anchor" href="#arg-on-error"></a></dt>
-<dd><p>What to do when fitting or inference fails at a rung (a refit
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a> What to do when fitting or inference fails at a rung (a refit
 that did not converge, a non-finite likelihood). <code>"stop"</code> (default) aborts
 the sweep and the error names the rung and its delta. <code>"continue"</code> keeps
 the rungs that succeeded, records the message of each failed rung in
@@ -147,7 +147,7 @@ through.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Deprecated. Extra arguments for the engine; set them with
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Extra arguments for the engine; set them with
 <code>fit_args</code> in <code><a href="set_md_mediation.html">set_md_mediation()</a></code>, which every refit here reads. They
 are still honored, with one warning, and may not repeat a name already in
 <code>fit_args</code>.</p></dd>

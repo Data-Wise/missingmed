@@ -91,11 +91,11 @@ sensitivity_mnar(
 
 - on_error:
 
-  What to do when fitting or inference fails at a rung (a refit that did
-  not converge, a non-finite likelihood). `"stop"` (default) aborts the
-  sweep and the error names the rung and its delta. `"continue"` keeps
-  the rungs that succeeded, records the message of each failed rung in
-  `@failed` (and in a column `error` of
+  **\[experimental\]** What to do when fitting or inference fails at a
+  rung (a refit that did not converge, a non-finite likelihood).
+  `"stop"` (default) aborts the sweep and the error names the rung and
+  its delta. `"continue"` keeps the rungs that succeeded, records the
+  message of each failed rung in `@failed` (and in a column `error` of
   [`tidy()`](https://generics.r-lib.org/reference/tidy.html)), and warns
   once naming the failed rungs; a failed rung reads as `NA` in
   [`tidy()`](https://generics.r-lib.org/reference/tidy.html) and in the
@@ -106,8 +106,8 @@ sensitivity_mnar(
 
 - ...:
 
-  Deprecated. Extra arguments for the engine; set them with `fit_args`
-  in
+  **\[deprecated\]** Extra arguments for the engine; set them with
+  `fit_args` in
   [`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md),
   which every refit here reads. They are still honored, with one
   warning, and may not repeat a name already in `fit_args`.

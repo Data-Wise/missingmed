@@ -85,8 +85,8 @@ set_md_mediation(
 
 - mechanism:
 
-  **Deprecated.** The pipeline estimates under MAR regardless, so this
-  argument never changed behavior. Passing `"mnar"` warns and is
+  **\[deprecated\]** The pipeline estimates under MAR regardless, so
+  this argument never changed behavior. Passing `"mnar"` warns and is
   ignored. Use
   [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/dev/reference/sensitivity_mnar.md)
   to assess departures from MAR; it sets `mechanism = "mnar"` on the
