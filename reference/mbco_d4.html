@@ -15,7 +15,7 @@ other packages can call it on a plain list of completed datasets.'><meta propert
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@ other packages can call it on a plain list of completed datasets.'><meta propert
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>D4-stacked MBCO test of an indirect effect across imputed datasets</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/v0.7.0/R/mbco_mi.R" class="external-link"><code>R/mbco_mi.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/dev/R/mbco_mi.R" class="external-link"><code>R/mbco_mi.R</code></a></small>
       <div class="d-none name"><code>mbco_d4.Rd</code></div>
     </div>
 
@@ -66,7 +66,10 @@ other packages can call it on a plain list of completed datasets.</p>
 <span>  family_m <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">gaussian</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">treatment</span>,</span>
 <span>  <span class="va">mediator</span>,</span>
-<span>  ariv <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fixed"</span>, <span class="st">"own"</span><span class="op">)</span></span>
+<span>  ariv <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fixed"</span>, <span class="st">"own"</span><span class="op">)</span>,</span>
+<span>  model <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  outcome <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fit_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -99,6 +102,17 @@ response of <code>formula_y</code>.</p></dd>
 
 <dt id="arg-ariv">ariv<a class="anchor" aria-label="anchor" href="#arg-ariv"></a></dt>
 <dd><p><code>"fixed"</code> (default) or <code>"own"</code>; see Details.</p></dd>
+
+
+<dt id="arg-model-outcome-fit-args">model, outcome, fit_args<a class="anchor" aria-label="anchor" href="#arg-model-outcome-fit-args"></a></dt>
+<dd><p>For a lavaan SEM, in place of <code>formula_y</code>,
+<code>formula_m</code> and the families: a lavaan model syntax string, the outcome
+variable name, and a named list of lavaan options (as in
+<code><a href="set_md_mediation.html">set_md_mediation()</a></code>). <code>model</code> cannot be combined with the formula or
+family arguments. The tested paths are the regressions <code>mediator ~ treatment</code> (a) and <code>outcome ~ mediator</code> (b); a latent mediator uses its
+structural rows, and its measurement model and any direct effects of its
+indicators on the outcome stay free. Only <code>estimator = "ML"</code> (the default)
+is supported, with no <code>group</code>, <code>ordered</code> or <code>sampling.weights</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -134,6 +148,14 @@ single-path nulls), plus the same three fits on the stacked data. The
 <code>ariv = "fixed"</code> statistic alone needs only the null on the stacked branch;
 the second null per imputation is what the branch diagnostics
 <code>branch_mix</code> and <code>p_branch_a</code> require.</p>
+<p><strong>Convergence.</strong> A <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">stats::glm()</a></code> refit that did not converge, or whose
+log-likelihood is not finite, stops the test with an error naming the
+dataset (an imputation or the stacked data), the branch (<code>full</code>, <code>a = 0</code> or
+<code>b = 0</code>) and the model: its likelihood is not a maximum, so the statistic
+would not be a likelihood ratio. A fit that converged but carries glm's
+"fitted probabilities numerically 0 or 1" warning is not refused (its
+likelihood is finite and the warning reaches you unchanged), but the
+chi-square-type reference may be poor for such near-separated data.</p>
 <p>At least two imputations are required. For a single complete dataset, use a
 complete-data MBCO test such as <code><a href="https://data-wise.github.io/rmediation/reference/mbco.html" class="external-link">RMediation::mbco()</a></code>.</p>
     </div>
@@ -161,6 +183,16 @@ Methods</em>, <em>28</em>(5), 1207–1221. <a href="https://doi.org/10.1037/met0
 <span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">mbco_d4</span><span class="op">(</span><span class="va">implist</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span>,</span></span>
 <span class="r-in"><span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, ariv <span class="op">=</span> <span class="st">"fixed"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;MbcoMIResult&gt; D4-stacked MBCO test of H0: a*b = 0 (m = 3 imputations)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   D4 = 11.14 on F(1, 513.1), p = 0.0009083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   r4 = 0.06659 (ariv = "fixed") | d_S = 11.88 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   stacked constrained fit: b = 0 branch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   imputations on the a = 0 branch: 0% (not mixed)</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The same test for a lavaan SEM, from a model string</span></span></span>
+<span class="r-in"><span><span class="fu">mbco_d4</span><span class="op">(</span><span class="va">implist</span>,</span></span>
+<span class="r-in"><span>  model <span class="op">=</span> <span class="st">"M ~ X\nY ~ M + X"</span>, treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, outcome <span class="op">=</span> <span class="st">"Y"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;MbcoMIResult&gt; D4-stacked MBCO test of H0: a*b = 0 (m = 3 imputations)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   D4 = 11.14 on F(1, 513.1), p = 0.0009083</span>

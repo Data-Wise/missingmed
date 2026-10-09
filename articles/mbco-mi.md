@@ -225,6 +225,23 @@ mbco_d4(implist, Y ~ X + M + C, M ~ X + C,
 #>   imputations on the a = 0 branch: 20% (mixed)
 ```
 
+For a structural equation model, give a lavaan model string and the
+outcome name instead of the two formulas (maximum likelihood only;
+`model` cannot be combined with the formula or family arguments):
+
+``` r
+
+mbco_d4(implist,
+  model = "M ~ X + C\nY ~ M + X + C",
+  treatment = "X", mediator = "M", outcome = "Y"
+)
+#> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)
+#>   D4 = 17.13 on F(1, 91.55), p = 7.734e-05
+#>   r4 = 0.6319 (ariv = "fixed") | d_S = 27.96 
+#>   stacked constrained fit: b = 0 branch
+#>   imputations on the a = 0 branch: 20% (mixed)
+```
+
 ### A single imputation
 
 D4 needs at least two imputations, so $`K = 1`$ is an informative error.
@@ -405,9 +422,33 @@ length(acc$per_imputation)
 #> [1] 20
 ```
 
+## Operating characteristics
+
+The test is the smaller of two likelihood-ratio statistics, so it is
+**conservative** rather than exact when the null is true on a boundary.
+In a simulation of the lavaan models (40 settings, 1000 replications
+each, $`n`$ = 200 and 500, 25% and 40% of the mediator or its indicators
+missing, 20 imputations, normal data, 5% level):
+
+| True paths | Rejection rate |
+|----|----|
+| one path null, the other strong ($`a = 0, b = .3`$ or $`a = .3, b = 0`$) | 3.3% to 5.7%, mean 4.2% |
+| one path null, the other weak (.1) | 0.7% to 2.2% |
+| both null | 0.1% to 0.4% |
+
+No setting rejected more than 6.5% of the time. The cost of the
+conservatism is power near $`a = b = 0`$: a small indirect effect is
+rejected less often than a test that was exact there would reject it.
+The same pooling code serves the glm engine; this grid exercised the
+lavaan models, and the glm engine’s own evidence is a smaller prototype
+run (300 replications, $`n = 200`$, 5 imputations: 5.0% at
+$`a = 0, b = .3`$ and 0.7% at $`a = b = 0`$).
+
 ## Not covered here
 
-- SEM (lavaan) models and latent variables (planned).
+- Models with a latent variable or a lavaan model string: the same test
+  runs with `engine = "lavaan"` (maximum likelihood only); see
+  `vignette("lavaan-sem")` (the *Structural equation models* article).
 - FIML-based MBCO.
 - IPW: `method = "ipw"` has no MBCO test.
 

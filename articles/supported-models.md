@@ -141,5 +141,7 @@ moderated models such as `Y ~ X + M * W`. See
 
 Structural equation models, including a latent mediator, run through
 `set_md_mediation(engine = "lavaan")`: give the lavaan syntax in `model`
-and name the `outcome`. See the *Migrating from the S4 API* article for
-the call and for what lavaan fits cannot do yet (MBCO).
+and name the `outcome`. See the *Structural equation models* article for
+the call, the MBCO test with a lavaan fit, and what is refused, and the
+*Migrating from the S4 API* article for the move from the old entry
+points.

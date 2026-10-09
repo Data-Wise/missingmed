@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Frequently asked questions</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/v0.7.0/vignettes/articles/faq.Rmd" class="external-link"><code>vignettes/articles/faq.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/dev/vignettes/articles/faq.Rmd" class="external-link"><code>vignettes/articles/faq.Rmd</code></a></small>
       <div class="d-none name"><code>faq.Rmd</code></div>
     </div>
 
@@ -190,14 +190,62 @@ is not silently dropped.</p>
 <p>Yes, since 0.6.0. The glm path fits regression models through medfit;
 for a structural equation model, including a latent mediator, use
 <code>set_md_mediation(engine = "lavaan")</code> with the lavaan syntax
-in <code>model</code> and the <code>outcome</code> named. MBCO is not
-available for lavaan fits yet (use <code>infer(type = "mc")</code>). See
-the <em>Migrating from the S4 API</em> article.</p>
+in <code>model</code> and the <code>outcome</code> named.
+<code>infer(type = "mc")</code> and <code>infer(type = "mbco")</code>
+both work for lavaan fits (MBCO with maximum likelihood only; it is
+refused for <code>MLR</code>, <code>MLM</code>, <code>WLSMV</code>,
+<code>group</code>, <code>ordered</code> and
+<code>sampling.weights</code>). See the <em>Structural equation
+models</em> article and the <em>Migrating from the S4 API</em>
+article.</p>
+</div>
+<div class="section level3">
+<h3 id="why-does-run-or-sensitivity_mnar-warn-that-passing-arguments-is-deprecated">Why does <code>run()</code> or <code>sensitivity_mnar()</code> warn
+that passing arguments is deprecated?<a class="anchor" aria-label="anchor" href="#why-does-run-or-sensitivity_mnar-warn-that-passing-arguments-is-deprecated"></a>
+</h3>
+<p>Since 0.7.0, fitting options belong in
+<code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code>, where they are stored on the object and
+reused by every later refit (including the refits inside
+<code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code>). Passing them through
+<code>run(...)</code> or <code>sensitivity_mnar(...)</code> still works
+but warns, with class <code>md_dots_deprecated</code>. Move the
+argument:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># before (warns)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span>, m_star <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># after</span></span>
+<span><span class="va">md</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">imp</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, fit_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>m_star <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span></span></code></pre></div>
+<p>A name that is already in <code>fit_args</code> cannot also be passed
+through <code>run(...)</code>; that is an error. For
+<code>engine = "lavaan"</code>, <code>fit_args</code> holds options for
+<code><a href="https://rdrr.io/pkg/lavaan/man/sem.html" class="external-link">lavaan::sem()</a></code>.</p>
+</div>
+<div class="section level3">
+<h3 id="infertype-mbco-stopped-with-model-did-not-converge">
+<code>infer(type = "mbco")</code> stopped with “model did not
+converge”<a class="anchor" aria-label="anchor" href="#infertype-mbco-stopped-with-model-did-not-converge"></a>
+</h3>
+<p>One of the refits behind the test did not converge, and a
+likelihood-ratio statistic from a non-converged fit is not a likelihood
+ratio, so the test stops rather than return a p-value. The message names
+the dataset (an imputation, or the stacked data), the branch
+(<code>full</code>, <code>a = 0</code> or <code>b = 0</code>) and the
+model (<code>mediator</code> or <code>outcome</code>). The usual causes
+are a binary outcome that a predictor separates almost perfectly, a
+sparse factor level, or variables on very different scales: rescale,
+merge sparse levels, or simplify the model. A fit that converged but
+carries glm’s “fitted probabilities numerically 0 or 1” warning is not
+refused; treat its p-value with care. The <em>Reference card</em> lists
+the other messages.</p>
 </div>
 <div class="section level3">
 <h3 id="how-do-i-cite-missingmed">How do I cite missingmed?<a class="anchor" aria-label="anchor" href="#how-do-i-cite-missingmed"></a>
 </h3>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"missingmed"</span><span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

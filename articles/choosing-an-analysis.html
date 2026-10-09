@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Choosing an analysis</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/v0.7.0/vignettes/articles/choosing-an-analysis.Rmd" class="external-link"><code>vignettes/articles/choosing-an-analysis.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/dev/vignettes/articles/choosing-an-analysis.Rmd" class="external-link"><code>vignettes/articles/choosing-an-analysis.Rmd</code></a></small>
       <div class="d-none name"><code>choosing-an-analysis.Rmd</code></div>
     </div>
 
@@ -229,7 +229,7 @@ One observed mediator, regression outcome?
  ├─ yes -&gt; engine = "glm"
  └─ latent mediator / lavaan options -&gt; engine = "lavaan"
 
-Then: pool(run(md)); infer(type = "mc"). Both paths weak? Add infer(fit, type = "mbco") (glm, MI).
+Then: pool(run(md)); infer(type = "mc"). Both paths weak? Add infer(fit, type = "mbco") (MI; glm, or lavaan with ML).
 Worried about MAR? sensitivity_mnar() (MI only).</code></pre>
 </div>
 <div class="section level2">

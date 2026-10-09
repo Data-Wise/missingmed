@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,9 +36,25 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/Data-Wise/missingmed/blob/v0.7.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/Data-Wise/missingmed/blob/dev/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.8.0" id="missingmed-080">missingmed 0.8.0<a class="anchor" aria-label="anchor" href="#missingmed-080"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-8-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-8-0"></a></h3>
+<ul><li>
+<strong>MBCO for <code>engine = "lavaan"</code>.</strong> <code>infer(type = "mbco")</code> and <code>sensitivity_mnar(type = "mbco")</code> now work for lavaan fits, including a latent mediator, with the same D4-stacked test, <code>MbcoMIResult</code> and <code>ariv</code> options as the glm engine. On an observed-variable model it agrees with the glm engine to numerical precision. The tested paths are the structural regressions `mediator
+~ treatment<code>(a) and</code>outcome ~ mediator<code>(b); a latent mediator's measurement model and any direct effects of its indicators stay free. Only</code>estimator = “ML”<code>is supported:</code>MLR<code>,</code>MLM<code>,</code>WLSMV<code>,</code>group<code>,</code>ordered<code>and</code>sampling.weights` are refused, naming the option. A non-converged refit refuses; an improper solution warns once.</li>
+<li>
+<code><a href="../reference/mbco_d4.html">mbco_d4()</a></code> gains <code>model</code>, <code>outcome</code> and <code>fit_args</code> for a lavaan model on a plain list of data frames. <code>model</code> cannot be combined with <code>formula_y</code>, <code>formula_m</code> or the families.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-8-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-8-0"></a></h3>
+<ul><li>
+<code>infer(type = "mbco")</code> and <code><a href="../reference/mbco_d4.html">mbco_d4()</a></code> now refuse when a <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code> refit did not converge or has a non-finite log-likelihood, instead of returning a p-value computed from it. The error names the dataset (imputation or stacked data), the branch (<code>full</code>, <code>a = 0</code>, <code>b = 0</code>) and the model. <code>sensitivity_mnar(type = "mbco")</code> names the failing rung and delta. Converged fits are unchanged.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.0" id="missingmed-070">missingmed 0.7.0<a class="anchor" aria-label="anchor" href="#missingmed-070"></a></h2>
 <div class="section level3">

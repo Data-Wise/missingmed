@@ -18,7 +18,10 @@ mbco_d4(
   family_m = stats::gaussian(),
   treatment,
   mediator,
-  ariv = c("fixed", "own")
+  ariv = c("fixed", "own"),
+  model = NULL,
+  outcome = NULL,
+  fit_args = list()
 )
 ```
 
@@ -52,6 +55,19 @@ mbco_d4(
 - ariv:
 
   `"fixed"` (default) or `"own"`; see Details.
+
+- model, outcome, fit_args:
+
+  For a lavaan SEM, in place of `formula_y`, `formula_m` and the
+  families: a lavaan model syntax string, the outcome variable name, and
+  a named list of lavaan options (as in
+  [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)).
+  `model` cannot be combined with the formula or family arguments. The
+  tested paths are the regressions `mediator ~ treatment` (a) and
+  `outcome ~ mediator` (b); a latent mediator uses its structural rows,
+  and its measurement model and any direct effects of its indicators on
+  the outcome stay free. Only `estimator = "ML"` (the default) is
+  supported, with no `group`, `ordered` or `sampling.weights`.
 
 ## Value
 
@@ -94,6 +110,16 @@ single-path nulls), plus the same three fits on the stacked data. The
 branch; the second null per imputation is what the branch diagnostics
 `branch_mix` and `p_branch_a` require.
 
+**Convergence.** A [`stats::glm()`](https://rdrr.io/r/stats/glm.html)
+refit that did not converge, or whose log-likelihood is not finite,
+stops the test with an error naming the dataset (an imputation or the
+stacked data), the branch (`full`, `a = 0` or `b = 0`) and the model:
+its likelihood is not a maximum, so the statistic would not be a
+likelihood ratio. A fit that converged but carries glm's "fitted
+probabilities numerically 0 or 1" warning is not refused (its likelihood
+is finite and the warning reaches you unchanged), but the
+chi-square-type reference may be poor for such near-separated data.
+
 At least two imputations are required. For a single complete dataset,
 use a complete-data MBCO test such as
 [`RMediation::mbco()`](https://data-wise.github.io/rmediation/reference/mbco.html).
@@ -125,6 +151,16 @@ implist <- lapply(1:3, function(i) {
 })
 mbco_d4(implist, Y ~ X + M, M ~ X,
   treatment = "X", mediator = "M", ariv = "fixed"
+)
+#> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 3 imputations)
+#>   D4 = 11.14 on F(1, 513.1), p = 0.0009083
+#>   r4 = 0.06659 (ariv = "fixed") | d_S = 11.88 
+#>   stacked constrained fit: b = 0 branch
+#>   imputations on the a = 0 branch: 0% (not mixed)
+
+# The same test for a lavaan SEM, from a model string
+mbco_d4(implist,
+  model = "M ~ X\nY ~ M + X", treatment = "X", mediator = "M", outcome = "Y"
 )
 #> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 3 imputations)
 #>   D4 = 11.14 on F(1, 513.1), p = 0.0009083
