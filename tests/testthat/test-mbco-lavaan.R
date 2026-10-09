@@ -368,3 +368,87 @@ test_that("a real improper solution is detected, warned about once, and the test
   expect_match(w, "imputation 1")
   expect_true(is.finite(r["p"]))
 })
+
+# ---- edge cases (Codex review request) ----------------------------------------
+
+edge_imps <- function(K = 3, seed = 300) {
+  lapply(seq_len(K), function(k) {
+    set.seed(seed + k)
+    n <- 120
+    X <- rnorm(n)
+    C <- rnorm(n)
+    M <- 0.6 * X + 0.3 * C + rnorm(n)
+    M2 <- 0.4 * X + rnorm(n)
+    data.frame(X = X, M = M, M2 = M2, Y = 0.15 * M + 0.2 * M2 + 0.2 * X + 0.3 * C + rnorm(n), C = C)
+  })
+}
+edge_d4 <- function(imps, ...) {
+  mbco_d4(imps, model = MOD, treatment = "X", mediator = "M", outcome = "Y", ...)
+}
+
+test_that("the a and b path lookup rejects zero and duplicated rows, naming the count", {
+  row <- missingmed:::.mm_lav_row
+  dup <- data.frame(op = c("~", "~"), lhs = "M", rhs = "X", free = 1:2)
+  expect_error(row(dup, "M", "X", "a"), "exactly one `M ~ X` regression \\(the a path\\).*found 2")
+  none <- data.frame(op = "~", lhs = "M", rhs = "C", free = 1L)
+  expect_error(row(none, "M", "X", "a"), "found 0")
+  ok <- data.frame(op = c("~", "~"), lhs = c("M", "Y"), rhs = c("X", "M"), free = 1:2)
+  expect_equal(row(ok, "Y", "M", "b"), 2L)
+})
+
+test_that("the smallest case, two imputations, works under both ariv", {
+  imps <- edge_imps(K = 2)
+  fixed <- edge_d4(imps, ariv = "fixed")
+  own <- edge_d4(imps, ariv = "own")
+  expect_true(is.finite(fixed["p"]) && is.finite(own["p"]))
+  expect_equal(fixed@m, 2)
+  expect_equal(fixed@k, 1)
+  # on one winning branch k is 1 either way, so the two variants agree here
+  expect_equal(as.vector(fixed), as.vector(own), tolerance = 1e-8)
+})
+
+test_that("a second, parallel mediator leaves the tested paths and k alone", {
+  d <- edge_imps(K = 1)[[1]]
+  par_mod <- "M ~ X + C\nM2 ~ X + C\nY ~ M + M2 + X + C"
+  t3 <- missingmed:::.mm_lav_provider(par_mod, "X", "M", "Y")(d)
+  expect_equal(unname(t3[c("k_a", "k_b")]), c(1, 1))
+  expect_equal(t3[["a"]], sem_ll("M ~ 0*X + C\nM2 ~ X + C\nY ~ M + M2 + X + C", d), tolerance = 1e-9)
+  expect_equal(t3[["b"]], sem_ll("M ~ X + C\nM2 ~ X + C\nY ~ 0*M + M2 + X + C", d), tolerance = 1e-9)
+  r <- mbco_d4(edge_imps(), model = par_mod, treatment = "X", mediator = "M", outcome = "Y")
+  expect_true(is.finite(r["p"]))
+})
+
+test_that("a named implist and a continuous treatment are accepted", {
+  imps <- edge_imps()
+  expect_equal(as.vector(edge_d4(setNames(imps, c("a", "b", "c")))), as.vector(edge_d4(imps)))
+})
+
+test_that("bad input to mbco_d4(model = ) is refused with a message naming the problem", {
+  imps <- edge_imps()
+  na <- imps
+  na[[2]]$M[3] <- NA
+  expect_error(edge_d4(na), "Imputation 2 has missing values in model variable\\(s\\) 'M'")
+  ex <- imps
+  ex[[2]]$extra <- 1
+  expect_error(edge_d4(ex), "must have the same columns.*imputation 2 differs")
+  expect_error(edge_d4(list(imps[[1]], imps[[2]][1:100, ])), "same number of rows")
+  expect_error(
+    mbco_d4(imps, model = "M ~ X + C\nZ ~ M + X", treatment = "X", mediator = "M", outcome = "Z"),
+    "Variable 'Z' in `model` not found in `data`"
+  )
+  expect_error(edge_d4(imps, fit_args = list(1)), "`fit_args` must be a named list")
+  fx <- lapply(imps, function(d) {
+    d$X <- factor(d$X > 0)
+    d
+  })
+  expect_error(edge_d4(fx), "`treatment` 'X' must be a numeric column")
+  expect_error(
+    mbco_d4(imps, model = MOD, treatment = "M", mediator = "M", outcome = "Y"),
+    "must be different variables"
+  )
+  expect_error(mbco_d4(imps, model = "M ~~~ X", treatment = "X", mediator = "M", outcome = "Y"),
+    "not valid lavaan syntax")
+  expect_error(mbco_d4(imps, model = 1, treatment = "X", mediator = "M", outcome = "Y"),
+    "single lavaan model syntax string")
+  expect_error(edge_d4(imps, fit_args = list(ordered = "Y")), "does not support `fit_args` `ordered`")
+})
