@@ -28,8 +28,8 @@ infer(object, ...)
   `n.mc` (Monte-Carlo draws for `"mc"`, default `1e5`), and `ariv` (for
   `"mbco"`: `"fixed"` (default) tests every imputation on the branch the
   stacked constrained fit chose; `"own"` uses each imputation's own
-  winning branch and reproduces missingmed 0.4.0 on full-rank designs;
-  see
+  winning branch, matches the `D4` and `r4` of missingmed 0.4.0 on
+  full-rank designs, and can be liberal at high missingness; see
   [`mbco_d4()`](https://data-wise.github.io/missingmed/dev/reference/mbco_d4.md)),
   and `treatment_level` (for `"mc"` on a model with an `X:M` term, and
   only there: the treatment level \\x\\ at which the indirect effect \\a

@@ -54,6 +54,12 @@
 </ol></li>
 </ul></div>
 <div class="section level3">
+<h3 id="documentation-development-version">Documentation<a class="anchor" aria-label="anchor" href="#documentation-development-version"></a></h3>
+<ul><li>
+<strong><code>ariv = "own"</code> can be liberal.</strong> A calibration of the glm engine (132 settings, 1000 replications each) found the default <code>"fixed"</code> at or below 5.7% rejection of a true null everywhere, while <code>"own"</code> exceeded 6.5% in 23 of 80 non-Gaussian settings (up to 13.8%) and, in a separate plain-Gaussian grid, reached 8.3% at n = 200 with 40% missing. <code><a href="../reference/mbco_d4.html">?mbco_d4</a></code>, <code><a href="../articles/mbco-mi.html">vignette("mbco-mi")</a></code> and the FAQ now say so and recommend <code>"fixed"</code> unless you need to reproduce an earlier analysis. The operating-characteristics table covers the glm engine.</li>
+<li>The documentation no longer says <code>"own"</code> “reproduces” missingmed 0.4.0 or the research prototype: <code>D4</code>, <code>r4</code> and the branch still match, but <code>nu</code> and <code>p</code> differ slightly since the denominator degrees of freedom changed (see Bug fixes).</li>
+</ul></div>
+<div class="section level3">
 <h3 id="lifecycle-development-version">Lifecycle<a class="anchor" aria-label="anchor" href="#lifecycle-development-version"></a></h3>
 <ul><li>missingmed now uses the lifecycle package. The deprecations of <code>run(...)</code> and <code>sensitivity_mnar(...)</code> extra arguments (0.7.0) and of <code>set_md_mediation(mechanism = "mnar")</code> (0.3.0) warn through <code><a href="https://lifecycle.r-lib.org/reference/deprecate_soft.html" class="external-link">lifecycle::deprecate_warn()</a></code>: once per session by default, and every time with <code>options(lifecycle_verbosity = "warning")</code>. <strong>The warning class changes</strong> from <code>md_dots_deprecated</code> to <code>lifecycle_warning_deprecated</code> (the dots warning was introduced in 0.7.0); code that caught the old class should catch the new one.</li>
 <li>Stage badges on the help pages: <code>sensitivity_mnar(on_error =)</code> is experimental and the deprecated arguments are badged; the lavaan engine and its MBCO are stable (maximum likelihood only; the refusals for <code>MLR</code>, <code>group</code>, <code>ordered</code> and <code>sampling.weights</code> are documented scope limits). <code>?missingmed-package</code> has a <em>Lifecycle</em> section.</li>

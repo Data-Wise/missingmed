@@ -68,8 +68,9 @@ object's <code>@conf_level</code>, itself <code>0.95</code> unless set in <code>
 <code>n.mc</code>
 (Monte-Carlo draws for <code>"mc"</code>, default <code>1e5</code>), and <code>ariv</code> (for <code>"mbco"</code>:
 <code>"fixed"</code> (default) tests every imputation on the branch the stacked
-constrained fit chose; <code>"own"</code> uses each imputation's own winning branch
-and reproduces missingmed 0.4.0 on full-rank designs; see <code><a href="mbco_d4.html">mbco_d4()</a></code>),
+constrained fit chose; <code>"own"</code> uses each imputation's own winning branch,
+matches the <code>D4</code> and <code>r4</code> of missingmed 0.4.0 on full-rank designs, and
+can be liberal at high missingness; see <code><a href="mbco_d4.html">mbco_d4()</a></code>),
 and <code>treatment_level</code> (for <code>"mc"</code> on a model with an <code>X:M</code> term, and
 only there: the treatment level \(x\) at which the indirect effect
 \(a (b + \theta_3 x)\) is evaluated, that is, the effect of a one-unit

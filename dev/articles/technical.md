@@ -423,9 +423,10 @@ The `ariv` argument sets which per-imputation statistics $`d_i`$ enter
 $`\bar d`$. With `ariv = "fixed"` (the default), every $`d_i`$ is
 computed on the branch the stacked constrained fit chose, so all
 imputations share the stacked fit’s $`k`$. With `ariv = "own"`, each
-$`d_i`$ uses that imputation’s own winning branch, as in missingmed
-0.4.0 on full-rank designs; it errors when the branches remove different
-numbers of parameters. See
+$`d_i`$ uses that imputation’s own winning branch (the `D4` and `r4` of
+missingmed 0.4.0 on full-rank designs); it errors when the branches
+remove different numbers of parameters, and it can be liberal at high
+missingness. See
 [`vignette("mbco-mi")`](https://data-wise.github.io/missingmed/dev/articles/mbco-mi.md)
 for both formulas.
 
@@ -492,8 +493,12 @@ list: $`\bar d`$ cannot be recovered from the pooled result alone.
 D4-MBCO under multiple imputation **lives in missingmed**
 (`R/mbco_mi.R`), and `RMediation` keeps complete-data MBCO (author
 decision, 2026-10-07; issue \#19). The code was ported from a research
-prototype and reproduces it **exactly** (max abs diff
-$`\approx 5\times10^{-11}`$ across design cells). The exported
+prototype and reproduced its statistic, $`r_4`$ and branch choice
+**exactly** (max abs diff $`\approx 5\times10^{-11}`$ across design
+cells). The denominator degrees of freedom $`\nu`$ were later changed to
+Chan and Meng’s eq. 2.15, as in `mitml::testModels(method = "D4")`, so
+$`\nu`$ and $`p`$ now differ slightly from the prototype’s (which used
+the Li et al. 1991 df). The exported
 [`mbco_d4()`](https://data-wise.github.io/missingmed/dev/reference/mbco_d4.md)
 runs the same test on a plain list of completed data frames, so other
 packages can call it directly.
@@ -923,7 +928,9 @@ is the “small upstream fix” that a new capability turned out to need.
   resolves paths by label.
 - **MBCO hosted here by decision** (section 4.3): D4-MBCO under multiple
   imputation lives in missingmed and RMediation keeps complete-data
-  MBCO; exact parity with the research prototype was the acceptance bar.
+  MBCO; parity with the research prototype’s statistic, $`r_4`$ and
+  branch choice was the acceptance bar (exact; the denominator df was
+  aligned with `mitml` later).
 - **`X:M` pooled from one reference profile** (section 3A): path
   coefficients by Rubin’s rules, the four-way decomposition recomputed
   from them, so medfit’s identities hold exactly.

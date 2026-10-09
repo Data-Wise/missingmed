@@ -51,8 +51,12 @@ It applies to `infer(type = "mbco")` and
 With `ariv = "fixed"` (the default), every imputation’s likelihood ratio
 is taken on the branch the stacked constrained fit chose ($`a = 0`$ or
 $`b = 0`$). With `ariv = "own"`, each imputation uses its own winning
-branch, which reproduces missingmed 0.4.0. The branch diagnostics are
-properties of the returned `MbcoMIResult`.
+branch, which gives the statistic and `r4` of missingmed 0.4.0 but can
+be liberal at high missingness (up to 8.3% at a 5% level for a Gaussian
+model with 40% missing and n = 200; see *Operating characteristics* in
+[`vignette("mbco-mi")`](https://data-wise.github.io/missingmed/dev/articles/mbco-mi.md)).
+Use `"fixed"` unless you need to reproduce an earlier analysis. The
+branch diagnostics are properties of the returned `MbcoMIResult`.
 
 ### How many imputations do I need?
 

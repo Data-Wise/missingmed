@@ -123,8 +123,13 @@ constrained fit chose
 or
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">b = 0</annotation></semantics></math>).
 With <code>ariv = "own"</code>, each imputation uses its own winning
-branch, which reproduces missingmed 0.4.0. The branch diagnostics are
-properties of the returned <code>MbcoMIResult</code>.</p>
+branch, which gives the statistic and <code>r4</code> of missingmed
+0.4.0 but can be liberal at high missingness (up to 8.3% at a 5% level
+for a Gaussian model with 40% missing and n = 200; see <em>Operating
+characteristics</em> in <code><a href="../articles/mbco-mi.html">vignette("mbco-mi")</a></code>). Use
+<code>"fixed"</code> unless you need to reproduce an earlier analysis.
+The branch diagnostics are properties of the returned
+<code>MbcoMIResult</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="how-many-imputations-do-i-need">How many imputations do I need?<a class="anchor" aria-label="anchor" href="#how-many-imputations-do-i-need"></a>

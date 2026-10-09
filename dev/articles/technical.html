@@ -701,10 +701,11 @@ imputations share the stacked fit’s
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>.
 With <code>ariv = "own"</code>, each
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mi>i</mi></msub><annotation encoding="application/x-tex">d_i</annotation></semantics></math>
-uses that imputation’s own winning branch, as in missingmed 0.4.0 on
-full-rank designs; it errors when the branches remove different numbers
-of parameters. See <code><a href="../articles/mbco-mi.html">vignette("mbco-mi")</a></code> for both
-formulas.</p>
+uses that imputation’s own winning branch (the <code>D4</code> and
+<code>r4</code> of missingmed 0.4.0 on full-rank designs); it errors
+when the branches remove different numbers of parameters, and it can be
+liberal at high missingness. See <code><a href="../articles/mbco-mi.html">vignette("mbco-mi")</a></code> for
+both formulas.</p>
 <div class="section level4">
 <h4 id="worked-example-pooling-three-mbco-statistics">Worked example: pooling three MBCO statistics<a class="anchor" aria-label="anchor" href="#worked-example-pooling-three-mbco-statistics"></a>
 </h4>
@@ -781,11 +782,21 @@ cannot be recovered from the pooled result alone.</p>
 missingmed</strong> (<code>R/mbco_mi.R</code>), and
 <code>RMediation</code> keeps complete-data MBCO (author decision,
 2026-10-07; issue #19). The code was ported from a research prototype
-and reproduces it <strong>exactly</strong> (max abs diff
+and reproduced its statistic,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mn>4</mn></msub><annotation encoding="application/x-tex">r_4</annotation></semantics></math>
+and branch choice <strong>exactly</strong> (max abs diff
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>5</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>11</mn></mrow></msup></mrow><annotation encoding="application/x-tex">\approx 5\times10^{-11}</annotation></semantics></math>
-across design cells). The exported <code><a href="../reference/mbco_d4.html">mbco_d4()</a></code> runs the same
-test on a plain list of completed data frames, so other packages can
-call it directly.</p>
+across design cells). The denominator degrees of freedom
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ν</mi><annotation encoding="application/x-tex">\nu</annotation></semantics></math>
+were later changed to Chan and Meng’s eq. 2.15, as in
+<code>mitml::testModels(method = "D4")</code>, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ν</mi><annotation encoding="application/x-tex">\nu</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+now differ slightly from the prototype’s (which used the Li et al. 1991
+df). The exported <code><a href="../reference/mbco_d4.html">mbco_d4()</a></code> runs the same test on a plain
+list of completed data frames, so other packages can call it
+directly.</p>
 <hr>
 </div>
 </div>
@@ -1495,8 +1506,10 @@ so RMediation resolves paths by label.</li>
 <li>
 <strong>MBCO hosted here by decision</strong> (section 4.3): D4-MBCO
 under multiple imputation lives in missingmed and RMediation keeps
-complete-data MBCO; exact parity with the research prototype was the
-acceptance bar.</li>
+complete-data MBCO; parity with the research prototype’s statistic,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mn>4</mn></msub><annotation encoding="application/x-tex">r_4</annotation></semantics></math>
+and branch choice was the acceptance bar (exact; the denominator df was
+aligned with <code>mitml</code> later).</li>
 <li>
 <strong><code>X:M</code> pooled from one reference profile</strong>
 (section 3A): path coefficients by Rubin’s rules, the four-way

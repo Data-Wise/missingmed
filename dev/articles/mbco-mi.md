@@ -200,9 +200,12 @@ when the imputations do not all agree.
   imputation’s statistic on the branch the **stacked** constrained fit
   chose. All imputations then test the same constraint, with the same
   $`k`$.
-- `ariv = "own"` lets each imputation use its own winning branch. It
-  reproduces results from missingmed 0.4.0 and earlier on full-rank
-  designs.
+- `ariv = "own"` lets each imputation use its own winning branch. On
+  full-rank designs its `D4` and `r4` equal those of missingmed 0.4.0
+  and earlier (`nu` and `p` differ slightly, because the denominator
+  degrees of freedom now follow Chan & Meng). **It can be liberal**: see
+  *Operating characteristics*. Prefer `"fixed"` unless you need to
+  reproduce an earlier analysis.
 
 The two give the same result when every imputation’s own branch matches
 the stacked fit’s. Reporting `branch_mix` and `p_branch_a` needs both
@@ -441,10 +444,40 @@ missing, 20 imputations, normal data, 5% level):
 No setting rejected more than 6.5% of the time. The cost of the
 conservatism is power near $`a = b = 0`$: a small indirect effect is
 rejected less often than a test that was exact there would reject it.
-The same pooling code serves the glm engine; this grid exercised the
-lavaan models, and the glm engine’s own evidence is a smaller prototype
-run (300 replications, $`n = 200`$, 5 imputations: 5.0% at
-$`a = 0, b = .3`$ and 0.7% at $`a = b = 0`$).
+
+The glm engine has its own grid (132 settings, 1000 replications each,
+20 imputations unless noted, MAR missingness in the mediator, 5% level,
+default `ariv = "fixed"`): Gaussian models including an `X:M` term
+($`k = 2`$ on one branch), binary and Poisson outcomes, a binary
+mediator, a rare binary outcome with $`n`$ = 150 and 300, $`n`$ = 200
+and 500, 25% and 40% missing, and 5 and 10 imputations at $`n`$ = 200.
+
+| True paths                         | Rejection rate (`"fixed"`) |
+|------------------------------------|----------------------------|
+| one path null, the other strong    | 1.4% to 5.7%, mean 3.5%    |
+| one path null, the other weak (.1) | 0.1% to 2.4%, mean 1.0%    |
+| both null                          | 0.1% to 0.7%, mean 0.3%    |
+
+No setting rejected more than 5.7% of the time, including 5 and 10
+imputations. Power at $`a = b = .3`$ ($`n`$ = 500) ranged from 43%
+(binary mediator) to 100% (Gaussian with `X:M`). Refits that did not
+converge were refused in 14 of 132,000 replications, all in the
+rare-outcome settings.
+
+**`ariv = "own"` is less well behaved.** On the same data it rejected a
+true null more than 6.5% of the time in 23 of the 80 non-Gaussian null
+settings, up to 13.8% (Poisson outcome, $`n`$ = 200, 40% missing), and
+in a separate grid of 20 plain-Gaussian settings ($`k = 1`$ on both
+branches) up to 8.3% ($`n`$ = 200, 40% missing; `"fixed"`: at most
+4.7%). The excess grows with the share of missing data and shrinks with
+$`n`$. The reported Gaussian-with-`X:M` figure for `"own"` is not
+comparable: there `"own"` errors whenever the imputations’ winning
+branches remove different numbers of parameters, which happened in half
+of the replications.
+
+This grid tested the MBCO test only. Coverage of the Monte-Carlo
+interval for a model with an `X:M` term (`type = "mc"` with
+`treatment_level`) was not calibrated.
 
 ## Not covered here
 
