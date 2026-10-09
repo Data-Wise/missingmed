@@ -159,6 +159,7 @@ triggers <- list(
     msg_of(sensitivity_mnar(md_of("glm, IPW"), delta = c(0, 0.5)))
   },
   "sensitivity rung" = function() src(sensitivity_mnar),
+  "rung(s) failed" = function() src(sensitivity_mnar),
   "`target` is required" = function() {
     msg_of(sensitivity_mnar(lat_md_of(), delta = c(0, 0.5), n.mc = 500))
   }

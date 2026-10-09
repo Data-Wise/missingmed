@@ -94,14 +94,19 @@ S7::method(tidy, MDMediationResult) <- function(x, ...) {
 
 # print(<MDSensitivityResult>)
 S7::method(print, MDSensitivityResult) <- function(x, ...) {
+  first_ok <- Filter(Negate(is.null), x@rungs)[[1]]
   cat("<MDSensitivityResult>  MNAR sensitivity curve\n")
   cat("  target(s):", paste(x@target, collapse = ", "),
     "| rungs:", nrow(x@grid), "| inference:", x@type,
-    if (S7::S7_inherits(x@rungs[[1]], MbcoMIResult)) {
-      paste0("(ariv = \"", x@rungs[[1]]@ariv, "\")")
+    if (S7::S7_inherits(first_ok, MbcoMIResult)) {
+      paste0("(ariv = \"", first_ok@ariv, "\")")
     },
     "\n"
   )
+  if (any(!is.na(x@failed))) {
+    cat("  failed rungs:", paste(which(!is.na(x@failed)), collapse = ", "),
+      "(see tidy() for the messages)\n")
+  }
   cat("  seed:", x@seed, paste0("(from ", x@seed_source, ")"),
     "| target imputed by:", x@method_target, "\n"
   )
@@ -238,7 +243,7 @@ print.summary.MDSensitivityResult <- function(x, ...) {
 # would be overwritten. Keep this list in step with the method below.
 .mnar_tidy_reserved <- c(
   "msp", "estimate", "conf_low", "conf_high", "D4", "p_value",
-  "mechanism", "scale"
+  "mechanism", "scale", "error"
 )
 
 # tidy(<MDSensitivityResult>) -- one row per rung
@@ -246,16 +251,20 @@ S7::method(tidy, MDSensitivityResult) <- function(x, ...) {
   base <- x@grid
   # The validator allows an empty @msp; report it as NA rather than fail.
   base$msp <- if (length(x@msp)) x@msp else NA_real_
+  # A failed rung is NULL (see @failed) and reads as NA.
+  pick <- function(f) vapply(x@rungs, function(r) if (is.null(r)) NA_real_ else f(r), numeric(1))
   if (identical(x@type, "mc")) {
-    base$estimate <- vapply(x@rungs, function(r) as.numeric(r$Estimate)[1], numeric(1))
-    base$conf_low <- vapply(x@rungs, function(r) as.numeric(r$CI)[1], numeric(1))
-    base$conf_high <- vapply(x@rungs, function(r) as.numeric(r$CI)[2], numeric(1))
+    base$estimate <- pick(function(r) as.numeric(r$Estimate)[1])
+    base$conf_low <- pick(function(r) as.numeric(r$CI)[1])
+    base$conf_high <- pick(function(r) as.numeric(r$CI)[2])
   } else {
-    base$D4 <- vapply(x@rungs, function(r) unname(r[["D4"]]), numeric(1))
-    base$p_value <- vapply(x@rungs, function(r) unname(r[["p"]]), numeric(1))
+    base$D4 <- pick(function(r) unname(r[["D4"]]))
+    base$p_value <- pick(function(r) unname(r[["p"]]))
   }
   base$mechanism <- paste(x@mechanism_used, collapse = ",")
   base$scale <- paste(x@scale, collapse = ",")
+  # Only when a rung failed, so the table of a clean run is unchanged.
+  if (any(!is.na(x@failed))) base$error <- x@failed
   tibble::as_tibble(base)
 }
 

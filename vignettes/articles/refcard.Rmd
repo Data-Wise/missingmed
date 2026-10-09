@@ -66,6 +66,7 @@ Pass fitting options with `fit_args` in `set_md_mediation()`. Passing them throu
 | MBCO: a glm refit did not converge | `model did not converge` | rescale variables, merge sparse factor levels; the data may be separated |
 | MBCO: a glm refit has a non-finite log-likelihood | `non-finite log-likelihood` | check the data for degenerate columns |
 | MBCO: a lavaan refit did not converge | `lavaan model did not converge` | as for `run()` |
+| `sensitivity_mnar(on_error = "continue")`: a rung failed (warning) | `rung(s) failed` | `tidy()` has an `error` column naming each failure; fix the cause and rerun the failed deltas |
 | MBCO: improper solution in a refit (warning) | `improper solution` | check the model for a negative variance or a boundary estimate; the test proceeds |
 | MBCO with IPW | `MBCO inference for IPW is not yet implemented` | use `type = "mc"` |
 | MBCO with a lavaan estimator other than ML | `supports estimator = "ML" only` | use `type = "mc"`, or refit with ML |
