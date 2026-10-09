@@ -73,3 +73,90 @@ ipw_truth <- function(cell, N = 2e6, b_correct = TRUE) {
   c(a = unname(stats::coef(stats::lm(M ~ X + C, d))["X"]),
     b = unname(stats::coef(stats::lm(Y ~ X + M + C, d))["M"]))
 }
+
+# The four weight forms evaluated on every replication (spec section 2). All use a
+# missingness model with every driver (X, C, Z), so it is correctly specified.
+ipw_forms <- list(
+  uj = list(weight_stabilize = FALSE, weight_formula = ~ X + C + Z),
+  sj = list(weight_stabilize = TRUE, weight_formula = ~ X + C + Z),
+  sjt = list(weight_stabilize = TRUE, weight_formula = ~ X + C + Z, weight_trim = 0.95),
+  spv = list(weight_stabilize = TRUE, weight_formula = list(M = ~ X + C + Z, Y = ~ X + C + Z))
+)
+
+# Weighted glm fits on the complete cases for one weight form, plus the info the
+# stacked variance needs. Errors (a refit that fails, a refused weight model) are
+# returned as a message, not thrown, so the replication is recorded, not dropped.
+ipw_fit <- function(d, cfg) {
+  tryCatch({
+    md <- suppressWarnings(do.call(set_md_mediation, c(
+      list(d, Y ~ X + M + C, M ~ X + C, treatment = "X", mediator = "M", method = "ipw"), cfg)))
+    ii <- missingmed:::.ipw_weights_info(md)
+    cc <- ii$info$cc
+    w <- ii$w[cc]
+    fits <- list(
+      m = suppressWarnings(stats::glm(M ~ X + C, data = d[cc, ], weights = w)),
+      y = suppressWarnings(stats::glm(Y ~ X + M + C, data = d[cc, ], weights = w))
+    )
+    list(fits = fits, info = ii$info, md = md)
+  }, error = function(e) list(error = conditionMessage(e)))
+}
+
+# 95% interval for a*b from the distribution of the product, given the 2x2
+# covariance of (a, b). Returns NA endpoints (and pd = FALSE) when the block is not
+# positive definite, so the replication is counted, not dropped.
+ipw_interval <- function(a, b, S2) {
+  pd <- is.finite(det(S2)) && all(is.finite(S2)) && min(eigen(S2, symmetric = TRUE, only.values = TRUE)$values) > 0
+  if (!pd) return(c(lo = NA_real_, hi = NA_real_, pd = 0))
+  ci <- tryCatch(RMediation::ci(RMediation::ProductNormal(mu = c(a, b), Sigma = S2),
+    level = .95, type = "dop")$CI, error = function(e) c(NA_real_, NA_real_))
+  c(lo = ci[1], hi = ci[2], pd = 1)
+}
+
+# Everything one replication reports: for each weight form, the arms
+#   known_hc3 = today's behavior (medfit: HC3 sandwich per regression, cov(a, b) = 0),
+#   known_hc0 = the same with HC0, so the effect of estimating the weights can be
+#               separated from the small-sample correction,
+#   stacked   = .ipw_stacked_vcov() (HC0-type, full 2x2 block);
+# plus, for the unstabilized joint form only, the control arm `model_se` (model-based
+# covariance, documented as invalid under weighting). Truth is the nominal a*b: the
+# complete-data population values differ from it by at most 0.002 (T1 check).
+one_ipw <- function(cell, seed, forms = ipw_forms) {
+  d <- gen_ipw(cell$dgm, cell$n, cell$a, cell$b, cell$miss, cell$alpha, seed)
+  truth <- cell$a * cell$b
+  rows <- list()
+  add <- function(form, arm, est, S2, n_cc, n_trim, err = NA_character_) {
+    iv <- if (is.null(S2)) c(lo = NA_real_, hi = NA_real_, pd = NA_real_) else ipw_interval(est[1], est[2], S2)
+    rows[[length(rows) + 1L]] <<- data.frame(form = form, arm = arm, a = est[1], b = est[2],
+      lo = iv[["lo"]], hi = iv[["hi"]], pd = iv[["pd"]], n_cc = n_cc, n_trim = n_trim,
+      error = err, stringsAsFactors = FALSE)
+  }
+  for (nm in names(forms)) {
+    f <- ipw_fit(d, forms[[nm]])
+    if (!is.null(f$error)) {
+      for (arm in c("known_hc3", "known_hc0", "stacked")) add(nm, arm, c(NA_real_, NA_real_), NULL, NA, NA, f$error)
+      next
+    }
+    est <- c(unname(stats::coef(f$fits$m)["X"]), unname(stats::coef(f$fits$y)["M"]))
+    n_cc <- sum(f$info$cc); n_trim <- sum(f$info$trimmed)
+    v_hc3 <- c(sandwich::vcovHC(f$fits$m, type = "HC3")["X", "X"], sandwich::vcovHC(f$fits$y, type = "HC3")["M", "M"])
+    i0 <- f$info; i0$blocks <- list()
+    V <- tryCatch(missingmed:::.ipw_stacked_vcov(f$fits, f$info), error = function(e) NULL)
+    V0 <- missingmed:::.ipw_stacked_vcov(f$fits, i0)
+    ia <- "m:X"; ib <- "y:M"
+    add(nm, "known_hc3", est, diag(v_hc3), n_cc, n_trim)
+    add(nm, "known_hc0", est, V0[c(ia, ib), c(ia, ib)], n_cc, n_trim)
+    if (is.null(V)) add(nm, "stacked", est, NULL, n_cc, n_trim, "stacked variance failed")
+    else add(nm, "stacked", est, V[c(ia, ib), c(ia, ib)], n_cc, n_trim)
+    if (nm == "uj") {
+      v_mod <- c(stats::vcov(f$fits$m)["X", "X"], stats::vcov(f$fits$y)["M", "M"])
+      add(nm, "model_se", est, diag(v_mod), n_cc, n_trim)
+    }
+  }
+  out <- do.call(rbind, rows)
+  out$truth <- truth
+  out$cover <- with(out, lo <= truth & truth <= hi)
+  out$reject0 <- with(out, lo > 0 | hi < 0)
+  out$width <- out$hi - out$lo
+  out$seed <- seed
+  out
+}
