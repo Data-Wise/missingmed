@@ -232,7 +232,7 @@ at the precision you report.</p>
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"mbco"</span>, ariv <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span></span>
 <span><span class="va">res</span></span>
 <span><span class="co">#&gt; &lt;MbcoMIResult&gt; D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)</span></span>
-<span><span class="co">#&gt;   D4 = 17.13 on F(1, 91.55), p = 7.734e-05</span></span>
+<span><span class="co">#&gt;   D4 = 17.13 on F(1, 126.7), p = 6.307e-05</span></span>
 <span><span class="co">#&gt;   r4 = 0.6319 (ariv = "fixed") | d_S = 27.96 </span></span>
 <span><span class="co">#&gt;   stacked constrained fit: b = 0 branch</span></span>
 <span><span class="co">#&gt;   imputations on the a = 0 branch: 20% (mixed)</span></span></code></pre></div>
@@ -253,8 +253,11 @@ model, for either branch.</li>
 missing data, the between-imputation inflation that deflates
 <code>D4</code>. It is floored at 0.</li>
 <li>
-<code>nu</code> is the denominator degrees of freedom. It is
-<code>Inf</code> when <code>r4</code> is 0.</li>
+<code>nu</code> is the denominator degrees of freedom,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mn>1</mn><mi>/</mi><msub><mi>r</mi><mn>4</mn></msub><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">k(K-1)(1 + 1/r_4)^2</annotation></semantics></math>
+(Chan &amp; Meng, 2022, eq. 2.15 of arXiv:1711.08822, the same as
+<code>mitml::testModels(method = "D4")</code>). It is <code>Inf</code>
+when <code>r4</code> is 0.</li>
 <li>
 <code>d_S</code> is the likelihood-ratio statistic of the stacked
 data, divided by
@@ -269,9 +272,9 @@ works, and the diagnostics are properties:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span><span class="op">[</span><span class="st">"p"</span><span class="op">]</span></span>
 <span><span class="co">#&gt;            p </span></span>
-<span><span class="co">#&gt; 7.733747e-05</span></span>
+<span><span class="co">#&gt; 6.306819e-05</span></span>
 <span><span class="va">res</span><span class="op">[[</span><span class="st">"p"</span><span class="op">]</span><span class="op">]</span></span>
-<span><span class="co">#&gt; [1] 7.733747e-05</span></span>
+<span><span class="co">#&gt; [1] 6.306819e-05</span></span>
 <span><span class="va">res</span><span class="op">@</span><span class="va">stacked_branch</span> <span class="co"># the null the stacked constrained fit chose</span></span>
 <span><span class="co">#&gt; [1] "b"</span></span>
 <span><span class="va">res</span><span class="op">@</span><span class="va">branch_mix</span> <span class="co"># do the imputations' own winning branches differ?</span></span>
@@ -282,7 +285,7 @@ works, and the diagnostics are properties:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 12</span></span></span>
 <span><span class="co">#&gt;   term     statistic   df1   df2   p_value    r4   d_S ariv  stacked_branch</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> indirect      17.1     1  91.6 0.000<span style="text-decoration: underline;">077</span>3 0.632  28.0 fixed b             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> indirect      17.1     1  127. 0.000<span style="text-decoration: underline;">063</span>1 0.632  28.0 fixed b             </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3 more variables: branch_mix &lt;lgl&gt;, p_branch_a &lt;dbl&gt;, m &lt;int&gt;</span></span></span></code></pre></div>
 <p><code>res$p</code> is not valid: use <code>res["p"]</code> or
 <code>res[["p"]]</code>.</p>
@@ -337,7 +340,7 @@ option.</p>
 <span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, ariv <span class="op">=</span> <span class="st">"fixed"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;MbcoMIResult&gt; D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)</span></span>
-<span><span class="co">#&gt;   D4 = 17.13 on F(1, 91.55), p = 7.734e-05</span></span>
+<span><span class="co">#&gt;   D4 = 17.13 on F(1, 126.7), p = 6.307e-05</span></span>
 <span><span class="co">#&gt;   r4 = 0.6319 (ariv = "fixed") | d_S = 27.96 </span></span>
 <span><span class="co">#&gt;   stacked constrained fit: b = 0 branch</span></span>
 <span><span class="co">#&gt;   imputations on the a = 0 branch: 20% (mixed)</span></span></code></pre></div>
@@ -351,7 +354,7 @@ arguments):</p>
 <span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, outcome <span class="op">=</span> <span class="st">"Y"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;MbcoMIResult&gt; D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)</span></span>
-<span><span class="co">#&gt;   D4 = 17.13 on F(1, 91.55), p = 7.734e-05</span></span>
+<span><span class="co">#&gt;   D4 = 17.13 on F(1, 126.7), p = 6.307e-05</span></span>
 <span><span class="co">#&gt;   r4 = 0.6319 (ariv = "fixed") | d_S = 27.96 </span></span>
 <span><span class="co">#&gt;   stacked constrained fit: b = 0 branch</span></span>
 <span><span class="co">#&gt;   imputations on the a = 0 branch: 20% (mixed)</span></span></code></pre></div>
@@ -422,7 +425,7 @@ a predictor of <code>M</code>:</p>
 <span><span class="va">res2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit2</span>, type <span class="op">=</span> <span class="st">"mbco"</span>, ariv <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span></span>
 <span><span class="va">res2</span></span>
 <span><span class="co">#&gt; &lt;MbcoMIResult&gt; D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)</span></span>
-<span><span class="co">#&gt;   D4 = 10.46 on F(2, 284.2), p = 4.15e-05</span></span>
+<span><span class="co">#&gt;   D4 = 10.46 on F(2, 336.3), p = 3.929e-05</span></span>
 <span><span class="co">#&gt;   r4 = 0.5064 (ariv = "fixed") | d_S = 31.5 </span></span>
 <span><span class="co">#&gt;   stacked constrained fit: b = 0 branch</span></span>
 <span><span class="co">#&gt;   imputations on the a = 0 branch: 70% (mixed)</span></span>
@@ -459,33 +462,33 @@ indirect effect:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit2</span>, type <span class="op">=</span> <span class="st">"mc"</span>, treatment_level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $CI</span></span>
-<span><span class="co">#&gt;      2.5 %     97.5 % </span></span>
-<span><span class="co">#&gt; 0.03448457 0.25713999 </span></span>
+<span><span class="co">#&gt;     2.5 %    97.5 % </span></span>
+<span><span class="co">#&gt; 0.0342172 0.2572664 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimate</span></span>
-<span><span class="co">#&gt; [1] 0.1365269</span></span>
+<span><span class="co">#&gt; [1] 0.1365794</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $SE</span></span>
-<span><span class="co">#&gt; [1] 0.05690246</span></span>
+<span><span class="co">#&gt; [1] 0.05684491</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $MC.Error</span></span>
-<span><span class="co">#&gt; [1] 5.690246e-07</span></span>
+<span><span class="co">#&gt; [1] 5.684491e-07</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimand</span></span>
 <span><span class="co">#&gt; [1] "a * (b + theta3 * 1)"</span></span>
 <span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit2</span>, type <span class="op">=</span> <span class="st">"mc"</span>, treatment_level <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $CI</span></span>
-<span><span class="co">#&gt;      2.5 %     97.5 % </span></span>
-<span><span class="co">#&gt; 0.08705547 0.31659329 </span></span>
+<span><span class="co">#&gt;     2.5 %    97.5 % </span></span>
+<span><span class="co">#&gt; 0.0873093 0.3175738 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimate</span></span>
-<span><span class="co">#&gt; [1] 0.1906082</span></span>
+<span><span class="co">#&gt; [1] 0.1905933</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $SE</span></span>
-<span><span class="co">#&gt; [1] 0.05881474</span></span>
+<span><span class="co">#&gt; [1] 0.0590961</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $MC.Error</span></span>
-<span><span class="co">#&gt; [1] 5.881474e-07</span></span>
+<span><span class="co">#&gt; [1] 5.90961e-07</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimand</span></span>
 <span><span class="co">#&gt; [1] "a * (b + theta3 * 0)"</span></span></code></pre></div>
@@ -520,10 +523,11 @@ Instead, missingmed keeps every per-imputation fit and combines the
 <strong>likelihood-ratio statistics</strong> with the
 <strong>D4</strong> rule (Chan &amp; Meng, 2022; Grund, Lüdtke &amp;
 Robitzsch, 2023):</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mi>S</mi></msub><mo>=</mo><mfrac><mtext mathvariant="normal">LRT(stacked data)</mtext><mi>K</mi></mfrac><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>r</mi><mn>4</mn></msub><mo>=</mo><mrow><mi mathvariant="normal">max</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mstyle displaystyle="false"><mfrac><mrow><mi>K</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mstyle><mo stretchy="false" form="prefix">(</mo><mover><mi>d</mi><mo accent="true">‾</mo></mover><mo>−</mo><msub><mi>d</mi><mi>S</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>D</mi><mn>4</mn></msub><mo>=</mo><mfrac><msub><mi>d</mi><mi>S</mi></msub><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><msub><mi>r</mi><mn>4</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo>∼</mo><msub><mi>F</mi><mrow><mi>k</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mi>S</mi></msub><mo>=</mo><mfrac><mtext mathvariant="normal">LRT(stacked data)</mtext><mi>K</mi></mfrac><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>r</mi><mn>4</mn></msub><mo>=</mo><mrow><mi mathvariant="normal">max</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mstyle displaystyle="false"><mfrac><mrow><mi>K</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mstyle><mo stretchy="false" form="prefix">(</mo><mover><mi>d</mi><mo accent="true">‾</mo></mover><mo>−</mo><msub><mi>d</mi><mi>S</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>D</mi><mn>4</mn></msub><mo>=</mo><mfrac><msub><mi>d</mi><mi>S</mi></msub><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><msub><mi>r</mi><mn>4</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo>∼</mo><msub><mi>F</mi><mrow><mi>k</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo>,</mo><mspace width="1.0em"></mspace><mi>ν</mi><mo>=</mo><mi>k</mi><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><mn>1</mn><msub><mi>r</mi><mn>4</mn></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mo>,</mo></mrow><annotation encoding="application/x-tex">
 d_S = \frac{\text{LRT(stacked data)}}{K}, \quad
 r_4 = \max\!\left(0, \tfrac{K+1}{k(K-1)}(\bar d - d_S)\right), \quad
-D_4 = \frac{d_S}{k(1 + r_4)} \sim F_{k,\nu},
+D_4 = \frac{d_S}{k(1 + r_4)} \sim F_{k,\nu}, \quad
+\nu = k(K-1)\left(1 + \frac{1}{r_4}\right)^2,
 </annotation></semantics></math></p>
 <p>where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>d</mi><mo accent="true">‾</mo></mover><mo>=</mo><msup><mi>K</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><msub><mo>∑</mo><mi>i</mi></msub><msub><mi>d</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\bar d = K^{-1} \sum_{i} d_{i}</annotation></semantics></math>

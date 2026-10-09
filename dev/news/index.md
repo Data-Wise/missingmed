@@ -19,6 +19,23 @@
   or `infer(type = "mc")` at a rung now carries the same “sensitivity
   rung i of n (delta …)” prefix that the MBCO failure already had.
 
+### Bug fixes
+
+- The D4 test (`infer(type = "mbco")`,
+  [`mbco_d4()`](https://data-wise.github.io/missingmed/dev/reference/mbco_d4.md),
+  `sensitivity_mnar(type = "mbco")`) now refers the statistic to
+  `F(k, nu)` with the denominator degrees of freedom of Chan and Meng
+  (2022, eq. 2.15), `nu = k (K - 1) (1 + 1 / r4)^2`, the same as
+  `mitml::testModels(method = "D4")`. Earlier versions used the Li et
+  al.
+  1991. df, which Chan and Meng show approximates this test worse. `D4`
+        and `r4` are unchanged; `nu` is larger and `p` slightly smaller
+        when `k (K - 1) > 4` (for example K = 20, k = 1: `nu` 62.6 -\>
+        83.1, p 0.0422 -\> 0.0412 on the probe data). For K = 5 and k =
+        1 the two formulas coincide. The 0.8.0 test was slightly
+        conservative relative to the published procedure; the size gap
+        at K = 20 is at most about 0.002.
+
 ## missingmed 0.8.0
 
 ### New features

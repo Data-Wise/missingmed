@@ -128,7 +128,9 @@ and <code>X:M</code> from <code>Y ~ X * M</code>). The D4 statistic is
 \(D_4 = d_S / (k (1 + r_4))\), referred to \(F(k, \nu)\), where
 \(d_S\) is the statistic on the stacked data divided by \(K\) and
 \(r_4\) is the relative increase in variance estimated from the
-per-imputation statistics. <code>ariv</code> chooses how those statistics are formed:</p><ul><li><p><code>"fixed"</code> (default): each imputation's statistic is computed on the branch
+per-imputation statistics, and \(\nu = k (K - 1) (1 + 1 / r_4)^2\)
+(Chan and Meng 2022, eq. 2.15 of arXiv:1711.08822; the same reference distribution as
+<code>mitml::testModels(method = "D4")</code>). <code>ariv</code> chooses how those statistics are formed:</p><ul><li><p><code>"fixed"</code> (default): each imputation's statistic is computed on the branch
 (<code>a = 0</code> or <code>b = 0</code>) that the <strong>stacked</strong> constrained fit selected.
 Imputations that disagree on the winning branch then cannot pull
 \(r_4\) down, and every imputation uses the stacked fit's <code>k</code>. An error

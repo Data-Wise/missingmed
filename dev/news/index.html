@@ -47,6 +47,12 @@
 <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> gains <code>on_error = c("stop", "continue")</code>. The default, <code>"stop"</code>, aborts at the first rung whose fit or inference fails, as before. With <code>"continue"</code> the rungs that worked are kept: a failed rung reads as <code>NA</code>, its message is in the new <code>@failed</code> property and in an <code>error</code> column of <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code>, one warning names the failed rungs, and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> reports the tipping point as undetermined when a failed rung could change it. It is an error if every rung fails. Re-imputation errors always stop.</li>
 <li>A failure in <code><a href="../reference/run.html">run()</a></code> or <code>infer(type = "mc")</code> at a rung now carries the same “sensitivity rung i of n (delta …)” prefix that the MBCO failure already had.</li>
 </ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<ul><li>The D4 test (<code>infer(type = "mbco")</code>, <code><a href="../reference/mbco_d4.html">mbco_d4()</a></code>, <code>sensitivity_mnar(type = "mbco")</code>) now refers the statistic to <code>F(k, nu)</code> with the denominator degrees of freedom of Chan and Meng (2022, eq. 2.15), <code>nu = k (K - 1) (1 + 1 / r4)^2</code>, the same as <code>mitml::testModels(method = "D4")</code>. Earlier versions used the Li et al.
+<ol start="1991" style="list-style-type: decimal"><li>df, which Chan and Meng show approximates this test worse. <code>D4</code> and <code>r4</code> are unchanged; <code>nu</code> is larger and <code>p</code> slightly smaller when <code>k (K - 1) &gt; 4</code> (for example K = 20, k = 1: <code>nu</code> 62.6 -&gt; 83.1, p 0.0422 -&gt; 0.0412 on the probe data). For K = 5 and k = 1 the two formulas coincide. The 0.8.0 test was slightly conservative relative to the published procedure; the size gap at K = 20 is at most about 0.002.</li>
+</ol></li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.8.0" id="missingmed-080">missingmed 0.8.0<a class="anchor" aria-label="anchor" href="#missingmed-080"></a></h2>

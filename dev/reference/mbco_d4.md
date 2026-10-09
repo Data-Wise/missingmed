@@ -84,7 +84,10 @@ example both `M` and `X:M` from `Y ~ X * M`). The D4 statistic is \\D_4
 = d_S / (k (1 + r_4))\\, referred to \\F(k, \nu)\\, where \\d_S\\ is the
 statistic on the stacked data divided by \\K\\ and \\r_4\\ is the
 relative increase in variance estimated from the per-imputation
-statistics. `ariv` chooses how those statistics are formed:
+statistics, and \\\nu = k (K - 1) (1 + 1 / r_4)^2\\ (Chan and Meng 2022,
+eq. 2.15 of arXiv:1711.08822; the same reference distribution as
+`mitml::testModels(method = "D4")`). `ariv` chooses how those statistics
+are formed:
 
 - `"fixed"` (default): each imputation's statistic is computed on the
   branch (`a = 0` or `b = 0`) that the **stacked** constrained fit

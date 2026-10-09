@@ -137,7 +137,7 @@ the fit, not on the pooled result:
 mb <- infer(fit, type = "mbco")
 mb
 #> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 10 imputations)
-#>   D4 = 8.071 on F(1, 20.61), p = 0.009904
+#>   D4 = 8.071 on F(1, 38.1), p = 0.007183
 #>   r4 = 0.9456 (ariv = "fixed") | d_S = 15.7 
 #>   stacked constrained fit: b = 0 branch
 #>   imputations on the a = 0 branch: 30% (mixed)

@@ -147,7 +147,7 @@ for why pooling does not commute with MBCO):
 
 infer(fit, type = "mbco", ariv = "fixed")
 #> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)
-#>   D4 = 24.97 on F(1, 171.7), p = 1.429e-06
+#>   D4 = 24.97 on F(1, 248.8), p = 1.101e-06
 #>   r4 = 0.3818 (ariv = "fixed") | d_S = 34.5 
 #>   stacked constrained fit: b = 0 branch
 #>   imputations on the a = 0 branch: 0% (not mixed)

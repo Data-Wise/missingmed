@@ -134,7 +134,7 @@ report.
 res <- infer(fit, type = "mbco", ariv = "fixed")
 res
 #> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)
-#>   D4 = 17.13 on F(1, 91.55), p = 7.734e-05
+#>   D4 = 17.13 on F(1, 126.7), p = 6.307e-05
 #>   r4 = 0.6319 (ariv = "fixed") | d_S = 27.96 
 #>   stacked constrained fit: b = 0 branch
 #>   imputations on the a = 0 branch: 20% (mixed)
@@ -148,8 +148,9 @@ How to read it:
 - `p` is the p-value of $`H_0: a b = 0`$.
 - `r4` is the relative increase in variance due to the missing data, the
   between-imputation inflation that deflates `D4`. It is floored at 0.
-- `nu` is the denominator degrees of freedom. It is `Inf` when `r4` is
-  0.
+- `nu` is the denominator degrees of freedom, $`k(K-1)(1 + 1/r_4)^2`$
+  (Chan & Meng, 2022, eq. 2.15 of arXiv:1711.08822, the same as
+  `mitml::testModels(method = "D4")`). It is `Inf` when `r4` is 0.
 - `d_S` is the likelihood-ratio statistic of the stacked data, divided
   by $`K`$.
 
@@ -163,9 +164,9 @@ diagnostics are properties:
 
 res["p"]
 #>            p 
-#> 7.733747e-05
+#> 6.306819e-05
 res[["p"]]
-#> [1] 7.733747e-05
+#> [1] 6.306819e-05
 res@stacked_branch # the null the stacked constrained fit chose
 #> [1] "b"
 res@branch_mix # do the imputations' own winning branches differ?
@@ -176,7 +177,7 @@ tidy(res)
 #> # A tibble: 1 × 12
 #>   term     statistic   df1   df2   p_value    r4   d_S ariv  stacked_branch
 #>   <chr>        <dbl> <dbl> <dbl>     <dbl> <dbl> <dbl> <chr> <chr>         
-#> 1 indirect      17.1     1  91.6 0.0000773 0.632  28.0 fixed b             
+#> 1 indirect      17.1     1  127. 0.0000631 0.632  28.0 fixed b             
 #> # ℹ 3 more variables: branch_mix <lgl>, p_branch_a <dbl>, m <int>
 ```
 
@@ -219,7 +220,7 @@ mbco_d4(implist, Y ~ X + M + C, M ~ X + C,
   treatment = "X", mediator = "M", ariv = "fixed"
 )
 #> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)
-#>   D4 = 17.13 on F(1, 91.55), p = 7.734e-05
+#>   D4 = 17.13 on F(1, 126.7), p = 6.307e-05
 #>   r4 = 0.6319 (ariv = "fixed") | d_S = 27.96 
 #>   stacked constrained fit: b = 0 branch
 #>   imputations on the a = 0 branch: 20% (mixed)
@@ -236,7 +237,7 @@ mbco_d4(implist,
   treatment = "X", mediator = "M", outcome = "Y"
 )
 #> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)
-#>   D4 = 17.13 on F(1, 91.55), p = 7.734e-05
+#>   D4 = 17.13 on F(1, 126.7), p = 6.307e-05
 #>   r4 = 0.6319 (ariv = "fixed") | d_S = 27.96 
 #>   stacked constrained fit: b = 0 branch
 #>   imputations on the a = 0 branch: 20% (mixed)
@@ -307,7 +308,7 @@ fit2 <- run(set_md_mediation(imp2, Y ~ X * M + C, M ~ X + C,
 res2 <- infer(fit2, type = "mbco", ariv = "fixed")
 res2
 #> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)
-#>   D4 = 10.46 on F(2, 284.2), p = 4.15e-05
+#>   D4 = 10.46 on F(2, 336.3), p = 3.929e-05
 #>   r4 = 0.5064 (ariv = "fixed") | d_S = 31.5 
 #>   stacked constrained fit: b = 0 branch
 #>   imputations on the a = 0 branch: 70% (mixed)
@@ -335,33 +336,33 @@ effect:
 
 infer(fit2, type = "mc", treatment_level = 1)
 #> $CI
-#>      2.5 %     97.5 % 
-#> 0.03448457 0.25713999 
+#>     2.5 %    97.5 % 
+#> 0.0342172 0.2572664 
 #> 
 #> $Estimate
-#> [1] 0.1365269
+#> [1] 0.1365794
 #> 
 #> $SE
-#> [1] 0.05690246
+#> [1] 0.05684491
 #> 
 #> $MC.Error
-#> [1] 5.690246e-07
+#> [1] 5.684491e-07
 #> 
 #> $Estimand
 #> [1] "a * (b + theta3 * 1)"
 infer(fit2, type = "mc", treatment_level = 0)
 #> $CI
-#>      2.5 %     97.5 % 
-#> 0.08705547 0.31659329 
+#>     2.5 %    97.5 % 
+#> 0.0873093 0.3175738 
 #> 
 #> $Estimate
-#> [1] 0.1906082
+#> [1] 0.1905933
 #> 
 #> $SE
-#> [1] 0.05881474
+#> [1] 0.0590961
 #> 
 #> $MC.Error
-#> [1] 5.881474e-07
+#> [1] 5.90961e-07
 #> 
 #> $Estimand
 #> [1] "a * (b + theta3 * 0)"
@@ -392,7 +393,8 @@ Grund, Lüdtke & Robitzsch, 2023):
 ``` math
 d_S = \frac{\text{LRT(stacked data)}}{K}, \quad
 r_4 = \max\!\left(0, \tfrac{K+1}{k(K-1)}(\bar d - d_S)\right), \quad
-D_4 = \frac{d_S}{k(1 + r_4)} \sim F_{k,\nu},
+D_4 = \frac{d_S}{k(1 + r_4)} \sim F_{k,\nu}, \quad
+\nu = k(K-1)\left(1 + \frac{1}{r_4}\right)^2,
 ```
 
 where $`\bar d = K^{-1} \sum_{i} d_{i}`$ averages the per-imputation
