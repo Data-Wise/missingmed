@@ -15,8 +15,8 @@ next: v0.6.0 RELEASED 2026-10-08 (tag v0.6.0 on d4cc31c; GitHub release; r-unive
   stale ("S4, multiple imputation"); lavaan 0.7-3 (CRAN 2026-10-08) passes the full suite.
   NEXT: (1) 0.7.0: run(...) deprecation into fit_args (H1), delete the .Defunct() stubs.
   (2) SEM-MBCO spec: constrained lavaan refits, what "b = 0" means for a latent mediator.
-  (3) Move sampling.weights -> sampling_weights (lavaan 0.7-2 deprecates dotted names;
-  needs a lavaan floor). (4) medfit extract_mediation() truncates lavaan's weighted nobs
+  (3) DONE 2026-10-08 (PR #48): lavaan floor >= 0.7-3, IPW guards normalize every lavaan
+  spelling, license now GPL (>= 3). (4) medfit extract_mediation() truncates lavaan's weighted nobs
   (355.99999999999994 -> 355) with as.integer() at 4 sites in R/extract-lavaan.R; fix is
   round(); missingmed works around it in .lav_round_nobs(), remove once medfit ships it.
   (5) Update the missingmed entry in mediation-planning/ECOSYSTEM-MANIFEST.yaml (other
@@ -24,6 +24,14 @@ next: v0.6.0 RELEASED 2026-10-08 (tag v0.6.0 on d4cc31c; GitHub release; r-unive
   to the lavaan tutorial. Before CRAN: 1.0.0. Open question for upstream: whether medfit's
   sandwich stacks the weight-model score (RRZ 1994). Manuscript runs on medsim, not
   missingmed.
+  NATIVE ENGINE (2026-10-08): a native nloptr SEM engine is planned for MEDFIT (0.6.0,
+  GitHub first), not here. Decisions J1-J17 in docs/specs/GRILL-native-sem-engine-nloptr-
+  2026-10-08.md and GRILL-sem-syntax-framework-2026-10-08.md; plan PLAN-native-sem-engine-
+  nloptr-2026-10-08.md; brief HANDOFF-medfit-native-sem-engine-2026-10-08.md (sent to the
+  medfit session 17:52; it ran P0 and awaits the author's answers on grammar-spec owner,
+  CONSTRAINT-expression evaluation, dialect name, and Ext D sequencing). lavaan 0.7-3
+  report: docs/reports/REPORT-lavaan-0.7-3-changes-2026-10-08.md. missingmed keeps
+  engine = "lavaan" (J8); a native pass-through here comes after medfit ships it.
 type: r
 worktrees:
   2026-10-07: post-v0.5.1 cleanup. REMOVED 12 worktrees: 7 agent worktrees
