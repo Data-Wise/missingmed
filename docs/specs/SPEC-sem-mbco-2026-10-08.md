@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | ML IMPLEMENTED on `feature/mbco-provider` (T1-T6, T9) 2026-10-08, pending the ML calibration gate (T8a, section 11). MLR (T7, T8b) DEFERRED: refused until its own gate runs. Design amended after adverse review (S3 reversed to structural-only; section 10); S1-S10 grilled ([GRILL-sem-mbco-2026-10-08.md](GRILL-sem-mbco-2026-10-08.md)) |
+| **Status** | ML IMPLEMENTED on `feature/mbco-provider` (T1-T6, T9) 2026-10-08, ML calibration gate (T8a) run, one cell below the stated lower band, decision D3 pending (section 11). MLR (T7, T8b) DEFERRED: refused until its own gate runs. Design amended after adverse review (S3 reversed to structural-only; section 10); S1-S10 grilled ([GRILL-sem-mbco-2026-10-08.md](GRILL-sem-mbco-2026-10-08.md)) |
 | **Date** | 2026-10-08 |
 | **Target** | 0.8.0 (feature; 0.7.0 shipped without it) |
 | **Closes** | SPEC-s7-sem-engine-2026-09-23.md, Q4 ("MBCO for SEM gets its own spec") |
@@ -145,3 +145,50 @@ Codex adversarial review plus a prototype (`lavaan` provider plugged into the sh
 | 4 | Probe exits 0 on failure | Accepted. Fixed in the probe. |
 
 Limits of the prototype: observed-variable models only; it shows lavaan equals glm to 7e-11 and says nothing about latent or MLR calibration, which the gates measure.
+
+## 11. ML calibration gate (T8a) results, 2026-10-08/09
+
+Normal data, MAR missingness, m = 20 `mice` imputations (`norm`), `ariv = "fixed"`,
+1000 replications per cell, 5% level, Monte Carlo se about 0.007 per cell. Observed
+model: `M ~ X + C; Y ~ M + X + C`. Latent model: three indicators (loadings .8/.7/.6),
+`Ml ~ X; Y ~ Ml + X`. Missingness is logistic in observed variables (25% or 40% of
+the mediator or its indicators). Size is the share of p < .05; null columns are (a, b).
+Harness: `dev/sim-sem-mbco-*.R`; the 25% cells ran locally, the 40% cells on hopper
+(job 4333576, 80 tasks, all COMPLETED). Seeds are `5000 + replication` throughout.
+
+| Model | n | missing | (0, .3) | (.3, 0) | (0, 0) | (0, .1) | (.1, 0) | reps failed |
+|---|---|---|---|---|---|---|---|---|
+| observed | 200 | 25% | 0.047 | 0.046 | 0.001 | 0.011 | 0.014 | 0 |
+| observed | 500 | 25% | 0.035 | 0.043 | 0.002 | 0.017 | 0.012 | 0 |
+| latent | 200 | 25% | 0.057 | 0.047 | 0.003 | 0.009 | 0.012 | 0 |
+| latent | 500 | 25% | 0.033 | 0.040 | 0.001 | 0.022 | 0.019 | 0 |
+| observed | 200 | 40% | 0.035 | 0.041 | 0.004 | 0.007 | 0.013 | 0 |
+| observed | 500 | 40% | 0.039 | 0.043 | 0.001 | 0.013 | 0.019 | 0 |
+| latent | 200 | 40% | 0.044 | 0.047 | 0.003 | 0.014 | 0.010 | 2 |
+| latent | 500 | 40% | 0.038 | 0.041 | 0.004 | 0.018 | 0.014 | 0 |
+
+Totals: 40 cells, 39,998 replications, **2 failed refits** (one in each of two
+latent n = 200, 40% cells), excluded from those cells' denominators.
+
+| Criterion (section 5) | Outcome |
+|---|---|
+| Size at most 6.5% in every cell | **Met**: 40/40; the maximum is 0.057 |
+| Single-null cells ((0, .3), (.3, 0), 16 of them) within 3.5-6.5% | **15 of 16**: latent, n = 500, 25%, (0, .3) is **0.033** (2.4 Monte Carlo se below 5%) |
+| Intersection (0, 0) | 0.001-0.004: conservative, never liberal |
+| Near-intersection ((0, .1), (.1, 0)) | 0.007-0.022: conservative |
+
+The 16 single-null cells have mean size **0.042** (range 0.033-0.057): a small, consistent
+conservative tilt, not liberality. Read as a calibration claim, "the test controls
+Type I error and is mildly conservative" is supported on all 40 cells; read as the
+literal band 3.5-6.5%, one cell misses by 0.002.
+
+**Decision D3 (author):** keep the band and reopen the spec (the section 5 rule), or
+restate the criterion. Recommendation: restate as "size at most 6.5% in every cell
+(Type I control, met 40/40), and report the single-null size with its Monte Carlo se",
+because 15/16 inside the band, a mean of 4.2% and one cell 0.002 below the edge is
+what a test with a true size near 4.2% produces at 1000 replications (about one miss
+in sixteen is expected), whereas a liberal test would show cells above 6.5%.
+
+The glm engine shares the pooling code but was not run through this grid; its only
+calibration evidence is the prototype (size 0.050 at a = 0, b = 0.3; 0.007 at the
+intersection; n = 200, m = 5, 300 replications).

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | PLAN 2026-10-09; no task started |
+| **Status** | A, B and C executed 2026-10-09 on `feature/mbco-provider` (gate 22/22); D1, D2, D4 resolved as noted in section 4; D3 pending the author (see SEM-MBCO spec section 11) |
 | **Source** | Doc-gap audit of README, vignettes, articles, reference pages, CLAUDE.md, `.STATUS` against the tree at `feature/mbco-provider` (lavaan MBCO) |
 | **Harness** | `sh docs/specs/docs-gaps-gates.sh A\|B\|C\|all`: 22 read-only checks, **22 FAIL today** (verified 2026-10-09); each phase ends when its gate is green |
 | **Related** | [SPEC-sem-mbco-2026-10-08.md](SPEC-sem-mbco-2026-10-08.md) (T9) |
@@ -82,7 +82,7 @@ Phase C waits on hopper only for C-1 and C0.
 | D1 | Refcard as an article, or also a printable one-page PDF? | **Article only** now (it is searchable and carries the executed matrix); a PDF can be rendered from it later |
 | D2 | `MIGRATION_NOTES.md`: delete or move to `docs/archive/`? | **Move to `docs/archive/`**: it is history, not guidance, and deleting loses the provenance of the extraction |
 | D3 | The calibration band (3.5-6.5%) vs the data: four of 20 cells at 25% missingness sit at or below 3.5% (0.033-0.035) but none is above 5%. Keep the band and reopen, or restate the criterion? | **Restate** as "size at most 6.5% on every cell, and 3.5-6.5% where the null is a single path with the other path strong, reporting conservative cells"; decide after the 40% cells land |
-| D4 | Phase B branch: on `feature/mbco-provider` or a separate docs branch? | **Separate** (`feature/docs-refcard` off `dev`): new pages are not part of the lavaan MBCO change and can be reviewed alone |
+| D4 | Phase B branch: on `feature/mbco-provider` or a separate docs branch? | *Resolved: kept on `feature/mbco-provider`*, because the refcard matrix test needs the lavaan MBCO code, which is not on `dev` yet. Recommendation was: **Separate** (`feature/docs-refcard` off `dev`): new pages are not part of the lavaan MBCO change and can be reviewed alone |
 
 ## 5. Risks
 
