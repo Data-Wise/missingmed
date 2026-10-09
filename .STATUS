@@ -3,7 +3,7 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-10-08
-next: v0.7.0 PREPARED 2026-10-08 (release PR pending; contents: #50 stubs deleted, #51 fit_args for glm +
+next: v0.7.0 RELEASED 2026-10-08 (tag v0.7.0 on 98e94e4; GitHub release; dev is 0.7.0.9000; contents: #50 stubs deleted, #51 fit_args for glm +
   run(...)/sensitivity_mnar(...) deprecation + optional outcome on glm). v0.6.0 RELEASED 2026-10-08 (tag v0.6.0 on d4cc31c; GitHub release; r-universe serves 0.6.0).
   Contents: engine = "lavaan" (set_md_mediation(model, outcome, fit_args) -> run -> pool ->
   infer("mc"); latent mediators; IPW with robust SEs; sensitivity_mnar mc) and the S4
