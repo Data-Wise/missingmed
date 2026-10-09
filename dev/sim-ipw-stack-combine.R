@@ -39,11 +39,12 @@ ipw_summarize <- function(res) {
     st <- tab[tab$form == fm & tab$arm == "stacked", ]
     kn <- tab[tab$form == fm & tab$arm == "known_hc3", ]
     mm <- merge(st, kn, by = c("dgm", "n", "miss", "point"), suffixes = c("_s", "_k"))
-    c1 <- all(mm$reject_s[mm$is_null_s] <= SIZE_BAR) && all(mm$cover_s[!mm$is_null_s] >= COV_BAR)
-    c1_known <- all(mm$reject_k[mm$is_null_s] <= SIZE_BAR) && all(mm$cover_k[!mm$is_null_s] >= COV_BAR)
-    c2 <- all(mm$reject_s[mm$is_null_s] - mm$reject_k[mm$is_null_s] <= DRIFT) &&
-      all(mm$cover_s[!mm$is_null_s] - mm$cover_k[!mm$is_null_s] >= -DRIFT)
-    c3 <- all(mm$reject_s[!mm$is_null_s] - mm$reject_k[!mm$is_null_s] >= -DRIFT)
+    # a NaN (every replication of an arm dropped) must FAIL a criterion, not crash it
+    c1 <- isTRUE(all(mm$reject_s[mm$is_null_s] <= SIZE_BAR) && all(mm$cover_s[!mm$is_null_s] >= COV_BAR))
+    c1_known <- isTRUE(all(mm$reject_k[mm$is_null_s] <= SIZE_BAR) && all(mm$cover_k[!mm$is_null_s] >= COV_BAR))
+    c2 <- isTRUE(all(mm$reject_s[mm$is_null_s] - mm$reject_k[mm$is_null_s] <= DRIFT) &&
+      all(mm$cover_s[!mm$is_null_s] - mm$cover_k[!mm$is_null_s] >= -DRIFT))
+    c3 <- isTRUE(all(mm$reject_s[!mm$is_null_s] - mm$reject_k[!mm$is_null_s] >= -DRIFT))
     pf <- pair[pair$form == fm, ]
     mm2 <- merge(pf, mm[, c("dgm", "n", "miss", "point", "reject_s", "reject_k", "width_s", "width_k", "is_null_s")],
       by = c("dgm", "n", "miss", "point"))
@@ -116,6 +117,11 @@ selftest <- function() {
   stopifnot(dr$crit$conditional_cells[dr$crit$form == "spv"], !dr$crit$conditional_cells[dr$crit$form == "uj"])
   nm <- ipw_summarize(mk(modelok = FALSE))
   stopifnot(!nm$control2)
+  # a cell where every replication of the stacked arm failed must fail the criteria, not crash
+  allfail <- mk(); i <- allfail$arm == "stacked" & allfail$form == "uj" & allfail$dgm == "std" & allfail$n == 200 & allfail$miss == .25 & allfail$point == "P1"
+  allfail$error[i] <- "stacked variance failed"
+  af <- ipw_summarize(allfail)
+  stopifnot(!af$crit$C1[af$crit$form == "uj"], af$crit$conditional_cells[af$crit$form == "uj"])
   cat("selftest OK: clean data -> STACKED DEFAULT; one liberal cell -> that form only fails C1/C2 and goes opt-in; 4% dropped column flagged conditional; blind control arm -> control 2 FAIL\n")
 }
 
