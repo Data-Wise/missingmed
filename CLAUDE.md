@@ -24,7 +24,7 @@ The **S4 API was removed in 0.6.0**: `set_sem`/`run_sem`/`pool_sem`/`fit_model`/
 
 - `R/MDMediationData.R`, `R/MDMediationFit.R`, `R/MDMediationResult.R` — the three S7 classes (each calls `S7::S4_register()`); `R/zzz.R` runs `S7::methods_register()`.
 - `R/set_md_mediation.R`, `R/run.R`, `R/pool.R`, `R/infer.R`, `R/accessors.R` — the S7 pipeline.
-- `R/ipw_run.R` — IPW weight estimation + fit; `R/mbco_mi.R` — D4-stacked MBCO + `mbco_d4()`; `R/MbcoMIResult.R` — its result class. That class is **not** `S4_register()`ed (fails for a `class_double` parent), so its `print` is registered on `base::print` (the namespace `print` is an S4 generic via the S4 classes (removed in 0.6.0)), and `[`/`[[`/`print` use the functional `` S7::`method<-`() `` form.
+- `R/ipw_run.R` — IPW weight estimation + fit; `R/mbco_mi.R` — D4-stacked MBCO + `mbco_d4()`; `.mm_d4_pool()` is the estimator-free pooling and takes a **log-likelihood provider** (one dataset -> `c(full, a, b, k_a, k_b)`): `.mm_glm_provider()` here, `.mm_lav_provider()` in `R/mbco_lavaan.R` (lavaan engine, ML only; nulls built from `parTable()` of the fitted full model); `R/MbcoMIResult.R` — its result class. That class is **not** `S4_register()`ed (fails for a `class_double` parent), so its `print` is registered on `base::print` (the namespace `print` is an S4 generic via the S4 classes (removed in 0.6.0)), and `[`/`[[`/`print` use the functional `` S7::`method<-`() `` form.
 - `R/methods-output.R` (print/summary/tidy), `R/reexports.R` (`broom::tidy`).
 
 ## Dependencies (gotchas)

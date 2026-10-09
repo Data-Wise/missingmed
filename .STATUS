@@ -2,8 +2,8 @@ status: active
 priority: --
 progress: 100
 kind: package
-updated: 2026-10-08
-next: v0.7.0 RELEASED 2026-10-08 (tag v0.7.0 on 98e94e4; GitHub release; dev is 0.7.0.9000; contents: #50 stubs deleted, #51 fit_args for glm +
+updated: 2026-10-09
+next: UNMERGED (2026-10-09), branch feature/mbco-provider on top of feature/mbco-convergence-check: (1) fix: MBCO refuses non-converged glm refits (SPEC-mbco-convergence-2026-10-08.md); (2) MBCO for engine = "lavaan" (ML only; infer, sensitivity_mnar, mbco_d4(model =)), SPEC-sem-mbco-2026-10-08.md T1-T6, T9; MLR (T7/T8b) deferred; (3) docs plan A and B done (PLAN-docs-gaps-2026-10-09.md; refcard + executed matrix test). ML calibration gate: 25% missingness done locally (20 cells, none failed, 4 n = 500 cells at 0.033-0.043), 40% missingness running on hopper job 4333576 (~/projects/missingmed_sim). Then: fold results into the SEM spec, plan C-1/C0. Before that: v0.7.0 RELEASED 2026-10-08 (tag v0.7.0 on 98e94e4; GitHub release; dev is 0.7.0.9000; contents: #50 stubs deleted, #51 fit_args for glm +
   run(...)/sensitivity_mnar(...) deprecation + optional outcome on glm). v0.6.0 RELEASED 2026-10-08 (tag v0.6.0 on d4cc31c; GitHub release; r-universe serves 0.6.0).
   Contents: engine = "lavaan" (set_md_mediation(model, outcome, fit_args) -> run -> pool ->
   infer("mc"); latent mediators; IPW with robust SEs; sensitivity_mnar mc) and the S4
