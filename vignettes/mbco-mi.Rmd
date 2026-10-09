@@ -131,7 +131,9 @@ How to read it:
 - `p` is the p-value of \(H_0: a b = 0\).
 - `r4` is the relative increase in variance due to the missing data, the
   between-imputation inflation that deflates `D4`. It is floored at 0.
-- `nu` is the denominator degrees of freedom. It is `Inf` when `r4` is 0.
+- `nu` is the denominator degrees of freedom, \(k(K-1)(1 + 1/r_4)^2\) (Chan &
+  Meng, 2022, eq. 2.15 of arXiv:1711.08822, the same as `mitml::testModels(method = "D4")`). It is
+  `Inf` when `r4` is 0.
 - `d_S` is the likelihood-ratio statistic of the stacked data, divided by
   \(K\).
 
@@ -300,7 +302,8 @@ Meng, 2022; Grund, Lüdtke & Robitzsch, 2023):
 \[
 d_S = \frac{\text{LRT(stacked data)}}{K}, \quad
 r_4 = \max\!\left(0, \tfrac{K+1}{k(K-1)}(\bar d - d_S)\right), \quad
-D_4 = \frac{d_S}{k(1 + r_4)} \sim F_{k,\nu},
+D_4 = \frac{d_S}{k(1 + r_4)} \sim F_{k,\nu}, \quad
+\nu = k(K-1)\left(1 + \frac{1}{r_4}\right)^2,
 \]
 
 where \(\bar d = K^{-1} \sum_{i} d_{i}\) averages the per-imputation

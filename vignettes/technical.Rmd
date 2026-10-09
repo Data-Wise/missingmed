@@ -461,7 +461,8 @@ LRT statistics with the **D4** rule (Chan & Meng 2022; Grund et al. 2023):
 \[
 d_S = \tfrac{\text{LRT(stacked data)}}{K},\quad
 r_4 = \max\!\Big(0, \tfrac{K+1}{k(K-1)}(\bar d - d_S)\Big),\quad
-D_4 = \tfrac{d_S}{k(1+r_4)} \sim F_{k,\nu}.
+D_4 = \tfrac{d_S}{k(1+r_4)} \sim F_{k,\nu},\quad
+\nu = k(K-1)\big(1 + \tfrac1{r_4}\big)^2
 \]
 
 The `ariv` argument sets which per-imputation statistics \(d_i\) enter
@@ -500,9 +501,8 @@ d_1 = 6.0,\quad d_2 = 7.5,\quad d_3 = 9.0
 **Step 3 -- deflate.**
 \(D_4 = \tfrac{d_S}{k(1+r_4)} = \tfrac{6.0}{1 \times 4} = \mathbf{1.5}\)
 
-**Step 4 -- find the reference distribution.** Here \(k(K-1) = 2\), which is
-not \(> 4\), so the small-sample branch applies:
-\(\nu = \tfrac12 \cdot 2 \cdot (1 + \tfrac11)(1 + \tfrac13)^2 = 2(4/3)^2
+**Step 4 -- find the reference distribution.** The denominator degrees of
+freedom are \(\nu = k(K-1)(1 + 1/r_4)^2 = 2(1 + \tfrac13)^2 = 2(4/3)^2
 = \mathbf{3.556}\), giving
 \(p = \Pr[F_{1,\,3.556} > 1.5] = \mathbf{0.296}\).
 

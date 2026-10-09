@@ -63,7 +63,9 @@ and \code{X:M} from \code{Y ~ X * M}). The D4 statistic is
 \eqn{D_4 = d_S / (k (1 + r_4))}, referred to \eqn{F(k, \nu)}, where
 \eqn{d_S} is the statistic on the stacked data divided by \eqn{K} and
 \eqn{r_4} is the relative increase in variance estimated from the
-per-imputation statistics. \code{ariv} chooses how those statistics are formed:
+per-imputation statistics, and \eqn{\nu = k (K - 1) (1 + 1 / r_4)^2}
+(Chan and Meng 2022, eq. 2.15 of arXiv:1711.08822; the same reference distribution as
+\code{mitml::testModels(method = "D4")}). \code{ariv} chooses how those statistics are formed:
 \itemize{
 \item \code{"fixed"} (default): each imputation's statistic is computed on the branch
 (\code{a = 0} or \code{b = 0}) that the \strong{stacked} constrained fit selected.
