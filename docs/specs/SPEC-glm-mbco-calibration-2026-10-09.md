@@ -93,7 +93,7 @@ Checkpoint after T2 (the naive control inflates, k = 2 appears) and after T3 (th
 
 ## 8. Results (2026-10-09)
 
-Hopper job 4333687: 396 tasks, all COMPLETED, 132 cells x 1000 replications (131,997 replications reported by the combine script; 0.0-0.4% refused). Package: missingmed 0.8.0.9000 built from `dev` (`0e1ca7e`, with the Chan and Meng denominator df of #62). Pilot (T3): job 4333675, 12 tasks. Cell-level table: [RESULTS-glm-mbco-calibration-2026-10-09.txt](RESULTS-glm-mbco-calibration-2026-10-09.txt).
+Hopper job 4333687: 396 tasks, all COMPLETED, 132 cells x 1000 replications (132,000 replications, 14 refused, all in the `rare_y` block; at most 0.4% in any cell). Package: missingmed 0.8.0.9000 built from `dev` (`0e1ca7e`, with the Chan and Meng denominator df of #62). Pilot (T3): job 4333675, 12 tasks. Cell-level table: [RESULTS-glm-mbco-calibration-2026-10-09.txt](RESULTS-glm-mbco-calibration-2026-10-09.txt).
 
 | Criterion | Outcome |
 |---|---|
@@ -101,12 +101,12 @@ Hopper job 4333687: 396 tasks, all COMPLETED, 132 cells x 1000 replications (131
 | C2 same bound at m = 5 and 10 | **PASS**: maximum 0.046 (`bin_y`, m = 5) |
 | C3 power at least 50% in n = 500 main cells | **FAIL as written**: 15 of 16 cells pass; `bin_m`, n = 500, 40% missing has power **0.433** (the same family at 25% missing: 0.593) |
 | C4 refusals at most 1% (main, small K) | **PASS**: 0.000 everywhere; `rare_y` refusals 0-0.4% (reported) |
-| C5 positive control | **PASS**: the naive pooled test has size 0.111 and 0.244 in the `bin_y`, n = 200, 40% single-null cells, and 0.12-0.34 across single-null cells generally. The harness sees liberal behavior |
+| C5 positive control | **PASS**: the naive pooled test has size 0.111 and 0.244 in the `bin_y`, n = 200, 40% single-null cells, and 0.074-0.452 across all single-null cells. The harness sees liberal behavior |
 | C6 `ariv = "own"` (reported) | **Liberal in 23 of 110 null cells**, up to **0.138** (`pois_y`, n = 200, 40%, (.3, 0)); mostly non-Gaussian families at 40% missing. See below |
 
 **C3.** The pre-registered bound is missed by one cell, and the miss is about power, not validity. A binary mediator with `a = .3` on the log-odds scale carries little information, and power falls with missingness (0.593 at 25%, 0.433 at 40%) and rises with n (0.101 at n = 200, 40%). Nothing in the data suggests a dead test: the test rejects 99-100% in the `gauss_xm` n = 500 power cells and 90-98% in `pois_y`. Under the rule that each criterion can fail, this one did; it is reported as a FAIL, not restated.
 
-**Type I error.** The default (`ariv = "fixed"`) is conservative throughout: single-null cells average about 3.5%, never above 5.7%. That matches the lavaan result (maximum 0.057, single-null mean 4.2%). The k = 2 branch (`gauss_xm`, b = th = 0 nulls) is covered: mean k = 1.95 in the b-null cells, sizes 0.037-0.050 there.
+**Type I error.** The default (`ariv = "fixed"`) is conservative throughout: single-null cells average about 3.5%, never above 5.7%. That matches the lavaan result (maximum 0.057, single-null mean 4.2%). The k = 2 branch (`gauss_xm`, b = th = 0 nulls) is covered: mean k = 1.97 in the b-null cells, sizes 0.020-0.037 there.
 
 **`ariv = "own"`.** The 0.4.0-compatible setting exceeds 6.5% in 23 of 110 null cells (maximum 0.138), concentrated in `pois_y` and the binary-outcome cells at 40% missing, while `fixed` stays at or below 5.7% on the same replications. This is the first calibration evidence on `"own"`; it supports the default and argues for a documentation warning (see Decisions).
 
