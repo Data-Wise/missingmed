@@ -28,7 +28,11 @@ either \code{delta} or \code{ums}, not both.}
 \item{target}{Name of the variable to shift. Defaults to the mediator. Must
 be \code{NULL} when \code{delta} is a data frame.}
 
-\item{type}{Inference per rung: \code{"mc"} (default) or \code{"mbco"}.}
+\item{type}{Inference per rung: \code{"mc"} (default) or \code{"mbco"}. \code{"mbco"} works
+for \code{engine = "glm"} and for \code{engine = "lavaan"} (maximum likelihood only,
+see \code{\link[=infer]{infer()}}). If an MBCO refit does not converge at a rung, the sweep
+stops and the error names the rung and its delta; no partial result is
+returned.}
 
 \item{seed}{Integer seed pinned across rungs. Defaults to the seed stored in
 the \code{mids} object, or \code{20260822L} when that is \code{NA}. A fractional value is

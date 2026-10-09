@@ -177,6 +177,62 @@
   c(D4 = D4, p = stats::pf(D4, k, nu, lower.tail = FALSE), r4 = r4, nu = nu, d_S = d_S)
 }
 
+# A log-likelihood provider is a function of ONE dataset returning the named
+# numeric c(full, a, b, k_a, k_b): the log-likelihoods of the full model and of
+# the a = 0 and b = 0 nulls, and the number of parameters each null removes.
+# Everything downstream (branch union, stacked fit, D4, the F reference, the
+# branch diagnostics) is estimator-free and needs only this. A provider refuses,
+# by error, a fit it cannot trust (non-convergence); the pooling adds the
+# dataset to the message. SPEC-sem-mbco-2026-10-08.md, S8.
+.mm_glm_provider <- function(formula_y, formula_m, family_y, family_m,
+                             treatment, mediator) {
+  force(formula_y)
+  force(formula_m)
+  force(family_y)
+  force(family_m)
+  function(d) {
+    c(
+      .mm_mbco_lls(d, formula_y, formula_m, family_y, family_m, treatment, mediator),
+      k_a = .mm_drop_df(formula_m, treatment, d),
+      k_b = .mm_drop_df(formula_y, mediator, d)
+    )
+  }
+}
+
+# T and the df k of the WINNING branch, from one provider result. Ties go to the
+# a = 0 branch.
+.mm_fit_T_k <- function(fits) {
+  a_wins <- fits[["a"]] >= fits[["b"]]
+  c(T = .mm_mbco_T_from_lls(fits), k = if (a_wins) fits[["k_a"]] else fits[["k_b"]])
+}
+
+# One warning for every fit a provider flagged as an improper solution (attribute
+# "improper": the names of the flagged fits), naming the datasets.
+.mm_warn_improper <- function(fits, where) {
+  flagged <- vapply(fits, function(f) length(attr(f, "improper")) > 0L, NA)
+  if (!any(flagged)) {
+    return(invisible(NULL))
+  }
+  detail <- vapply(which(flagged), function(i) {
+    paste0(where[[i]], " (", paste(attr(fits[[i]], "improper"), collapse = ", "), ")")
+  }, "")
+  warning("MBCO refits gave an improper solution (lavaan's post.check failed) in ",
+    paste(detail, collapse = "; "), ". The test proceeds; check the model for ",
+    "a negative variance or a boundary estimate.",
+    call. = FALSE
+  )
+}
+
+.mm_check_K <- function(K) {
+  if (K < 2) {
+    stop("D4 pooling of the MBCO statistic needs at least 2 imputations; the ",
+      "supplied object has ", K, ". Re-impute with m >= 2, or, for a single ",
+      "complete dataset, use complete-data MBCO (e.g. RMediation::mbco()).",
+      call. = FALSE
+    )
+  }
+}
+
 # D4-stacked MBCO across a list of imputed datasets.
 #
 # ariv = "own" pools each imputation's statistic on its OWN winning branch
@@ -191,13 +247,7 @@
                         treatment, mediator, ariv = c("fixed", "own")) {
   ariv <- match.arg(ariv)
   K <- length(implist)
-  if (K < 2) {
-    stop("D4 pooling of the MBCO statistic needs at least 2 imputations; the ",
-      "supplied object has ", K, ". Re-impute with m >= 2, or, for a single ",
-      "complete dataset, use complete-data MBCO (e.g. RMediation::mbco()).",
-      call. = FALSE
-    )
-  }
+  .mm_check_K(K)
   # NA left in a variable that a constraint DROPS (e.g. a mids treatment
   # imputed with method "") makes glm() keep rows in the constrained fit that
   # the full fit dropped, so 2 * (llF - llC) compares different samples and is
@@ -222,11 +272,22 @@
       )
     }
   }
+  .mm_d4_pool(implist, .mm_glm_provider(
+    formula_y, formula_m, family_y, family_m, treatment, mediator
+  ), ariv)
+}
+
+# The estimator-free part of D4-stacked MBCO: `provider` (see above) supplies the
+# log-likelihood triple and the df of each null for one dataset.
+.mm_d4_pool <- function(implist, provider, ariv = c("fixed", "own")) {
+  ariv <- match.arg(ariv)
+  K <- length(implist)
+  .mm_check_K(K)
   # A fit that fails in one dataset (e.g. a factor with a single level there)
-  # names that dataset; glm()'s own message is kept verbatim.
+  # names that dataset; the provider's own message is kept verbatim.
   lls_of <- function(d, where) {
     tryCatch(
-      .mm_mbco_lls(d, formula_y, formula_m, family_y, family_m, treatment, mediator),
+      provider(d),
       error = function(e) {
         stop("Fitting the MBCO models failed in ", where, ": ",
           conditionMessage(e),
@@ -238,15 +299,14 @@
   lls <- lapply(seq_len(K), function(i) lls_of(implist[[i]], paste("imputation", i)))
   stacked <- do.call(rbind, implist)
   lls_S <- lls_of(stacked, "the stacked data")
+  .mm_warn_improper(c(lls, list(lls_S)), c(paste("imputation", seq_len(K)), "the stacked data"))
   a_wins <- vapply(lls, function(l) l[["a"]] >= l[["b"]], logical(1))
   stacked_a <- lls_S[["a"]] >= lls_S[["b"]]
 
   if (ariv == "own") {
-    per <- vapply(seq_len(K), function(i) {
-      .mm_mbco_T_k(lls[[i]], implist[[i]], formula_y, formula_m, treatment, mediator)
-    }, numeric(2))
+    per <- vapply(lls, .mm_fit_T_k, numeric(2))
     d_k <- per[1L, ]
-    st <- .mm_mbco_T_k(lls_S, stacked, formula_y, formula_m, treatment, mediator)
+    st <- .mm_fit_T_k(lls_S)
     d_S <- unname(st[["T"]]) / K
     # D4 assumes one k for the whole pooling. The branch is data-dependent, so
     # if imputations disagree about which one wins -- and therefore about how
@@ -274,11 +334,9 @@
     # factor level absent from one imputation lowers the full and the nulled
     # rank alike when the factor enters as a main effect, leaving k unchanged.
     # k differs only when the sparse level interacts with the nulled path.
-    f_br <- if (stacked_a) formula_m else formula_y
-    v_br <- if (stacked_a) treatment else mediator
-    k_S <- .mm_drop_df(f_br, v_br, stacked)
+    k_S <- lls_S[[paste0("k_", key)]]
     for (i in seq_len(K)) {
-      k_i <- .mm_drop_df(f_br, v_br, implist[[i]])
+      k_i <- lls[[i]][[paste0("k_", key)]]
       if (k_i != k_S) {
         stop("Under ariv = \"fixed\", the ", key, " = 0 constraint removes ",
           k_i, " parameter", if (k_i == 1) "" else "s", " from the ",
@@ -311,7 +369,8 @@
 # n in every imputation), and a model variable that is numeric in one
 # imputation but a factor or character in another was silently coerced by
 # rbind() for the stacked fit. Integer versus double is not a type change.
-.mm_check_implist <- function(implist, formula_y, formula_m, treatment, mediator) {
+.mm_check_implist <- function(implist, formula_y, formula_m, treatment, mediator,
+                              vars = NULL) {
   first <- implist[[1L]]
   cols <- names(first)
   n <- nrow(first)
@@ -325,7 +384,8 @@
       call. = FALSE
     )
   }
-  vars <- intersect(unique(c(all.vars(formula_y), all.vars(formula_m))), cols)
+  if (is.null(vars)) vars <- unique(c(all.vars(formula_y), all.vars(formula_m)))
+  vars <- intersect(vars, cols)
   kind <- function(x) if (is.numeric(x)) "numeric" else class(x)[1L]
   kinds <- vapply(first[vars], kind, character(1))
   for (i in seq_along(implist)[-1L]) {
@@ -434,6 +494,15 @@
 #'   (default [stats::gaussian()]); models are fit with [stats::glm()].
 #' @param treatment,mediator Names of the treatment and mediator variables.
 #' @param ariv `"fixed"` (default) or `"own"`; see Details.
+#' @param model,outcome,fit_args For a lavaan SEM, in place of `formula_y`,
+#'   `formula_m` and the families: a lavaan model syntax string, the outcome
+#'   variable name, and a named list of lavaan options (as in
+#'   [set_md_mediation()]). `model` cannot be combined with the formula or
+#'   family arguments. The tested paths are the regressions `mediator ~
+#'   treatment` (a) and `outcome ~ mediator` (b); a latent mediator uses its
+#'   structural rows, and its measurement model and any direct effects of its
+#'   indicators on the outcome stay free. Only `estimator = "ML"` (the default)
+#'   is supported, with no `group`, `ordered` or `sampling.weights`.
 #' @return An [MbcoMIResult]: the named numeric `c(D4, p, r4, nu, d_S)` with
 #'   the branch diagnostics as properties.
 #' @references
@@ -455,10 +524,16 @@
 #' mbco_d4(implist, Y ~ X + M, M ~ X,
 #'   treatment = "X", mediator = "M", ariv = "fixed"
 #' )
+#'
+#' # The same test for a lavaan SEM, from a model string
+#' mbco_d4(implist,
+#'   model = "M ~ X\nY ~ M + X", treatment = "X", mediator = "M", outcome = "Y"
+#' )
 #' @export
 mbco_d4 <- function(implist, formula_y, formula_m,
                     family_y = stats::gaussian(), family_m = stats::gaussian(),
-                    treatment, mediator, ariv = c("fixed", "own")) {
+                    treatment, mediator, ariv = c("fixed", "own"),
+                    model = NULL, outcome = NULL, fit_args = list()) {
   ariv <- match.arg(ariv)
   if (!is.list(implist) || is.data.frame(implist) ||
     !all(vapply(implist, is.data.frame, logical(1)))) {
@@ -466,6 +541,43 @@ mbco_d4 <- function(implist, formula_y, formula_m,
       "mice::complete(imp, \"all\").",
       call. = FALSE
     )
+  }
+  # An empty list would fail below on implist[[1]] before the K check.
+  if (!length(implist)) .mm_check_K(0L)
+  if (!is.null(model)) {
+    # lavaan SEM: `model` replaces the two formulas and the families.
+    given <- c(
+      formula_y = !missing(formula_y), formula_m = !missing(formula_m),
+      family_y = !missing(family_y), family_m = !missing(family_m)
+    )
+    if (any(given)) {
+      stop("`model` cannot be combined with ",
+        paste0("`", names(given)[given], "`", collapse = ", "), ": give either ",
+        "`formula_y` and `formula_m` (glm), or `model` and `outcome` (lavaan).",
+        call. = FALSE
+      )
+    }
+    if (is.null(outcome)) {
+      stop("`outcome` (the outcome variable name) is required with `model`.",
+        call. = FALSE
+      )
+    }
+    .check_lavaan_spec(model, treatment, mediator, outcome, fit_args, implist[[1]])
+    if (length(implist) >= 2L) {
+      ov <- lavaan::lavNames(lavaan::lavaanify(model), "ov")
+      # A latent mediator is not a data column.
+      .mm_check_implist(unname(implist), NULL, NULL, treatment,
+        if (mediator %in% ov) mediator, vars = ov
+      )
+    }
+    .mm_lav_check_args(fit_args)
+    .mm_lav_check_rows(model, treatment, mediator, outcome)
+    return(.mm_d4_pool(unname(implist), .mm_lav_provider(
+      model, treatment, mediator, outcome, fit_args
+    ), ariv))
+  }
+  if (!is.null(outcome) || length(fit_args)) {
+    stop("`outcome` and `fit_args` apply to `model` (lavaan) only.", call. = FALSE)
   }
   formula_y <- .expand_dot(formula_y, implist[[1]])
   formula_m <- .expand_dot(formula_m, implist[[1]])

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | APPROVED DESIGN, amended after adverse review 2026-10-08 (S3 reversed to structural-only; calibration gates added; see section 10); S1-S10 grilled ([GRILL-sem-mbco-2026-10-08.md](GRILL-sem-mbco-2026-10-08.md)); calibration and MLR are gated on simulations; not implemented |
+| **Status** | ML IMPLEMENTED on `feature/mbco-provider` (T1-T6, T9) 2026-10-08, ML calibration gate (T8a) PASSED under the restated criterion (D3 resolved 2026-10-09, section 11). MLR (T7, T8b) DEFERRED: refused until its own gate runs. Design amended after adverse review (S3 reversed to structural-only; section 10); S1-S10 grilled ([GRILL-sem-mbco-2026-10-08.md](GRILL-sem-mbco-2026-10-08.md)) |
 | **Date** | 2026-10-08 |
 | **Target** | 0.8.0 (feature; 0.7.0 shipped without it) |
 | **Closes** | SPEC-s7-sem-engine-2026-09-23.md, Q4 ("MBCO for SEM gets its own spec") |
@@ -79,12 +79,12 @@ Each criterion must be able to fail; the probe's PASS lines are the seed tests.
 - [ ] **Cross-engine parity.** On an observed path model (no latent variable), `infer(type = "mbco")` with `engine = "lavaan"` gives D4, p, `r4`, `nu`, `k` equal to the glm engine's to 1e-6, on real `mice` imputations (m = 5), under both `ariv` settings.
 - [ ] **Single-dataset oracle.** With K identical imputations, d_S equals `lavTestLRT()` of the branch that wins; `r4 = 0`.
 - [ ] **Latent mediator.** Runs end to end; each null fit equals the `0*` syntax oracle to 1e-9, `k = 1` on both branches. With a direct `Y ~ m1` row added, `b = 0` still fixes only `Y ~ Ml` (`k = 1`), the direct row stays free, and the fit equals the oracle that fixes only `Y ~ Ml` (planted defect: a null that also fixes `Y ~ m1` must fail this check).
-- [ ] **Planted defects are caught:** swapping the a and b rows; fixing the wrong row of a duplicated regression; building the table from a bare `lavaanify()` (the trap, in section 2).
+- [ ] **Planted defects are caught:** swapping the a and b rows (caught **only** by `stacked_branch` and `p_branch_a`: the union statistic and k = 1 are symmetric in a and b, so D4 and p cannot see it; asserted in `test-mbco-provider.R`, and the lavaan tests must assert the diagnostics too); fixing the wrong row of a duplicated regression; building the table from a bare `lavaanify()` (the trap, in section 2).
 - [ ] **Complete-data oracle (optional, `skip_if_not_installed("OpenMx")`).** On an observed model with K identical copies, p is within 1e-4 of `RMediation::mbco()`.
 - [ ] **Refusals** before fitting, each naming the option: IPW, `MLM`, `WLSMV`, `ordered`, `group`, `sampling_weights`; a model without exactly one `mediator ~ treatment` row and one `outcome ~ mediator` row.
 - [ ] **Convergence:** a non-converging null fit refuses naming the dataset and the fit; an improper solution warns once naming the datasets.
 - [ ] **`mbco_d4(model = )`** equals `infer(type = "mbco")` on the same imputed data to 1e-12; supplying `model` together with a formula errors.
-- [ ] **ML calibration gate (medsim; blocks the 0.8.0 release).** Normal data, MAR missingness, m = 20, 1000 replications per cell. Cells: DGP {observed path model; latent mediator, 3 indicators, loadings .8/.7/.6} x n {200, 500} x missingness {25%, 40% of the mediator or its indicators, logistic in observed variables} x null {(a, b) = (0, .3), (.3, 0), (0, 0), (0, .1), (.1, 0)}. Pass: single-null cells (0, .3) and (.3, 0) have size in 3.5-6.5% at the 5% level (about 2 Monte Carlo se at 1000 reps); intersection and near-intersection cells have size at most 6.5% (conservative is allowed and reported). Report size per cell, never pooled. Fail: the release waits and the spec is reopened.
+- [ ] **ML calibration gate (medsim; blocks the 0.8.0 release).** Normal data, MAR missingness, m = 20, 1000 replications per cell. Cells: DGP {observed path model; latent mediator, 3 indicators, loadings .8/.7/.6} x n {200, 500} x missingness {25%, 40% of the mediator or its indicators, logistic in observed variables} x null {(a, b) = (0, .3), (.3, 0), (0, 0), (0, .1), (.1, 0)}. Pass (as restated 2026-10-09, D3): size at most 6.5% at the 5% level in **every** cell, including the intersection and near-intersection cells (conservative is allowed and reported); the size of the single-null cells (0, .3) and (.3, 0) is reported per cell with its Monte Carlo se (about 0.007 at 1000 reps) and is not held to a lower band. The original criterion also required 3.5-6.5% in those cells. Report size per cell, never pooled. Fail: the release waits and the spec is reopened.
 - [ ] **MLR simulation gate (medsim; run before enabling MLR).** The same cells with non-normal data (skewed: chi-square(4) errors rescaled to unit variance; heavy-tailed: t(5) errors). The statistic is fixed in advance, so the gate evaluates one formula: per-imputation and stacked-data scaled difference tests (Satorra-Bentler 2001 via `lavTestLRT`), D4 applied to the naive LRTs, then divided by the arithmetic mean of the per-imputation scaling corrections of the winning branch (the `lavaan.mi` `pool.robust = FALSE` construction); D2 (`pool.robust = TRUE`) is run as a secondary comparison only. Pass criterion per cell as for ML, and every cell must pass: a failure in any cell keeps MLR refused in 0.8.0 and gives it its own spec.
 - [ ] **`sensitivity_mnar(type = "mbco")`** runs for lavaan and matches the glm engine rung by rung on an observed model; the Q4 refusal text is gone.
 - [ ] **No regression:** every existing glm MBCO test passes unchanged.
@@ -100,9 +100,9 @@ Each criterion must be able to fail; the probe's PASS lines are the seed tests.
 | T4 | Refusals (S4), convergence and improper-solution handling (S5, S6) | M | T2 |
 | T5 | Wire `infer()` and `sensitivity_mnar()`; remove the Q4 refusal; update its tests | S | T2, T4 |
 | T6 | `mbco_d4(model = )` (S7), with its parity test | S | T5 |
-| T7 | MLR path: scaled difference per imputation and on the stacked data, experimental warning | M | T4 |
+| T7 | MLR path: scaled difference per imputation and on the stacked data, experimental warning. **Deferred**: not implemented; `estimator = "MLR"` is refused naming the option | M | T4 |
 | T8a | ML calibration simulation in `medsim` (observed and latent, incl. intersection cells); blocks 0.8.0 | M | T5 |
-| T8b | MLR size simulation in `medsim` (the gate); decide enable or refuse | M | T7, T8a |
+| T8b | MLR size simulation (the gate); decide enable or refuse. **Deferred** with T7; runs on hopper (`dev/sim-sem-mbco-calibration*.R` is the ML harness to extend) | M | T7, T8a |
 | T9 | NEWS, `lavaan-sem` article section, `?infer` and `?mbco_d4` help (state: conservative at a = b = 0; direct indicator effects are not constrained) | S | T6, T8a |
 
 Checkpoint after T3: parity and latent oracle green. Checkpoint after T5: full suite and `R CMD check`. Checkpoint after T8a: ML calibration decides whether 0.8.0 ships. Checkpoint after T8b: the MLR simulation decides whether MLR ships; ML ships as 0.8.0 without waiting on it (Q5).
@@ -145,3 +145,52 @@ Codex adversarial review plus a prototype (`lavaan` provider plugged into the sh
 | 4 | Probe exits 0 on failure | Accepted. Fixed in the probe. |
 
 Limits of the prototype: observed-variable models only; it shows lavaan equals glm to 7e-11 and says nothing about latent or MLR calibration, which the gates measure.
+
+## 11. ML calibration gate (T8a) results, 2026-10-08/09
+
+Normal data, MAR missingness, m = 20 `mice` imputations (`norm`), `ariv = "fixed"`,
+1000 replications per cell, 5% level, Monte Carlo se about 0.007 per cell. Observed
+model: `M ~ X + C; Y ~ M + X + C`. Latent model: three indicators (loadings .8/.7/.6),
+`Ml ~ X; Y ~ Ml + X`. Missingness is logistic in observed variables (25% or 40% of
+the mediator or its indicators). Size is the share of p < .05; null columns are (a, b).
+Harness: `dev/sim-sem-mbco-*.R`; the 25% cells ran locally, the 40% cells on hopper
+(job 4333576, 80 tasks, all COMPLETED). Seeds are `5000 + replication` throughout.
+
+| Model | n | missing | (0, .3) | (.3, 0) | (0, 0) | (0, .1) | (.1, 0) | reps failed |
+|---|---|---|---|---|---|---|---|---|
+| observed | 200 | 25% | 0.047 | 0.046 | 0.001 | 0.011 | 0.014 | 0 |
+| observed | 500 | 25% | 0.035 | 0.043 | 0.002 | 0.017 | 0.012 | 0 |
+| latent | 200 | 25% | 0.057 | 0.047 | 0.003 | 0.009 | 0.012 | 0 |
+| latent | 500 | 25% | 0.033 | 0.040 | 0.001 | 0.022 | 0.019 | 0 |
+| observed | 200 | 40% | 0.035 | 0.041 | 0.004 | 0.007 | 0.013 | 0 |
+| observed | 500 | 40% | 0.039 | 0.043 | 0.001 | 0.013 | 0.019 | 0 |
+| latent | 200 | 40% | 0.044 | 0.047 | 0.003 | 0.014 | 0.010 | 2 |
+| latent | 500 | 40% | 0.038 | 0.041 | 0.004 | 0.018 | 0.014 | 0 |
+
+Totals: 40 cells, 39,998 replications, **2 failed refits** (one in each of two
+latent n = 200, 40% cells), excluded from those cells' denominators.
+
+| Criterion (section 5) | Outcome |
+|---|---|
+| Size at most 6.5% in every cell | **Met**: 40/40; the maximum is 0.057 |
+| Single-null cells ((0, .3), (.3, 0), 16 of them) within 3.5-6.5% | **15 of 16**: latent, n = 500, 25%, (0, .3) is **0.033** (2.4 Monte Carlo se below 5%) |
+| Intersection (0, 0) | 0.001-0.004: conservative, never liberal |
+| Near-intersection ((0, .1), (.1, 0)) | 0.007-0.022: conservative |
+
+The 16 single-null cells have mean size **0.042** (range 0.033-0.057): a small, consistent
+conservative tilt, not liberality. Read as a calibration claim, "the test controls
+Type I error and is mildly conservative" is supported on all 40 cells; read as the
+literal band 3.5-6.5%, one cell misses by 0.002.
+
+**Decision D3 (author, 2026-10-09): restate the criterion**, as in section 5: size at
+most 6.5% in every cell (Type I control, met 40/40), with the single-null sizes
+reported with their Monte Carlo se instead of held to a 3.5% lower band. Reason: 15 of
+16 inside the original band, a mean of 4.2% and one cell 0.002 below the edge is what
+a test with a true size near 4.2% produces at 1000 replications (about one miss in
+sixteen is expected), whereas a liberal test would show cells above 6.5%. Under the
+restated criterion the ML gate **passes**. The 0.033 cell is reported, not hidden; it
+was not rerun.
+
+The glm engine shares the pooling code but was not run through this grid; its only
+calibration evidence is the prototype (size 0.050 at a = 0, b = 0.3; 0.007 at the
+intersection; n = 200, m = 5, 300 replications).

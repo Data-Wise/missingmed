@@ -19,7 +19,6 @@
 ^README\.dev\.md$
 ^\.STATUS$
 ^CLAUDE\.md$
-^MIGRATION_NOTES\.md$
 ^ORCHESTRATE-.*\.md$
 ^docs$
 ^docs/.*
@@ -32,6 +31,5 @@
 ^tests/testthat/testthat-problems\.rds$
 ^cran-comments\.md$
 ^CLAUDE\.md$
-^MIGRATION_NOTES\.md$
 ^README\.dev\.md$
 ^tasks$
