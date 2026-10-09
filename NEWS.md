@@ -1,5 +1,15 @@
 # missingmed (development version)
 
+## Breaking changes
+
+* The `.Defunct()` stubs for the removed S4 API are deleted: `set_sem()`,
+  `run_sem()`, `pool_sem()`, `fit_model()`, `lav_mice()` and `mx_mice()` are no
+  longer exported, so calling one now gives R's "could not find function" error
+  instead of a message naming the replacement. The replacements are unchanged:
+  `set_md_mediation()`, `run()` and `pool()`, with `engine = "lavaan"` for a
+  structural equation model; see `vignette("s4-migration")`. The help page
+  `?"missingmed-defunct"` is gone with them.
+
 ## Licensing and dependencies
 
 * missingmed is now licensed GPL (>= 3) (was GPL-2), matching `medfit`,

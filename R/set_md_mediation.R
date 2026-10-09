@@ -4,7 +4,7 @@
 #' pipeline. It records a **medfit-style mediation specification** (outcome and
 #' mediator formulas plus the treatment/mediator roles) together with the data.
 #' Fitting is delegated to [medfit::fit_mediation()] downstream by [run()]. It is
-#' the S7 successor of the S4 [set_sem()] constructor.
+#' the S7 successor of the S4 `set_sem()` constructor (removed in 0.7.0).
 #'
 #' Two estimators share the interface (`method`):
 #' * `"mi"` — `data` is a [mice::mids] object; [run()] fits every imputation.

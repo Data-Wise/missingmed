@@ -11,12 +11,12 @@
 #' 0 or 1) are collected and raised once, naming the imputations that produced
 #' them.
 #'
-#' It is the S7 successor of the S4 [run_sem()] method.
+#' It is the S7 successor of the S4 `run_sem()` method.
 #'
 #' @param object An [MDMediationData] object.
 #' @param ... Additional arguments forwarded to [medfit::fit_mediation()].
 #' @return An [MDMediationFit] object.
-#' @seealso [set_md_mediation()], [pool()], [infer()], [run_sem()]
+#' @seealso [set_md_mediation()], [pool()], [infer()]
 #' @examples
 #' set.seed(1)
 #' n <- 150

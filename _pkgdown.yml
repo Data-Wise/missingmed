@@ -77,7 +77,3 @@ reference:
   desc: Fitting and validation utilities used by the pipeline.
   contents:
   - n_imp
-- title: Defunct (S4)
-  desc: Removed in 0.6.0; each stub stops with a message naming its replacement.
-  contents:
-  - missingmed-defunct

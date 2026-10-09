@@ -31,7 +31,7 @@ Pooling math (migrated from the S4 \code{pool_sem} / \code{pool_tidy} / \code{po
 \deqn{\bar Q = \frac{1}{m}\sum_i Q_i, \quad \bar U = \frac{1}{m}\sum_i U_i,
   \quad B = \mathrm{cov}(Q_1, \ldots, Q_m), \quad T = \bar U + (1 + 1/m) B.}
 
-It is the S7 successor of the S4 \code{\link[=pool_sem]{pool_sem()}} method.
+It is the S7 successor of the S4 \code{pool_sem()} method.
 
 The returned tidy table also carries a per-coefficient Wald test
 (\code{statistic}, \code{df}, \code{riv}, \code{fmi}, \code{p_value}) and, when \code{conf_int = TRUE} was
@@ -63,5 +63,5 @@ Barnard, J., & Rubin, D. B. (1999). Small-sample degrees of freedom with
 multiple imputation. \emph{Biometrika}, 86(4), 948--955.
 }
 \seealso{
-\code{\link[=run]{run()}}, \code{\link[=infer]{infer()}}, \code{\link[=pool_sem]{pool_sem()}}
+\code{\link[=run]{run()}}, \code{\link[=infer]{infer()}}
 }

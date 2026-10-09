@@ -94,7 +94,7 @@ Constructs an \link{MDMediationData} object: the entry point of the missingmed S
 pipeline. It records a \strong{medfit-style mediation specification} (outcome and
 mediator formulas plus the treatment/mediator roles) together with the data.
 Fitting is delegated to \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}} downstream by \code{\link[=run]{run()}}. It is
-the S7 successor of the S4 \code{\link[=set_sem]{set_sem()}} constructor.
+the S7 successor of the S4 \code{set_sem()} constructor (removed in 0.7.0).
 }
 \details{
 Two estimators share the interface (\code{method}):
