@@ -1,0 +1,145 @@
+RESULTS: missingness-model gate, run 1 as written (SPEC-ipw-missingness-default-2026-10-09.md sections 5 and 8a)
+Hopper job 4334835, 324/324 tasks COMPLETED, 162 cells x 1000 replications x 5 forms = 810000 rows. Harness commit d62295d.
+Output below: dev/sim-ipw-mech-combine.R (the pre-registered rule), then supplementary summaries, then the diagnosis of the C4 failures.
+
+===== combine =====
+=== Per-form mean bias in b at n = 5000 (rows: mechanism x DGM, miss 0.40, P4) ===
+ mech  dgm bias_b.joint bias_b.marginal bias_b.seq bias_b.seqrev bias_b.true
+  ind  aux    -0.003599       -0.003491  -0.003612     -0.003618   -0.003559
+  ind auxm    -0.021234       -0.000359  -0.000441     -0.000353   -0.000517
+  ind  std    -0.001012       -0.001000  -0.001014     -0.001013   -0.001494
+ mono  aux    -0.000652        0.000253  -0.000367     -0.000652   -0.000337
+ mono auxm    -0.012114        0.015036  -0.000854     -0.012114   -0.000927
+ mono  std    -0.001819       -0.002062  -0.001823     -0.001819   -0.001977
+  sim  aux    -0.001094        0.000514  -0.001094     -0.001094   -0.001008
+  sim auxm    -0.000376        0.045153  -0.000376     -0.000376   -0.000394
+  sim  std    -0.001053       -0.001034  -0.001053     -0.001053   -0.001091
+
+=== Controls ===
+planted_defect  known_weights 
+          TRUE           TRUE 
+C1: PASS
+C2: PASS
+C3: PASS
+C4: FAIL
+
+Failing cells, c4_bad :
+ mech  dgm    n miss point failed
+ mono auxm 5000 0.25    P1  0.031
+ mono auxm 5000 0.25    P4  0.025
+ mono  std 5000 0.25    P1  0.182
+ mono  std 5000 0.25    P4  0.175
+  sim auxm 5000 0.25    P1  0.074
+  sim auxm 5000 0.25    P4  0.090
+  sim  std 5000 0.25    P1  0.171
+  sim  std 5000 0.25    P4  0.200
+
+C5 (reported): reversed order, monotone, n = 5000, bias in b
+ mech  dgm    n miss point    bias_b
+ mono  aux 5000 0.25    P1 -0.000567
+ mono  aux 5000 0.25    P2 -0.002033
+ mono  aux 5000 0.25    P4 -0.001986
+ mono  aux 5000 0.40    P1 -0.001277
+ mono  aux 5000 0.40    P2  0.000377
+ mono  aux 5000 0.40    P4 -0.000652
+ mono auxm 5000 0.25    P1 -0.006848
+ mono auxm 5000 0.25    P2 -0.006584
+ mono auxm 5000 0.25    P4 -0.006148
+ mono auxm 5000 0.40    P1 -0.011223
+ mono auxm 5000 0.40    P2 -0.013016
+ mono auxm 5000 0.40    P4 -0.012114
+ mono  std 5000 0.25    P1 -0.000554
+ mono  std 5000 0.25    P2 -0.000727
+ mono  std 5000 0.25    P4 -0.002075
+ mono  std 5000 0.40    P1 -0.000882
+ mono  std 5000 0.40    P2 -0.000652
+ mono  std 5000 0.40    P4 -0.001819
+
+DECISION: KEEP JOINT DEFAULT: add the warning (B) and ship the sequential form as an opt-in 
+
+===== supplementary summaries (not part of the rule) =====
+rows 810000  cells 162 
+C1: max |bias_b| (seq, n=5000, 54 cells) = 0.0043; auxm max = 0.0039
+joint: max |bias_b| at n=5000 = 0.0244 (cell: ind auxm 0.4 P1)
+marginal: max |bias_b| at n=5000 = 0.0462 (cell: sim auxm 0.4 P2)
+C2 P4 coverage (seq, n=5000, conditional on interval): min 0.935 median 0.951
+C2 null rejection (seq, n=5000): max 0.119
+failed share by form, n=5000 cells with any failure >1%:
+ mech  dgm    n miss point failed.joint failed.marginal failed.seq
+ mono auxm 5000 0.25    P1        0.037           0.007      0.031
+ mono auxm 5000 0.25    P4        0.029           0.006      0.025
+ mono  std 5000 0.25    P1        0.184           0.130      0.182
+ mono  std 5000 0.25    P4        0.180           0.118      0.175
+  sim auxm 5000 0.25    P1        0.074           0.007      0.074
+  sim auxm 5000 0.25    P4        0.090           0.001      0.090
+  sim  std 5000 0.25    P1        0.171           0.070      0.171
+  sim  std 5000 0.25    P4        0.200           0.101      0.200
+ failed.seqrev failed.true
+         0.037       0.029
+         0.029       0.020
+         0.184       0.162
+         0.180       0.154
+         0.074       0.069
+         0.090       0.090
+         0.171       0.151
+         0.200       0.184
+failed share at n=200/500: max over forms/cells =  0.001 
+C3: max coverage shortfall vs joint (P4) = 0.0000; max extra rejection vs joint (nulls) = 0.0000; max RMSE ratio = 1.000
+degenerate-factor share (seq), by mechanism:
+ ind mono  sim 
+   0    0    1 
+mean failed share by form:    joint marginal      seq   seqrev     true 
+ 0.00603  0.00274  0.00592  0.00602  0.00534 
+seq vs joint: n=200/500 sim cells, mean bias_b by dgm:
+      aux      auxm       std 
+-5.80e-04 -3.70e-03 -9.76e-05 
+
+===== C4 diagnosis: one failing replication (sim / std / n=5000 / miss .25 / P4, known-weights arm) =====
+# files <- list.files("out-mech", pattern = "^task_.*rds$", full.names = TRUE)
+# res <- do.call(rbind, lapply(files, function(f) { x <- readRDS(f); cbind(x$cl[rep(1, nrow(x$res)), c("mech","dgm","n","miss","point")], x$res) }))
+# res$why <- ifelse(!is.na(res$error), "error", ifelse(!is.na(res$nonconv) & res$nonconv > 0, "nonconv", ifelse(is.na(res$lo), "lo_NA", ifelse(!is.na(res$pd) & res$pd == 0, "pd0", "ok"))))
+# x <- res[res$n == 5000 & res$miss == .25 & res$dgm == "std" & res$mech == "sim" & res$point == "P4", ]
+# print(table(x$form, x$why))
+# print(head(unique(res$error[!is.na(res$error)]), 5))
+# y <- res[res$why != "ok", ]
+# print(table(y$form, y$why))
+# print(table(y$n[y$form=="seq"], y$why[y$form=="seq"]))
+# print(summary(x$a[x$why=="pd0" | x$why == "lo_NA"]))
+
+$est
+[1] 0.3274525 0.3290186
+
+$S2
+            [,1]         [,2]
+[1,] 0.001095711 0.0000000000
+[2,] 0.000000000 0.0002759906
+
+$r
+[1] "Numerical algorithm does not work in type='dop'! please use type='MC'.\n"
+
+se 0.03310152 0.01661296 
+[1] "Numerical algorithm does not work in type='dop'! please use type='MC'.\n"
+[1] 0.08460684 0.13220908
+[1] 0.08385295 0.13162299
+
+===== c4diag output (failure reasons by form for sim / std / n=5000 / miss .25 / P4; then all failing replications by form, by n, and the estimate of a in failures) =====
+          
+           lo_NA  ok
+  joint      200 800
+  marginal   101 899
+  seq        200 800
+  seqrev     200 800
+  true       184 816
+character(0)
+          
+           lo_NA
+  joint      977
+  marginal   444
+  seq        959
+  seqrev     976
+  true       865
+      
+       lo_NA
+  5000   959
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.2256  0.2791  0.3012  0.3021  0.3260  0.3988 
