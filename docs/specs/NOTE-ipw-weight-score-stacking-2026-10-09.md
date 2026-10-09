@@ -34,9 +34,9 @@ Estimating equations, stacked:
 
 With estimated `gamma`, `delta`, the influence function of `theta_hat` is
 
-`IF_i = A^{-1} ( psi_i - C_gamma A_gamma^{-1} S_i - C_delta A_delta^{-1} T_i )`
+`IF_i = A^{-1} ( psi_i + C_gamma A_gamma^{-1} S_i + C_delta A_delta^{-1} T_i )`
 
-where `A = -E[d psi / d theta]` (the usual weighted bread), `A_gamma = E[z z' p (1 - p)]` (information of the missingness model), `A_delta` likewise, and `C_gamma = E[d psi / d gamma]`, `C_delta = E[d psi / d delta]`. The variance is `n^{-1} * mean(IF_i IF_i')` over the n rows, with `IF_i = 0` contribution of `psi` for incomplete rows (they still carry the `S_i` and `T_i` terms).
+(derived from `0 = mean psi(theta_hat, gamma_hat) ~ mean psi - A (theta_hat - theta) + C (gamma_hat - gamma)` and `gamma_hat - gamma ~ A_gamma^{-1} mean S`, so the corrections are **added** when `C` is the derivative as defined here) where `A = -E[d psi / d theta]` (the usual weighted bread), `A_gamma = E[z z' p (1 - p)]` (information of the missingness model), `A_delta` likewise, and `C_gamma = E[d psi / d gamma]`, `C_delta = E[d psi / d delta]`. The variance is `n^{-1} * mean(IF_i IF_i')` over the n rows, with `IF_i = 0` contribution of `psi` for incomplete rows (they still carry the `S_i` and `T_i` terms).
 
 Closed forms (logit missingness model), so no numerical differentiation:
 
@@ -50,7 +50,7 @@ so `d psi_i / d gamma = R_i s_i(theta) * (d w_i / d gamma)'`.
 
 The joint IF for `theta = (theta_m, theta_y)` gives the **full** covariance, including the `theta_m`-`theta_y` block that medfit sets to zero. Write that matrix into the pooled `MediationData@vcov` (same ordering medfit uses), leaving estimates unchanged. The `c_prime`, `a`, `b` standard errors and the `a`-`b` covariance then all come from one object.
 
-HC3 versus HC0: medfit uses HC3. The stacked estimator above is HC0-type. Decision to make at implementation: apply the same leverage inflation to the `psi_i` term only, or accept HC0 and say so. Recommend: HC0 plus the standard `n / (n - p)` factor is not claimed; report the stacked SE as the asymptotic one and let the gate (section 6) say whether a small-sample correction is needed.
+HC3 versus HC0: medfit uses HC3 (leverage-inflated). The stacked estimator above is HC0-type. No small-sample correction is claimed; the gate (section 6) decides whether one is needed, and lavaan's `information_meat_hc` (see the lavaan tutorial) is a precedent for offering one.
 
 ## 3. Where it lives and how it plugs in
 
