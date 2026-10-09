@@ -1,5 +1,5 @@
 # One SLURM array task of the IPW stack coverage gate
-# (SPEC-ipw-stack-coverage-2026-10-09.md). Task id t -> cell (t - 1) %/% CHUNKS + 1,
+# (SPEC-ipw-stack-hc-gate-2026-10-09.md). Task id t -> cell (t - 1) %/% CHUNKS + 1,
 # chunk (t - 1) %% CHUNKS. Single core.
 # Env: SIM_OUT (output dir), CHUNKS (default 4), REPS (per cell, default 2000),
 #      ONLY_CELLS (optional comma list of cell indices; task t then maps into that
@@ -16,12 +16,13 @@ ci <- pick[(t - 1) %/% chunks + 1]; k <- (t - 1) %% chunks
 cl <- cells[ci, ]
 idx <- split(seq_len(reps), rep_len(seq_len(chunks), reps))[[k + 1]]
 t0 <- Sys.time()
-res <- do.call(rbind, lapply(idx, function(s) { r <- one_ipw(cl, 5000 + s); r$rep <- s; r }))
+res <- do.call(rbind, lapply(idx, function(s) { r <- one_ipw(cl, 5000 + 100000 * ci + s); r$rep <- s; r }))
 saveRDS(list(task = t, cell = ci, chunk = k, cl = cl, res = res,
   version = as.character(utils::packageVersion("missingmed")),
   secs = as.numeric(difftime(Sys.time(), t0, units = "secs"))),
   file.path(out, sprintf("task_%04d.rds", t)))
-st <- res[res$arm == "stacked" & res$form == "sj", ]
-cat(sprintf("task %d: cell %d %s n=%d miss=%.2f %s reps=%d errors=%d reject0(stacked, sj)=%.3f [%.0fs]\n",
-  t, ci, cl$dgm, cl$n, cl$miss, cl$point, length(idx), sum(!is.na(res$error)),
+cl_form <- ipw_decisive[[cl$dgm]][1]
+st <- res[res$arm == "stacked_hc3" & res$form == cl_form, ]
+cat(sprintf("task %d: cell %d %s n=%d miss=%.2f %s reps=%d errors=%d reject0(stacked_hc3, %s)=%.3f [%.0fs]\n",
+  t, ci, cl$dgm, cl$n, cl$miss, cl$point, length(idx), sum(!is.na(res$error)), cl_form,
   mean(st$reject0, na.rm = TRUE), as.numeric(difftime(Sys.time(), t0, units = "secs"))))

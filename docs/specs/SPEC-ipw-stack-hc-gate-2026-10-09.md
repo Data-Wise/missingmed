@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | DRAFT for author approval. Nothing is built or run until approved. |
+| **Status** | APPROVED 2026-10-09 ("do all"): approved as written with the recommended answers to section 10 (variants as declared; F7 revisited after the results; limited-scope claim for trimmed fits). |
 | **Plan** | [PLAN-ipw-stack-hc-2026-10-09.md](PLAN-ipw-stack-hc-2026-10-09.md), task T1; the author accepted the plan's recommended defaults ("as recommended") |
 | **Follows** | first gate: [SPEC-ipw-stack-coverage-2026-10-09.md](SPEC-ipw-stack-coverage-2026-10-09.md) sections 13 and 14 (results, bias explanation) |
 | **Decision it serves** | Whether any HC-corrected stacked variance is *viable* for `method = "ipw"`, per weight form. Viability only authorizes planning the wiring (plan T8); it does not enable anything. |
@@ -64,7 +64,7 @@ Evaluated per weight form, on **decisive cells only** (section 2), against `know
 1. **Reproduces the shipped path:** `known_hc3` equals `infer(type = "mc")` of the real `run() -> pool()` result within 0.01 + 0.02 x width per endpoint (first gate, control 1), with the positive control that `known_hc0` must exceed the same bar.
 2. **The grid can see a wrong variance:** `model_se` must show size above 0.065 or below 0.035 in at least one `aux`/`auxm`/`auxj`/`auxmj` null cell; otherwise clean results do not count.
 3. **Known answer for the new variants (precondition, plan T2):** with the weight-score blocks removed, `hc = "HC3"` equals `sandwich::vcovHC(type = "HC3")` and `"HC1"` equals type `"HC1"` per regression to 1e-8, and the planted exponent error (`1 / (1 - h_i)^2` on the influence) fails that test.
-4. **Bootstrap oracle:** stacked SE versus a bootstrap of the whole pipeline on 3 draws per DGM: `stacked_hc0` within [0.90, 1.10]; `stacked_hc3` reported (expected larger by the leverage factor).
+4. **Bootstrap oracle:** stacked SE versus a bootstrap of the whole pipeline (B = 500) on 3 draws per DGM: `stacked_hc0` within [0.90, 1.10]; `stacked_hc3` reported (expected larger by the leverage factor). *Recorded during T3 (before any grid result):* B was first set to 300, which fails the bar by noise alone (the relative se of a bootstrap SD is about 1 / sqrt(2B), so 36 comparisons at B = 300 reach about 0.11 in log ratio); at B = 500 the ratios are 0.927 to 1.073 with no pattern by DGM, and the mean log ratio is -0.011 for `a` and -0.034 for `b` (the HC0 small-sample underestimate the HC variants target).
 5. **The specification split is real (large-n control):** at n = 1e5 the joint forms recover `b` within 0.01 on `stdj`/`auxj`/`auxmj`, `spv` does on `std`/`aux`/`auxm`, and the joint forms fail to on `auxm` (b near 0.278) so the control can fail. This is the section 14 script, run as a harness test.
 
 ## 5. Commands and structure
@@ -109,3 +109,31 @@ Test-first for the variants (plan T2): anchors (control 3), the existing brute-f
 1. **Approve as written (recommended)**, including the variants (`hc3` primary, `hc1` secondary), the decisive-cell split, C1* (a bias-limited cell does not count against stacked only if stacked is within 0.010 of the shipped path), and 2000 replications.
 2. **F7 timing:** revisit the default joint model **after this gate's results** (recommended; the results show how much a corrected variance matters next to the bias), versus resolving it before running the gate. The gate does not depend on it.
 3. **Trimmed fits:** keep the limited-scope claim (recommended), or add a bootstrap arm that re-estimates the cap on a subset of cells (costly: about 500 refits per replication).
+
+## 11. Results (2026-10-09)
+
+Hopper job 4334434: 384 tasks, all COMPLETED; 96 cells x 2000 replications (4,032,000 rows); `missingmed` built from branch `feature/ipw-stack-hc` at `cf70ede` (`R/ipw_stack.R` with the HC variants). T4 pilot: job 4334426, 8 tasks, 840 rows, 0 error rows, 0 NA intervals, 0 non-PD blocks, 0 leverage errors. Raw output: [RESULTS-ipw-stack-hc-gate-2026-10-09.txt](RESULTS-ipw-stack-hc-gate-2026-10-09.txt); reproduce with `dev/sim-ipw-stack-combine.R` and `dev/sim-ipw-stack-hc-failures.R`.
+
+**Controls.** Laptop: 1 (known_hc3 equals the shipped `infer(mc)`; `known_hc0` can fail it), 3 (bootstrap oracle, B = 500, worst |log ratio| 0.075), 5 (the specification split is real). Grid: control 2 (the model-based arm shows a detectable distortion in an `aux*` null cell) **PASS**. **C5:** no arm above 1% dropped replications; no leverage-one cases; no non-positive-definite blocks. No bias-limited decisive cell.
+
+**Decision by the pre-registered variant rule:**
+
+| Form | Decisive cells | `stacked_hc3` | `stacked_hc1` | Decision |
+|---|---|---|---|---|
+| `uj` unstabilized joint | `stdj`, `auxj`, `auxmj` (48) | C1 pass; **C2 fail** (2 cells); C3 pass | C1 fail, C2 fail | **none** |
+| `sj` stabilized joint | same | C1 pass; **C2 fail** (2 cells); C3 pass | C1 fail, C2 fail | **none** |
+| `sjt` stabilized joint, trim .95 | same | C1, C2, C3 pass | C1 fail, C2 fail | **viable: hc3** (tested scope only) |
+| `spv` stabilized per-variable | `std`, `aux`, `auxm` (48) | **C1 fail**, C2 fail, C3 pass | C1 fail, C2 fail | **none** |
+
+**What the numbers say** (decisive cells; shipped = `known_hc3`):
+
+1. **HC3 closes most of the HC0 deficit, as the plan predicted.** Minimum P4 coverage, `stacked_hc0` -> `stacked_hc3`: `uj` 0.924 -> 0.936, `sj` 0.925 -> 0.938, `spv` 0.891 -> 0.920. HC1 helps little (0.927, 0.928, 0.899).
+2. **Validity holds for the joint forms.** Largest null size 0.061 to 0.064 and minimum P4 coverage 0.936 to 0.939 (C1 pass for `uj`, `sj`, `sjt`).
+3. **The C2 failures of `uj` and `sj` are two cells each, `auxmj` at 40% missing.** Coverage at P4: n = 200 shipped 0.954, stacked-HC3 0.938 (`sj`; 0.936 `uj`); n = 500 shipped 0.951, stacked-HC3 0.938 (`uj` 0.937). The difference (`sj` -0.016 and -0.013; `uj` -0.018 and -0.014) exceeds the 0.010 tolerance by 0.003 to 0.008. The shipped path **over-covers** there (0.95 is nominal), so the stacked variance is closer to nominal; the pre-registered rule still fails it and it is not rescued here.
+4. **`spv` fails where the finite-sample bias lives.** `auxm`: bias of `b` -0.015 to -0.027 (effective sample size 49 to 224). The shipped HC3 interval over-covers (0.941 to 0.960) and masks the bias; the tighter stacked variance exposes it (0.920 to 0.936 at P4; at the two `auxm` 25%-missing P1 cells size is 0.038 and 0.052 against 0.028 and 0.041 for the shipped path).
+5. **No material benefit.** Median width ratio stacked-HC3 / shipped is 0.97 to 0.99 (1% to 3% narrower); McNemar differences are all one-directional (stacked rejects more; at P4 that is power, at the `auxm` P1 null cells it is size) and confined to the highest-missingness and smallest-n cells. This agrees with the first gate: the weight-score term moves the marginal variances little.
+6. **The specification split behaves as designed.** In the cells where a form is correctly specified, bias of `b` is negligible for the joint forms (|bias| < 0.004 in the `*j` DGMs) and is the finite-sample bias of `spv` documented in the first gate's Addendum B.
+
+**What this authorizes: nothing is wired.** `sjt` is viable for the tested scope (`weight_trim = 0.95`, the constant-cap approximation, these 48 cells), which the spec limits to planning only. Wiring is additionally blocked by (a) **F7**: the default joint model is biased at any n under variable-specific missingness, and a better-calibrated variance does not fix a biased estimate; (b) the **absence of demonstrated benefit** (1% to 3% narrower intervals, no cell where stacking fixes a shipped-path failure); (c) the quantile cap's uncertainty, which the variance ignores and this gate does not test. **Close-out (plan T8'):** stacking stays an internal estimator with its tests; plan item E is closed with this finding; the IPW documentation keeps the sentence that the weights are treated as known and now cites a measured bound on what propagating their uncertainty is worth.
+
+**Not settled.** Whether a missingness-model-leverage correction of the weight-score term would change `spv` or the `auxmj` cells (named follow-up, not run); misspecified missingness models; binary outcomes; lavaan.

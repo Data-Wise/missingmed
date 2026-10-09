@@ -250,3 +250,79 @@ test_that(".ipw_stacked_vcov() refuses fits it cannot check", {
   expect_error(missingmed:::.ipw_stacked_vcov(bad, info), "weights in `info`")
   expect_error(missingmed:::.ipw_stacked_vcov(unname(sf$fits), info), "named list")
 })
+
+# --- HC variants (SPEC-ipw-stack-hc-gate-2026-10-09.md, plan T2) -------------------------
+
+# Known answer: with the weight-score blocks removed the stacked variance is the
+# per-regression sandwich, so HC3 / HC1 must equal sandwich::vcovHC to 1e-8.
+test_that("HC3 and HC1 with the weight-score blocks removed equal sandwich::vcovHC", {
+  d <- make_stack_data(seed = 12, n = 350)
+  info <- missingmed:::.ipw_weights_info(stack_md(d))$info
+  sf <- stack_fits(d)
+  i0 <- info; i0$blocks <- list()
+  for (hc in c("HC3", "HC1", "HC0")) {
+    V <- missingmed:::.ipw_stacked_vcov(sf$fits, i0, hc = hc)
+    for (nm in names(sf$fits)) {
+      ix <- grep(paste0("^", nm, ":"), rownames(V))
+      expect_equal(unname(V[ix, ix]),
+        unname(sandwich::vcovHC(sf$fits[[nm]], type = hc)), tolerance = 1e-8,
+        label = paste(hc, nm))
+    }
+  }
+})
+
+test_that("the HC anchor can fail: the exponent and leverage errors are detectable", {
+  d <- make_stack_data(seed = 12, n = 350)
+  sf <- stack_fits(d)
+  fit <- sf$fits$y
+  X <- stats::model.matrix(fit)
+  ww <- unname(stats::weights(fit, "working"))
+  psi <- X * (unname(stats::residuals(fit, "working")) * ww)
+  Hinv <- solve(crossprod(X, X * ww))
+  target <- unname(sandwich::vcovHC(fit, type = "HC3"))
+  vh <- function(fac) unname(crossprod((psi * fac) %*% Hinv))
+  h <- unname(stats::hatvalues(fit))
+  expect_equal(vh(1 / (1 - h)), target, tolerance = 1e-8)               # the right factor
+  expect_gt(max(abs(vh(1 / (1 - h)^2) - target)), 1e-6 * max(abs(target)))  # squared: wrong
+  # leverage of the unweighted regression is a different quantity: using it would also fail the anchor
+  h_unw <- unname(stats::hatvalues(stats::glm(Y ~ X + M + C, data = d[sf$cc, ])))
+  expect_gt(max(abs(vh(1 / (1 - h_unw)) - target)), 1e-6 * max(abs(target)))
+})
+
+test_that("the HC3 cross block between regressions is the product of their leverage-scaled scores", {
+  d <- make_stack_data(seed = 13, n = 350)
+  sf <- stack_fits(d)
+  info <- missingmed:::.ipw_weights_info(stack_md(d))$info
+  i0 <- info; i0$blocks <- list()
+  V <- missingmed:::.ipw_stacked_vcov(sf$fits, i0, hc = "HC3")
+  um <- function(fit) {
+    X <- stats::model.matrix(fit); ww <- unname(stats::weights(fit, "working"))
+    psi <- X * (unname(stats::residuals(fit, "working")) * ww) / (1 - unname(stats::hatvalues(fit)))
+    psi %*% solve(crossprod(X, X * ww))
+  }
+  expect_equal(unname(V[grep("^m:", rownames(V)), grep("^y:", colnames(V))]),
+    unname(crossprod(um(sf$fits$m), um(sf$fits$y))), tolerance = 1e-8)
+})
+
+test_that("a leverage-one complete case is an error for HC3, not Inf", {
+  d <- make_stack_data(seed = 14, n = 300)
+  info <- missingmed:::.ipw_weights_info(stack_md(d))$info
+  cc <- info$cc
+  dd <- d[cc, ]
+  dd$g <- factor(ifelse(seq_len(nrow(dd)) == 1L, "solo", "rest"))   # one row owns a coefficient
+  w <- missingmed:::.ipw_weights(stack_md(d))[cc]
+  fits <- list(m = stats::glm(M ~ X + C + g, data = dd, weights = w),
+    y = stats::glm(Y ~ X + M + C + g, data = dd, weights = w))
+  i0 <- info; i0$blocks <- list()
+  expect_error(missingmed:::.ipw_stacked_vcov(fits, i0, hc = "HC3"), "leverage")
+  expect_no_error(missingmed:::.ipw_stacked_vcov(fits, i0, hc = "HC0"))
+})
+
+test_that("hc defaults to HC0 and rejects an unknown variant", {
+  d <- make_stack_data(seed = 12, n = 300)
+  info <- missingmed:::.ipw_weights_info(stack_md(d))$info
+  sf <- stack_fits(d)
+  expect_identical(missingmed:::.ipw_stacked_vcov(sf$fits, info),
+    missingmed:::.ipw_stacked_vcov(sf$fits, info, hc = "HC0"))
+  expect_error(missingmed:::.ipw_stacked_vcov(sf$fits, info, hc = "HC2"), "should be one of")
+})
