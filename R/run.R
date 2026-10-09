@@ -204,6 +204,9 @@ S7::method(run, MDMediationData) <- function(object, ...) {
 # medfit::extract_mediation() truncates that with as.integer() to 355 and then
 # rejects the object (rows of data != n_obs). Rounding the weighted counts
 # restores N; the model fit itself is untouched.
+# Removable once medfit >= 0.5.1 is on CRAN: medfit PR #85 (released in 0.5.1)
+# rounds the count itself. Then raise the medfit floor in DESCRIPTION and delete
+# this helper and its call in `.md_lavaan_call()`.
 .lav_round_nobs <- function(fit) {
   n <- tryCatch(fit@SampleStats@nobs, error = function(e) NULL)
   if (is.list(n)) fit@SampleStats@nobs <- lapply(n, round)
