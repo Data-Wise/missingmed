@@ -34,6 +34,10 @@
   n = 200 with 40% missing. `?mbco_d4`, `vignette("mbco-mi")` and the FAQ now say so
   and recommend `"fixed"` unless you need to reproduce an earlier analysis. The
   operating-characteristics table covers the glm engine.
+* The lavaan tutorial gains a section on lavaan 0.7-3's `information_meat_hc` and
+  `information_bread` (small-sample sandwich standard errors): they work through
+  `fit_args` with `method = "ipw"` (`"HC1"` only) and with a robust estimator such
+  as `"MLR"`, and are ignored under plain ML.
 * The documentation no longer says `"own"` "reproduces" missingmed 0.4.0 or the
   research prototype: `D4`, `r4` and the branch still match, but `nu` and `p` differ
   slightly since the denominator degrees of freedom changed (see Bug fixes).
