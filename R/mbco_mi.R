@@ -79,9 +79,33 @@
                        treatment, mediator, drop_a = FALSE, drop_b = FALSE) {
   fm_use <- if (drop_a) .mm_drop_path(formula_m, treatment) else formula_m
   fy_use <- if (drop_b) .mm_drop_path(formula_y, mediator) else formula_y
-  llm <- as.numeric(stats::logLik(stats::glm(fm_use, data = d, family = family_m)))
-  lly <- as.numeric(stats::logLik(stats::glm(fy_use, data = d, family = family_y)))
+  branch <- if (drop_a) "a = 0" else if (drop_b) "b = 0" else "full"
+  llm <- .mm_glm_ll(fm_use, d, family_m, branch, "mediator")
+  lly <- .mm_glm_ll(fy_use, d, family_y, branch, "outcome")
   llm + lly
+}
+
+# Log-likelihood of one glm() refit. A fit that did not converge sits at an
+# arbitrary last iterate, so 2 * (ll_full - ll_null) is not an LRT: refuse,
+# naming the branch and the model (the caller adds the dataset). A converged
+# fit that carries glm's "fitted probabilities numerically 0 or 1" warning is
+# NOT refused: its likelihood is finite and the warning reaches the user
+# unchanged (SPEC-mbco-convergence-2026-10-08.md, C6).
+.mm_glm_ll <- function(formula, d, family, branch, model) {
+  fit <- stats::glm(formula, data = d, family = family)
+  if (!isTRUE(fit$converged)) {
+    stop("the ", branch, " ", model, " model did not converge. Rescale the ",
+      "variables or merge sparse factor levels; the data may be separated.",
+      call. = FALSE
+    )
+  }
+  ll <- as.numeric(stats::logLik(fit))
+  if (!is.finite(ll)) {
+    stop("the ", branch, " ", model, " model has a non-finite log-likelihood.",
+      call. = FALSE
+    )
+  }
+  ll
 }
 
 # The three MBCO log-likelihoods of one dataset: the full model and the two
@@ -385,6 +409,15 @@
 #' `ariv = "fixed"` statistic alone needs only the null on the stacked branch;
 #' the second null per imputation is what the branch diagnostics
 #' `branch_mix` and `p_branch_a` require.
+#'
+#' **Convergence.** A [stats::glm()] refit that did not converge, or whose
+#' log-likelihood is not finite, stops the test with an error naming the
+#' dataset (an imputation or the stacked data), the branch (`full`, `a = 0` or
+#' `b = 0`) and the model: its likelihood is not a maximum, so the statistic
+#' would not be a likelihood ratio. A fit that converged but carries glm's
+#' "fitted probabilities numerically 0 or 1" warning is not refused (its
+#' likelihood is finite and the warning reaches you unchanged), but the
+#' chi-square-type reference may be poor for such near-separated data.
 #'
 #' At least two imputations are required. For a single complete dataset, use a
 #' complete-data MBCO test such as [RMediation::mbco()].
