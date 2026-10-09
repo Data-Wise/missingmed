@@ -4,7 +4,7 @@
 |---|---|
 | **Date** | 2026-10-09 |
 | **Plan item** | E in [PLAN-open-items-2026-10-09.md](PLAN-open-items-2026-10-09.md); decision Q4 in [GRILL-open-items-2026-10-09.md](GRILL-open-items-2026-10-09.md): stack the weight-model score |
-| **Status** | Design. Steps 1-2 of section 8 implemented 2026-10-09 (`.ipw_weights_info()`, `.ipw_stacked_vcov()` in `R/ipw_stack.R`, not yet wired into `run()`; tests `test-ipw-stack.R`). Nothing in medfit or RMediation was edited (both read-only for this note). |
+| **Status** | Design. Steps 1-3 of section 8 implemented 2026-10-09 (`.ipw_weights_info()`, `.ipw_stacked_vcov()` in `R/ipw_stack.R`, not yet wired into `run()`; tests `test-ipw-stack.R`; oracle `dev/ipw-stack-oracle.R`, results in section 9). Nothing in medfit or RMediation was edited (both read-only for this note). |
 | **Reads** | `medfit/R/fit-glm.R:411-420`, `medfit/R/extract-lm.R:70-90, 396-434, 768-780`, `medfit/R/classes.R:82-120` (medfit `dev`, `2767072`); `RMediation::ci_mediation_data` (installed 1.6.1); `R/ipw_run.R` here. |
 
 ## 1. The question, answered
@@ -113,3 +113,18 @@ Pre-register before running; positive control and per-column NA share recorded (
 6. lavaan, only if `lavScores()` supports it.
 
 Effort: M for steps 1-4, plus the hopper run.
+
+## 9. Results: steps 1-3 (2026-10-09)
+
+**Implemented:** `.ipw_stacked_vcov()` now covers stabilized weights (numerator model), per-variable missingness models and trimming by the constant-cap approximation (section 4.1, option 1). Raw output: [RESULTS-ipw-stack-oracle-2026-10-09.txt](RESULTS-ipw-stack-oracle-2026-10-09.txt).
+
+**Exact check (laptop, `test-ipw-stack.R`):** for unstabilized, stabilized, per-variable (stabilized or not) and trimmed fits, the stacked variance equals an independent brute-force stacked M-estimation sandwich (numerical Jacobian of the joint estimating equations; cap held at its fitted value) to 1e-5. Planted defects (numerator sign flipped; trimmed-row handling removed) each fail it.
+
+**Bootstrap oracle (`dev/ipw-stack-oracle.R`, B = 500, n = 500, 8 configurations x 5 datasets = 40 cases).** Bar fixed beforehand: stacked SE / bootstrap SE in [0.90, 1.10] for `a` and `b`, and |corr_stacked(a, b) - corr_boot(a, b)| < 0.10. **39 of 40 pass.**
+
+- Stacked SE / bootstrap SE: `a` 0.905 to 1.016, `b` 0.925 to 1.020 (bootstrap se of an SE is about 3%).
+- The one failure: `aux_stab_trim`, dataset 5 (14 trimmed rows): corr(a, b) stacked 0.054 vs bootstrap 0.164, difference 0.110. This is the configuration where the constant-cap approximation matters; with one case it is also within about 2.4 Monte-Carlo se of the correlation, so it is a flag for the hopper gate, not a verdict.
+- `cov(a, b)`: the bootstrap correlation of `a` and `b` is as large as 0.42 in absolute value in the auxiliary-variable setting. medfit stores zero. The stacked correlation tracks the bootstrap (max difference 0.11, 0.03 outside the one failing case).
+- **The marginal SEs of `a` and `b` barely move.** Stacked / known-weights SE ratio is 0.97 to 1.00 for `a` and 0.96 to 1.01 for `b` even where missingness is driven by an auxiliary variable left out of the regressions, and 0.985 to 1.002 where it is driven by covariates the regressions contain. The bootstrap cannot resolve differences that small: stacked is closer to the bootstrap SE in 8 (`a`) and 9 (`b`) of 20 auxiliary-setting cases, a coin flip. This oracle therefore shows the stacked formula is **correct**, not that it changes the standard errors of `a` and `b` in a way a bootstrap can detect at this size.
+
+**What this means for step 4 (wiring):** the case for the change rests on `cov(a, b)` and so on the `a*b` interval, not on the marginal SEs. The coverage grid of section 6.3 is the test that matters; run it before deciding the default (`weights_known`), and do not claim narrower or wider SEs in NEWS until it has.

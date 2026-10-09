@@ -139,53 +139,114 @@ test_that("the weight-score correction has the sign and size of d theta_hat / d 
   expect_true(all(diag(V) > 0))
 })
 
-test_that("the stacked variance equals a brute-force stacked M-estimation sandwich", {
-  d <- make_stack_data(seed = 5, n = 300)
-  info <- missingmed:::.ipw_weights_info(stack_md(d))$info
-  sf <- stack_fits(d)
-  cc <- sf$cc; N <- nrow(d)
-  Z <- stats::model.matrix(~ X + C, d)
-  Xm <- stats::model.matrix(M ~ X + C, d[cc, ])
-  Xy <- stats::model.matrix(Y ~ X + M + C, d[cc, ])
-  Mc <- d$M[cc]; Yc <- d$Y[cc]; R <- as.numeric(cc)
-  g <- ncol(Z); km <- ncol(Xm); ky <- ncol(Xy)
-  # per-row contributions to the stacked estimating equations, N x (g + km + ky)
+# Brute-force stacked M-estimation sandwich with numerical derivatives, built
+# only from the fitted missingness models and the weight formula. The cap of a
+# trimmed fit is held at its fitted value (the package treats it as a constant).
+brute_stacked <- function(d, md) {
+  ii <- missingmed:::.ipw_weights_info(md)
+  info <- ii$info
+  cc <- info$cc; N <- nrow(d)
+  w <- ii$w
+  fits <- list(
+    m = stats::glm(M ~ X + C, data = d[cc, ], weights = w[cc]),
+    y = stats::glm(Y ~ X + M + C, data = d[cc, ], weights = w[cc])
+  )
+  bl <- info$blocks
+  Zs <- lapply(bl, function(b) stats::model.matrix(b$model))
+  ys <- lapply(bl, function(b) b$model$y)
+  kinds <- vapply(bl, `[[`, "", "kind")
+  gs <- vapply(Zs, ncol, 1L)
+  Xm <- stats::model.matrix(fits$m); Xy <- stats::model.matrix(fits$y)
+  Mc <- d$M[cc]; Yc <- d$Y[cc]
+  km <- ncol(Xm); ky <- ncol(Xy); G <- sum(gs)
+  cap <- info$cap
   rows <- function(par) {
-    gam <- par[seq_len(g)]; tm <- par[g + seq_len(km)]; ty <- par[g + km + seq_len(ky)]
-    p <- as.numeric(stats::plogis(Z %*% gam))
-    out <- matrix(0, N, g + km + ky)
-    out[, seq_len(g)] <- Z * (R - p)
-    w <- 1 / p[cc]
-    out[cc, g + seq_len(km)] <- Xm * as.numeric(w * (Mc - Xm %*% tm))
-    out[cc, g + km + seq_len(ky)] <- Xy * as.numeric(w * (Yc - Xy %*% ty))
+    out <- matrix(0, N, G + km + ky)
+    logw <- 0
+    off <- 0L
+    for (b in seq_along(bl)) {
+      gam <- par[off + seq_len(gs[b])]
+      pb <- as.numeric(stats::plogis(Zs[[b]] %*% gam))
+      out[, off + seq_len(gs[b])] <- Zs[[b]] * (ys[[b]] - pb)
+      logw <- logw + (if (kinds[b] == "num") 1 else -1) * log(pb)
+      off <- off + gs[b]
+    }
+    wc <- exp(logw)[cc]
+    if (!is.na(cap)) wc <- pmin(wc, cap)
+    tm <- par[G + seq_len(km)]; ty <- par[G + km + seq_len(ky)]
+    out[cc, G + seq_len(km)] <- Xm * as.numeric(wc * (Mc - Xm %*% tm))
+    out[cc, G + km + seq_len(ky)] <- Xy * as.numeric(wc * (Yc - Xy %*% ty))
     out
   }
-  par_hat <- c(stats::coef(sf$mod), stats::coef(sf$fits$m), stats::coef(sf$fits$y))
-  expect_lt(max(abs(colSums(rows(par_hat)))), 1e-6)   # the fits solve the stacked equations
+  par_hat <- c(unlist(lapply(bl, function(b) stats::coef(b$model))),
+    stats::coef(fits$m), stats::coef(fits$y))
+  # the fits solve the stacked equations (checks that the weights were rebuilt right)
+  stopifnot(max(abs(colSums(rows(par_hat)))) < 1e-6)
   eps <- 1e-6
   A <- vapply(seq_along(par_hat), function(j) {
     e <- rep(0, length(par_hat)); e[j] <- eps
     -(colSums(rows(par_hat + e)) - colSums(rows(par_hat - e))) / (2 * eps)
   }, numeric(length(par_hat)))
-  U <- rows(par_hat)
   Ainv <- solve(A)
-  Vfull <- Ainv %*% crossprod(U) %*% t(Ainv)
-  idx <- g + seq_len(km + ky)
-  V <- missingmed:::.ipw_stacked_vcov(sf$fits, info)
-  expect_equal(unname(V), unname(Vfull[idx, idx]), tolerance = 1e-5)
+  Vfull <- Ainv %*% crossprod(rows(par_hat)) %*% t(Ainv)
+  idx <- G + seq_len(km + ky)
+  list(brute = unname(Vfull[idx, idx]), fits = fits, info = info)
+}
+
+expect_stack_matches_brute <- function(d, md) {
+  b <- brute_stacked(d, md)
+  V <- missingmed:::.ipw_stacked_vcov(b$fits, b$info)
+  expect_equal(unname(V), b$brute, tolerance = 1e-5)
+  invisible(b)
+}
+
+test_that("the stacked variance equals a brute-force stacked M-estimation sandwich", {
+  d <- make_stack_data(seed = 5, n = 300)
+  expect_stack_matches_brute(d, stack_md(d))
 })
 
-test_that(".ipw_stacked_vcov() refuses what it does not implement or cannot check", {
+test_that("stabilized weights (numerator model) match the brute-force sandwich", {
+  d <- make_stack_data(seed = 6, n = 300)
+  md <- suppressWarnings(set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M", method = "ipw", weight_stabilize = TRUE,
+    weight_formula = ~ X + C))
+  b <- expect_stack_matches_brute(d, md)
+  expect_identical(vapply(b$info$blocks, `[[`, "", "kind"), c("miss", "num"))
+})
+
+test_that("per-variable missingness models (stabilized or not) match the brute-force sandwich", {
+  d <- make_stack_data(seed = 7, n = 300)
+  d$Y[sample(nrow(d), 60)] <- NA
+  for (stab in c(FALSE, TRUE)) {
+    md <- suppressWarnings(set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
+      treatment = "X", mediator = "M", method = "ipw", weight_stabilize = stab,
+      weight_formula = list(M = ~ X + C, Y = ~ X + C)))
+    b <- expect_stack_matches_brute(d, md)
+    expect_length(b$info$blocks, if (stab) 4L else 2L)
+  }
+})
+
+test_that("trimmed weights: the constant-cap variance matches the brute-force sandwich", {
+  d <- make_stack_data(seed = 8, n = 300)
+  md <- suppressWarnings(set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M", method = "ipw", weight_stabilize = TRUE,
+    weight_formula = ~ X + C, weight_trim = 0.9))
+  b <- expect_stack_matches_brute(d, md)
+  expect_true(any(b$info$trimmed))
+  # trimming changes the variance relative to untrimmed weights
+  md0 <- suppressWarnings(set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M", method = "ipw", weight_stabilize = TRUE,
+    weight_formula = ~ X + C))
+  b0 <- brute_stacked(d, md0)
+  expect_false(isTRUE(all.equal(b$brute, b0$brute)))
+})
+
+test_that(".ipw_stacked_vcov() refuses fits it cannot check", {
   d <- make_stack_data()
   sf <- stack_fits(d)
-  md_s <- suppressWarnings(set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
-    treatment = "X", mediator = "M", method = "ipw", weight_stabilize = TRUE))
-  expect_error(missingmed:::.ipw_stacked_vcov(sf$fits,
-    missingmed:::.ipw_weights_info(md_s)$info), "unstabilized")
   info <- missingmed:::.ipw_weights_info(stack_md(d))$info
-  # weights that are not 1 / p from the missingness model
-  bad <- list(m = stats::glm(M ~ X + C, data = d[sf$cc, ]),
-    y = sf$fits$y)
-  expect_error(missingmed:::.ipw_stacked_vcov(bad, info), "1 / p")
+  # weights that are not the estimated, capped IPW weights
+  bad <- list(m = stats::glm(M ~ X + C, data = d[sf$cc, ]), y = sf$fits$y)
+  expect_error(missingmed:::.ipw_stacked_vcov(bad, info), "weights in `info`")
   expect_error(missingmed:::.ipw_stacked_vcov(unname(sf$fits), info), "named list")
 })
