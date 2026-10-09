@@ -20,6 +20,24 @@
 #' `.Defunct()` stubs in 0.6.0 and removed in 0.7.0. See
 #' `vignette("s4-migration", package = "missingmed")` for the replacements.
 #'
+#' @section Lifecycle:
+#' Stages follow the [tidyverse lifecycle](https://lifecycle.r-lib.org/articles/stages.html).
+#' Features not listed here carry no stage badge.
+#'
+#' * `r lifecycle::badge("experimental")` `engine = "lavaan"` (since 0.6.0) and
+#'   MBCO for it, `mbco_d4(model =, outcome =, fit_args =)` (since 0.8.0).
+#' * `r lifecycle::badge("experimental")` `sensitivity_mnar(on_error =)`
+#'   (since 0.9.0).
+#' * `r lifecycle::badge("deprecated")` extra arguments in `run(...)` and
+#'   `sensitivity_mnar(...)` (since 0.7.0): use `fit_args` in
+#'   [set_md_mediation()].
+#' * `r lifecycle::badge("deprecated")` `set_md_mediation(mechanism = "mnar")`
+#'   (since 0.3.0): it has no effect.
+#'
+#' Deprecations warn through the lifecycle package: once per session (every
+#' eight hours) by default; set `options(lifecycle_verbosity = "warning")` to see
+#' every one. The S4 functions listed above are removed, not deprecated.
+#'
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #'
 #' @importFrom stats coef var vcov

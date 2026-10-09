@@ -40,7 +40,8 @@ a \code{data.frame} (may contain \code{NA}s; complete cases are reweighted).}
 
 \item{mediator}{Name of the mediator variable.}
 
-\item{engine}{Fitting engine: \code{"glm"} (default), \code{"regmedint"} (needs
+\item{engine}{Fitting engine (\code{"lavaan"} is \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}; see
+the \emph{Lifecycle} section of \link{missingmed-package}): \code{"glm"} (default), \code{"regmedint"} (needs
 medfit 0.4.0 or later and the regmedint package; \code{method = "mi"} only), or
 \code{"lavaan"}
 (a structural equation model given as \code{model} syntax instead of formulas;
@@ -52,7 +53,7 @@ models. Default \code{stats::gaussian()}.}
 
 \item{method}{Estimator axis: \code{"mi"} (default) or \code{"ipw"}.}
 
-\item{mechanism}{\strong{Deprecated.} The pipeline estimates under MAR regardless,
+\item{mechanism}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The pipeline estimates under MAR regardless,
 so this argument never changed behavior. Passing \code{"mnar"} warns and is
 ignored. Use \code{\link[=sensitivity_mnar]{sensitivity_mnar()}} to assess departures from MAR; it sets
 \code{mechanism = "mnar"} on the objects it creates.}

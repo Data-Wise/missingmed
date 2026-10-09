@@ -99,13 +99,15 @@
         call. = FALSE
       )
     }
-    warning(warningCondition(
-      paste0("Passing arguments through `", caller, "` is deprecated and will ",
-        "be removed in a future release: set ",
-        paste0("`", nms, "`", collapse = ", "),
+    lifecycle::deprecate_warn(
+      when = "0.7.0",
+      what = I(paste0("Passing arguments through `", sub("\\(\\)$", "(...)", caller), "`")),
+      with = I("`fit_args` in `set_md_mediation()`"),
+      details = paste0("Set ", paste0("`", nms, "`", collapse = ", "),
         " with `fit_args` in set_md_mediation()."),
-      class = "md_dots_deprecated", call = NULL
-    ))
+      id = paste0("missingmed-dots-", caller),
+      user_env = rlang::global_env()
+    )
   }
   extra <- c(fa, dots)
   reserved <- c(.md_reserved_args, if (ipw) c("weights", "se_type"))

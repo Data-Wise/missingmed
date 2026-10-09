@@ -25,6 +25,19 @@
   slightly conservative relative to the published procedure; the size gap at
   K = 20 is at most about 0.002.
 
+## Lifecycle
+
+* missingmed now uses the lifecycle package. The deprecations of `run(...)` and
+  `sensitivity_mnar(...)` extra arguments (0.7.0) and of `set_md_mediation(mechanism =
+  "mnar")` (0.3.0) warn through `lifecycle::deprecate_warn()`: once per session by
+  default, and every time with `options(lifecycle_verbosity = "warning")`. **The
+  warning class changes** from `md_dots_deprecated` to `lifecycle_warning_deprecated`
+  (the dots warning was introduced in 0.7.0); code that caught the old class should
+  catch the new one.
+* Stage badges on the help pages: `engine = "lavaan"`, `mbco_d4(model =, outcome =,
+  fit_args =)` and `sensitivity_mnar(on_error =)` are experimental; the deprecated
+  arguments are badged. `?missingmed-package` has a *Lifecycle* section.
+
 # missingmed 0.8.0
 
 ## New features

@@ -56,7 +56,7 @@ not compute a tipping point for it.}
 (\code{"fixed"}, the default, or \code{"own"}; see \code{\link[=mbco_d4]{mbco_d4()}}). Ignored, with a
 warning, for \code{type = "mc"}.}
 
-\item{on_error}{What to do when fitting or inference fails at a rung (a refit
+\item{on_error}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} What to do when fitting or inference fails at a rung (a refit
 that did not converge, a non-finite likelihood). \code{"stop"} (default) aborts
 the sweep and the error names the rung and its delta. \code{"continue"} keeps
 the rungs that succeeded, records the message of each failed rung in
@@ -67,7 +67,7 @@ it. It is an error if every rung fails. Re-imputation errors and a
 non-finite shifted value always stop. Only errors are caught; warnings pass
 through.}
 
-\item{...}{Deprecated. Extra arguments for the engine; set them with
+\item{...}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Extra arguments for the engine; set them with
 \code{fit_args} in \code{\link[=set_md_mediation]{set_md_mediation()}}, which every refit here reads. They
 are still honored, with one warning, and may not repeat a name already in
 \code{fit_args}.}

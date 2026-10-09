@@ -20,6 +20,7 @@ Imports:
     tibble (>= 3.0.0),
     broom (>= 0.7.0),
     rlang (>= 0.4.0),
+    lifecycle (>= 1.0.3),
     sandwich
 Suggests:
     testthat (>= 3.0.0),

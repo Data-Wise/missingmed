@@ -29,6 +29,27 @@ The S4 functions \code{set_sem()}, \code{run_sem()}, \code{pool_sem()}, \code{fi
 \code{vignette("s4-migration", package = "missingmed")} for the replacements.
 }
 
+\section{Lifecycle}{
+
+Stages follow the \href{https://lifecycle.r-lib.org/articles/stages.html}{tidyverse lifecycle}.
+Features not listed here carry no stage badge.
+\itemize{
+\item \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} \code{engine = "lavaan"} (since 0.6.0) and
+MBCO for it, \code{mbco_d4(model =, outcome =, fit_args =)} (since 0.8.0).
+\item \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} \code{sensitivity_mnar(on_error =)}
+(since 0.9.0).
+\item \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} extra arguments in \code{run(...)} and
+\code{sensitivity_mnar(...)} (since 0.7.0): use \code{fit_args} in
+\code{\link[=set_md_mediation]{set_md_mediation()}}.
+\item \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} \code{set_md_mediation(mechanism = "mnar")}
+(since 0.3.0): it has no effect.
+}
+
+Deprecations warn through the lifecycle package: once per session (every
+eight hours) by default; set \code{options(lifecycle_verbosity = "warning")} to see
+every one. The S4 functions listed above are removed, not deprecated.
+}
+
 \seealso{
 Useful links:
 \itemize{

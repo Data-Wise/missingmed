@@ -36,7 +36,7 @@ response of \code{formula_y}.}
 
 \item{ariv}{\code{"fixed"} (default) or \code{"own"}; see Details.}
 
-\item{model, outcome, fit_args}{For a lavaan SEM, in place of \code{formula_y},
+\item{model, outcome, fit_args}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} For a lavaan SEM, in place of \code{formula_y},
 \code{formula_m} and the families: a lavaan model syntax string, the outcome
 variable name, and a named list of lavaan options (as in
 \code{\link[=set_md_mediation]{set_md_mediation()}}). \code{model} cannot be combined with the formula or

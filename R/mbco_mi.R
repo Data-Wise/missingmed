@@ -495,7 +495,7 @@
 #'   (default [stats::gaussian()]); models are fit with [stats::glm()].
 #' @param treatment,mediator Names of the treatment and mediator variables.
 #' @param ariv `"fixed"` (default) or `"own"`; see Details.
-#' @param model,outcome,fit_args For a lavaan SEM, in place of `formula_y`,
+#' @param model,outcome,fit_args `r lifecycle::badge("experimental")` For a lavaan SEM, in place of `formula_y`,
 #'   `formula_m` and the families: a lavaan model syntax string, the outcome
 #'   variable name, and a named list of lavaan options (as in
 #'   [set_md_mediation()]). `model` cannot be combined with the formula or

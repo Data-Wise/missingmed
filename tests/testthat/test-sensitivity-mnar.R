@@ -163,11 +163,11 @@ test_that("target must be NULL when delta is a data frame", {
 test_that("mechanism = 'mnar' is deprecated and ignored", {
   d <- gen_mnar()
   imp <- mice::mice(d, m = 2, printFlag = FALSE, seed = 3)
-  expect_warning(
+  lifecycle::expect_deprecated(
     md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
       treatment = "X", mediator = "M", mechanism = "mnar"
     ),
-    "deprecated"
+    "`mechanism = \"mnar\"`.*deprecated in\\s+missingmed 0\\.3\\.0"
   )
   expect_equal(md@mechanism, "mar")
 })
