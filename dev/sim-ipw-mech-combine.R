@@ -16,6 +16,7 @@ mech_summarize <- function(res) {
     xo <- x[x$ok, ]
     data.frame(x[1, KEY], form = x$form[1], reps = nrow(x), failed = mean(x$fail),
       degenerate = mean(x$degenerate > 0, na.rm = TRUE),
+      fallback = if ("fallback" %in% names(x)) mean(x$fallback > 0, na.rm = TRUE) else NA_real_,
       bias_b = mean(x$b - x$truth_b, na.rm = TRUE), bias_a = mean(x$a - x$truth_a, na.rm = TRUE),
       rmse_b = sqrt(mean((x$b - x$truth_b)^2, na.rm = TRUE)),
       cover = mean(xo$cover), reject = mean(xo$reject0), width = stats::median(xo$width),

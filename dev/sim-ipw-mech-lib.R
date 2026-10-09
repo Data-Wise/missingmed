@@ -110,6 +110,22 @@ mech_weights <- function(d, form) {
   list(w = w, cc = cc, degenerate = den$deg, nonconv = den$nc + num$nc)
 }
 
+# Interval for a*b: RMediation's "dop" first; when it returns none for a positive-definite
+# block (it stops with "Numerical algorithm does not work in type='dop'" at some large-n
+# estimates), the "MC" interval, seeded per replication, and `fallback` = 1.
+# Spec section 11a. Run 1 (commit d62295d) had no fallback.
+mech_interval <- function(a, b, S2, seed) {
+  iv <- ipw_interval(a, b, S2)
+  fb <- 0L
+  if (is.na(iv[["lo"]]) && isTRUE(iv[["pd"]] == 1)) {
+    set.seed(seed + 31L)
+    ci <- tryCatch(RMediation::ci(RMediation::ProductNormal(mu = c(a, b), Sigma = S2),
+      level = .95, type = "MC")$CI, error = function(e) c(NA_real_, NA_real_))
+    iv <- c(lo = ci[1], hi = ci[2], pd = 1); fb <- 1L
+  }
+  c(iv, fallback = fb)
+}
+
 # Estimate and shipped-path interval from one weight vector.
 mech_fit <- function(d, wi) {
   cc <- wi$cc; dd <- d[cc, ]; w <- wi$w[cc]
@@ -130,13 +146,13 @@ one_mech <- function(cell, seed, forms = FORMS) {
     r <- tryCatch({
       wi <- mech_weights(d, fm)
       f <- mech_fit(d, wi)
-      iv <- ipw_interval(f$est[1], f$est[2], f$S2)
+      iv <- mech_interval(f$est[1], f$est[2], f$S2, seed)
       data.frame(form = fm, a = f$est[1], b = f$est[2], lo = iv[["lo"]], hi = iv[["hi"]], pd = iv[["pd"]],
         n_cc = f$n_cc, ess = f$ess, max_w_share = f$max_w_share, degenerate = wi$degenerate,
-        nonconv = wi$nonconv, error = NA_character_, stringsAsFactors = FALSE)
+        nonconv = wi$nonconv, fallback = iv[["fallback"]], error = NA_character_, stringsAsFactors = FALSE)
     }, error = function(e) data.frame(form = fm, a = NA_real_, b = NA_real_, lo = NA_real_, hi = NA_real_,
       pd = NA_real_, n_cc = NA_integer_, ess = NA_real_, max_w_share = NA_real_, degenerate = NA_integer_,
-      nonconv = NA_integer_, error = conditionMessage(e), stringsAsFactors = FALSE))
+      nonconv = NA_integer_, fallback = NA_integer_, error = conditionMessage(e), stringsAsFactors = FALSE))
     r
   })
   out <- do.call(rbind, rows)
