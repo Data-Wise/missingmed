@@ -51,8 +51,7 @@
 #'   `engine = "lavaan"`.
 #' @param treatment Name of the treatment/exposure variable.
 #' @param mediator Name of the mediator variable.
-#' @param engine Fitting engine (`"lavaan"` is `r lifecycle::badge("experimental")`; see
-#'   the *Lifecycle* section of [missingmed-package]): `"glm"` (default), `"regmedint"` (needs
+#' @param engine Fitting engine: `"glm"` (default), `"regmedint"` (needs
 #'   medfit 0.4.0 or later and the regmedint package; `method = "mi"` only), or
 #'   `"lavaan"`
 #'   (a structural equation model given as `model` syntax instead of formulas;

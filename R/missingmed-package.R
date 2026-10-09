@@ -24,8 +24,6 @@
 #' Stages follow the [tidyverse lifecycle](https://lifecycle.r-lib.org/articles/stages.html).
 #' Features not listed here carry no stage badge.
 #'
-#' * `r lifecycle::badge("experimental")` `engine = "lavaan"` (since 0.6.0) and
-#'   MBCO for it, `mbco_d4(model =, outcome =, fit_args =)` (since 0.8.0).
 #' * `r lifecycle::badge("experimental")` `sensitivity_mnar(on_error =)`
 #'   (since 0.9.0).
 #' * `r lifecycle::badge("deprecated")` extra arguments in `run(...)` and

@@ -34,8 +34,6 @@ The S4 functions \code{set_sem()}, \code{run_sem()}, \code{pool_sem()}, \code{fi
 Stages follow the \href{https://lifecycle.r-lib.org/articles/stages.html}{tidyverse lifecycle}.
 Features not listed here carry no stage badge.
 \itemize{
-\item \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} \code{engine = "lavaan"} (since 0.6.0) and
-MBCO for it, \code{mbco_d4(model =, outcome =, fit_args =)} (since 0.8.0).
 \item \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} \code{sensitivity_mnar(on_error =)}
 (since 0.9.0).
 \item \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} extra arguments in \code{run(...)} and

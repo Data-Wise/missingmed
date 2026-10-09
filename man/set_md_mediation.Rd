@@ -40,8 +40,7 @@ a \code{data.frame} (may contain \code{NA}s; complete cases are reweighted).}
 
 \item{mediator}{Name of the mediator variable.}
 
-\item{engine}{Fitting engine (\code{"lavaan"} is \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}; see
-the \emph{Lifecycle} section of \link{missingmed-package}): \code{"glm"} (default), \code{"regmedint"} (needs
+\item{engine}{Fitting engine: \code{"glm"} (default), \code{"regmedint"} (needs
 medfit 0.4.0 or later and the regmedint package; \code{method = "mi"} only), or
 \code{"lavaan"}
 (a structural equation model given as \code{model} syntax instead of formulas;

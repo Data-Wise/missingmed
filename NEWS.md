@@ -34,9 +34,10 @@
   warning class changes** from `md_dots_deprecated` to `lifecycle_warning_deprecated`
   (the dots warning was introduced in 0.7.0); code that caught the old class should
   catch the new one.
-* Stage badges on the help pages: `engine = "lavaan"`, `mbco_d4(model =, outcome =,
-  fit_args =)` and `sensitivity_mnar(on_error =)` are experimental; the deprecated
-  arguments are badged. `?missingmed-package` has a *Lifecycle* section.
+* Stage badges on the help pages: `sensitivity_mnar(on_error =)` is experimental and
+  the deprecated arguments are badged; the lavaan engine and its MBCO are stable
+  (maximum likelihood only; the refusals for `MLR`, `group`, `ordered` and
+  `sampling.weights` are documented scope limits). `?missingmed-package` has a *Lifecycle* section.
 
 # missingmed 0.8.0
 
