@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | T1, T2 done 2026-10-09 (harness and local smoke on `feature/glm-mbco-calibration`); T3 (hopper pilot) next. |
+| **Status** | RUN 2026-10-09 (T1-T4 done). C1, C2, C4, C5 pass; **C3 fails** (one cell); author decision pending. Raw table: [RESULTS-glm-mbco-calibration-2026-10-09.txt](RESULTS-glm-mbco-calibration-2026-10-09.txt). |
 | **Plan / grill** | [PLAN-open-items-2026-10-09.md](PLAN-open-items-2026-10-09.md) item B; [GRILL-open-items-2026-10-09.md](GRILL-open-items-2026-10-09.md) Q2 (re-asked: glm-specific grid) |
 | **Predecessor** | ML calibration for lavaan: `SPEC-sem-mbco-2026-10-08.md` section 11 (40 cells, max size 0.057) |
 | **Measures** | the procedure as of `dev` `fb17b60`: D4 with Chan and Meng eq. 2.15 denominator df (#62) |
@@ -90,3 +90,28 @@ Checkpoint after T2 (the naive control inflates, k = 2 appears) and after T3 (th
 | `rare_y` produces more refusals than informative replications | That is the point of the block; size is reported with the refusal share, and the cell is not gated on criterion 4 |
 | One cell exceeds 6.5% by chance | About 44 of the cells are single-null cells with true size near 5%; at 1000 replications each has about a 1.5% chance of exceeding 6.5% (se 0.007), so expect under one such cell by chance. The 3000-replication rerun in section 3 separates noise from bias |
 | The control cells do not inflate | Criterion 5 voids the run; the harness is fixed, not the procedure |
+
+## 8. Results (2026-10-09)
+
+Hopper job 4333687: 396 tasks, all COMPLETED, 132 cells x 1000 replications (131,997 replications reported by the combine script; 0.0-0.4% refused). Package: missingmed 0.8.0.9000 built from `dev` (`0e1ca7e`, with the Chan and Meng denominator df of #62). Pilot (T3): job 4333675, 12 tasks. Cell-level table: [RESULTS-glm-mbco-calibration-2026-10-09.txt](RESULTS-glm-mbco-calibration-2026-10-09.txt).
+
+| Criterion | Outcome |
+|---|---|
+| C1 size at most 6.5% in every null cell (`fixed`) | **PASS**: 110 of 110 cells, maximum **0.057** (`gauss_xm`, n = 500, 25%, (0, .3, .2)). Mean size over single-null cells 0.034-0.036; intersection 0.003; near-intersection 0.009-0.011 |
+| C2 same bound at m = 5 and 10 | **PASS**: maximum 0.046 (`bin_y`, m = 5) |
+| C3 power at least 50% in n = 500 main cells | **FAIL as written**: 15 of 16 cells pass; `bin_m`, n = 500, 40% missing has power **0.433** (the same family at 25% missing: 0.593) |
+| C4 refusals at most 1% (main, small K) | **PASS**: 0.000 everywhere; `rare_y` refusals 0-0.4% (reported) |
+| C5 positive control | **PASS**: the naive pooled test has size 0.111 and 0.244 in the `bin_y`, n = 200, 40% single-null cells, and 0.12-0.34 across single-null cells generally. The harness sees liberal behavior |
+| C6 `ariv = "own"` (reported) | **Liberal in 23 of 110 null cells**, up to **0.138** (`pois_y`, n = 200, 40%, (.3, 0)); mostly non-Gaussian families at 40% missing. See below |
+
+**C3.** The pre-registered bound is missed by one cell, and the miss is about power, not validity. A binary mediator with `a = .3` on the log-odds scale carries little information, and power falls with missingness (0.593 at 25%, 0.433 at 40%) and rises with n (0.101 at n = 200, 40%). Nothing in the data suggests a dead test: the test rejects 99-100% in the `gauss_xm` n = 500 power cells and 90-98% in `pois_y`. Under the rule that each criterion can fail, this one did; it is reported as a FAIL, not restated.
+
+**Type I error.** The default (`ariv = "fixed"`) is conservative throughout: single-null cells average about 3.5%, never above 5.7%. That matches the lavaan result (maximum 0.057, single-null mean 4.2%). The k = 2 branch (`gauss_xm`, b = th = 0 nulls) is covered: mean k = 1.95 in the b-null cells, sizes 0.037-0.050 there.
+
+**`ariv = "own"`.** The 0.4.0-compatible setting exceeds 6.5% in 23 of 110 null cells (maximum 0.138), concentrated in `pois_y` and the binary-outcome cells at 40% missing, while `fixed` stays at or below 5.7% on the same replications. This is the first calibration evidence on `"own"`; it supports the default and argues for a documentation warning (see Decisions).
+
+## 9. Decisions (author)
+
+1. **C3**: accept the FAIL as a reported power finding (recommended), or add a strong-effect power cell for `bin_m` (`a = .6`) to show the test is not dead there.
+2. **`ariv = "own"`**: document that it can be liberal for non-Gaussian families at high missingness and that `"fixed"` is the calibrated default (`?mbco_d4`, `mbco-mi`, NEWS), recommended; no behavior change.
+3. The operating-characteristics table in `vignettes/mbco-mi.Rmd` gains the glm rows (the lavaan rows are already there).
