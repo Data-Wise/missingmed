@@ -137,3 +137,9 @@ Two flaws in the approved spec were found while building the harness. Both are r
 **A3. Control 1 bar.** The shipped Monte-Carlo interval's noise grows with width, so the bar is 0.01 + 0.02 x width per endpoint, not a flat 0.01. Control 1 has a positive control: `known_hc0` must exceed the same bar somewhere (it does, by 0.69), so the control can tell a wrong covariance from the shipped one.
 
 **A4. `combine` refuses to present a partial run as a decision.** It prints "INCOMPLETE RUN ... Decisions below are NOT valid" unless all 48 cells have at least 2000 replications.
+
+## 12. T4 hopper pilot (2026-10-09)
+
+Install: `dev` tip `ec51884` (contains `.ipw_stacked_vcov()` and the #70 guard) built with `R CMD build --no-build-vignettes`, installed to `~/Rlib-sem` by batch job 4334215 (previous install backed up to `~/Rlib-backup/missingmed-before-ec51884`). Pilot: job 4334216, `ONLY_CELLS=1,40 REPS=20`, 8 array tasks (cell 1 = `std`, n = 200, 25% missing, P1; cell 40 = `auxm`, n = 200, 40% missing, P4), all COMPLETED, 0.7 to 0.8 s per task.
+
+Failure shares (520 rows = 40 replications x 13 arm-form rows): error rows 0, NA intervals 0, non-positive-definite stacked blocks 0, refused or non-converged fits 0; the trimmed form trimmed 5.2 rows per replication on average. No column is near the 1% bar. This is a plumbing check: 20 replications cannot show a rare failure below about 5%, so `combine` on the full run is what reads C5. Throughput is about 0.16 s per replication, so the 192-task full run is about 80 s per task.
