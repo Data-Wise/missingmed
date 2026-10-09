@@ -11,7 +11,11 @@
 #' of the target. They are not the same quantity and can differ substantially;
 #' see `vignette("technical")` and [sensitivity_mnar()].
 #'
-#' @param rungs List of inference results, one per row of `grid`.
+#' @param rungs List of inference results, one per row of `grid`. A rung that
+#'   failed under `sensitivity_mnar(on_error = "continue")` is `NULL`.
+#' @param failed Character vector, one per rung: the error message of a failed
+#'   rung and `NA` for a rung that succeeded. Empty (the default) when no rung
+#'   failed.
 #' @param grid Data frame of delta values; one column per target, one row per rung.
 #' @param msp Numeric vector of realized marginal sensitivity parameters, one per
 #'   rung, computed on the first target (`target[1]`).
@@ -40,6 +44,7 @@ MDSensitivityResult <- S7::new_class(
   package = "missingmed",
   properties = list(
     rungs = S7::class_list,
+    failed = S7::new_property(S7::class_character, default = character()),
     grid = S7::new_property(S7::class_data.frame, default = quote(data.frame())),
     msp = S7::new_property(S7::class_numeric, default = quote(numeric())),
     target = S7::class_character,
@@ -67,8 +72,28 @@ MDSensitivityResult <- S7::new_class(
     }
     # tidy() reads $Estimate/$CI from an "mc" rung and [["D4"]]/[["p"]] from an
     # "mbco" rung. Checked by name, so a plain named vector still passes.
+    # A failed rung (sensitivity_mnar(on_error = "continue")) is NULL and carries
+    # its message in @failed; any other NULL rung is malformed.
+    if (length(self@failed) && length(self@failed) != length(self@rungs)) {
+      return("@failed must be empty or have one entry per rung.")
+    }
+    is_failed <- if (length(self@failed)) !is.na(self@failed) else rep(FALSE, length(self@rungs))
+    null_rung <- vapply(self@rungs, is.null, logical(1))
+    if (any(null_rung & !is_failed)) {
+      return(paste0(
+        "rung(s) ", paste(which(null_rung & !is_failed), collapse = ", "),
+        " are NULL but not recorded in @failed."
+      ))
+    }
+    if (any(is_failed & !null_rung)) {
+      return("a rung recorded in @failed must be NULL.")
+    }
+    if (all(is_failed)) {
+      return("@rungs must hold at least one successful inference result.")
+    }
     need <- if (self@type == "mc") c("Estimate", "CI") else c("D4", "p")
-    bad <- which(!vapply(self@rungs, function(r) all(need %in% names(r)), logical(1)))
+    bad <- which(!is_failed &
+      !vapply(self@rungs, function(r) all(need %in% names(r)), logical(1)))
     if (length(bad)) {
       return(paste0(
         "@rungs must all be '", self@type, "' inference results (with ",

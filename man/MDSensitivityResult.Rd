@@ -6,6 +6,7 @@
 \usage{
 MDSensitivityResult(
   rungs = list(),
+  failed = character(0),
   grid = data.frame(),
   msp = numeric(),
   target = character(0),
@@ -20,7 +21,12 @@ MDSensitivityResult(
 )
 }
 \arguments{
-\item{rungs}{List of inference results, one per row of \code{grid}.}
+\item{rungs}{List of inference results, one per row of \code{grid}. A rung that
+failed under \code{sensitivity_mnar(on_error = "continue")} is \code{NULL}.}
+
+\item{failed}{Character vector, one per rung: the error message of a failed
+rung and \code{NA} for a rung that succeeded. Empty (the default) when no rung
+failed.}
 
 \item{grid}{Data frame of delta values; one column per target, one row per rung.}
 
