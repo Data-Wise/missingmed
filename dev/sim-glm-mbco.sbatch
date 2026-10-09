@@ -7,7 +7,8 @@
 #SBATCH --time=04:00:00
 #SBATCH --output=%x-%A_%a.out
 # Pilot: ONLY_CELLS=1,27 REPS=20 sbatch --array=1-6 dev/sim-glm-mbco.sbatch
-# Full:  sbatch --array=1-396%40 dev/sim-glm-mbco.sbatch   (132 cells x 3 chunks)
+# Full:  sbatch --array=1-396%40 dev/sim-glm-mbco.sbatch   (cells 1-132 x 3 chunks)
+# Gaussian own addendum: ONLY_CELLS=133,...,152 (the 20 cells) sbatch --array=1-60%40 dev/sim-glm-mbco.sbatch
 # SLURM batch shells are non-login: `module` is undefined until lmod is sourced.
 source /etc/profile.d/modules.sh
 module load r/4.4.0-ytj2

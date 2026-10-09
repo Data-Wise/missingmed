@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | RUN 2026-10-09 (T1-T4 done). C1, C2, C4, C5 pass; **C3 fails** (one cell); author decision pending. Raw table: [RESULTS-glm-mbco-calibration-2026-10-09.txt](RESULTS-glm-mbco-calibration-2026-10-09.txt). |
+| **Status** | RUN 2026-10-09 (T1-T4 done; section 10 addendum for plain Gaussian `own` pending). C1, C2, C4, C5 pass; **C3 fails** (one cell); author decision pending. Raw table: [RESULTS-glm-mbco-calibration-2026-10-09.txt](RESULTS-glm-mbco-calibration-2026-10-09.txt). |
 | **Plan / grill** | [PLAN-open-items-2026-10-09.md](PLAN-open-items-2026-10-09.md) item B; [GRILL-open-items-2026-10-09.md](GRILL-open-items-2026-10-09.md) Q2 (re-asked: glm-specific grid) |
 | **Predecessor** | ML calibration for lavaan: `SPEC-sem-mbco-2026-10-08.md` section 11 (40 cells, max size 0.057) |
 | **Measures** | the procedure as of `dev` `fb17b60`: D4 with Chan and Meng eq. 2.15 denominator df (#62) |
@@ -117,3 +117,13 @@ Hopper job 4333687: 396 tasks, all COMPLETED, 132 cells x 1000 replications (132
 1. **C3**: accept the FAIL as a reported power finding (recommended), or add a strong-effect power cell for `bin_m` (`a = .6`) to show the test is not dead there.
 2. **`ariv = "own"`**: document that it can be liberal for non-Gaussian families at high missingness and that `"fixed"` is the calibrated default (`?mbco_d4`, `mbco-mi`, NEWS), recommended; no behavior change.
 3. The operating-characteristics table in `vignettes/mbco-mi.Rmd` gains the glm rows (the lavaan rows are already there).
+
+## 10. Addendum: `ariv = "own"` on a plain Gaussian model (pre-registered 2026-10-09, before the run)
+
+**Why.** Section 8's caveat: the grid's only Gaussian family (`gauss_xm`) has branches of unequal k, so `"own"` errors there in half the replications and its size is conditional on that. `medsim`, which the manuscript runs on, uses plain Gaussian `lm` MBCO with k = 1 on both branches and defaults to `ariv = "own"`; no cell in the grid represents it. The lavaan gate recorded `"fixed"` only.
+
+**Cells (133-152).** Family `gauss`: `M = a X + .3 C + e`, `Y = b M + .2 X + .3 C + e`, no `X:M`; analysis `Y ~ M + X + C`, `M ~ X + C`, both Gaussian. n in {200, 500}, missing in {25%, 40%}, m = 20, the five nulls `(0, .3)`, `(.3, 0)`, `(0, 0)`, `(0, .1)`, `(.1, 0)`: 20 cells, 1000 replications, seeds `5000 + replication`, both `ariv` settings recorded. Cells 1-132 keep their numbers (checked against the 396 stored task definitions).
+
+**Criterion C7 (fixed in advance).** In every one of the 20 cells, size at the 5% level is at most 6.5% for **both** `ariv = "fixed"` and `ariv = "own"`, and `"own"` returns a p-value in every replication (share without one is 0).
+
+**If C7 fails.** `"own"` is documented as liberal for a plain Gaussian model too (`?mbco_d4`, `mbco-mi`, NEWS), the manuscript session is told with the cell sizes, and the default question (`"fixed"` for `medsim`) is theirs to decide. If C7 passes, `"own"` is reported as calibrated for this model and nothing changes.

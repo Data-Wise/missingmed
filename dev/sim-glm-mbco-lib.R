@@ -21,7 +21,8 @@ null_pts <- function(fam) {
   }
 }
 
-# The 132 cells of the gate, in a fixed order (cell index = row).
+# The 152 cells of the gate, in a fixed order (cell index = row). Cells 1-132 are
+# the glm gate; 133-152 are the plain-Gaussian `ariv = "own"` addendum (SPEC section 10).
 glm_cells <- function() {
   main <- expand.grid(fam = c("gauss_xm", "bin_y", "pois_y", "bin_m"), n = c(200, 500),
     miss = c(.25, .40), m = 20, null = 1:6, stringsAsFactors = FALSE)
@@ -32,8 +33,11 @@ glm_cells <- function() {
   smallk <- expand.grid(fam = c("gauss_xm", "bin_y"), n = 200, miss = .40, m = c(5, 10),
     null = 1:6, stringsAsFactors = FALSE)
   smallk$block <- "smallk"
-  cells <- rbind(main, rare, smallk)
-  cells <- cells[order(match(cells$block, c("main", "rare", "smallk")), cells$fam, cells$n,
+  gauss <- expand.grid(fam = "gauss", n = c(200, 500), miss = c(.25, .40), m = 20, null = 1:5,
+    stringsAsFactors = FALSE)
+  gauss$block <- "gauss"
+  cells <- rbind(main, rare, smallk, gauss)
+  cells <- cells[order(match(cells$block, c("main", "rare", "smallk", "gauss")), cells$fam, cells$n,
     cells$miss, cells$m, cells$null), ]
   rownames(cells) <- NULL
   pts <- do.call(rbind, lapply(seq_len(nrow(cells)), function(i) {
@@ -49,12 +53,13 @@ gen_glm <- function(fam, n, a, b, th, miss, seed) {
   M <- if (fam == "bin_m") rbinom(n, 1, plogis(a * X + .3 * C)) else a * X + .3 * C + rnorm(n)
   eta <- switch(fam,
     gauss_xm = b * M + th * X * M + .2 * X + .3 * C,
+    gauss = b * M + .2 * X + .3 * C,
     bin_y = -.3 + b * M + .2 * X + .3 * C,
     rare_y = -2.6 + b * M + .2 * X + .3 * C,
     pois_y = -.2 + b * M + .2 * X + .3 * C,
     bin_m = b * M + .2 * X + .3 * C)
   Y <- switch(fam,
-    gauss_xm = eta + rnorm(n),
+    gauss_xm = , gauss = eta + rnorm(n),
     bin_y = , rare_y = rbinom(n, 1, plogis(eta)),
     pois_y = rpois(n, exp(eta)),
     bin_m = eta + rnorm(n))
@@ -66,6 +71,7 @@ gen_glm <- function(fam, n, a, b, th, miss, seed) {
 # Analysis model per family: formulas and families handed to mbco_d4().
 spec_glm <- function(fam) {
   switch(fam,
+    gauss = list(fy = Y ~ M + X + C, fm = M ~ X + C, gy = stats::gaussian(), gm = stats::gaussian()),
     gauss_xm = list(fy = Y ~ M * X + C, fm = M ~ X + C, gy = stats::gaussian(), gm = stats::gaussian()),
     bin_y = , rare_y = list(fy = Y ~ M + X + C, fm = M ~ X + C, gy = stats::binomial(), gm = stats::gaussian()),
     pois_y = list(fy = Y ~ M + X + C, fm = M ~ X + C, gy = stats::poisson(), gm = stats::gaussian()),

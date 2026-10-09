@@ -1,18 +1,23 @@
 # Local smoke test of the glm calibration harness (SPEC T2): cheap, a few replications.
 source("dev/sim-glm-mbco-lib.R")
 cells <- glm_cells(); cells$cell <- seq_len(nrow(cells))
-stopifnot(nrow(cells) == 132, !anyDuplicated(cells[, c("fam", "n", "miss", "m", "null")]))
+stopifnot(nrow(cells) == 152, !anyDuplicated(cells[, c("fam", "n", "miss", "m", "null")]))
 cat("cells:", nrow(cells), " by block:", paste(names(table(cells$block)), table(cells$block), collapse = ", "), "\n")
 pick <- function(fam, n, miss, m, null) cells[cells$fam == fam & cells$n == n & cells$miss == miss & cells$m == m & cells$null == null, ]
 fail <- 0L
 ck <- function(label, ok) { cat(if (isTRUE(ok)) "PASS" else "FAIL", label, "\n"); if (!isTRUE(ok)) fail <<- fail + 1L }
 # 1. every family returns the recorded fields on a null cell
-for (fam in c("gauss_xm", "bin_y", "pois_y", "bin_m")) {
+for (fam in c("gauss_xm", "bin_y", "pois_y", "bin_m", "gauss")) {
   cl <- pick(fam, 200, .25, 20, 2)
   r <- do.call(rbind, lapply(1:3, function(s) one_glm(cl, 5000 + s)))
   ck(sprintf("%-8s fields present, no refusal (3 reps; p_fixed %s)", fam, paste(sprintf("%.2f", r$p_fixed), collapse = "/")),
     all(c("p_fixed", "p_own", "p_naive", "r4", "nu", "k", "branch", "refused") %in% names(r)) && all(is.na(r$refused)) && !anyNA(r$p_fixed))
 }
+# 1b. plain Gaussian, k = 1 on both branches: ariv = "own" never errors (SPEC section 10)
+cl <- pick("gauss", 200, .40, 20, 3)
+r <- do.call(rbind, lapply(1:6, function(s) one_glm(cl, 5000 + s)))
+ck(sprintf("gauss: own returns a p-value in every replication (k = %s)", paste(unique(r$k), collapse = "/")),
+  !anyNA(r$p_own) && all(r$k == 1))
 # 2. gauss_xm reaches k = 2 when the b = th = 0 branch wins (null id 2: a = .3, b = th = 0)
 cl <- pick("gauss_xm", 500, .25, 20, 2)
 r <- do.call(rbind, lapply(1:4, function(s) one_glm(cl, 5000 + s)))

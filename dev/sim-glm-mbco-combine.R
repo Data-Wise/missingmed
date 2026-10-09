@@ -12,6 +12,7 @@ tab <- do.call(rbind, lapply(split(rows, rows$cell), function(g) {
   data.frame(cell = c0$cell, block = c0$block, fam = c0$fam, n = c0$n, miss = c0$miss, m = c0$m,
     null = c0$null, reps = nrow(g), refused = mean(!is.na(g$refused)),
     fixed = sz(g$p_fixed), own = sz(g$p_own), naive = sz(g$p_naive),
+    own_na = mean(is.na(g$p_own) & !is.na(g$p_fixed)),
     se = sqrt(.05 * .95 / max(1, sum(!is.na(g$p_fixed)))), k = mean(g$k, na.rm = TRUE),
     r4 = mean(g$r4, na.rm = TRUE), stringsAsFactors = FALSE)
 }))
@@ -22,7 +23,7 @@ nul <- tab[tab$null < 6, ]
 chk <- function(label, ok, detail = "") cat(sprintf("%-4s %s %s\n", if (is.na(ok)) "n/a" else if (ok) "PASS" else "FAIL", label, detail))
 cat("\n== Criteria\n")
 chk("C1 size <= 6.5% in every null cell (fixed)", all(nul$fixed <= .065, na.rm = TRUE),
-  sprintf("(max %.3f; %d of %d cells present)", max(nul$fixed, na.rm = TRUE), nrow(nul), 110))
+  sprintf("(max %.3f over %d null cells present)", max(nul$fixed, na.rm = TRUE), nrow(nul)))
 sk <- nul[nul$block == "smallk", ]
 chk("C2 size <= 6.5% at m = 5, 10", if (nrow(sk)) all(sk$fixed <= .065, na.rm = TRUE) else NA,
   if (nrow(sk)) sprintf("(max %.3f)", max(sk$fixed, na.rm = TRUE)) else "")
@@ -35,4 +36,8 @@ chk("C4 refusal share <= 1% (main, small K)", if (nrow(rf)) all(rf$refused <= .0
 ct <- tab[tab$fam == "bin_y" & tab$n == 200 & tab$miss == .4 & tab$m == 20 & tab$null %in% 1:2, ]
 chk("C5 positive control: naive pooling is liberal (> 6.5%) in bin_y n=200, 40%", if (nrow(ct)) all(ct$naive > .065, na.rm = TRUE) else NA,
   if (nrow(ct)) paste0("(naive ", paste(sprintf("%.3f", ct$naive), collapse = ", "), "); a void result here voids the run") else "")
-cat("C6 ariv = 'own' is reported, not gated (column `own`).\n")
+cat("C6 ariv = 'own' is reported (column `own`; `own_na` = share of replications where own returned no p-value because the branches mixed; own sizes are conditional on those being absent).\n")
+gs <- nul[nul$block == "gauss", ]
+if (nrow(gs)) chk("C7 plain Gaussian, k = 1 (SPEC section 10): own and fixed size <= 6.5% in every cell, own never errors",
+  all(gs$own <= .065, na.rm = TRUE) && all(gs$fixed <= .065, na.rm = TRUE) && all(gs$own_na == 0),
+  sprintf("(max own %.3f, max fixed %.3f, max own_na %.3f over %d cells)", max(gs$own, na.rm = TRUE), max(gs$fixed, na.rm = TRUE), max(gs$own_na), nrow(gs)))
