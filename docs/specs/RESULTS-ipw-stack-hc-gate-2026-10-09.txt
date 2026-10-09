@@ -1094,3 +1094,26 @@ SIZE / COVERAGE TABLE, decisive cells (reject at P1-P3, coverage at P4)
   stdj 500 0.40    P4   uj stacked_hc3 0.6935 0.941 0.1621   0e+00
 
 ########## failing decisive cells
+== form sj: decisive cells where stacked_hc3 fails C1*, C2 or C3 (reject at P1-P3, coverage at P4)
+  auxmj n=200 miss=0.40 P4: shipped 0.954 | hc0 0.925 | hc1 0.928 | HC3 0.938   (bias b -0.005, ESS 101)
+  auxmj n=500 miss=0.40 P4: shipped 0.951 | hc0 0.933 | hc1 0.934 | HC3 0.938   (bias b -0.004, ESS 251)
+== form uj: decisive cells where stacked_hc3 fails C1*, C2 or C3 (reject at P1-P3, coverage at P4)
+  auxmj n=200 miss=0.40 P4: shipped 0.954 | hc0 0.924 | hc1 0.927 | HC3 0.936   (bias b -0.005, ESS 100)
+  auxmj n=500 miss=0.40 P4: shipped 0.951 | hc0 0.932 | hc1 0.933 | HC3 0.937   (bias b -0.004, ESS 250)
+== form spv: decisive cells where stacked_hc3 fails C1*, C2 or C3 (reject at P1-P3, coverage at P4)
+  aux   n=200 miss=0.40 P4: shipped 0.962 | hc0 0.920 | hc1 0.926 | HC3 0.947   (bias b 0.001, ESS 49)
+  auxm  n=200 miss=0.25 P1: shipped 0.028 | hc0 0.056 | hc1 0.053 | HC3 0.038   (bias b -0.008, ESS 93)
+  auxm  n=200 miss=0.25 P4: shipped 0.950 | hc0 0.914 | hc1 0.916 | HC3 0.930   (bias b -0.016, ESS 92)
+  auxm  n=200 miss=0.40 P4: shipped 0.960 | hc0 0.891 | hc1 0.899 | HC3 0.930   (bias b -0.027, ESS 49)
+  auxm  n=500 miss=0.25 P1: shipped 0.041 | hc0 0.063 | hc1 0.060 | HC3 0.052   (bias b -0.002, ESS 225)
+  auxm  n=500 miss=0.25 P4: shipped 0.950 | hc0 0.930 | hc1 0.932 | HC3 0.936   (bias b -0.006, ESS 224)
+  auxm  n=500 miss=0.40 P4: shipped 0.941 | hc0 0.899 | hc1 0.902 | HC3 0.920   (bias b -0.015, ESS 114)
+  std   n=200 miss=0.40 P4: shipped 0.960 | hc0 0.927 | hc1 0.934 | HC3 0.950   (bias b -0.001, ESS 65)
+== form sjt: decisive cells where stacked_hc3 fails C1*, C2 or C3 (reject at P1-P3, coverage at P4)
+  none
+
+MAX null size / MIN P4 coverage over decisive cells, by form: shipped | stacked_hc0 | hc1 | hc3
+  uj  0.063 / 0.943 | 0.065 / 0.924 | 0.065 / 0.927 | 0.063 / 0.936
+  sj  0.062 / 0.941 | 0.065 / 0.925 | 0.065 / 0.928 | 0.064 / 0.938
+  sjt 0.061 / 0.943 | 0.062 / 0.932 | 0.062 / 0.933 | 0.061 / 0.939
+  spv 0.056 / 0.941 | 0.069 / 0.891 | 0.066 / 0.899 | 0.056 / 0.920
