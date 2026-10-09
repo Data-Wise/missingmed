@@ -125,3 +125,15 @@ Adopted as recommended on the author's blanket approval; change any of them befo
 2. **Include `auxm` (recommended).** ADOPTED. It is the only DGM where the shared-weight `cov(a, b)` is large. Drop it only if you want a smaller grid.
 3. ADOPTED as written. **Decision threshold for "stacked becomes the default":** as written (C1-C3 everywhere; a difference is not required). The stricter alternative requires a significant benefit before changing any default.
 4. **Binary outcome block:** ADOPTED, after the Gaussian decision.
+
+## 11. Addendum A (2026-10-09, during T2 and T3, before any hopper result)
+
+Two flaws in the approved spec were found while building the harness. Both are recorded here before any grid result exists; neither uses a result to choose a criterion.
+
+**A1. A third arm, `known_hc0`.** medfit's sandwich is HC3 (`sandwich::vcovHC` default); the stacked estimator is HC0-type. Comparing them directly confounds estimating the weights with the small-sample leverage correction. Measured on the laptop, T2 control run (stabilized joint weights): the HC0 and shipped HC3 interval endpoints differ by up to 0.07 at n = 500 and 25% missing, and up to 0.47 at n = 200 and 40% missing. Every replication therefore also reports `known_hc0` (block-diagonal, HC0, the stacked code with the weight-score blocks removed). Reading: *stacked vs `known_hc0`* is the effect of estimating the weights and of `cov(a, b)`; *`known_hc0` vs `known_hc3`* is the small-sample correction. Criteria C1-C3 stay as written, against `known_hc3` (what users get today). If stacked fails C1 only where `known_hc0` also fails, the cause is the missing small-sample correction, not the weight-score term, and the follow-up is an HC-corrected stacked variance, not rejecting stacking.
+
+**A2. The C1 bar.** C1 as approved (size <= 0.060, coverage >= 0.940) sits two Monte-Carlo se from 0.05 at 2000 replications (se 0.0049). With about 27 null cells per weight form, a perfectly calibrated estimator would fail it by chance more often than not. C1 is now **size <= 0.065 and coverage >= 0.935** (about 3 se; the chance a calibrated estimator exceeds it in a given cell is 0.1%, about 3% per weight form over its null cells). Pre-registered consequence: a weight form whose only C1 exceedances are cells with size in (0.065, 0.070] is rerun in those cells with 10000 replications before the decision; the rerun decides. C2 and C3 (paired, tolerance 0.010) are unchanged.
+
+**A3. Control 1 bar.** The shipped Monte-Carlo interval's noise grows with width, so the bar is 0.01 + 0.02 x width per endpoint, not a flat 0.01. Control 1 has a positive control: `known_hc0` must exceed the same bar somewhere (it does, by 0.69), so the control can tell a wrong covariance from the shipped one.
+
+**A4. `combine` refuses to present a partial run as a decision.** It prints "INCOMPLETE RUN ... Decisions below are NOT valid" unless all 48 cells have at least 2000 replications.
