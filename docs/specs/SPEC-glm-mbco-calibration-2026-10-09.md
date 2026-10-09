@@ -110,6 +110,8 @@ Hopper job 4333687: 396 tasks, all COMPLETED, 132 cells x 1000 replications (132
 
 **`ariv = "own"`.** The 0.4.0-compatible setting exceeds 6.5% in 23 of 110 null cells (maximum 0.138), concentrated in `pois_y` and the binary-outcome cells at 40% missing, while `fixed` stays at or below 5.7% on the same replications. This is the first calibration evidence on `"own"`; it supports the default and argues for a documentation warning (see Decisions).
 
+**Caveat on the `ariv = "own"` column (added 2026-10-09 after review).** `"own"` errors when the imputations' winning branches remove different numbers of parameters, and in `gauss_xm` they do (a = 0 removes one parameter, b = 0 removes two). Those replications have no `p_own` and are dropped from the `own` size. In the `gauss_xm` null cells that is **51%** of replications on average (0% to 92% per cell; 83% at the intersection, 61-78% at the near-intersection nulls). So the `gauss_xm` `own` sizes (maximum 0.057) are conditional on the replications where the branches did not mix, and mixing is what makes `"own"` liberal elsewhere. They are **not** evidence that `"own"` is calibrated for a Gaussian model, and no cell in this grid represents a plain Gaussian model with k = 1 on both branches (the setting where `"own"` never errors and mixing counts; `medsim` uses it). The non-Gaussian families have no such gap (0% NA), so their `own` sizes (up to 0.138) stand. The lavaan ML gate recorded `ariv = "fixed"` only.
+
 ## 9. Decisions (author)
 
 1. **C3**: accept the FAIL as a reported power finding (recommended), or add a strong-effect power cell for `bin_m` (`a = .6`) to show the test is not dead there.
