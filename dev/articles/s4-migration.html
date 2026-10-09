@@ -142,7 +142,7 @@ them)</td>
 <td>(new)</td>
 <td>
 <code>infer(fit, type = "mc")</code>; <code>type = "mbco"</code> for
-glm models</td>
+glm and lavaan (ML) models</td>
 </tr>
 </tbody>
 </table>
@@ -209,17 +209,21 @@ before. The path labels <code>a</code>, <code>b</code> and
 </h2>
 <ul>
 <li>
-<strong>MBCO.</strong> <code>infer(fit, type = "mbco")</code> stops
-for a lavaan fit: the D4 test refits with <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code>, which is
-not the SEM. Use <code>type = "mc"</code>. MBCO for SEM needs its own
-design.</li>
+<strong>MBCO</strong> works for lavaan fits with maximum likelihood
+(<code>infer(fit, type = "mbco")</code>, <code>mbco_d4(model = )</code>,
+and <code>sensitivity_mnar(type = "mbco")</code>). It is refused, naming
+the option, for <code>estimator</code> other than <code>"ML"</code>
+(<code>MLR</code>, <code>MLM</code>, <code>WLSMV</code>, …),
+<code>group</code>, <code>ordered</code> and
+<code>sampling.weights</code>. See the <em>Structural equation
+models</em> article.</li>
 <li>
 <strong>IPW</strong> works with <code>engine = "lavaan"</code>, with
 robust (sandwich) standard errors only.</li>
 <li>
 <strong><code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code></strong> works for
-<code>type = "mc"</code>. With a latent mediator, name an observed
-indicator in <code>target</code>.</li>
+<code>type = "mc"</code> and <code>type = "mbco"</code>. With a latent
+mediator, name an observed indicator in <code>target</code>.</li>
 </ul>
 </div>
 <div class="section level2">

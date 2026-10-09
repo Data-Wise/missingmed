@@ -18,7 +18,10 @@ mbco_d4(
   family_m = stats::gaussian(),
   treatment,
   mediator,
-  ariv = c("fixed", "own")
+  ariv = c("fixed", "own"),
+  model = NULL,
+  outcome = NULL,
+  fit_args = list()
 )
 ```
 
@@ -52,6 +55,19 @@ mbco_d4(
 - ariv:
 
   `"fixed"` (default) or `"own"`; see Details.
+
+- model, outcome, fit_args:
+
+  For a lavaan SEM, in place of `formula_y`, `formula_m` and the
+  families: a lavaan model syntax string, the outcome variable name, and
+  a named list of lavaan options (as in
+  [`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md)).
+  `model` cannot be combined with the formula or family arguments. The
+  tested paths are the regressions `mediator ~ treatment` (a) and
+  `outcome ~ mediator` (b); a latent mediator uses its structural rows,
+  and its measurement model and any direct effects of its indicators on
+  the outcome stay free. Only `estimator = "ML"` (the default) is
+  supported, with no `group`, `ordered` or `sampling.weights`.
 
 ## Value
 
@@ -135,6 +151,16 @@ implist <- lapply(1:3, function(i) {
 })
 mbco_d4(implist, Y ~ X + M, M ~ X,
   treatment = "X", mediator = "M", ariv = "fixed"
+)
+#> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 3 imputations)
+#>   D4 = 11.14 on F(1, 513.1), p = 0.0009083
+#>   r4 = 0.06659 (ariv = "fixed") | d_S = 11.88 
+#>   stacked constrained fit: b = 0 branch
+#>   imputations on the a = 0 branch: 0% (not mixed)
+
+# The same test for a lavaan SEM, from a model string
+mbco_d4(implist,
+  model = "M ~ X\nY ~ M + X", treatment = "X", mediator = "M", outcome = "Y"
 )
 #> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 3 imputations)
 #>   D4 = 11.14 on F(1, 513.1), p = 0.0009083

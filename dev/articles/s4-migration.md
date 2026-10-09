@@ -19,7 +19,7 @@ the S7 pipeline.
 | `SemImputedData`, `SemResults`, `PooledSEMResults` | `MDMediationData`, `MDMediationFit`, `MDMediationResult` |
 | `is_fit()`, `is_pd()`, `is_lav_syntax()`, `is_valid_lav_syntax()` | none (deleted without a stub; nothing in the S7 pipeline uses them) |
 | [`tidy()`](https://generics.r-lib.org/reference/tidy.html) methods for OpenMx models and `logLik` objects | none (deleted) |
-| (new) | `infer(fit, type = "mc")`; `type = "mbco"` for glm models |
+| (new) | `infer(fit, type = "mc")`; `type = "mbco"` for glm and lavaan (ML) models |
 
 ## From a lavaan model to `engine = "lavaan"`
 
@@ -84,14 +84,17 @@ in the pooled estimates. `res@tidy_table` is the pooled table.
 
 ## What lavaan fits cannot do yet
 
-- **MBCO.** `infer(fit, type = "mbco")` stops for a lavaan fit: the D4
-  test refits with [`glm()`](https://rdrr.io/r/stats/glm.html), which is
-  not the SEM. Use `type = "mc"`. MBCO for SEM needs its own design.
+- **MBCO** works for lavaan fits with maximum likelihood
+  (`infer(fit, type = "mbco")`, `mbco_d4(model = )`, and
+  `sensitivity_mnar(type = "mbco")`). It is refused, naming the option,
+  for `estimator` other than `"ML"` (`MLR`, `MLM`, `WLSMV`, …), `group`,
+  `ordered` and `sampling.weights`. See the *Structural equation models*
+  article.
 - **IPW** works with `engine = "lavaan"`, with robust (sandwich)
   standard errors only.
 - **[`sensitivity_mnar()`](https://data-wise.github.io/missingmed/dev/reference/sensitivity_mnar.md)**
-  works for `type = "mc"`. With a latent mediator, name an observed
-  indicator in `target`.
+  works for `type = "mc"` and `type = "mbco"`. With a latent mediator,
+  name an observed indicator in `target`.
 
 ## OpenMx
 

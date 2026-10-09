@@ -341,6 +341,20 @@ option.</p>
 <span><span class="co">#&gt;   r4 = 0.6319 (ariv = "fixed") | d_S = 27.96 </span></span>
 <span><span class="co">#&gt;   stacked constrained fit: b = 0 branch</span></span>
 <span><span class="co">#&gt;   imputations on the a = 0 branch: 20% (mixed)</span></span></code></pre></div>
+<p>For a structural equation model, give a lavaan model string and the
+outcome name instead of the two formulas (maximum likelihood only;
+<code>model</code> cannot be combined with the formula or family
+arguments):</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/mbco_d4.html">mbco_d4</a></span><span class="op">(</span><span class="va">implist</span>,</span>
+<span>  model <span class="op">=</span> <span class="st">"M ~ X + C\nY ~ M + X + C"</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, outcome <span class="op">=</span> <span class="st">"Y"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;MbcoMIResult&gt; D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)</span></span>
+<span><span class="co">#&gt;   D4 = 17.13 on F(1, 91.55), p = 7.734e-05</span></span>
+<span><span class="co">#&gt;   r4 = 0.6319 (ariv = "fixed") | d_S = 27.96 </span></span>
+<span><span class="co">#&gt;   stacked constrained fit: b = 0 branch</span></span>
+<span><span class="co">#&gt;   imputations on the a = 0 branch: 20% (mixed)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="a-single-imputation">A single imputation<a class="anchor" aria-label="anchor" href="#a-single-imputation"></a>
@@ -349,7 +363,7 @@ option.</p>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K = 1</annotation></semantics></math>
 is an informative error. For a single complete dataset, use
 complete-data MBCO in RMediation (Tofighi &amp; Kelley, 2020).</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/mbco_d4.html">mbco_d4</a></span><span class="op">(</span><span class="va">implist</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
 <span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, ariv <span class="op">=</span> <span class="st">"fixed"</span></span>
 <span><span class="op">)</span></span>
@@ -376,7 +390,7 @@ drop or merge the sparse level.</p>
 </h3>
 <p>MBCO needs the per-imputation fits, so asking for it on the
 <em>pooled</em> result is an error by design (see <a href="#why-mbco-does-not-commute-with-rubins-rules">below</a>):</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"mbco"</span>, ariv <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;">:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> MBCO does not commute with Rubin's rules; it needs the per-imputation fits. Call infer(type = "mbco") on the MDMediationFit from run(), not on the pooled MDMediationResult.</span></span></code></pre></div>
@@ -389,7 +403,7 @@ drop or merge the sparse level.</p>
 <code>Y ~ X * M + C</code>. The imputation model must then carry the
 product; here it is imputed passively, and <code>XM</code> is removed as
 a predictor of <code>M</code>:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">d2</span> <span class="op">&lt;-</span> <span class="va">d</span></span>
 <span><span class="va">d2</span><span class="op">$</span><span class="va">XM</span> <span class="op">&lt;-</span> <span class="va">d2</span><span class="op">$</span><span class="va">X</span> <span class="op">*</span> <span class="va">d2</span><span class="op">$</span><span class="va">M</span></span>
 <span><span class="va">meth</span> <span class="op">&lt;-</span> <span class="fu">mice</span><span class="fu">::</span><span class="fu"><a href="https://amices.org/mice/reference/make.method.html" class="external-link">make.method</a></span><span class="op">(</span><span class="va">d2</span><span class="op">)</span></span>
@@ -442,36 +456,36 @@ so the Monte Carlo interval needs <code>treatment_level</code>. For a
 0/1 treatment, <code>treatment_level = 1</code> gives the total natural
 indirect effect and <code>treatment_level = 0</code> the pure natural
 indirect effect:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit2</span>, type <span class="op">=</span> <span class="st">"mc"</span>, treatment_level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $CI</span></span>
-<span><span class="co">#&gt;      2.5 %     97.5 % </span></span>
-<span><span class="co">#&gt; 0.03448457 0.25713999 </span></span>
+<span><span class="co">#&gt;     2.5 %    97.5 % </span></span>
+<span><span class="co">#&gt; 0.0342172 0.2572664 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimate</span></span>
-<span><span class="co">#&gt; [1] 0.1365269</span></span>
+<span><span class="co">#&gt; [1] 0.1365794</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $SE</span></span>
-<span><span class="co">#&gt; [1] 0.05690246</span></span>
+<span><span class="co">#&gt; [1] 0.05684491</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $MC.Error</span></span>
-<span><span class="co">#&gt; [1] 5.690246e-07</span></span>
+<span><span class="co">#&gt; [1] 5.684491e-07</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimand</span></span>
 <span><span class="co">#&gt; [1] "a * (b + theta3 * 1)"</span></span>
 <span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit2</span>, type <span class="op">=</span> <span class="st">"mc"</span>, treatment_level <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $CI</span></span>
-<span><span class="co">#&gt;      2.5 %     97.5 % </span></span>
-<span><span class="co">#&gt; 0.08705547 0.31659329 </span></span>
+<span><span class="co">#&gt;     2.5 %    97.5 % </span></span>
+<span><span class="co">#&gt; 0.0873093 0.3175738 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimate</span></span>
-<span><span class="co">#&gt; [1] 0.1906082</span></span>
+<span><span class="co">#&gt; [1] 0.1905933</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $SE</span></span>
-<span><span class="co">#&gt; [1] 0.05881474</span></span>
+<span><span class="co">#&gt; [1] 0.0590961</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $MC.Error</span></span>
-<span><span class="co">#&gt; [1] 5.881474e-07</span></span>
+<span><span class="co">#&gt; [1] 5.90961e-07</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimand</span></span>
 <span><span class="co">#&gt; [1] "a * (b + theta3 * 0)"</span></span></code></pre></div>
@@ -537,7 +551,7 @@ the log-likelihood in imputation
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>;
 <code>"own"</code> takes each imputation’s maximum.</p>
 <p>The per-imputation fits are available directly:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">acc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/per_imputation_list.html">per_imputation_list</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="va">acc</span><span class="op">$</span><span class="va">m</span></span>
 <span><span class="co">#&gt; [1] 20</span></span>
@@ -545,10 +559,63 @@ the log-likelihood in imputation
 <span><span class="co">#&gt; [1] 20</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="operating-characteristics">Operating characteristics<a class="anchor" aria-label="anchor" href="#operating-characteristics"></a>
+</h2>
+<p>The test is the smaller of two likelihood-ratio statistics, so it is
+<strong>conservative</strong> rather than exact when the null is true on
+a boundary. In a simulation of the lavaan models (40 settings, 1000
+replications each,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+= 200 and 500, 25% and 40% of the mediator or its indicators missing, 20
+imputations, normal data, 5% level):</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>True paths</th>
+<th>Rejection rate</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>one path null, the other strong
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>b</mi><mo>=</mo><mn>.3</mn></mrow><annotation encoding="application/x-tex">a = 0, b = .3</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>.3</mn><mo>,</mo><mi>b</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">a = .3, b = 0</annotation></semantics></math>)</td>
+<td>3.3% to 5.7%, mean 4.2%</td>
+</tr>
+<tr class="even">
+<td>one path null, the other weak (.1)</td>
+<td>0.7% to 2.2%</td>
+</tr>
+<tr class="odd">
+<td>both null</td>
+<td>0.1% to 0.4%</td>
+</tr>
+</tbody>
+</table>
+<p>No setting rejected more than 6.5% of the time. The cost of the
+conservatism is power near
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>b</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">a = b = 0</annotation></semantics></math>:
+a small indirect effect is rejected less often than a test that was
+exact there would reject it. The same pooling code serves the glm
+engine; this grid exercised the lavaan models, and the glm engine’s own
+evidence is a smaller prototype run (300 replications,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>200</mn></mrow><annotation encoding="application/x-tex">n = 200</annotation></semantics></math>,
+5 imputations: 5.0% at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>b</mi><mo>=</mo><mn>.3</mn></mrow><annotation encoding="application/x-tex">a = 0, b = .3</annotation></semantics></math>
+and 0.7% at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>b</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">a = b = 0</annotation></semantics></math>).</p>
+</div>
+<div class="section level2">
 <h2 id="not-covered-here">Not covered here<a class="anchor" aria-label="anchor" href="#not-covered-here"></a>
 </h2>
 <ul>
-<li>SEM (lavaan) models and latent variables (planned).</li>
+<li>Models with a latent variable or a lavaan model string: the same
+test runs with <code>engine = "lavaan"</code> (maximum likelihood only);
+see <code>vignette("lavaan-sem")</code> (the <em>Structural equation
+models</em> article).</li>
 <li>FIML-based MBCO.</li>
 <li>IPW: <code>method = "ipw"</code> has no MBCO test.</li>
 </ul>

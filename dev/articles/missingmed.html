@@ -242,6 +242,18 @@ make one. <code><a href="../articles/technical.html">vignette("technical")</a></
 reasoning.</p>
 </div>
 <div class="section level2">
+<h2 id="structural-equation-models-and-latent-mediators">Structural equation models and latent mediators<a class="anchor" aria-label="anchor" href="#structural-equation-models-and-latent-mediators"></a>
+</h2>
+<p>For a model that is easier to state as lavaan syntax, or a mediator
+measured by several indicators, use <code>engine = "lavaan"</code>: give
+the syntax in <code>model</code> and name the <code>outcome</code>. The
+verbs are the same, and so are <code>infer(type = "mc")</code> and
+<code>infer(type = "mbco")</code> (maximum likelihood only). The
+<em>Structural equation models</em> article on the package website works
+through an observed path model and a latent mediator, and the
+<em>Reference card</em> shows what each engine supports.</p>
+</div>
+<div class="section level2">
 <h2 id="migrating-from-the-s4-api">Migrating from the S4 API<a class="anchor" aria-label="anchor" href="#migrating-from-the-s4-api"></a>
 </h2>
 <p>The S4 entry points (<code>set_sem()</code>, <code>run_sem()</code>,

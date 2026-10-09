@@ -23,11 +23,14 @@ Task-oriented walk-throughs, each run when the site builds.
   MAR](https://data-wise.github.io/missingmed/dev/articles/sensitivity-mnar.md):
 - [Structural equation models: the lavaan
   engine](https://data-wise.github.io/missingmed/dev/articles/lavaan-sem.md):
+- [Cookbook](https://data-wise.github.io/missingmed/dev/articles/cookbook.md):
 
 ### Guides
 
 - [Supported
   models](https://data-wise.github.io/missingmed/dev/articles/supported-models.md):
+- [Reference
+  card](https://data-wise.github.io/missingmed/dev/articles/refcard.md):
 - [Frequently asked
   questions](https://data-wise.github.io/missingmed/dev/articles/faq.md):
 - [Migrating from the S4

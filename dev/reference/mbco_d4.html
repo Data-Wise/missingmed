@@ -66,7 +66,10 @@ other packages can call it on a plain list of completed datasets.</p>
 <span>  family_m <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">gaussian</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">treatment</span>,</span>
 <span>  <span class="va">mediator</span>,</span>
-<span>  ariv <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fixed"</span>, <span class="st">"own"</span><span class="op">)</span></span>
+<span>  ariv <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fixed"</span>, <span class="st">"own"</span><span class="op">)</span>,</span>
+<span>  model <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  outcome <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fit_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -99,6 +102,17 @@ response of <code>formula_y</code>.</p></dd>
 
 <dt id="arg-ariv">ariv<a class="anchor" aria-label="anchor" href="#arg-ariv"></a></dt>
 <dd><p><code>"fixed"</code> (default) or <code>"own"</code>; see Details.</p></dd>
+
+
+<dt id="arg-model-outcome-fit-args">model, outcome, fit_args<a class="anchor" aria-label="anchor" href="#arg-model-outcome-fit-args"></a></dt>
+<dd><p>For a lavaan SEM, in place of <code>formula_y</code>,
+<code>formula_m</code> and the families: a lavaan model syntax string, the outcome
+variable name, and a named list of lavaan options (as in
+<code><a href="set_md_mediation.html">set_md_mediation()</a></code>). <code>model</code> cannot be combined with the formula or
+family arguments. The tested paths are the regressions <code>mediator ~ treatment</code> (a) and <code>outcome ~ mediator</code> (b); a latent mediator uses its
+structural rows, and its measurement model and any direct effects of its
+indicators on the outcome stay free. Only <code>estimator = "ML"</code> (the default)
+is supported, with no <code>group</code>, <code>ordered</code> or <code>sampling.weights</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -169,6 +183,16 @@ Methods</em>, <em>28</em>(5), 1207–1221. <a href="https://doi.org/10.1037/met0
 <span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">mbco_d4</span><span class="op">(</span><span class="va">implist</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span>,</span></span>
 <span class="r-in"><span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, ariv <span class="op">=</span> <span class="st">"fixed"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;MbcoMIResult&gt; D4-stacked MBCO test of H0: a*b = 0 (m = 3 imputations)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   D4 = 11.14 on F(1, 513.1), p = 0.0009083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   r4 = 0.06659 (ariv = "fixed") | d_S = 11.88 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   stacked constrained fit: b = 0 branch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   imputations on the a = 0 branch: 0% (not mixed)</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The same test for a lavaan SEM, from a model string</span></span></span>
+<span class="r-in"><span><span class="fu">mbco_d4</span><span class="op">(</span><span class="va">implist</span>,</span></span>
+<span class="r-in"><span>  model <span class="op">=</span> <span class="st">"M ~ X\nY ~ M + X"</span>, treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, outcome <span class="op">=</span> <span class="st">"Y"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;MbcoMIResult&gt; D4-stacked MBCO test of H0: a*b = 0 (m = 3 imputations)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   D4 = 11.14 on F(1, 513.1), p = 0.0009083</span>

@@ -61,7 +61,7 @@ See *Testing an indirect effect with incomplete data*.
      ├─ yes -> engine = "glm"
      └─ latent mediator / lavaan options -> engine = "lavaan"
 
-    Then: pool(run(md)); infer(type = "mc"). Both paths weak? Add infer(fit, type = "mbco") (glm, MI).
+    Then: pool(run(md)); infer(type = "mc"). Both paths weak? Add infer(fit, type = "mbco") (MI; glm, or lavaan with ML).
     Worried about MAR? sensitivity_mnar() (MI only).
 
 ## What no choice here fixes

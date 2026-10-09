@@ -46,7 +46,12 @@ sensitivity_mnar(
 
 - type:
 
-  Inference per rung: `"mc"` (default) or `"mbco"`.
+  Inference per rung: `"mc"` (default) or `"mbco"`. `"mbco"` works for
+  `engine = "glm"` and for `engine = "lavaan"` (maximum likelihood only,
+  see
+  [`infer()`](https://data-wise.github.io/missingmed/dev/reference/infer.md)).
+  If an MBCO refit does not converge at a rung, the sweep stops and the
+  error names the rung and its delta; no partial result is returned.
 
 - seed:
 

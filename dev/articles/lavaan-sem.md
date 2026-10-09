@@ -6,7 +6,7 @@ when the mediator is **latent** (measured by several indicators), when
 you want a lavaan-specific option such as a robust estimator, or when
 the model is easier to state as lavaan syntax than as two formulas. For
 one observed mediator and a regression outcome the default
-`engine = "glm"` is simpler and supports MBCO.
+`engine = "glm"` is simpler.
 
 This tutorial builds up from an observed path model to a latent
 mediator.
@@ -235,10 +235,68 @@ tidy(s)
 #> 3   0.5  0.517     0.326    0.194     0.485 post      raw
 ```
 
-## What lavaan fits cannot do yet
+## The MBCO test with a lavaan fit
 
-`infer(type = "mbco")` stops for a lavaan fit: the D4 test refits with
-[`glm()`](https://rdrr.io/r/stats/glm.html), which is not the structural
-equation model. Use `type = "mc"`. MBCO for SEM needs its own design
-(constrained lavaan refits, and a decision about what “b = 0” means for
-a latent mediator).
+`infer(type = "mbco")` runs the same D4-stacked likelihood-ratio test of
+H0: a·b = 0 as the glm engine, with lavaan doing the refits. Each
+imputation is fit once in full and once with the `a` path (`Mlat ~ X`)
+fixed to 0 and once with the `b` path (`Y ~ Mlat`) fixed to 0; the
+stacked data are fit the same three ways. With a latent mediator, only
+the **structural** path is fixed: the loadings, the measurement errors
+and any direct effect of an indicator on `Y` stay free, so each branch
+tests exactly one parameter (`k = 1`).
+
+``` r
+
+infer(fit_lat, type = "mbco")
+#> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 5 imputations)
+#>   D4 = 30.38 on F(1, Inf), p = 3.547e-08
+#>   r4 = 0 (ariv = "fixed") | d_S = 30.38 
+#>   stacked constrained fit: a = 0 branch
+#>   imputations on the a = 0 branch: 100% (not mixed)
+```
+
+Read it as for the glm engine (see
+[`vignette("mbco-mi")`](https://data-wise.github.io/missingmed/dev/articles/mbco-mi.md)):
+`D4` and `p` are the test, `r4` and `nu` describe the between-imputation
+variability, and `branch_mix` reports whether the imputations disagreed
+about which path is the weaker one. `r4 = 0` (so `F(1, Inf)`) is a
+legitimate result: `r4` is clamped at 0 when the average per-imputation
+statistic is not above the stacked one, which happens when the
+imputations differ little for this statistic. Two properties to know:
+
+- **It is conservative at a = b = 0.** The statistic is the smaller of
+  two likelihood-ratio statistics, so when both paths are null the test
+  rejects less often than its nominal level. That costs power near the
+  intersection; it does not inflate false positives.
+- **It does not test direct effects of the indicators.** Those are not
+  part of `a * b`, so a nonzero direct effect of an indicator on `Y` is
+  left in the model under both nulls.
+
+The same test is available for a plain list of completed data frames,
+without a
+[`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md)
+object:
+
+``` r
+
+mbco_d4(mice::complete(imp, "all"),
+  model = mod_lat, treatment = "X", mediator = "Mlat", outcome = "Y"
+)
+```
+
+`sensitivity_mnar(type = "mbco")` works too, and returns one MBCO result
+per rung.
+
+### What it does not support
+
+MBCO is refused, naming the option, for `estimator` other than `"ML"`
+(`"MLR"`, `"MLM"`, `"WLSMV"`, …), for `group`, `ordered` and
+`sampling.weights`, and for `method = "ipw"`. Robust (scaled) test
+statistics are excluded because the D4 pooling is justified for
+likelihood-ratio statistics, not for scaled ones, and no validated
+pooling exists yet. Use `type = "mc"` for those fits.
+
+A refit that does not converge stops the test, naming the imputation (or
+the stacked data) and which fit; an improper solution warns once and
+goes on.

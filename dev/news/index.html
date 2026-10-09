@@ -42,6 +42,14 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
 <div class="section level3">
+<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li>
+<strong>MBCO for <code>engine = "lavaan"</code>.</strong> <code>infer(type = "mbco")</code> and <code>sensitivity_mnar(type = "mbco")</code> now work for lavaan fits, including a latent mediator, with the same D4-stacked test, <code>MbcoMIResult</code> and <code>ariv</code> options as the glm engine. On an observed-variable model it agrees with the glm engine to numerical precision. The tested paths are the structural regressions `mediator
+~ treatment<code>(a) and</code>outcome ~ mediator<code>(b); a latent mediator's measurement model and any direct effects of its indicators stay free. Only</code>estimator = “ML”<code>is supported:</code>MLR<code>,</code>MLM<code>,</code>WLSMV<code>,</code>group<code>,</code>ordered<code>and</code>sampling.weights` are refused, naming the option. A non-converged refit refuses; an improper solution warns once.</li>
+<li>
+<code><a href="../reference/mbco_d4.html">mbco_d4()</a></code> gains <code>model</code>, <code>outcome</code> and <code>fit_args</code> for a lavaan model on a plain list of data frames. <code>model</code> cannot be combined with <code>formula_y</code>, <code>formula_m</code> or the families.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
 <ul><li>
 <code>infer(type = "mbco")</code> and <code><a href="../reference/mbco_d4.html">mbco_d4()</a></code> now refuse when a <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code> refit did not converge or has a non-finite log-likelihood, instead of returning a p-value computed from it. The error names the dataset (imputation or stacked data), the branch (<code>full</code>, <code>a = 0</code>, <code>b = 0</code>) and the model. <code>sensitivity_mnar(type = "mbco")</code> names the failing rung and delta. Converged fits are unchanged.</li>

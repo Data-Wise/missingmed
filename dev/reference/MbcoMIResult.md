@@ -1,10 +1,11 @@
 # MbcoMIResult: D4-stacked MBCO test result (S7)
 
 The value of `infer(<MDMediationFit>, type = "mbco")` and
-[`mbco_d4()`](https://data-wise.github.io/missingmed/dev/reference/mbco_d4.md).
-It is an S7 object whose parent is `class_double`: its data is the named
-numeric vector `c(D4, p, r4, nu, d_S)`, and the properties carry how it
-was computed and the branch diagnostics.
+[`mbco_d4()`](https://data-wise.github.io/missingmed/dev/reference/mbco_d4.md),
+for the glm and the lavaan (maximum likelihood) engines alike. It is an
+S7 object whose parent is `class_double`: its data is the named numeric
+vector `c(D4, p, r4, nu, d_S)`, and the properties carry how it was
+computed and the branch diagnostics.
 
 ## Usage
 

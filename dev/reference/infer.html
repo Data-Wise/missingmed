@@ -104,7 +104,12 @@ set <code>treatment_level</code> to choose it. The interval then comes from
 \(H_0: a b = 0\), computed from the per-imputation datasets (MBCO does not
 commute with Rubin's rules; see <code><a href="per_imputation_list.html">per_imputation_list()</a></code>). The engine is
 <code><a href="mbco_d4.html">mbco_d4()</a></code>; see there for <code>ariv</code>, the branch diagnostics and the cost.
-At least two imputations are required.</p></li>
+At least two imputations are required. It also works for
+<code>engine = "lavaan"</code> fits (including a latent mediator), with lavaan doing
+the refits: the tested paths are the structural regressions <code>mediator ~ treatment</code> and <code>outcome ~ mediator</code>. Only <code>estimator = "ML"</code> (the default)
+is supported; <code>MLR</code>, <code>MLM</code>, <code>WLSMV</code>, <code>group</code>, <code>ordered</code>, <code>sampling.weights</code>
+and <code>method = "ipw"</code> are refused, naming the option. A refit that did not
+converge stops the test, naming the dataset, the branch and the model.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -96,7 +96,11 @@ be <code>NULL</code> when <code>delta</code> is a data frame.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>Inference per rung: <code>"mc"</code> (default) or <code>"mbco"</code>.</p></dd>
+<dd><p>Inference per rung: <code>"mc"</code> (default) or <code>"mbco"</code>. <code>"mbco"</code> works
+for <code>engine = "glm"</code> and for <code>engine = "lavaan"</code> (maximum likelihood only,
+see <code><a href="infer.html">infer()</a></code>). If an MBCO refit does not converge at a rung, the sweep
+stops and the error names the rung and its delta; no partial result is
+returned.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
