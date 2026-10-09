@@ -562,8 +562,10 @@ mbco_d4 <- function(implist, formula_y, formula_m,
     }
     .check_lavaan_spec(model, treatment, mediator, outcome, fit_args, implist[[1]])
     if (length(implist) >= 2L) {
-      .mm_check_implist(unname(implist), NULL, NULL, treatment, mediator,
-        vars = lavaan::lavNames(lavaan::lavaanify(model), "ov")
+      ov <- lavaan::lavNames(lavaan::lavaanify(model), "ov")
+      # A latent mediator is not a data column.
+      .mm_check_implist(unname(implist), NULL, NULL, treatment,
+        if (mediator %in% ov) mediator, vars = ov
       )
     }
     .mm_lav_check_args(fit_args)

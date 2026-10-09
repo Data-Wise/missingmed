@@ -223,6 +223,13 @@ test_that("mbco_d4(model = ) equals infer(type = 'mbco') on the same imputed dat
   }
 })
 
+test_that("mbco_d4(model = ) accepts a latent mediator on a plain implist", {
+  r <- mbco_d4(make_lat(), model = LAT, treatment = "X", mediator = "Ml", outcome = "Y")
+  expect_s3_class(r, "missingmed::MbcoMIResult")
+  expect_true(is.finite(r["p"]))
+  expect_equal(r@k, 1)
+})
+
 test_that("mbco_d4(model = ) is exclusive with the formula and family arguments", {
   imps <- make_imps()
   expect_error(
