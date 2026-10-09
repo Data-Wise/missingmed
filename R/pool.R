@@ -14,13 +14,13 @@
 #' \deqn{\bar Q = \frac{1}{m}\sum_i Q_i, \quad \bar U = \frac{1}{m}\sum_i U_i,
 #'   \quad B = \mathrm{cov}(Q_1, \ldots, Q_m), \quad T = \bar U + (1 + 1/m) B.}
 #'
-#' It is the S7 successor of the S4 [pool_sem()] method.
+#' It is the S7 successor of the S4 `pool_sem()` method.
 #'
 #' @param object An [MDMediationFit] object. Anything else (a `mice::mira`,
 #'   say) is forwarded to [mice::pool()].
 #' @param ... Unused.
 #' @return An [MDMediationResult] object.
-#' @seealso [run()], [infer()], [pool_sem()]
+#' @seealso [run()], [infer()]
 #' @details
 #' The returned tidy table also carries a per-coefficient Wald test
 #' (`statistic`, `df`, `riv`, `fmi`, `p_value`) and, when `conf_int = TRUE` was
@@ -333,10 +333,14 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
   p_value <- ifelse(is.infinite(df), 2 * stats::pnorm(-abs(statistic)),
     2 * stats::pt(-abs(statistic), df)
   )
-  # A (co)variance (`M~~M`) is tested against a boundary null (variance = 0),
-  # where a Wald z-test is not valid: keep the estimate and SE, leave the test NA.
+  # A variance (`M~~M`: both sides the same variable) is tested against a
+  # boundary null (variance = 0), where a Wald z-test is not valid: keep the
+  # estimate and SE, leave the test NA. A covariance between two different
+  # variables (`Y~~Y2`) has an interior null, so its test is kept.
   if (lav) {
-    vv <- grepl("~~", term, fixed = TRUE)
+    sides <- strsplit(term, "~~", fixed = TRUE)
+    vv <- vapply(sides, function(p) length(p) == 2L && identical(p[1L], p[2L]),
+      logical(1))
     statistic[vv] <- NA_real_
     p_value[vv] <- NA_real_
   }

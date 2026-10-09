@@ -4,7 +4,7 @@
 [![R-CMD-check](https://github.com/Data-Wise/missingmed/actions/workflows/check.yml/badge.svg)](https://github.com/Data-Wise/missingmed/actions/workflows/check.yml)
 [![missingmed status badge](https://data-wise.r-universe.dev/badges/missingmed)](https://data-wise.r-universe.dev/missingmed)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![License: GPL v2](https://img.shields.io/badge/License-GPL_v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL_v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
 <!-- badges: end -->
 
 ## Overview
@@ -22,6 +22,13 @@ Two estimators share one S7 pipeline:
   Rubin's rules.
 * **Inverse-probability weighting** (`method = "ipw"`) — reweights complete cases
   (stabilized weights, trimming, HC sandwich SEs).
+* **Structural equation models** (`engine = "lavaan"`) — give lavaan syntax in
+  `model`, including a latent mediator; works with both estimators.
+* **Sensitivity to missing not at random** (`sensitivity_mnar()`) — repeats the
+  analysis with the imputed values shifted, giving a sensitivity curve.
+
+New to the package? Start with *Choosing an analysis* on the
+[website](https://data-wise.github.io/missingmed/).
 
 For the indirect effect it provides both a **Monte-Carlo confidence interval**
 and a **D4-stacked MBCO** likelihood-ratio test (which, unlike pooling, respects
@@ -91,4 +98,4 @@ citation("missingmed")
 
 ## License
 
-GPL-2 · Davood Tofighi (dtofighi@gmail.com) · ORCID 0000-0001-8523-7776
+GPL (>= 3) · Davood Tofighi (dtofighi@gmail.com) · ORCID 0000-0001-8523-7776

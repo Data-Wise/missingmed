@@ -11,12 +11,15 @@
 #' 0 or 1) are collected and raised once, naming the imputations that produced
 #' them.
 #'
-#' It is the S7 successor of the S4 [run_sem()] method.
+#' It is the S7 successor of the S4 `run_sem()` method.
 #'
 #' @param object An [MDMediationData] object.
-#' @param ... Additional arguments forwarded to [medfit::fit_mediation()].
+#' @param ... Deprecated. Additional arguments forwarded to
+#'   [medfit::fit_mediation()]; set them with `fit_args` in
+#'   [set_md_mediation()] instead. They are still honored, with a warning, and
+#'   may not repeat a name already in `fit_args`.
 #' @return An [MDMediationFit] object.
-#' @seealso [set_md_mediation()], [pool()], [infer()], [run_sem()]
+#' @seealso [set_md_mediation()], [pool()], [infer()]
 #' @examples
 #' set.seed(1)
 #' n <- 150
@@ -54,12 +57,17 @@ S7::method(run, MDMediationData) <- function(object, ...) {
       call. = FALSE
     )
   }
+  extra <- if (identical(object@engine, "lavaan")) list() else {
+    .md_extra_args(object, list(...))
+  }
   per_imp <- vector("list", m)
   warns <- vector("list", m)
   # If a fit fails, the warnings of the fits before it are still raised.
   withCallingHandlers(
     for (i in seq_len(m)) {
-      r <- .md_fit_one(object, implist[[i]], sprintf("imputation %d of %d", i, m), ...)
+      r <- do.call(.md_fit_one, c(
+        list(object, implist[[i]], sprintf("imputation %d of %d", i, m)), extra
+      ))
       per_imp[[i]] <- r$fit
       warns[[i]] <- r$warnings
     },
@@ -179,8 +187,8 @@ S7::method(run, MDMediationData) <- function(object, ...) {
   if (identical(object@method, "ipw")) {
     # The IPW path appends its weights as `.md_ipw_w`; robust (sandwich) SEs are
     # forced, as for the glm IPW path (G1).
-    args$se <- NULL
-    args <- c(args, list(sampling.weights = ".md_ipw_w", se = "robust.huber.white"))
+    args <- args[.lav_key(names(args)) != "se"]
+    args <- c(args, list(sampling_weights = ".md_ipw_w", se = "robust.huber.white"))
   }
   fit <- withCallingHandlers(
     .lav_sem(object@model, data, args),
@@ -204,6 +212,9 @@ S7::method(run, MDMediationData) <- function(object, ...) {
 # medfit::extract_mediation() truncates that with as.integer() to 355 and then
 # rejects the object (rows of data != n_obs). Rounding the weighted counts
 # restores N; the model fit itself is untouched.
+# Removable once medfit >= 0.5.1 is on CRAN: medfit PR #85 (released in 0.5.1)
+# rounds the count itself. Then raise the medfit floor in DESCRIPTION and delete
+# this helper and its call in `.md_lavaan_call()`.
 .lav_round_nobs <- function(fit) {
   n <- tryCatch(fit@SampleStats@nobs, error = function(e) NULL)
   if (is.list(n)) fit@SampleStats@nobs <- lapply(n, round)

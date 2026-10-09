@@ -83,10 +83,11 @@ type warns, so a typo or a mismatched argument is not silently dropped.
 
 ### Structural equation models and latent mediators?
 
-The S7 pipeline fits regression models through medfit. Latent mediators are
-available only through the deprecated S4 API for now; a lavaan engine for
-`set_md_mediation()` is planned for 0.6.0. See the *Migrating from the S4 API*
-article.
+Yes, since 0.6.0. The glm path fits regression models through medfit; for a
+structural equation model, including a latent mediator, use
+`set_md_mediation(engine = "lavaan")` with the lavaan syntax in `model` and the
+`outcome` named. MBCO is not available for lavaan fits yet (use
+`infer(type = "mc")`). See the *Migrating from the S4 API* article.
 
 ### How do I cite missingmed?
 

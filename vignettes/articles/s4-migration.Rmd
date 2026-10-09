@@ -7,8 +7,9 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
 The S4 API was removed in missingmed 0.6.0. `set_sem()`, `run_sem()`,
-`pool_sem()`, `fit_model()`, `lav_mice()` and `mx_mice()` remain as stubs that
-stop with a message naming their replacement; the stubs are deleted in 0.7.0.
+`pool_sem()`, `fit_model()`, `lav_mice()` and `mx_mice()` were left as stubs for
+one release that stopped with a message naming their replacement; the stubs were
+deleted in 0.7.0, so calling them now gives R's "could not find function" error.
 This article maps the old calls to the S7 pipeline.
 
 ## The mapping
@@ -52,9 +53,10 @@ res@tidy_table[, c("term", "estimate", "std_error", "p_value")]
 ```
 
 The p-values are normal-theory z-tests (`df` is `Inf` for a single imputation,
-and Rubin's large-sample df otherwise). Variance and covariance rows (`~~`)
+and Rubin's large-sample df otherwise). Variance rows (`M~~M`)
 keep their estimate and standard error, with `NA` for the statistic and
-p-value, because their null (variance = 0) lies on the boundary.
+p-value, because their null (variance = 0) lies on the boundary. A covariance
+between two different variables (`Y~~Y2`) keeps its test.
 
 A latent mediator uses the same call, with the latent variable as `mediator`:
 

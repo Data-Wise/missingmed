@@ -21,10 +21,12 @@ each imputation with \link[medfit:medfit]{medfit} and delegates \strong{inferenc
 }
 }
 
-\section{Defunct S4 API}{
+\section{Removed S4 API}{
 
-\code{\link[=set_sem]{set_sem()}}, \code{\link[=run_sem]{run_sem()}} and \code{\link[=pool_sem]{pool_sem()}} were removed in 0.6.0 and now stop
-with a message naming their replacement; see \link{missingmed-defunct}.
+The S4 functions \code{set_sem()}, \code{run_sem()}, \code{pool_sem()}, \code{fit_model()},
+\code{lav_mice()} and \code{mx_mice()} were deprecated in 0.5.0, turned into
+\code{.Defunct()} stubs in 0.6.0 and removed in 0.7.0. See
+\code{vignette("s4-migration", package = "missingmed")} for the replacements.
 }
 
 \seealso{

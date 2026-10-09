@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-08 |
-| **Status** | Study only. No package code changed. Spikes ran in a scratch directory. |
+| **Status** | Study only; no package code changed, spikes ran in a scratch directory. **Updated 2026-10-08 (13:10):** `origin/dev` already ships the lavaan engine and the S4 removal as 0.6.0 (PRs #40-#43), so this study now confirms the shipped choice instead of gating it. |
 | **Context** | [SPEC](SPEC-s7-sem-engine-2026-09-23.md) (Q1-Q4, G1-G7) and [PLAN](PLAN-s7-sem-engine-2026-10-08.md) (T0 done) choose `lavaan::sem()` as the engine and delegate extraction to `medfit::extract_mediation()`. |
 | **Question** | Does any alternative beat that baseline: (1) port lavaan/OpenMx engines, (2) write a new optimizer, (3) use Python `semopy`? |
 
@@ -13,7 +13,7 @@ Evidence labels: **[V]** verified this session by a command; **[A]** assumed or 
 
 **Keep lavaan as the engine (baseline B). All three alternatives are no-go for 0.6.0.**
 
-- Next step: proceed with PLAN T1 (no change to the plan).
+- Shipped: PLAN T1-T9 landed in 0.6.0 (PRs #40-#42, version bump #43). No change needed.
 - Park two follow-ups: a *validated* custom ML optimizer as a possible fallback (see option 2, "conditional later"), and a semopy cross-check as an optional test oracle (see option 3).
 
 ## Comparison matrix
@@ -36,12 +36,24 @@ Evidence labels: **[V]** verified this session by a command; **[A]** assumed or 
 **What a port covers.** A usable SEM engine needs model syntax parsing, a parameter table, implied moments, the ML discrepancy and its gradient, a minimizer, information-matrix SEs, robust (sandwich) SEs, and fit diagnostics. That is the part of lavaan that missingmed's S7 path would call. lavaan 0.7.2 is installed locally **[V]**, but I did not measure its source size. It is a large codebase **[A]**; OpenMx is mostly compiled C++ with its own optimizer back ends (NPSOL, SLSQP, CSOLNP) **[A]**.
 
 **Findings.**
-- **Licenses.** lavaan is GPL (>= 2) **[V]**, so vendored lavaan code can ship under missingmed's GPL-2. OpenMx is Apache-2.0 **[V]**. The FSF treats Apache-2.0 as incompatible with GPL-2-only **[A]**; missingmed is `GPL-2` **[V]**. Porting OpenMx code would therefore need a relicense to GPL-3 or a legal read. This alone blocks OpenMx porting.
+- **Licenses.** lavaan is GPL (>= 2) **[V]**, so vendored lavaan code can ship under missingmed's GPL-2. OpenMx is Apache-2.0 **[V]**. The FSF treats Apache-2.0 as incompatible with GPL-2-only **[A]**; missingmed is `GPL-2` **[V]**. Porting OpenMx code would therefore need a relicense to GPL-3 (the author can relicense, which would remove this obstacle, subject to every copyright holder agreeing) or a legal read. **The license is not decisive:** the port is rejected on cost, duplication and maintenance below, whatever the license.
 - **Duplication.** The plan already gets lavaan through `lavaan::sem()` and the medfit extractor **[V]**. A port re-creates that with a permanent obligation to track upstream bug fixes (improper-solution handling, new estimators).
 - **OpenMx.** The spec (G6) already ends OpenMx support with the S4 removal; a port would reverse that decision.
 - **Scope the plan cares about.** 0.6.0 needs observed and latent-mediator models, MI pooling and IPW (spec section 5). Only a small subset of lavaan is used, which argues for calling lavaan, not copying it.
 
-**Verdict: No-go.** Highest effort and risk, no capability gain over calling lavaan, and an unresolved license problem for OpenMx.
+**Size of lavaan [V].** lavaan 0.7.2 source (CRAN tarball): 132,422 lines of R in 231 files, no compiled code. Files a mediation engine would touch (line counts of the whole file family):
+
+| Family | Lines | | Family | Lines |
+|---|---|---|---|---|
+| `lav_model` | 13,053 | | `lav_model_gradient` | 2,932 |
+| `lav_partable` | 9,289 | | `lav_start` | 1,241 |
+| `lav_samplestats` | 5,452 | | `lav_model_vcov` | 1,076 |
+| `lav_syntax` | 3,131 | | `lav_optim` | 949 |
+| `lav_model_information` | 813 | | `lav_model_objective` | 500 |
+
+These total about 38,000 lines but include categorical, multilevel and multigroup code. **[A, estimate]** A continuous-ML subset with robust SEs and `sampling.weights` is 5,000-8,000 lines, and the port costs 6-10 weeks of focused work including the medfit extractor, parity tests and improper-solution handling, followed by permanent upstream tracking.
+
+**Verdict: No-go.** Highest effort and risk, and no capability gain over calling lavaan. Confirmed by what shipped: the lavaan engine in 0.6.0 reused `lavaan::sem()` and `extract_mediation()` without a port.
 
 ## Option 2: write a powerful, robust optimizer
 
@@ -64,6 +76,36 @@ Evidence labels: **[V]** verified this session by a command; **[A]** assumed or 
 - Benefit over B is unproven: lavaan already converged 99.5-100% here.
 
 **Verdict: No-go for 0.6.0; conditional later.** Revisit only if a measured lavaan failure rate on missingmed's own use cases (MI at m >= 20 with latent mediators, per PLAN risk 2) justifies it. A fallback for the narrow case "lavaan did not converge on imputation k" is the smallest version worth considering.
+
+### nloptr as the optimizer [V]
+
+Same discrepancy and simulation as above (100 fits per cell, `b` within 1e-3 of lavaan's; seconds are total for 100 fits; numeric gradients).
+
+| Optimizer | Match, n = 50 | Match, n = 200 | Seconds, n = 50 |
+|---|---|---|---|
+| `stats::nlminb` (lavaan's default) | 100% | 100% | 0.64 |
+| nloptr `LD_LBFGS` | 100% | 99% | 1.5 |
+| nloptr `LD_SLSQP` | 100% | 100% | 1.9 |
+| nloptr `LD_MMA` | 98% | 100% | 14.4 |
+| nloptr `LN_BOBYQA` (variance bounds) | 82% | 98% | 1.0 |
+| nloptr `LN_NEWUOA_BOUND` | not rerun | not rerun | 76 s on one fit; dropped |
+
+- nloptr 2.2.1 is LGPL (>= 3), compiled, and needs cmake to build on Linux and macOS when no system nlopt (>= 2.7.0) exists **[V]**. `nlminb` is in base R.
+- nloptr matches `nlminb` at best, so it offers no accuracy gain. The bounded algorithm lost accuracy because it forces boundary solutions in improper cases (as in the first spike).
+- Where nloptr could matter is **constrained** problems (SLSQP handles nonlinear equality and inequality constraints natively); see the next section.
+
+### Nonlinear constraints in lavaan [V, limited]
+
+The author reports that lavaan does not handle nonlinear constraints. Test on `M~a*X; Y~b*M+cp*X` (n = 300), observed variables:
+
+| Constraint | Converged | Result |
+|---|---|---|
+| `a*b == 0` (nonlinear equality) | yes | `fmin` 0.047577, equal to the `a == 0` fit (the better of the two linear fits, as it should be) |
+| `a == 0` / `b == 0` | yes | `fmin` 0.047577 / 0.053074 |
+| `a*b == 0.05` | yes | `fmin` 0.009563, `a` 0.217, `b` 0.230 |
+| `a^2 + b^2 < 0.01` (inequality) | yes | converged, but `df` reported as 0: inequality constraints are not counted in the degrees of freedom |
+
+On simple cases lavaan handled nonlinear equality and inequality constraints. **This does not refute the author's report**: it was one small observed model. Not tested **[?]**: many constraints, near-degenerate geometry, latent models, small samples, constraint Jacobians that vanish at the solution, and pooling across imputations. The author's failing case, if any, should become a test; the repo (`dev/`, `docs/`, code) holds no record of one **[V, grep]**. The shipped MBCO design uses linear constraints (`a == 0`, `b == 0`), so it does not depend on nonlinear support.
 
 ## Option 3: examine Python semopy (https://semopy.com/)
 
@@ -88,10 +130,11 @@ Evidence labels: **[V]** verified this session by a command; **[A]** assumed or 
 
 ## Open questions
 
-1. Does the author want a **fallback** for lavaan non-convergence in MI (option 2's narrow form), or is G2's "refuse and name the imputations" sufficient? It is cheap to decide after real runs.
-2. Is the OpenMx/GPL-2 license conflict worth a legal check if OpenMx is ever revived (G6 defers it)?
-3. Spike limits: one simulated latent model, my own discrepancy implementation, 200 replications per cell. A wider stress test (ill-conditioned data, MLR, correlated errors) is needed before any claim beyond "naive optimizers are not the bottleneck."
-4. Size of lavaan's source and the maintenance rate of lavaan/OpenMx were not measured here [A].
+1. Which concrete model and constraint failed in lavaan? (See the nonlinear-constraints section; a reproducible case decides whether a constrained optimizer such as nloptr `SLSQP` is worth adding.)
+2. Does the author want a **fallback** for lavaan non-convergence in MI (option 2's narrow form), or is G2's "refuse and name the imputations" sufficient? It is cheap to decide after real runs.
+3. If OpenMx is ever revived (G6 defers it), a relicense to GPL-3 would be needed only to copy its code; calling it as a dependency needs none.
+4. Spike limits: one simulated latent model, my own discrepancy implementation, 200 replications per cell. A wider stress test (ill-conditioned data, MLR, correlated errors) is needed before any claim beyond "naive optimizers are not the bottleneck."
+5. The maintenance rate of lavaan/OpenMx and the 6-10 week port estimate were not measured [A].
 
 ## Reproduction
 

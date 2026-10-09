@@ -100,3 +100,27 @@ test_that("infer(type = 'mbco') on a lavaan fit errors, naming the follow-up", {
   expect_error(infer(run(md_l(imp_of(2))), type = "mbco"), "not available for engine")
   expect_error(infer(run(md_l(imp_of(2))), type = "mbco"), "needs its own spec")
 })
+
+test_that("an off-diagonal covariance keeps its Wald test; only variances are blanked", {
+  d <- gen_pl()
+  set.seed(9)
+  d$Y2 <- 0.3 * d$M + rnorm(nrow(d))  # M has NAs: Y2 is incomplete too, which is fine
+  imp <- mice::mice(d, m = 3, maxit = 2, method = "norm", printFlag = FALSE, seed = 5)
+  md <- set_md_mediation(imp,
+    model = "M ~ a * X + C\nY ~ b * M + X + C\nY2 ~ M + X",
+    treatment = "X", mediator = "M", outcome = "Y", engine = "lavaan"
+  )
+  t <- tt(pool(run(md)))
+  cov_row <- grep("^Y~~Y2$|^Y2~~Y$", rownames(t))
+  expect_length(cov_row, 1L)
+  # The covariance of two residuals has an interior null: the z-test is valid.
+  expect_true(is.finite(t$statistic[cov_row]))
+  expect_true(is.finite(t$p_value[cov_row]))
+  expect_equal(t$statistic[cov_row], t$estimate[cov_row] / t$std_error[cov_row])
+  # Variances (A~~A) stay boundary tests: blanked.
+  var_rows <- vapply(strsplit(rownames(t), "~~", fixed = TRUE),
+    function(p) length(p) == 2L && identical(p[1], p[2]), logical(1))
+  expect_true(any(var_rows))
+  expect_true(all(is.na(t$statistic[var_rows])))
+  expect_true(all(is.na(t$p_value[var_rows])))
+})

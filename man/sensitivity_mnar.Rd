@@ -52,7 +52,10 @@ not compute a tipping point for it.}
 (\code{"fixed"}, the default, or \code{"own"}; see \code{\link[=mbco_d4]{mbco_d4()}}). Ignored, with a
 warning, for \code{type = "mc"}.}
 
-\item{...}{Passed to \code{\link[=run]{run()}}.}
+\item{...}{Deprecated. Extra arguments for the engine; set them with
+\code{fit_args} in \code{\link[=set_md_mediation]{set_md_mediation()}}, which every refit here reads. They
+are still honored, with one warning, and may not repeat a name already in
+\code{fit_args}.}
 }
 \value{
 An \link{MDSensitivityResult}.

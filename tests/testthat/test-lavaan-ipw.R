@@ -55,10 +55,21 @@ test_that("a non-robust se, a sandwich-less estimator or se_type = 'model' error
   expect_error(md_li(fit_args = list(se = "bootstrap")), "SEs must be robust")
   expect_error(md_li(fit_args = list(estimator = "GLS")), "no sandwich SEs")
   expect_error(md_li(se_type = "model"), "always robust")
-  expect_error(md_li(fit_args = list(sampling.weights = "w")), "sampling.weights")
+  expect_error(md_li(fit_args = list(sampling.weights = "w")), "sampling_weights")
 })
 
-test_that("an allowed robust se or MLR estimator is accepted", {
+test_that("every lavaan spelling of a guarded option is guarded", {
+  # lavaan >= 0.7-2 treats `sampling_weights` as `sampling.weights`; a guard on
+  # the dotted name alone let the snake_case one through, to be silently dropped.
+  expect_error(md_li(fit_args = list(sampling_weights = "w")), "sampling_weights")
+  expect_error(md_li(fit_args = list(Sampling.Weights = "w")), "sampling_weights")
+  expect_error(md_li(fit_args = list(SE = "standard")), "SEs must be robust")
+  expect_error(md_li(fit_args = list(se = "ROBUST_HUBER_WHITE", estimator = "gls")), "no sandwich SEs")
+})
+
+test_that("an allowed robust se or MLR estimator is accepted, in any spelling", {
+  expect_s3_class(md_li(fit_args = list(se = "robust_huber_white")), "missingmed::MDMediationData")
+  expect_s3_class(md_li(fit_args = list(SE = "Robust.Huber.White")), "missingmed::MDMediationData")
   expect_s3_class(md_li(fit_args = list(se = "robust.huber.white")), "missingmed::MDMediationData")
   expect_s3_class(md_li(fit_args = list(estimator = "MLR")), "missingmed::MDMediationData")
 })

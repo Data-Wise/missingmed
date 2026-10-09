@@ -78,7 +78,10 @@
 #'   one intercept term. Only for a single target routed to `mnar.norm` or
 #'   `mnar.logreg`. A `ums` grid has no numeric ordering, so `summary()` does
 #'   not compute a tipping point for it.
-#' @param ... Passed to [run()].
+#' @param ... Deprecated. Extra arguments for the engine; set them with
+#'   `fit_args` in [set_md_mediation()], which every refit here reads. They
+#'   are still honored, with one warning, and may not repeat a name already in
+#'   `fit_args`.
 #'
 #' @return An [MDSensitivityResult].
 #' @seealso [infer()], [MDSensitivityResult]
@@ -253,6 +256,18 @@ sensitivity_mnar <- function(object, delta, target = NULL,
 
   if (!is.null(ums)) .mnar_probe_ums(mids, targets, ums, seed)
 
+  # The stored `fit_args` reach every refit through `obj_i`; extra `...` are
+  # folded in once here, so the deprecation is raised once, not once per rung.
+  if (...length() > 0L) {
+    if (identical(object@engine, "lavaan")) {
+      stop("`sensitivity_mnar()` takes no extra arguments for engine = ",
+        "\"lavaan\"; set them with `fit_args` in set_md_mediation().",
+        call. = FALSE
+      )
+    }
+    object@fit_args <- .md_extra_args(object, list(...),
+      caller = "sensitivity_mnar()")
+  }
   rungs <- vector("list", nrow(grid))
   msp <- numeric(nrow(grid))
   for (i in seq_len(nrow(grid))) {
@@ -264,7 +279,7 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     obj_i <- object
     obj_i@data <- imp_i
     obj_i@mechanism <- "mnar"
-    fit_i <- run(obj_i, ...)
+    fit_i <- run(obj_i)
     rungs[[i]] <- if (type == "mc") {
       infer(pool(fit_i), type = "mc", level = level, n.mc = n.mc,
         treatment_level = treatment_level)

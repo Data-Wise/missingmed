@@ -1,3 +1,59 @@
+# missingmed 0.7.0
+
+## Deprecations
+
+* Passing arguments through `run(...)` or `sensitivity_mnar(...)` is deprecated:
+  set them with the new `fit_args` of `set_md_mediation()`. They are still
+  forwarded, with a warning (class `md_dots_deprecated`; `sensitivity_mnar()` warns
+  once, not once per rung), and a name that is already in `fit_args` is an error.
+  `sensitivity_mnar()` now reads the stored `fit_args`, so its refits reproduce the
+  original fit's options without restating them.
+
+## New features
+
+* `fit_args` (a named list stored on the object) now works for the `glm` and
+  `regmedint` engines, where it goes to `medfit::fit_mediation()` (it already
+  existed for `engine = "lavaan"`, where it goes to `lavaan::sem()`). It cannot
+  restate what `set_md_mediation()` passes itself (`formula_y`, `formula_m`, `data`,
+  `treatment`, `mediator`, `engine`, `family_y`, `family_m`; on the IPW path also
+  `weights` and `se_type`).
+* `outcome` is optional for the `glm` engines: it defaults to the response of
+  `formula_y` and, when given, must match it (it stays required for lavaan).
+
+## Breaking changes
+
+* The `.Defunct()` stubs for the removed S4 API are deleted: `set_sem()`,
+  `run_sem()`, `pool_sem()`, `fit_model()`, `lav_mice()` and `mx_mice()` are no
+  longer exported, so calling one now gives R's "could not find function" error
+  instead of a message naming the replacement. The replacements are unchanged:
+  `set_md_mediation()`, `run()` and `pool()`, with `engine = "lavaan"` for a
+  structural equation model; see `vignette("s4-migration")`. The help page
+  `?"missingmed-defunct"` is gone with them.
+
+## Licensing and dependencies
+
+* missingmed is now licensed GPL (>= 3) (was GPL-2), matching `medfit`,
+  `RMediation` and `medsim`, which missingmed already imports.
+* `lavaan (>= 0.7-3)` is required (was `>= 0.6-0`). lavaan 0.7-2 could return a
+  fit marked converged that broke its own constraints (`optim_parscale =
+  "standardized"`, also used in the automatic retries), and could report
+  convergence for a runaway solution; 0.7-3 fixes both.
+
+## Bug fixes
+
+* `pool()` for `engine = "lavaan"` no longer blanks the Wald test of a covariance
+  between two different variables (for example the residual covariance
+  `Y~~Y2`). Only variances (`M~~M`) keep an `NA` statistic and p-value, because
+  their null lies on the boundary; a covariance's null is interior, so its
+  z-test is valid. Found by an adversarial review of 0.6.0.
+
+* `set_md_mediation(method = "ipw", engine = "lavaan")` now guards every spelling
+  of the options it controls. lavaan >= 0.7-2 accepts `sampling_weights` as well
+  as `sampling.weights`; `fit_args = list(sampling_weights = ...)` used to pass the
+  check and be dropped silently in favor of the IPW weights, and is now an error.
+  `se = "robust_huber_white"` (or any case) is accepted as the robust SE request.
+  The lavaan call itself uses the snake_case names.
+
 # missingmed 0.6.0
 
 ## Breaking changes

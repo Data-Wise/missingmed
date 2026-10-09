@@ -26,18 +26,98 @@
     }
     return(invisible(TRUE))
   }
-  given <- c(model = !is.null(model), outcome = !is.null(outcome))
-  if (any(given)) {
-    nm <- names(given)[given][1L]
-    stop("`", nm, "` is only used with engine = \"lavaan\".", call. = FALSE)
+  if (!is.null(model)) {
+    stop("`model` is only used with engine = \"lavaan\".", call. = FALSE)
   }
-  if (length(fit_args)) {
-    stop("`fit_args` is only used with engine = \"lavaan\"; pass extra ",
-      "arguments for the other engines through run().",
+  .check_fit_args(fit_args)
+  invisible(TRUE)
+}
+
+# Arguments that set_md_mediation() or run() already pass to
+# medfit::fit_mediation() cannot also come from `fit_args` or run(...).
+.md_reserved_args <- c("formula_y", "formula_m", "data", "treatment", "mediator",
+                       "engine", "family_y", "family_m")
+
+# `fit_args` for the glm and regmedint engines: a named list forwarded to
+# medfit::fit_mediation(); it cannot restate what set_md_mediation() sets.
+.check_fit_args <- function(fit_args, reserved = .md_reserved_args) {
+  if (!is.list(fit_args)) {
+    stop("`fit_args` must be a list.", call. = FALSE)
+  }
+  if (!length(fit_args)) {
+    return(invisible(TRUE))
+  }
+  if (is.null(names(fit_args)) || !all(nzchar(names(fit_args)))) {
+    stop("`fit_args` must be a named list.", call. = FALSE)
+  }
+  bad <- intersect(names(fit_args), reserved)
+  if (length(bad)) {
+    stop("`fit_args` cannot set ", paste0("`", bad, "`", collapse = ", "),
+      "; set_md_mediation() passes ",
+      if (length(bad) > 1L) "them" else "it", " itself.",
       call. = FALSE
     )
   }
   invisible(TRUE)
+}
+
+# `outcome` on the glm engines is optional: it is the response of `formula_y`,
+# and is checked against it when given.
+.check_glm_outcome <- function(outcome, formula_y) {
+  if (is.null(outcome)) {
+    return(invisible(TRUE))
+  }
+  resp <- all.vars(formula_y[[2L]])
+  if (!is.character(outcome) || length(outcome) != 1L || is.na(outcome) ||
+    !identical(outcome, resp[1L]) || length(resp) != 1L) {
+    stop("`outcome` is '", paste(outcome, collapse = ", "),
+      "' but the response of `formula_y` is '", paste(resp, collapse = ", "),
+      "'. Drop `outcome` (it defaults to the response of `formula_y`) or make ",
+      "them match.",
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+# What run() and sensitivity_mnar() pass on to medfit::fit_mediation(): the
+# stored `fit_args`, then any extra `...`. Extras are deprecated (set them with
+# `fit_args`), still honored for one cycle, and may not repeat a stored name.
+# `ipw` adds the two arguments the IPW fit supplies itself.
+.md_extra_args <- function(object, dots, caller = "run()", ipw = FALSE) {
+  fa <- object@fit_args
+  if (length(dots)) {
+    nms <- names(dots)
+    if (is.null(nms) || !all(nzchar(nms))) {
+      stop("Extra arguments to `", caller, "` must be named.", call. = FALSE)
+    }
+    dup <- intersect(nms, names(fa))
+    if (length(dup)) {
+      stop("`", caller, "` repeats ", paste0("`", dup, "`", collapse = ", "),
+        ", already set in `fit_args`. Remove ",
+        if (length(dup) > 1L) "them" else "it", " from `", caller, "`.",
+        call. = FALSE
+      )
+    }
+    warning(warningCondition(
+      paste0("Passing arguments through `", caller, "` is deprecated and will ",
+        "be removed in a future release: set ",
+        paste0("`", nms, "`", collapse = ", "),
+        " with `fit_args` in set_md_mediation()."),
+      class = "md_dots_deprecated", call = NULL
+    ))
+  }
+  extra <- c(fa, dots)
+  reserved <- c(.md_reserved_args, if (ipw) c("weights", "se_type"))
+  bad <- intersect(names(extra), reserved)
+  if (length(bad)) {
+    stop(paste0("`", bad, "`", collapse = ", "), " cannot be passed as ",
+      "an extra argument: the pipeline sets ",
+      if (length(bad) > 1L) "them" else "it", " itself.",
+      call. = FALSE
+    )
+  }
+  extra
 }
 
 # The model parses, the three roles are distinct and present, `mediator ~
@@ -121,7 +201,19 @@
   invisible(TRUE)
 }
 
-# IPW with lavaan fits on the complete cases with `sampling.weights` and always
+# lavaan (>= 0.7-2) accepts option names with dots or underscores, in any case
+# (`sampling.weights` = `sampling_weights`), and (>= 0.7-3) the same for keyword
+# values (`robust.huber.white` = `robust_huber_white`). The G1 guards compare
+# normalized spellings so that no spelling slips past them.
+.lav_key <- function(x) tolower(gsub(".", "_", x, fixed = TRUE))
+
+# The value of the `fit_args` entry named `name`, under any lavaan spelling.
+.lav_arg <- function(fit_args, name) {
+  hit <- which(.lav_key(names(fit_args)) == name)
+  if (length(hit)) fit_args[[hit[1L]]] else NULL
+}
+
+# IPW with lavaan fits on the complete cases with `sampling_weights` and always
 # uses robust (sandwich) SEs, like the glm IPW path (G1). A request for naive SEs
 # is refused rather than overridden silently.
 .check_lavaan_ipw_args <- function(fit_args, se_type = "sandwich") {
@@ -131,20 +223,21 @@
       call. = FALSE
     )
   }
-  if ("sampling.weights" %in% names(fit_args)) {
-    stop("`fit_args` cannot set `sampling.weights`: the IPW weights are used.",
+  if ("sampling_weights" %in% .lav_key(names(fit_args))) {
+    stop("`fit_args` cannot set `sampling_weights` (or `sampling.weights`): ",
+      "the IPW weights are used.",
       call. = FALSE
     )
   }
-  se <- fit_args[["se"]]
-  if (!is.null(se) && !identical(se, "robust.huber.white")) {
+  se <- .lav_arg(fit_args, "se")
+  if (!is.null(se) && !identical(.lav_key(se), "robust_huber_white")) {
     stop("`fit_args$se` = ", deparse(se), " is not allowed for method = ",
       "\"ipw\": SEs must be robust (\"robust.huber.white\"), because the ",
       "weights make the model-based SEs wrong.",
       call. = FALSE
     )
   }
-  est <- fit_args[["estimator"]]
+  est <- .lav_arg(fit_args, "estimator")
   if (!is.null(est) && !toupper(est[1L]) %in% c("ML", "MLR")) {
     stop("`fit_args$estimator` = ", deparse(est), " has no sandwich SEs with ",
       "sampling weights; use \"ML\" or \"MLR\" with method = \"ipw\".",

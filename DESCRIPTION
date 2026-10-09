@@ -1,7 +1,7 @@
 Package: missingmed
 Type: Package
 Title: Mediation Analysis with Multiple Imputation for Missing Data
-Version: 0.6.0
+Version: 0.7.0
 Date: 2026-10-08
 Authors@R: person("Davood", "Tofighi",
         email = "dtofighi@gmail.com",
@@ -16,7 +16,7 @@ Imports:
     medfit (>= 0.3.1),
     RMediation (>= 1.5.0),
     mice (>= 3.18.0),
-    lavaan (>= 0.6-0),
+    lavaan (>= 0.7-3),
     tibble (>= 3.0.0),
     broom (>= 0.7.0),
     rlang (>= 0.4.0),
@@ -39,7 +39,7 @@ Description: Mediation analysis with incomplete data. Fits the mediator and
     models, and a delta-adjustment sensitivity analysis for departures from
     missing at random. Structural equation models, including a latent
     mediator, are fit with 'lavaan'.
-License: GPL-2
+License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, roclets = c("rd","collate","namespace"))
 URL: https://github.com/Data-Wise/missingmed, https://data-wise.github.io/missingmed/
