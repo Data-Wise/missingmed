@@ -65,6 +65,7 @@ but warns (class `md_dots_deprecated`).
 | MBCO: a glm refit did not converge | `model did not converge` | rescale variables, merge sparse factor levels; the data may be separated |
 | MBCO: a glm refit has a non-finite log-likelihood | `non-finite log-likelihood` | check the data for degenerate columns |
 | MBCO: a lavaan refit did not converge | `lavaan model did not converge` | as for [`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md) |
+| `sensitivity_mnar(on_error = "continue")`: a rung failed (warning) | `rung(s) failed` | [`tidy()`](https://generics.r-lib.org/reference/tidy.html) has an `error` column naming each failure; fix the cause and rerun the failed deltas |
 | MBCO: improper solution in a refit (warning) | `improper solution` | check the model for a negative variance or a boundary estimate; the test proceeds |
 | MBCO with IPW | `MBCO inference for IPW is not yet implemented` | use `type = "mc"` |
 | MBCO with a lavaan estimator other than ML | `supports estimator = "ML" only` | use `type = "mc"`, or refit with ML |

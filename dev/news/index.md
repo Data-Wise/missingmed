@@ -2,6 +2,23 @@
 
 ## missingmed (development version)
 
+### New features
+
+- [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/dev/reference/sensitivity_mnar.md)
+  gains `on_error = c("stop", "continue")`. The default, `"stop"`,
+  aborts at the first rung whose fit or inference fails, as before. With
+  `"continue"` the rungs that worked are kept: a failed rung reads as
+  `NA`, its message is in the new `@failed` property and in an `error`
+  column of [`tidy()`](https://generics.r-lib.org/reference/tidy.html),
+  one warning names the failed rungs, and
+  [`summary()`](https://rdrr.io/r/base/summary.html) reports the tipping
+  point as undetermined when a failed rung could change it. It is an
+  error if every rung fails. Re-imputation errors always stop.
+- A failure in
+  [`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md)
+  or `infer(type = "mc")` at a rung now carries the same “sensitivity
+  rung i of n (delta …)” prefix that the MBCO failure already had.
+
 ## missingmed 0.8.0
 
 ### New features

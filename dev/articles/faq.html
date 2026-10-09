@@ -242,6 +242,12 @@ merge sparse levels, or simplify the model. A fit that converged but
 carries glm’s “fitted probabilities numerically 0 or 1” warning is not
 refused; treat its p-value with care. The <em>Reference card</em> lists
 the other messages.</p>
+<p>In <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> the same failure stops the sweep
+at that rung, and the message names the rung and its delta. To keep the
+rungs that worked, pass <code>on_error = "continue"</code>: the failed
+rungs read as <code>NA</code>, <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code> gains an
+<code>error</code> column with each message, and a warning names
+them.</p>
 </div>
 <div class="section level3">
 <h3 id="how-do-i-cite-missingmed">How do I cite missingmed?<a class="anchor" aria-label="anchor" href="#how-do-i-cite-missingmed"></a>

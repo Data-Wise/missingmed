@@ -300,53 +300,62 @@ separated</td>
 </td>
 </tr>
 <tr class="even">
+<td>
+<code>sensitivity_mnar(on_error = "continue")</code>: a rung failed
+(warning)</td>
+<td><code>rung(s) failed</code></td>
+<td>
+<code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code> has an <code>error</code> column naming each
+failure; fix the cause and rerun the failed deltas</td>
+</tr>
+<tr class="odd">
 <td>MBCO: improper solution in a refit (warning)</td>
 <td><code>improper solution</code></td>
 <td>check the model for a negative variance or a boundary estimate; the
 test proceeds</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>MBCO with IPW</td>
 <td><code>MBCO inference for IPW is not yet implemented</code></td>
 <td>use <code>type = "mc"</code>
 </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>MBCO with a lavaan estimator other than ML</td>
 <td><code>supports estimator = "ML" only</code></td>
 <td>use <code>type = "mc"</code>, or refit with ML</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>MBCO with fewer than two imputations</td>
 <td><code>at least 2 imputations</code></td>
 <td>re-impute with <code>m &gt;= 2</code>
 </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>MBCO: missing values in a variable the constraint drops</td>
 <td><code>which the MBCO constraint drops</code></td>
 <td>impute every model variable</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>MBCO: the constraint removes a different number of parameters across
 imputations</td>
 <td><code>Under ariv = "fixed"</code></td>
 <td>drop or merge the sparse factor level</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>
 <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> with IPW</td>
 <td><code>not available for method = "ipw"</code></td>
 <td>use <code>method = "mi"</code>
 </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>a failing MBCO refit inside a sensitivity sweep</td>
 <td><code>sensitivity rung</code></td>
 <td>narrow the <code>delta</code> grid; the message names the rung and
 delta</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>latent mediator and no <code>target</code> in
 <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code>
 </td>

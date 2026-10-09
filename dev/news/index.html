@@ -41,6 +41,12 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
+<div class="section level3">
+<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li>
+<code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> gains <code>on_error = c("stop", "continue")</code>. The default, <code>"stop"</code>, aborts at the first rung whose fit or inference fails, as before. With <code>"continue"</code> the rungs that worked are kept: a failed rung reads as <code>NA</code>, its message is in the new <code>@failed</code> property and in an <code>error</code> column of <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code>, one warning names the failed rungs, and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> reports the tipping point as undetermined when a failed rung could change it. It is an error if every rung fails. Re-imputation errors always stop.</li>
+<li>A failure in <code><a href="../reference/run.html">run()</a></code> or <code>infer(type = "mc")</code> at a rung now carries the same “sensitivity rung i of n (delta …)” prefix that the MBCO failure already had.</li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.8.0" id="missingmed-080">missingmed 0.8.0<a class="anchor" aria-label="anchor" href="#missingmed-080"></a></h2>

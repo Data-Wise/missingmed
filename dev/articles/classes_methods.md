@@ -41,7 +41,7 @@ class objects when this page is built.
 | MDMediationFit | S7_object | `per_imputation`, `fits`, `m`, `engine`, `conf_int`, `conf_level`, `weights`, `source` |
 | MDMediationResult | S7_object | `pooled`, `tidy_table`, `cov_total`, `cov_between`, `cov_within`, `m`, `engine`, `conf_int`, `conf_level` |
 | MbcoMIResult | class_double | `ariv`, `k`, `m`, `stacked_branch`, `branch_mix`, `p_branch_a` |
-| MDSensitivityResult | S7_object | `rungs`, `grid`, `msp`, `target`, `type`, `level`, `seed`, `seed_source`, `method_target`, `mechanism_used`, `scale`, `source` |
+| MDSensitivityResult | S7_object | `rungs`, `failed`, `grid`, `msp`, `target`, `type`, `level`, `seed`, `seed_source`, `method_target`, `mechanism_used`, `scale`, `source` |
 
 - **`MDMediationData`**, built by
   [`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md),

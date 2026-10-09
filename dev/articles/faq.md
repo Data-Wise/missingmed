@@ -154,6 +154,14 @@ carries glm’s “fitted probabilities numerically 0 or 1” warning is not
 refused; treat its p-value with care. The *Reference card* lists the
 other messages.
 
+In
+[`sensitivity_mnar()`](https://data-wise.github.io/missingmed/dev/reference/sensitivity_mnar.md)
+the same failure stops the sweep at that rung, and the message names the
+rung and its delta. To keep the rungs that worked, pass
+`on_error = "continue"`: the failed rungs read as `NA`,
+[`tidy()`](https://generics.r-lib.org/reference/tidy.html) gains an
+`error` column with each message, and a warning names them.
+
 ### How do I cite missingmed?
 
 ``` r

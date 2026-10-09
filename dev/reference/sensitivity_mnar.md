@@ -21,6 +21,7 @@ sensitivity_mnar(
   ums = NULL,
   treatment_level = NULL,
   ariv = c("fixed", "own"),
+  on_error = c("stop", "continue"),
   ...
 )
 ```
@@ -50,8 +51,8 @@ sensitivity_mnar(
   `engine = "glm"` and for `engine = "lavaan"` (maximum likelihood only,
   see
   [`infer()`](https://data-wise.github.io/missingmed/dev/reference/infer.md)).
-  If an MBCO refit does not converge at a rung, the sweep stops and the
-  error names the rung and its delta; no partial result is returned.
+  If a refit does not converge at a rung, the sweep stops by default and
+  the error names the rung and its delta (see `on_error`).
 
 - seed:
 
@@ -87,6 +88,21 @@ sensitivity_mnar(
   for every rung (`"fixed"`, the default, or `"own"`; see
   [`mbco_d4()`](https://data-wise.github.io/missingmed/dev/reference/mbco_d4.md)).
   Ignored, with a warning, for `type = "mc"`.
+
+- on_error:
+
+  What to do when fitting or inference fails at a rung (a refit that did
+  not converge, a non-finite likelihood). `"stop"` (default) aborts the
+  sweep and the error names the rung and its delta. `"continue"` keeps
+  the rungs that succeeded, records the message of each failed rung in
+  `@failed` (and in a column `error` of
+  [`tidy()`](https://generics.r-lib.org/reference/tidy.html)), and warns
+  once naming the failed rungs; a failed rung reads as `NA` in
+  [`tidy()`](https://generics.r-lib.org/reference/tidy.html) and in the
+  tipping point, which is then reported as undetermined if a failed rung
+  could change it. It is an error if every rung fails. Re-imputation
+  errors and a non-finite shifted value always stop. Only errors are
+  caught; warnings pass through.
 
 - ...:
 

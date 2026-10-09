@@ -10,6 +10,7 @@ the realized marginal sensitivity parameters.
 ``` r
 MDSensitivityResult(
   rungs = list(),
+  failed = character(0),
   grid = data.frame(),
   msp = numeric(),
   target = character(0),
@@ -28,7 +29,14 @@ MDSensitivityResult(
 
 - rungs:
 
-  List of inference results, one per row of `grid`.
+  List of inference results, one per row of `grid`. A rung that failed
+  under `sensitivity_mnar(on_error = "continue")` is `NULL`.
+
+- failed:
+
+  Character vector, one per rung: the error message of a failed rung and
+  `NA` for a rung that succeeded. Empty (the default) when no rung
+  failed.
 
 - grid:
 
