@@ -177,6 +177,45 @@
   c(D4 = D4, p = stats::pf(D4, k, nu, lower.tail = FALSE), r4 = r4, nu = nu, d_S = d_S)
 }
 
+# A log-likelihood provider is a function of ONE dataset returning the named
+# numeric c(full, a, b, k_a, k_b): the log-likelihoods of the full model and of
+# the a = 0 and b = 0 nulls, and the number of parameters each null removes.
+# Everything downstream (branch union, stacked fit, D4, the F reference, the
+# branch diagnostics) is estimator-free and needs only this. A provider refuses,
+# by error, a fit it cannot trust (non-convergence); the pooling adds the
+# dataset to the message. SPEC-sem-mbco-2026-10-08.md, S8.
+.mm_glm_provider <- function(formula_y, formula_m, family_y, family_m,
+                             treatment, mediator) {
+  force(formula_y)
+  force(formula_m)
+  force(family_y)
+  force(family_m)
+  function(d) {
+    c(
+      .mm_mbco_lls(d, formula_y, formula_m, family_y, family_m, treatment, mediator),
+      k_a = .mm_drop_df(formula_m, treatment, d),
+      k_b = .mm_drop_df(formula_y, mediator, d)
+    )
+  }
+}
+
+# T and the df k of the WINNING branch, from one provider result. Ties go to the
+# a = 0 branch.
+.mm_fit_T_k <- function(fits) {
+  a_wins <- fits[["a"]] >= fits[["b"]]
+  c(T = .mm_mbco_T_from_lls(fits), k = if (a_wins) fits[["k_a"]] else fits[["k_b"]])
+}
+
+.mm_check_K <- function(K) {
+  if (K < 2) {
+    stop("D4 pooling of the MBCO statistic needs at least 2 imputations; the ",
+      "supplied object has ", K, ". Re-impute with m >= 2, or, for a single ",
+      "complete dataset, use complete-data MBCO (e.g. RMediation::mbco()).",
+      call. = FALSE
+    )
+  }
+}
+
 # D4-stacked MBCO across a list of imputed datasets.
 #
 # ariv = "own" pools each imputation's statistic on its OWN winning branch
@@ -191,13 +230,7 @@
                         treatment, mediator, ariv = c("fixed", "own")) {
   ariv <- match.arg(ariv)
   K <- length(implist)
-  if (K < 2) {
-    stop("D4 pooling of the MBCO statistic needs at least 2 imputations; the ",
-      "supplied object has ", K, ". Re-impute with m >= 2, or, for a single ",
-      "complete dataset, use complete-data MBCO (e.g. RMediation::mbco()).",
-      call. = FALSE
-    )
-  }
+  .mm_check_K(K)
   # NA left in a variable that a constraint DROPS (e.g. a mids treatment
   # imputed with method "") makes glm() keep rows in the constrained fit that
   # the full fit dropped, so 2 * (llF - llC) compares different samples and is
@@ -222,11 +255,22 @@
       )
     }
   }
+  .mm_d4_pool(implist, .mm_glm_provider(
+    formula_y, formula_m, family_y, family_m, treatment, mediator
+  ), ariv)
+}
+
+# The estimator-free part of D4-stacked MBCO: `provider` (see above) supplies the
+# log-likelihood triple and the df of each null for one dataset.
+.mm_d4_pool <- function(implist, provider, ariv = c("fixed", "own")) {
+  ariv <- match.arg(ariv)
+  K <- length(implist)
+  .mm_check_K(K)
   # A fit that fails in one dataset (e.g. a factor with a single level there)
-  # names that dataset; glm()'s own message is kept verbatim.
+  # names that dataset; the provider's own message is kept verbatim.
   lls_of <- function(d, where) {
     tryCatch(
-      .mm_mbco_lls(d, formula_y, formula_m, family_y, family_m, treatment, mediator),
+      provider(d),
       error = function(e) {
         stop("Fitting the MBCO models failed in ", where, ": ",
           conditionMessage(e),
@@ -242,11 +286,9 @@
   stacked_a <- lls_S[["a"]] >= lls_S[["b"]]
 
   if (ariv == "own") {
-    per <- vapply(seq_len(K), function(i) {
-      .mm_mbco_T_k(lls[[i]], implist[[i]], formula_y, formula_m, treatment, mediator)
-    }, numeric(2))
+    per <- vapply(lls, .mm_fit_T_k, numeric(2))
     d_k <- per[1L, ]
-    st <- .mm_mbco_T_k(lls_S, stacked, formula_y, formula_m, treatment, mediator)
+    st <- .mm_fit_T_k(lls_S)
     d_S <- unname(st[["T"]]) / K
     # D4 assumes one k for the whole pooling. The branch is data-dependent, so
     # if imputations disagree about which one wins -- and therefore about how
@@ -274,11 +316,9 @@
     # factor level absent from one imputation lowers the full and the nulled
     # rank alike when the factor enters as a main effect, leaving k unchanged.
     # k differs only when the sparse level interacts with the nulled path.
-    f_br <- if (stacked_a) formula_m else formula_y
-    v_br <- if (stacked_a) treatment else mediator
-    k_S <- .mm_drop_df(f_br, v_br, stacked)
+    k_S <- lls_S[[paste0("k_", key)]]
     for (i in seq_len(K)) {
-      k_i <- .mm_drop_df(f_br, v_br, implist[[i]])
+      k_i <- lls[[i]][[paste0("k_", key)]]
       if (k_i != k_S) {
         stop("Under ariv = \"fixed\", the ", key, " = 0 constraint removes ",
           k_i, " parameter", if (k_i == 1) "" else "s", " from the ",
