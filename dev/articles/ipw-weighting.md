@@ -108,6 +108,21 @@ summary(run(md2)@weights)
 #>  0.7375  0.8632  0.9375  0.9958  1.0796  2.1085     119
 ```
 
+**One model or one per variable.** The default, and a single formula,
+fit **one** model for “every model variable is observed”. When only one
+variable is incomplete that is the same as a per-variable model. When
+several are incomplete and each is missing for its own reasons, the
+probability that all are observed is a *product* of logistic
+probabilities, which one logistic model cannot represent: the weights
+are misspecified and the estimate stays biased however large the sample.
+In one simulated mechanism of this kind (`M` and `Y` each missing 40% of
+the time, driven by an auxiliary variable, true `b` = 0.30), the joint
+default converged to `b` = 0.278 at n = 100,000, while a per-variable
+`weight_formula = list(M = ..., Y = ...)` converged to 0.300. If several
+variables are incomplete, name every one of them in the list
+([`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md)
+refuses a list that omits an incomplete variable).
+
 ## Stabilizing and trimming
 
 `weight_stabilize = TRUE` (the default) multiplies by the marginal
@@ -131,14 +146,36 @@ rbind(
 ```
 
 Trimming trades a little bias for less variance. Report whether you
-trimmed.
+trimmed. In the simulated mechanism above (n = 200 or 500, 25% or 40%
+missing in each of `M` and `Y`), trimming at 0.95 moved the mean `b` a
+further 0.02 to 0.03 below the untrimmed stabilized weights (0.285 to
+0.264, 0.282 to 0.258, 0.268 to 0.244 and 0.265 to 0.237 across the four
+settings).
 
 ## Standard errors
 
 `se_type = "sandwich"` (default) uses a heteroskedasticity-robust (HC)
 variance; `"model"` uses the usual model-based one, which is wrong for
 weighted fits and is there for comparison only. The weights are treated
-as **known**: the uncertainty from estimating them is not propagated.
+as **known**: the uncertainty from estimating them is not propagated. A
+variance that does propagate it exists internally but is not enabled: in
+a 48-setting simulation (2,000 replications each) it was no better than
+the current one.
+
+Two things limit how far the intervals can be trusted, whatever the
+variance:
+
+- **Misspecified weights** (the joint model above) bias the estimate at
+  any sample size, so the interval is centered in the wrong place. In
+  the worst simulated setting (n = 500, 40% missing in each variable)
+  the 95% interval for `a*b` at `a = b = 0.3` covered 0.921 of the time
+  with the joint default and 0.929 with per-variable weights.
+- **Few complete cases.** Even with correct weights the estimate was
+  biased low at small counts: with 40% missing in each of `M` and `Y`
+  (about 36% complete cases), the mean `b` was 0.282 at n = 200, 0.288
+  at n = 500 and 0.301 at n = 5,000 (true value 0.30). Treat IPW results
+  from a few hundred complete cases with heavy weights as approximate,
+  and look at `summary(fit@weights)`.
 
 ## IPW or imputation?
 

@@ -59,6 +59,14 @@
   and the FAQ now say so and recommend `"fixed"` unless you need to
   reproduce an earlier analysis. The operating-characteristics table
   covers the glm engine.
+- The IPW article now says what the simulations showed about the
+  missingness model and the standard errors: the default joint model is
+  biased at any sample size when several variables are missing for
+  separate reasons (a per-variable `weight_formula` removes that),
+  trimming added bias in that setting, a finite-sample bias remains at a
+  few hundred complete cases, and the weight-estimation uncertainty is
+  still not propagated. The figures come from `dev/sim-ipw-auxm-bias.R`
+  and the 48-setting coverage run.
 - The lavaan tutorial gains a section on lavaan 0.7-3’s
   `information_meat_hc` and `information_bread` (small-sample sandwich
   standard errors): they work through `fit_args` with `method = "ipw"`
