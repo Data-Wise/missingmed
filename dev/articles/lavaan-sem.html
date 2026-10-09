@@ -266,17 +266,90 @@ replaced:</p>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> `fit_args$se` = "standard" is not allowed for method = "ipw": SEs must be robust ("robust.huber.white"), because the weights make the model-based SEs wrong.</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="small-sample-corrections-to-the-robust-standard-errors">Small-sample corrections to the robust standard errors<a class="anchor" aria-label="anchor" href="#small-sample-corrections-to-the-robust-standard-errors"></a>
+</h2>
+<p>lavaan 0.7-3 adds <code>information_meat_hc</code>, a small-sample
+correction of the casewise sandwich standard errors (the analogue of
+HC1, HC2 and HC3 for a regression), and <code>information_bread</code>,
+which picks the information matrix used for the bread of the sandwich.
+Pass either through <code>fit_args</code>. They change <strong>standard
+errors only</strong>; the point estimates are unchanged. They apply when
+the standard errors are a sandwich: with <code>method = "ipw"</code>
+(always) or with a robust estimator such as <code>"MLR"</code>. With the
+default ML estimator they are accepted and ignored.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">se_ab</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">object</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">tab</span><span class="op">[</span><span class="va">tab</span><span class="op">$</span><span class="va">term</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"term"</span>, <span class="st">"estimate"</span>, <span class="st">"std_error"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">mod_obs</span> <span class="op">&lt;-</span> <span class="st">"Mobs ~ a * X + C\nY ~ b * Mobs + cp * X + C"</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">hc</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"HC1"</span>, <span class="st">"HC3"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">fa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>estimator <span class="op">=</span> <span class="st">"MLR"</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">hc</span> <span class="op">!=</span> <span class="st">"none"</span><span class="op">)</span> <span class="va">fa</span><span class="op">$</span><span class="va">information_meat_hc</span> <span class="op">&lt;-</span> <span class="va">hc</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"MLR, information_meat_hc:"</span>, <span class="va">hc</span>, <span class="st">"\n"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">se_ab</span><span class="op">(</span><span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">imp_obs</span>,</span>
+<span>    model <span class="op">=</span> <span class="va">mod_obs</span>, treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"Mobs"</span>, outcome <span class="op">=</span> <span class="st">"Y"</span>,</span>
+<span>    engine <span class="op">=</span> <span class="st">"lavaan"</span>, fit_args <span class="op">=</span> <span class="va">fa</span></span>
+<span>  <span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt; MLR, information_meat_hc: none </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 3</span></span></span>
+<span><span class="co">#&gt;   term  estimate std_error</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> a        0.563    0.102 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> b        0.518    0.065<span style="text-decoration: underline;">7</span></span></span>
+<span><span class="co">#&gt; MLR, information_meat_hc: HC1 </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 3</span></span></span>
+<span><span class="co">#&gt;   term  estimate std_error</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> a        0.563    0.104 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> b        0.518    0.066<span style="text-decoration: underline;">5</span></span></span>
+<span><span class="co">#&gt; MLR, information_meat_hc: HC3 </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 3</span></span></span>
+<span><span class="co">#&gt;   term  estimate std_error</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> a        0.563    0.103 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> b        0.518    0.067<span style="text-decoration: underline;">1</span></span></span></code></pre></div>
+<p>Under inverse probability weighting lavaan offers only
+<code>"HC1"</code> with sampling weights; <code>"HC2"</code> and
+<code>"HC3"</code> are refused, and <code><a href="../reference/run.html">run()</a></code> reports lavaan’s
+message:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ipw_hc</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">hc</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">d</span>,</span>
+<span>    model <span class="op">=</span> <span class="va">mod_obs</span>, treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"Mobs"</span>, outcome <span class="op">=</span> <span class="st">"Y"</span>,</span>
+<span>    engine <span class="op">=</span> <span class="st">"lavaan"</span>, method <span class="op">=</span> <span class="st">"ipw"</span>,</span>
+<span>    fit_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>information_meat_hc <span class="op">=</span> <span class="va">hc</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu">se_ab</span><span class="op">(</span><span class="fu">ipw_hc</span><span class="op">(</span><span class="st">"HC1"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 3</span></span></span>
+<span><span class="co">#&gt;   term  estimate std_error</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> a        0.658    0.124 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> b        0.416    0.074<span style="text-decoration: underline;">1</span></span></span>
+<span><span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="fu">ipw_hc</span><span class="op">(</span><span class="st">"HC3"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;">:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> engine "lavaan" failed on the IPW fit: lavaan-&gt;lav_hc_model_scores():  </span></span>
+<span><span class="co">#&gt;    information_meat_hc = "HC3" is not available with sampling weights.</span></span></code></pre></div>
+<p>In these examples the corrections raise the standard errors by about
+2%. This tutorial does not calibrate them: the package’s Monte-Carlo and
+MBCO checks were not run with these options.
+<code>information_bread = "observed"</code> left the standard errors
+unchanged for the models in this tutorial.</p>
+</div>
+<div class="section level2">
 <h2 id="sensitivity-analysis-with-a-latent-mediator">Sensitivity analysis with a latent mediator<a class="anchor" aria-label="anchor" href="#sensitivity-analysis-with-a-latent-mediator"></a>
 </h2>
 <p><code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> shifts imputed values of a data
 column. A latent mediator has no column, so name an observed indicator
 as <code>target</code>; the error lists the indicators if you
 forget.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sensitivity_mnar.html">sensitivity_mnar</a></span><span class="op">(</span><span class="va">md_lat</span>, delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;">:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> The mediator 'Mlat' is latent and has no data column, so `target` is required. Name one of its indicators: m1, m2, m3.</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sensitivity_mnar.html">sensitivity_mnar</a></span><span class="op">(</span><span class="va">md_lat</span>,</span>
 <span>  delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0</span>, <span class="fl">0.5</span><span class="op">)</span>, target <span class="op">=</span> <span class="st">"m1"</span>,</span>
 <span>  n.mc <span class="op">=</span> <span class="fl">2000</span>, seed <span class="op">=</span> <span class="fl">1</span></span>
@@ -302,7 +375,7 @@ are fit the same three ways. With a latent mediator, only the
 errors and any direct effect of an indicator on <code>Y</code> stay
 free, so each branch tests exactly one parameter
 (<code>k = 1</code>).</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit_lat</span>, type <span class="op">=</span> <span class="st">"mbco"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;MbcoMIResult&gt; D4-stacked MBCO test of H0: a*b = 0 (m = 5 imputations)</span></span>
 <span><span class="co">#&gt;   D4 = 30.38 on F(1, Inf), p = 3.547e-08</span></span>
@@ -332,7 +405,7 @@ nulls.</li>
 </ul>
 <p>The same test is available for a plain list of completed data frames,
 without a <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> object:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/mbco_d4.html">mbco_d4</a></span><span class="op">(</span><span class="fu">mice</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/complete.html" class="external-link">complete</a></span><span class="op">(</span><span class="va">imp</span>, <span class="st">"all"</span><span class="op">)</span>,</span>
 <span>  model <span class="op">=</span> <span class="va">mod_lat</span>, treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"Mlat"</span>, outcome <span class="op">=</span> <span class="st">"Y"</span></span>
 <span><span class="op">)</span></span></code></pre></div>

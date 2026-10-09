@@ -206,6 +206,85 @@ set_md_mediation(d,
 #> ! `fit_args$se` = "standard" is not allowed for method = "ipw": SEs must be robust ("robust.huber.white"), because the weights make the model-based SEs wrong.
 ```
 
+## Small-sample corrections to the robust standard errors
+
+lavaan 0.7-3 adds `information_meat_hc`, a small-sample correction of
+the casewise sandwich standard errors (the analogue of HC1, HC2 and HC3
+for a regression), and `information_bread`, which picks the information
+matrix used for the bread of the sandwich. Pass either through
+`fit_args`. They change **standard errors only**; the point estimates
+are unchanged. They apply when the standard errors are a sandwich: with
+`method = "ipw"` (always) or with a robust estimator such as `"MLR"`.
+With the default ML estimator they are accepted and ignored.
+
+``` r
+
+se_ab <- function(object) {
+  tab <- tidy(pool(run(object)))
+  tab[tab$term %in% c("a", "b"), c("term", "estimate", "std_error")]
+}
+mod_obs <- "Mobs ~ a * X + C\nY ~ b * Mobs + cp * X + C"
+for (hc in c("none", "HC1", "HC3")) {
+  fa <- list(estimator = "MLR")
+  if (hc != "none") fa$information_meat_hc <- hc
+  cat("MLR, information_meat_hc:", hc, "\n")
+  print(se_ab(set_md_mediation(imp_obs,
+    model = mod_obs, treatment = "X", mediator = "Mobs", outcome = "Y",
+    engine = "lavaan", fit_args = fa
+  )))
+}
+#> MLR, information_meat_hc: none 
+#> # A tibble: 2 × 3
+#>   term  estimate std_error
+#>   <chr>    <dbl>     <dbl>
+#> 1 a        0.563    0.102 
+#> 2 b        0.518    0.0657
+#> MLR, information_meat_hc: HC1 
+#> # A tibble: 2 × 3
+#>   term  estimate std_error
+#>   <chr>    <dbl>     <dbl>
+#> 1 a        0.563    0.104 
+#> 2 b        0.518    0.0665
+#> MLR, information_meat_hc: HC3 
+#> # A tibble: 2 × 3
+#>   term  estimate std_error
+#>   <chr>    <dbl>     <dbl>
+#> 1 a        0.563    0.103 
+#> 2 b        0.518    0.0671
+```
+
+Under inverse probability weighting lavaan offers only `"HC1"` with
+sampling weights; `"HC2"` and `"HC3"` are refused, and
+[`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md)
+reports lavaan’s message:
+
+``` r
+
+ipw_hc <- function(hc) {
+  set_md_mediation(d,
+    model = mod_obs, treatment = "X", mediator = "Mobs", outcome = "Y",
+    engine = "lavaan", method = "ipw",
+    fit_args = list(information_meat_hc = hc)
+  )
+}
+se_ab(ipw_hc("HC1"))
+#> # A tibble: 2 × 3
+#>   term  estimate std_error
+#>   <chr>    <dbl>     <dbl>
+#> 1 a        0.658    0.124 
+#> 2 b        0.416    0.0741
+run(ipw_hc("HC3"))
+#> Error:
+#> ! engine "lavaan" failed on the IPW fit: lavaan->lav_hc_model_scores():  
+#>    information_meat_hc = "HC3" is not available with sampling weights.
+```
+
+In these examples the corrections raise the standard errors by about 2%.
+This tutorial does not calibrate them: the package’s Monte-Carlo and
+MBCO checks were not run with these options.
+`information_bread = "observed"` left the standard errors unchanged for
+the models in this tutorial.
+
 ## Sensitivity analysis with a latent mediator
 
 [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/dev/reference/sensitivity_mnar.md)
