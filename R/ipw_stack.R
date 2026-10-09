@@ -23,6 +23,14 @@
 #'
 #' The dispersion of a Gaussian fit is treated as a constant, as `vcovHC` does;
 #' it cancels from the result.
+#' @param hc Small-sample correction (SPEC-ipw-stack-hc-gate-2026-10-09.md). The
+#'   meat is `crossprod(U)`, so a row factor on the influence is squared in the
+#'   variance. `"HC0"` (default): none. `"HC3"`: each complete case's regression
+#'   score is divided by `1 - h_i` (`h_i = hatvalues(fit)`), as `sandwich`'s HC3.
+#'   `"HC1"`: each regression's columns of the influence are scaled by
+#'   `sqrt(n_cc / (n_cc - p))`, `p` that regression's coefficient count. The
+#'   weight-model score term is not corrected. With the nuisance blocks removed,
+#'   `"HC3"` and `"HC1"` equal `sandwich::vcovHC()` of each regression.
 #' @param fits Named list of weighted `glm` fits on the complete cases, in the
 #'   row order of the data. Their prior weights must be the weights in `info`.
 #' @param info The `info` element of [.ipw_weights_info()].
@@ -30,7 +38,8 @@
 #'   `"<fit name>:<coefficient>"`.
 #' @keywords internal
 #' @noRd
-.ipw_stacked_vcov <- function(fits, info) {
+.ipw_stacked_vcov <- function(fits, info, hc = c("HC0", "HC1", "HC3")) {
+  hc <- match.arg(hc)
   if (!is.list(fits) || is.null(names(fits)) || !all(nzchar(names(fits)))) {
     stop("`fits` must be a named list of glm fits.", call. = FALSE)
   }
@@ -83,8 +92,20 @@
     ww <- unname(stats::weights(fit, "working"))
     psi <- X * (unname(stats::residuals(fit, "working")) * ww)
     H_inv <- solve(crossprod(X, X * ww))
+    psi_hc <- psi
+    if (hc == "HC3") {
+      h <- unname(stats::hatvalues(fit))
+      if (any(h >= 1 - 1e-8)) {
+        stop("`fits$", nm, "` has ", sum(h >= 1 - 1e-8), " complete case(s) with ",
+          "leverage 1, so the HC3 correction is undefined. Use hc = \"HC1\" or ",
+          "\"HC0\".", call. = FALSE)
+      }
+      psi_hc <- psi / (1 - h)
+    }
+    # The leverage factor applies to the regression-score term only; the
+    # derivative G of the score in the weights (below) uses the uncorrected score.
     Psi <- matrix(0, N, ncol(X))
-    Psi[cc, ] <- psi
+    Psi[cc, ] <- psi_hc
     keep <- !trimmed[cc]
     for (b in nuis) {
       # psi_i is linear in w_i, so d psi_i / d gamma = psi_i (d log w_i / d gamma).
@@ -92,6 +113,7 @@
       Psi <- Psi + b$Sg %*% t(G %*% b$Hg_inv)
     }
     out <- Psi %*% H_inv
+    if (hc == "HC1") out <- out * sqrt(n_cc / (n_cc - ncol(X)))
     colnames(out) <- paste0(nm, ":", names(stats::coef(fit)))
     out
   })

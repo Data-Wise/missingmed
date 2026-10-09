@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | DRAFT for author approval. Nothing is built or run until approved. |
+| **Status** | APPROVED 2026-10-09 ("do all"): approved as written with the recommended answers to section 10 (variants as declared; F7 revisited after the results; limited-scope claim for trimmed fits). |
 | **Plan** | [PLAN-ipw-stack-hc-2026-10-09.md](PLAN-ipw-stack-hc-2026-10-09.md), task T1; the author accepted the plan's recommended defaults ("as recommended") |
 | **Follows** | first gate: [SPEC-ipw-stack-coverage-2026-10-09.md](SPEC-ipw-stack-coverage-2026-10-09.md) sections 13 and 14 (results, bias explanation) |
 | **Decision it serves** | Whether any HC-corrected stacked variance is *viable* for `method = "ipw"`, per weight form. Viability only authorizes planning the wiring (plan T8); it does not enable anything. |
