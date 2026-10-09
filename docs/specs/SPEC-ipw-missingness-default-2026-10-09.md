@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | DRAFT for approval. Nothing in `R/` changes until section 9 is answered. |
+| **Status** | APPROVED 2026-10-09 ("approved"): all five recommended answers to section 10 (gate first; sequential default if the gate passes; no new argument, named list = sequence in list order; T0 docs PR now; ascending-missing-share order). Nothing in `R/` changes until the gate (T1-T4) has run. |
 | **Origin** | [PLAN-ipw-stack-hc-2026-10-09.md](PLAN-ipw-stack-hc-2026-10-09.md) F7; the Codex adversarial review of that plan (high: "known joint-model bias remains the default behavior"); the second gate ([SPEC-ipw-stack-hc-gate-2026-10-09.md](SPEC-ipw-stack-hc-gate-2026-10-09.md) section 11) |
 | **Evidence so far** | [SPEC-ipw-stack-coverage-2026-10-09.md](SPEC-ipw-stack-coverage-2026-10-09.md) section 14; [RESULTS-ipw-f7-pilot-2026-10-09.txt](RESULTS-ipw-f7-pilot-2026-10-09.txt) (laptop pilot, this spec) |
 | **Decision it serves** | Which missingness model `weight_formula = NULL` fits, and what a named list means. Unlike the variance work, this changes users' **point estimates**. |
