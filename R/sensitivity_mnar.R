@@ -284,7 +284,14 @@ sensitivity_mnar <- function(object, delta, target = NULL,
       infer(pool(fit_i), type = "mc", level = level, n.mc = n.mc,
         treatment_level = treatment_level)
     } else {
-      infer(fit_i, type = "mbco", ariv = ariv)
+      # A failing MBCO refit aborts the sweep; the error names the rung.
+      tryCatch(infer(fit_i, type = "mbco", ariv = ariv), error = function(e) {
+        stop("sensitivity rung ", i, " of ", nrow(grid), " (",
+          paste(names(grid), "=", unlist(grid[i, , drop = FALSE]), collapse = ", "),
+          "): ", conditionMessage(e),
+          call. = FALSE
+        )
+      })
     }
   }
 
