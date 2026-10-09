@@ -25,6 +25,19 @@
   slightly conservative relative to the published procedure; the size gap at
   K = 20 is at most about 0.002.
 
+## Documentation
+
+* **`ariv = "own"` can be liberal.** A calibration of the glm engine (132 settings,
+  1000 replications each) found the default `"fixed"` at or below 5.7% rejection of
+  a true null everywhere, while `"own"` exceeded 6.5% in 23 of 80 non-Gaussian
+  settings (up to 13.8%) and, in a separate plain-Gaussian grid, reached 8.3% at
+  n = 200 with 40% missing. `?mbco_d4`, `vignette("mbco-mi")` and the FAQ now say so
+  and recommend `"fixed"` unless you need to reproduce an earlier analysis. The
+  operating-characteristics table covers the glm engine.
+* The documentation no longer says `"own"` "reproduces" missingmed 0.4.0 or the
+  research prototype: `D4`, `r4` and the branch still match, but `nu` and `p` differ
+  slightly since the denominator degrees of freedom changed (see Bug fixes).
+
 ## Lifecycle
 
 * missingmed now uses the lifecycle package. The deprecations of `run(...)` and

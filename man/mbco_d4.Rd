@@ -67,7 +67,7 @@ per-imputation statistics, and \eqn{\nu = k (K - 1) (1 + 1 / r_4)^2}
 (Chan and Meng 2022, eq. 2.15 of arXiv:1711.08822; the same reference distribution as
 \code{mitml::testModels(method = "D4")}). \code{ariv} chooses how those statistics are formed:
 \itemize{
-\item \code{"fixed"} (default): each imputation's statistic is computed on the branch
+\item \code{"fixed"} (default, calibrated): each imputation's statistic is computed on the branch
 (\code{a = 0} or \code{b = 0}) that the \strong{stacked} constrained fit selected.
 Imputations that disagree on the winning branch then cannot pull
 \eqn{r_4} down, and every imputation uses the stacked fit's \code{k}. An error
@@ -77,11 +77,18 @@ level of a factor that interacts with the treatment or mediator is absent
 from one imputation). \code{k} is a difference of design-matrix ranks, so a
 sparse level of a main-effect factor does not trigger it.
 \item \code{"own"}: each imputation's statistic is computed on its own winning branch
-(the standard Chan & Meng \eqn{r_4}). On full-rank designs this
-reproduces missingmed 0.4.0; \code{k} is now a rank difference rather than a
-column count, so a design with aliased columns gets a smaller \code{k}.
-It errors when the winning branches remove different numbers of
-parameters, since there is then no single \code{k}.
+(the standard Chan & Meng \eqn{r_4}). On full-rank designs its \code{D4} and
+\code{r4} equal missingmed 0.4.0's; \code{nu} and \code{p} differ slightly, because the
+denominator degrees of freedom now follow Chan & Meng (see NEWS). \code{k} is
+a rank difference rather than a column count, so a design with aliased
+columns gets a smaller \code{k}. It errors when the winning branches remove
+different numbers of parameters, since there is then no single \code{k}.
+\strong{It can be liberal.} In simulation (1000 replications per cell, 20
+imputations, MAR missingness in the mediator, 5\% level) it rejected a true
+null up to 8.3\% of the time for a plain Gaussian model with 40\% missing
+and n = 200, and up to 13.8\% for binary and count outcomes at 40\%
+missing, where \code{"fixed"} stayed at or below 5.7\% on the same data. Use
+\code{"fixed"} unless you need to reproduce an earlier analysis.
 }
 
 \strong{Cost.} Every imputation is fit three times (the full model and both

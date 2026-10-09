@@ -81,6 +81,7 @@ Checkpoint after T2 (the naive control inflates, k = 2 appears) and after T3 (th
 - `fit_args` for the glm MBCO refits. They never reach `.mm_glm_ll` (`R/mbco_mi.R`): the calibration measures the default `glm()` settings, which is also what users get. Passing them through, or documenting the limit, is a separate item (memory `mbco-glm-refits-ignore-fit-args`).
 - MLR (item C), IPW with MBCO (refused by design), non-Gaussian `X:M` models (refused by `set_md_mediation()`; `mbco_d4()` on a plain list is not part of the product claim for those).
 - `engine = "regmedint"` (MBCO refits it with glm; covered by the same code path).
+- **`mc` interval coverage with `treatment_level`** (the `X:M` model's Monte-Carlo interval). The `gauss_xm` family exercises the MBCO test of an `X:M` model only; `treatment_level` matters for `infer(type = "mc")`, which this grid does not run. Not calibrated.
 
 ## 7. Risks
 
