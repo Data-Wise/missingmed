@@ -2,6 +2,17 @@
 
 ## missingmed (development version)
 
+### Bug fixes
+
+- `infer(type = "mbco")` and
+  [`mbco_d4()`](https://data-wise.github.io/missingmed/dev/reference/mbco_d4.md)
+  now refuse when a [`glm()`](https://rdrr.io/r/stats/glm.html) refit
+  did not converge or has a non-finite log-likelihood, instead of
+  returning a p-value computed from it. The error names the dataset
+  (imputation or stacked data), the branch (`full`, `a = 0`, `b = 0`)
+  and the model. `sensitivity_mnar(type = "mbco")` names the failing
+  rung and delta. Converged fits are unchanged.
+
 ## missingmed 0.7.0
 
 ### Deprecations

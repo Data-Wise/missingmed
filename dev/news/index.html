@@ -41,6 +41,11 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<ul><li>
+<code>infer(type = "mbco")</code> and <code><a href="../reference/mbco_d4.html">mbco_d4()</a></code> now refuse when a <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code> refit did not converge or has a non-finite log-likelihood, instead of returning a p-value computed from it. The error names the dataset (imputation or stacked data), the branch (<code>full</code>, <code>a = 0</code>, <code>b = 0</code>) and the model. <code>sensitivity_mnar(type = "mbco")</code> names the failing rung and delta. Converged fits are unchanged.</li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.0" id="missingmed-070">missingmed 0.7.0<a class="anchor" aria-label="anchor" href="#missingmed-070"></a></h2>

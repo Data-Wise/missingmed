@@ -94,6 +94,16 @@ single-path nulls), plus the same three fits on the stacked data. The
 branch; the second null per imputation is what the branch diagnostics
 `branch_mix` and `p_branch_a` require.
 
+**Convergence.** A [`stats::glm()`](https://rdrr.io/r/stats/glm.html)
+refit that did not converge, or whose log-likelihood is not finite,
+stops the test with an error naming the dataset (an imputation or the
+stacked data), the branch (`full`, `a = 0` or `b = 0`) and the model:
+its likelihood is not a maximum, so the statistic would not be a
+likelihood ratio. A fit that converged but carries glm's "fitted
+probabilities numerically 0 or 1" warning is not refused (its likelihood
+is finite and the warning reaches you unchanged), but the
+chi-square-type reference may be poor for such near-separated data.
+
 At least two imputations are required. For a single complete dataset,
 use a complete-data MBCO test such as
 [`RMediation::mbco()`](https://data-wise.github.io/rmediation/reference/mbco.html).
