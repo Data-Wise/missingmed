@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this package is
 
-**missingmed** — "Mediation Analysis with Multiple Imputation for Missing Data" (**v0.7.0**, dev 0.7.0.9000). A **thin orchestration layer** (the missing-data middle): it runs mediation across incomplete data and pools with Rubin's rules — **delegating fitting to `medfit`** and **inference to `RMediation`**, with simulation in `medsim`. **S7-first.**
+**missingmed** — "Mediation Analysis with Multiple Imputation for Missing Data" (**v0.8.0**). A **thin orchestration layer** (the missing-data middle): it runs mediation across incomplete data and pools with Rubin's rules — **delegating fitting to `medfit`** and **inference to `RMediation`**, with simulation in `medsim`. **S7-first.**
 
 > **🟢 Roadmap complete (v0.3.0).** S7 rewrite + IPW (v0.2.0, 2026-06-12), then GLM family coverage (PR #5) and MNAR sensitivity `sensitivity_mnar()` (PR #6) landed 2026-08. Released on GitHub, the [pkgdown site](https://data-wise.github.io/missingmed/), and the [Data-Wise r-universe](https://data-wise.r-universe.dev). Post-release backlog: `docs/specs/PLAN-pre-v0.3.0-review-fixes-2026-08-29.md` (parked section).
 
@@ -18,7 +18,7 @@ Four verbs over three S7 classes:
 - **`infer(type = c("mc","mbco"))`** — `mc`: Monte-Carlo CI via RMediation (an `X:M` model needs `treatment_level`, the x in a(b + theta3 x)); `mbco`: **D4-stacked MBCO** (`R/mbco_mi.R` — MBCO does **not** commute with Rubin's rules). `per_imputation_list()` exposes the per-imputation fits MBCO needs. **`ariv = c("fixed", "own")`**, default `"fixed"` (#19): `"fixed"` tests every imputation on the stacked fit's branch; `"own"` is bit-identical to v0.4.0 (and to the research prototype). Returns an **`MbcoMIResult`** (S7, parent `class_double`; index with `r["p"]`/`r[["p"]]`, `$` errors). The exported **`mbco_d4(implist, ...)`** is the same engine on a plain list of data frames. D4-MBCO under MI lives here by decision; RMediation keeps complete-data MBCO.
 - **Two estimators (orthogonal `method` axis):** `"mi"` (default; `data` = `mice::mids`) and `"ipw"` (`data` = `data.frame`; reweighted complete cases, stabilized weights, trimming, `se_type = "sandwich"`).
 
-The **S4 API was removed in 0.6.0**: `set_sem`/`run_sem`/`pool_sem`/`fit_model`/`lav_mice`/`mx_mice` were `.Defunct()` stubs in 0.6.0 and are deleted (0.7.0 line); the S4 classes, predicates and OpenMx tidiers are gone. **`engine = "lavaan"`** (`R/lavaan_spec.R`, the lavaan branch of `R/run.R`) takes `model` + `outcome` (+ `fit_args`) instead of formulas; MBCO refuses for it (own spec).
+The **S4 API was removed in 0.6.0**: `set_sem`/`run_sem`/`pool_sem`/`fit_model`/`lav_mice`/`mx_mice` were `.Defunct()` stubs in 0.6.0 and are deleted (0.7.0 line); the S4 classes, predicates and OpenMx tidiers are gone. **`engine = "lavaan"`** (`R/lavaan_spec.R`, the lavaan branch of `R/run.R`) takes `model` + `outcome` (+ `fit_args`) instead of formulas; MBCO works for it (ML only; `R/mbco_lavaan.R`; MLR, `group`, `ordered`, `sampling.weights` refuse).
 
 ## Architecture
 
