@@ -96,9 +96,16 @@ test_that("infer(type = 'mc') works on a lavaan fit and matches glm's interval",
   expect_equal(unname(a$CI), unname(b$CI), tolerance = 0.05)
 })
 
-test_that("infer(type = 'mbco') on a lavaan fit errors, naming the follow-up", {
-  expect_error(infer(run(md_l(imp_of(2))), type = "mbco"), "not available for engine")
-  expect_error(infer(run(md_l(imp_of(2))), type = "mbco"), "needs its own spec")
+test_that("infer(type = 'mbco') on a lavaan fit equals the glm engine (observed model)", {
+  im <- imp_of(3)
+  for (ariv in c("fixed", "own")) {
+    a <- infer(run(md_l(im)), type = "mbco", ariv = ariv)
+    b <- infer(run(md_g(im)), type = "mbco", ariv = ariv)
+    expect_s3_class(a, "missingmed::MbcoMIResult")
+    expect_equal(as.vector(a), as.vector(b), tolerance = 1e-6)
+    expect_identical(a@stacked_branch, b@stacked_branch)
+    expect_equal(a@k, b@k)
+  }
 })
 
 test_that("an off-diagonal covariance keeps its Wald test; only variances are blanked", {

@@ -36,6 +36,43 @@
   do.call(lavaan::lavaan, c(list(model = pt, data = data, se = "none"), refit_args))
 }
 
+# Refuse before any fit the `fit_args` the lavaan MBCO does not support (S4).
+.mm_lav_check_args <- function(fa) {
+  est <- .lav_arg(fa, "estimator")
+  if (!is.null(est) && !identical(toupper(as.character(est)), "ML")) {
+    stop("MBCO for engine = \"lavaan\" supports estimator = \"ML\" only; the ",
+      "`fit_args` estimator is \"", est, "\". Robust tests (MLR, MLM) and ",
+      "limited-information estimators (WLSMV, ...) are not supported: D4 pooling ",
+      "of a scaled statistic is unvalidated (SPEC-sem-mbco-2026-10-08.md, S4).",
+      call. = FALSE
+    )
+  }
+  for (nm in c("ordered", "group", "sampling_weights")) {
+    if (!is.null(.lav_arg(fa, nm))) {
+      stop("MBCO for engine = \"lavaan\" does not support `fit_args` `",
+        gsub("_", ".", nm), "`.",
+        call. = FALSE
+      )
+    }
+  }
+  invisible(TRUE)
+}
+
+# The same, plus the model's a and b rows, for the MDMediationData of a lavaan
+# fit (IPW is refused by infer() before this).
+.mm_lav_check_mbco <- function(src) {
+  .mm_lav_check_args(src@fit_args)
+  .mm_lav_check_rows(src@model, src@treatment, src@mediator, src@outcome)
+}
+
+# One a row and one b row in the model, checked before any imputation is fit.
+.mm_lav_check_rows <- function(model, treatment, mediator, outcome) {
+  pt <- lavaan::lavaanify(model)
+  .mm_lav_row(pt, mediator, treatment, "a")
+  .mm_lav_row(pt, outcome, mediator, "b")
+  invisible(TRUE)
+}
+
 .mm_lav_ll <- function(fit, branch) {
   if (!isTRUE(lavaan::lavInspect(fit, "converged"))) {
     stop("the ", branch, " lavaan model did not converge. Simplify the model, ",
@@ -69,9 +106,15 @@
     a0 <- suppressWarnings(.mm_lav_null(full, row_a, d, refit_args))
     b0 <- suppressWarnings(.mm_lav_null(full, row_b, d, refit_args))
     npar <- function(f) lavaan::lavInspect(f, "npar")
-    c(
+    out <- c(
       full = ll_full, a = .mm_lav_ll(a0, "a = 0"), b = .mm_lav_ll(b0, "b = 0"),
       k_a = npar(full) - npar(a0), k_b = npar(full) - npar(b0)
     )
+    # An improper solution (a Heywood case, post.check failed) is not refused
+    # (S6): the pooling warns once, naming the datasets.
+    fits <- list(full = full, `a = 0` = a0, `b = 0` = b0)
+    bad <- !vapply(fits, function(f) isTRUE(lavaan::lavInspect(f, "post.check")), NA)
+    attr(out, "improper") <- names(fits)[bad]
+    out
   }
 }

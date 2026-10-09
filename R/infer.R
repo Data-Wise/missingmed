@@ -83,14 +83,6 @@ S7::method(infer, MDMediationFit) <- function(object, type = c("mc", "mbco"),
   }
   # mbco: D4-stacked over the per-imputation datasets
   src <- object@source
-  if (identical(object@engine, "lavaan")) {
-    stop("MBCO inference is not available for engine = \"lavaan\" yet: it ",
-      "refits with glm(), which is not the SEM. Use type = \"mc\". MBCO for ",
-      "SEM needs its own spec (constrained lavaan refits; see ",
-      "docs/specs/SPEC-s7-sem-engine-2026-09-23.md, Q4).",
-      call. = FALSE
-    )
-  }
   if (!inherits(src, "missingmed::MDMediationData") && !S7::S7_inherits(src, MDMediationData)) {
     stop("MBCO needs the originating MDMediationData (imputed datasets). ",
       "Run infer() on the MDMediationFit returned by run().", call. = FALSE)
@@ -100,6 +92,12 @@ S7::method(infer, MDMediationFit) <- function(object, type = c("mc", "mbco"),
       "IPW objects (weighted Monte-Carlo CI).", call. = FALSE)
   }
   implist <- mice::complete(src@data, action = "all")
+  if (identical(object@engine, "lavaan")) {
+    .mm_lav_check_mbco(src)
+    return(.mm_d4_pool(implist, .mm_lav_provider(
+      src@model, src@treatment, src@mediator, src@outcome, src@fit_args
+    ), ariv))
+  }
   .mm_d4_mbco(implist,
     .expand_dot(src@formula_y, src@original_data),
     .expand_dot(src@formula_m, src@original_data),

@@ -12,7 +12,10 @@ mbco_d4(
   family_m = stats::gaussian(),
   treatment,
   mediator,
-  ariv = c("fixed", "own")
+  ariv = c("fixed", "own"),
+  model = NULL,
+  outcome = NULL,
+  fit_args = list()
 )
 }
 \arguments{
@@ -32,6 +35,15 @@ response of \code{formula_y}.}
 \item{treatment, mediator}{Names of the treatment and mediator variables.}
 
 \item{ariv}{\code{"fixed"} (default) or \code{"own"}; see Details.}
+
+\item{model, outcome, fit_args}{For a lavaan SEM, in place of \code{formula_y},
+\code{formula_m} and the families: a lavaan model syntax string, the outcome
+variable name, and a named list of lavaan options (as in
+\code{\link[=set_md_mediation]{set_md_mediation()}}). \code{model} cannot be combined with the formula or
+family arguments. The tested paths are the regressions \code{mediator ~ treatment} (a) and \code{outcome ~ mediator} (b); a latent mediator uses its
+structural rows, and its measurement model and any direct effects of its
+indicators on the outcome stay free. Only \code{estimator = "ML"} (the default)
+is supported, with no \code{group}, \code{ordered} or \code{sampling.weights}.}
 }
 \value{
 An \link{MbcoMIResult}: the named numeric \code{c(D4, p, r4, nu, d_S)} with
@@ -98,6 +110,11 @@ implist <- lapply(1:3, function(i) {
 })
 mbco_d4(implist, Y ~ X + M, M ~ X,
   treatment = "X", mediator = "M", ariv = "fixed"
+)
+
+# The same test for a lavaan SEM, from a model string
+mbco_d4(implist,
+  model = "M ~ X\nY ~ M + X", treatment = "X", mediator = "M", outcome = "Y"
 )
 }
 \references{

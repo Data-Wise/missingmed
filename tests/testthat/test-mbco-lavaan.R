@@ -80,3 +80,176 @@ test_that("an explicit ML estimator in fit_args gives the same result", {
     as.vector(pool(imps, "fixed")), tolerance = 1e-10
   )
 })
+
+# ---- latent mediator (T3) ----------------------------------------------------
+
+make_lat <- function(K = 3, n = 300, seed = 400, direct = 0) {
+  lapply(seq_len(K), function(k) {
+    set.seed(seed + k)
+    X <- rnorm(n)
+    L <- 0.6 * X + rnorm(n)
+    d <- data.frame(
+      X = X, m1 = L + rnorm(n, 0, 0.5), m2 = 0.8 * L + rnorm(n, 0, 0.5),
+      m3 = 0.7 * L + rnorm(n, 0, 0.5)
+    )
+    d$Y <- 0.2 * X + 0.25 * L + direct * d$m1 + rnorm(n)
+    d
+  })
+}
+LAT <- "Ml =~ m1 + m2 + m3\nMl ~ X\nY ~ Ml + X"
+lat_prov <- function(model = LAT) missingmed:::.mm_lav_provider(model, "X", "Ml", "Y")
+
+test_that("latent mediator: each null equals the 0* oracle, k = 1 on both branches", {
+  d <- make_lat(K = 1)[[1]]
+  t3 <- lat_prov()(d)
+  ll <- function(syn) as.numeric(lavaan::fitMeasures(suppressWarnings(lavaan::sem(syn, data = d)), "logl"))
+  expect_equal(t3[["full"]], ll(LAT), tolerance = 1e-9)
+  expect_equal(t3[["a"]], ll("Ml =~ m1 + m2 + m3\nMl ~ 0*X\nY ~ Ml + X"), tolerance = 1e-9)
+  expect_equal(t3[["b"]], ll("Ml =~ m1 + m2 + m3\nMl ~ X\nY ~ 0*Ml + X"), tolerance = 1e-9)
+  expect_equal(unname(t3[c("k_a", "k_b")]), c(1, 1)) # measurement model untouched
+})
+
+test_that("latent mediator: a direct Y ~ indicator row stays free (S3 as amended)", {
+  d <- make_lat(K = 1, direct = 0.3)[[1]]
+  mod <- "Ml =~ m1 + m2 + m3\nMl ~ X\nY ~ Ml + X + m1"
+  t3 <- lat_prov(mod)(d)
+  expect_equal(unname(t3[c("k_a", "k_b")]), c(1, 1))
+  ll <- function(syn) as.numeric(lavaan::fitMeasures(suppressWarnings(lavaan::sem(syn, data = d)), "logl"))
+  # b = 0 fixes only Y ~ Ml; the direct m1 effect remains estimated.
+  expect_equal(t3[["b"]], ll("Ml =~ m1 + m2 + m3\nMl ~ X\nY ~ 0*Ml + X + m1"), tolerance = 1e-9)
+  # A null that also fixed Y ~ m1 would give a different (lower) log-likelihood.
+  expect_gt(t3[["b"]] - ll("Ml =~ m1 + m2 + m3\nMl ~ X\nY ~ 0*Ml + X + 0*m1"), 1)
+})
+
+test_that("a bare lavaanify() table is not the table sem() fits (the trap)", {
+  d <- make_lat(K = 1)[[1]]
+  full <- suppressWarnings(lavaan::sem(LAT, data = d))
+  bare <- lavaan::lavaanify(LAT, auto = TRUE)
+  expect_gt(sum(bare$free > 0), lavaan::lavInspect(full, "npar"))
+})
+
+test_that("latent mediator: pooling runs, with finite D4 and p", {
+  r <- missingmed:::.mm_d4_pool(make_lat(), lat_prov(), "fixed")
+  expect_true(is.finite(r["p"]))
+  expect_equal(r@k, 1)
+})
+
+# ---- refusals and warnings (T4) ----------------------------------------------
+
+lav_md <- function(fit_args = list(), method = "mi") {
+  imp <- mice::mice(
+    {
+      d <- make_imps(K = 1, n = 100)[[1]]
+      d$M[1:10] <- NA
+      d
+    },
+    m = 2, maxit = 1, method = "norm", printFlag = FALSE, seed = 1
+  )
+  set_md_mediation(imp,
+    model = MOD, treatment = "X", mediator = "M", outcome = "Y",
+    engine = "lavaan", fit_args = fit_args
+  )
+}
+
+test_that("unsupported options are refused before any fit, naming the option", {
+  for (est in c("MLR", "MLM", "WLSMV")) {
+    expect_error(
+      missingmed:::.mm_lav_check_mbco(lav_md(list(estimator = est))),
+      paste0("supports estimator = \"ML\" only.*\"", est, "\"")
+    )
+  }
+  # End to end: an MLR fit runs, then MBCO refuses.
+  expect_error(infer(run(lav_md(list(estimator = "MLR"))), type = "mbco"), "estimator = \"ML\" only")
+  expect_error(missingmed:::.mm_lav_check_mbco(lav_md(list(group = "X"))), "`group`")
+  expect_error(missingmed:::.mm_lav_check_mbco(lav_md(list(sampling.weights = "C"))), "sampling.weights")
+  expect_error(missingmed:::.mm_lav_check_mbco(lav_md(list(ordered = "Y"))), "`ordered`")
+  expect_silent(missingmed:::.mm_lav_check_mbco(lav_md(list(estimator = "ML"))))
+})
+
+test_that("a model lacking the a or b path is refused (before any imputation is fit)", {
+  imp <- mice::mice(make_imps(K = 1, n = 80)[[1]], m = 2, maxit = 1, printFlag = FALSE, seed = 1)
+  # set_md_mediation() already refuses it; the provider's own check is the
+  # second line (see the provider tests above).
+  expect_error(
+    set_md_mediation(imp,
+      model = "M ~ C\nY ~ M + X + C", treatment = "X", mediator = "M", outcome = "Y",
+      engine = "lavaan"
+    ),
+    "no regression of the mediator on the treatment"
+  )
+})
+
+test_that("an improper solution warns once, naming the datasets, and proceeds", {
+  imps <- make_imps()
+  p <- function(d) {
+    out <- prov()(d)
+    if (nrow(d) > nrow(imps[[1]])) attr(out, "improper") <- "b = 0" # the stacked fit
+    out
+  }
+  p2 <- function(d) {
+    out <- p(d)
+    if (isTRUE(all.equal(d$Y, imps[[2]]$Y))) attr(out, "improper") <- c("full", "a = 0")
+    out
+  }
+  w <- testthat::capture_warnings(r <- missingmed:::.mm_d4_pool(imps, p2, "fixed"))
+  expect_length(w, 1L)
+  expect_match(w, "improper solution")
+  expect_match(w, "imputation 2 \\(full, a = 0\\)")
+  expect_match(w, "the stacked data \\(b = 0\\)")
+  expect_true(is.finite(r["p"]))
+})
+
+# ---- mbco_d4(model = ) (T6) ---------------------------------------------------
+
+test_that("mbco_d4(model = ) equals infer(type = 'mbco') on the same imputed data", {
+  imp <- mice::mice(
+    {
+      d <- make_imps(K = 1, n = 100)[[1]]
+      d$M[1:12] <- NA
+      d
+    },
+    m = 3, maxit = 1, method = "norm", printFlag = FALSE, seed = 3
+  )
+  md <- set_md_mediation(imp,
+    model = MOD, treatment = "X", mediator = "M", outcome = "Y", engine = "lavaan"
+  )
+  for (ariv in c("fixed", "own")) {
+    via_infer <- infer(run(md), type = "mbco", ariv = ariv)
+    direct <- mbco_d4(mice::complete(imp, "all"),
+      model = MOD, treatment = "X", mediator = "M", outcome = "Y", ariv = ariv
+    )
+    expect_equal(as.vector(direct), as.vector(via_infer), tolerance = 1e-12)
+    expect_identical(direct@stacked_branch, via_infer@stacked_branch)
+  }
+})
+
+test_that("mbco_d4(model = ) is exclusive with the formula and family arguments", {
+  imps <- make_imps()
+  expect_error(
+    mbco_d4(imps, Y ~ M + X, M ~ X, model = MOD, treatment = "X", mediator = "M", outcome = "Y"),
+    "cannot be combined with `formula_y`, `formula_m`"
+  )
+  expect_error(
+    mbco_d4(imps, model = MOD, family_y = stats::binomial(), treatment = "X", mediator = "M", outcome = "Y"),
+    "cannot be combined with `family_y`"
+  )
+  expect_error(
+    mbco_d4(imps, model = MOD, treatment = "X", mediator = "M"),
+    "`outcome` .* is required"
+  )
+  expect_error(
+    mbco_d4(imps, Y ~ M + X, M ~ X, treatment = "X", mediator = "M", outcome = "Y"),
+    "apply to `model`"
+  )
+  expect_error(
+    mbco_d4(imps, model = MOD, treatment = "X", mediator = "M", outcome = "Y",
+      fit_args = list(estimator = "MLR")),
+    "estimator = \"ML\" only"
+  )
+})
+
+test_that("the glm form of mbco_d4() is unchanged by the new arguments", {
+  imps <- make_imps()
+  expect_equal(as.vector(glm_d4(imps, "fixed")),
+    as.vector(mbco_d4(imps, Y ~ M + X + C, M ~ X + C, treatment = "X", mediator = "M")))
+})
