@@ -933,8 +933,8 @@ is the “small upstream fix” that a new capability turned out to need.
   weights support both joint and sequential models, stabilized and
   trimmed; sandwich SE by default.
 - **S4 removed in 0.6.0**:
-  [`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs name each
-  replacement and are deleted in 0.7.0; SEM runs through
+  [`.Defunct()`](https://rdrr.io/r/base/Defunct.html) stubs named each
+  replacement and were deleted in 0.7.0; SEM runs through
   `engine = "lavaan"`.
 
 ------------------------------------------------------------------------

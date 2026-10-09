@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -261,9 +261,10 @@ the <em>Testing an indirect effect</em> article.</p>
 <li>A test of the missing-at-random assumption: none exists, and
 missingmed does not pretend to give one. <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code>
 shows how far a conclusion moves when MAR fails.</li>
-<li>For lavaan fits, the variance and covariance rows (<code>~~</code>)
-have <code>NA</code> statistic and p-value by design; see the
-<em>Structural equation models</em> article.</li>
+<li>For lavaan fits, the variance rows (<code>M~~M</code>) have
+<code>NA</code> statistic and p-value by design (covariances between
+different variables keep their test); see the <em>Structural equation
+models</em> article.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

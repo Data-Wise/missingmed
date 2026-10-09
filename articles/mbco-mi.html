@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -444,33 +444,33 @@ indirect effect:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit2</span>, type <span class="op">=</span> <span class="st">"mc"</span>, treatment_level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $CI</span></span>
-<span><span class="co">#&gt;      2.5 %     97.5 % </span></span>
-<span><span class="co">#&gt; 0.03448457 0.25713999 </span></span>
+<span><span class="co">#&gt;     2.5 %    97.5 % </span></span>
+<span><span class="co">#&gt; 0.0342172 0.2572664 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimate</span></span>
-<span><span class="co">#&gt; [1] 0.1365269</span></span>
+<span><span class="co">#&gt; [1] 0.1365794</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $SE</span></span>
-<span><span class="co">#&gt; [1] 0.05690246</span></span>
+<span><span class="co">#&gt; [1] 0.05684491</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $MC.Error</span></span>
-<span><span class="co">#&gt; [1] 5.690246e-07</span></span>
+<span><span class="co">#&gt; [1] 5.684491e-07</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimand</span></span>
 <span><span class="co">#&gt; [1] "a * (b + theta3 * 1)"</span></span>
 <span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit2</span>, type <span class="op">=</span> <span class="st">"mc"</span>, treatment_level <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $CI</span></span>
-<span><span class="co">#&gt;      2.5 %     97.5 % </span></span>
-<span><span class="co">#&gt; 0.08705547 0.31659329 </span></span>
+<span><span class="co">#&gt;     2.5 %    97.5 % </span></span>
+<span><span class="co">#&gt; 0.0873093 0.3175738 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimate</span></span>
-<span><span class="co">#&gt; [1] 0.1906082</span></span>
+<span><span class="co">#&gt; [1] 0.1905933</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $SE</span></span>
-<span><span class="co">#&gt; [1] 0.05881474</span></span>
+<span><span class="co">#&gt; [1] 0.0590961</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $MC.Error</span></span>
-<span><span class="co">#&gt; [1] 5.881474e-07</span></span>
+<span><span class="co">#&gt; [1] 5.90961e-07</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimand</span></span>
 <span><span class="co">#&gt; [1] "a * (b + theta3 * 0)"</span></span></code></pre></div>

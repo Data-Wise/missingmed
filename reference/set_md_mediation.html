@@ -3,11 +3,11 @@
 pipeline. It records a medfit-style mediation specification (outcome and
 mediator formulas plus the treatment/mediator roles) together with the data.
 Fitting is delegated to medfit::fit_mediation() downstream by run(). It is
-the S7 successor of the S4 set_sem() constructor."><meta property="og:description" content="Constructs an MDMediationData object: the entry point of the missingmed S7
+the S7 successor of the S4 set_sem() constructor (removed in 0.7.0)."><meta property="og:description" content="Constructs an MDMediationData object: the entry point of the missingmed S7
 pipeline. It records a medfit-style mediation specification (outcome and
 mediator formulas plus the treatment/mediator roles) together with the data.
 Fitting is delegated to medfit::fit_mediation() downstream by run(). It is
-the S7 successor of the S4 set_sem() constructor."><meta property="og:image" content="https://data-wise.github.io/missingmed/logo.png"></head><body>
+the S7 successor of the S4 set_sem() constructor (removed in 0.7.0)."><meta property="og:image" content="https://data-wise.github.io/missingmed/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -15,7 +15,7 @@ the S7 successor of the S4 set_sem() constructor."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,7 +53,7 @@ the S7 successor of the S4 set_sem() constructor."><meta property="og:image" con
 pipeline. It records a <strong>medfit-style mediation specification</strong> (outcome and
 mediator formulas plus the treatment/mediator roles) together with the data.
 Fitting is delegated to <code><a href="https://data-wise.github.io/medfit/reference/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code> downstream by <code><a href="run.html">run()</a></code>. It is
-the S7 successor of the S4 <code><a href="missingmed-defunct.html">set_sem()</a></code> constructor.</p>
+the S7 successor of the S4 <code>set_sem()</code> constructor (removed in 0.7.0).</p>
     </div>
 
     <div class="section level2">
@@ -169,15 +169,21 @@ example <code>"M ~ a*X + C\nY ~ b*M + cp*X + C"</code>. A latent mediator
 
 
 <dt id="arg-outcome">outcome<a class="anchor" aria-label="anchor" href="#arg-outcome"></a></dt>
-<dd><p>(<code>engine = "lavaan"</code>) name of the outcome variable; required
-for lavaan, and it must be regressed on the mediator in <code>model</code>. Must be
-<code>NULL</code> for other engines.</p></dd>
+<dd><p>Name of the outcome variable. Required for
+<code>engine = "lavaan"</code>, where it must be regressed on the mediator in <code>model</code>.
+For the other engines it is optional: it defaults to the response of
+<code>formula_y</code> and, when given, must match it.</p></dd>
 
 
 <dt id="arg-fit-args">fit_args<a class="anchor" aria-label="anchor" href="#arg-fit-args"></a></dt>
-<dd><p>(<code>engine = "lavaan"</code>) named list of extra arguments for
-<code><a href="https://rdrr.io/pkg/lavaan/man/sem.html" class="external-link">lavaan::sem()</a></code>, for example <code>list(estimator = "MLR")</code>, stored on the
-object. It cannot set <code>model</code> or <code>data</code>. Must be empty for other engines.</p></dd>
+<dd><p>Named list of extra arguments for the engine, stored on the
+object and used by <code><a href="run.html">run()</a></code> and <code><a href="sensitivity_mnar.html">sensitivity_mnar()</a></code>. For <code>engine = "lavaan"</code>
+they go to <code><a href="https://rdrr.io/pkg/lavaan/man/sem.html" class="external-link">lavaan::sem()</a></code>, for example <code>list(estimator = "MLR")</code>, and
+cannot set <code>model</code> or <code>data</code>. For the other engines they go to
+<code><a href="https://data-wise.github.io/medfit/reference/fit_mediation.html" class="external-link">medfit::fit_mediation()</a></code> (for example <code>list(engine_args = list(...))</code> with
+a medfit that has it) and cannot restate what this function sets
+(<code>formula_y</code>, <code>formula_m</code>, <code>data</code>, <code>treatment</code>, <code>mediator</code>, <code>engine</code>,
+<code>family_y</code>, <code>family_m</code>).</p></dd>
 
 </dl></div>
     <div class="section level2">

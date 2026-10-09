@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -195,7 +195,9 @@ default scaling, and the structural paths <code>a</code>,
 <code>Mlat~~Mlat</code>, …) keep their estimate and standard error, but
 <code>statistic</code> and <code>p_value</code> are <code>NA</code>. A
 variance is tested against zero, which is on the boundary of its range,
-so a Wald z-test is not valid there.</li>
+so a Wald z-test is not valid there. A covariance between two different
+variables (for example a residual covariance <code>Y~~Y2</code>) has an
+interior null, so it keeps its test.</li>
 </ul>
 <p>The indirect effect and its Monte Carlo interval:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">

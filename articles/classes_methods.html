@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -295,7 +295,7 @@
 <li>Every exported class and function needs an entry in the <code>reference:</code> index of <code>_pkgdown.yml</code>; <code>R CMD check</code> does not read it, but the pkgdown CI job fails without it.</li>
 </ul></section><section class="section level2"><h2 id="removed-s4-classes">Removed S4 classes<a class="anchor" aria-label="anchor" href="#removed-s4-classes"></a>
 </h2>
-<p>The S4 API (<code><a href="../reference/missingmed-defunct.html">set_sem()</a></code>, <code><a href="../reference/missingmed-defunct.html">run_sem()</a></code>, <code><a href="../reference/missingmed-defunct.html">pool_sem()</a></code> with the classes <code>SemImputedData</code>, <code>SemResults</code> and <code>PooledSEMResults</code>) was removed in 0.6.0; the functions are <code><a href="https://rdrr.io/r/base/Defunct.html" class="external-link">.Defunct()</a></code> stubs until 0.7.0. Each S7 class above replaced one of the classes:</p>
+<p>The S4 API (<code>set_sem()</code>, <code>run_sem()</code>, <code>pool_sem()</code> with the classes <code>SemImputedData</code>, <code>SemResults</code> and <code>PooledSEMResults</code>) was removed in 0.6.0; the functions were <code><a href="https://rdrr.io/r/base/Defunct.html" class="external-link">.Defunct()</a></code> stubs in 0.6.0 and were deleted in 0.7.0. Each S7 class above replaced one of the classes:</p>
 <table class="table caption-top">
 <thead><tr class="header">
 <th>S7 class</th>

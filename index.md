@@ -103,5 +103,5 @@ citation("missingmed")
 
 ## License
 
-GPL-2 · Davood Tofighi (<dtofighi@gmail.com>) · ORCID
+GPL (\>= 3) · Davood Tofighi (<dtofighi@gmail.com>) · ORCID
 0000-0001-8523-7776

@@ -17,7 +17,7 @@ indirect effect is X".'><meta property="og:image" content="https://data-wise.git
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -130,7 +130,10 @@ warning, for <code>type = "mc"</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Passed to <code><a href="run.html">run()</a></code>.</p></dd>
+<dd><p>Deprecated. Extra arguments for the engine; set them with
+<code>fit_args</code> in <code><a href="set_md_mediation.html">set_md_mediation()</a></code>, which every refit here reads. They
+are still honored, with one warning, and may not repeat a name already in
+<code>fit_args</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

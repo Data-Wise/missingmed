@@ -30,8 +30,12 @@ run(object, ...)
 
 - ...:
 
-  Additional arguments forwarded to
-  [`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html).
+  Deprecated. Additional arguments forwarded to
+  [`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html);
+  set them with `fit_args` in
+  [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)
+  instead. They are still honored, with a warning, and may not repeat a
+  name already in `fit_args`.
 
 ## Value
 
@@ -46,16 +50,13 @@ on. Engine warnings (a `glm` that did not converge, fitted probabilities
 of 0 or 1) are collected and raised once, naming the imputations that
 produced them.
 
-It is the S7 successor of the S4
-[`run_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md)
-method.
+It is the S7 successor of the S4 `run_sem()` method.
 
 ## See also
 
 [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md),
 [`pool()`](https://data-wise.github.io/missingmed/reference/pool.md),
-[`infer()`](https://data-wise.github.io/missingmed/reference/infer.md),
-[`run_sem()`](https://data-wise.github.io/missingmed/reference/missingmed-defunct.md)
+[`infer()`](https://data-wise.github.io/missingmed/reference/infer.md)
 
 ## Examples
 
