@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | RUN 2026-10-09 (T1-T4 done; section 10 addendum for plain Gaussian `own` pending). C1, C2, C4, C5 pass; **C3 fails** (one cell); author decision pending. Raw table: [RESULTS-glm-mbco-calibration-2026-10-09.txt](RESULTS-glm-mbco-calibration-2026-10-09.txt). |
+| **Status** | RUN 2026-10-09 (T1-T4 done; section 10: **C7 fails**, `own` is liberal on a plain Gaussian model at 40% missing). C1, C2, C4, C5 pass; **C3 fails** (one cell); author decision pending. Raw table: [RESULTS-glm-mbco-calibration-2026-10-09.txt](RESULTS-glm-mbco-calibration-2026-10-09.txt). |
 | **Plan / grill** | [PLAN-open-items-2026-10-09.md](PLAN-open-items-2026-10-09.md) item B; [GRILL-open-items-2026-10-09.md](GRILL-open-items-2026-10-09.md) Q2 (re-asked: glm-specific grid) |
 | **Predecessor** | ML calibration for lavaan: `SPEC-sem-mbco-2026-10-08.md` section 11 (40 cells, max size 0.057) |
 | **Measures** | the procedure as of `dev` `fb17b60`: D4 with Chan and Meng eq. 2.15 denominator df (#62) |
@@ -127,3 +127,18 @@ Hopper job 4333687: 396 tasks, all COMPLETED, 132 cells x 1000 replications (132
 **Criterion C7 (fixed in advance).** In every one of the 20 cells, size at the 5% level is at most 6.5% for **both** `ariv = "fixed"` and `ariv = "own"`, and `"own"` returns a p-value in every replication (share without one is 0).
 
 **If C7 fails.** `"own"` is documented as liberal for a plain Gaussian model too (`?mbco_d4`, `mbco-mi`, NEWS), the manuscript session is told with the cell sizes, and the default question (`"fixed"` for `medsim`) is theirs to decide. If C7 passes, `"own"` is reported as calibrated for this model and nothing changes.
+
+### Results of the addendum (hopper job 4334091, 60 tasks, 20 cells x 1000 replications, all COMPLETED)
+
+Raw table: [RESULTS-glm-own-gauss-2026-10-09.txt](RESULTS-glm-own-gauss-2026-10-09.txt). Package: missingmed 0.8.0.9000 from `dev` (with the eq. 2.15 df). `"own"` returned a p-value in every replication (`own_na` = 0 in all cells), so these sizes are unconditional.
+
+| missing | n | (0, .3) fixed / own | (.3, 0) fixed / own | (0, 0) own | (0, .1) own | (.1, 0) own |
+|---|---|---|---|---|---|---|
+| 25% | 200 | 0.047 / 0.061 | 0.047 / 0.065 | 0.008 | 0.026 | 0.040 |
+| 40% | 200 | 0.035 / **0.083** | 0.041 / **0.075** | 0.019 | 0.045 | 0.037 |
+| 25% | 500 | 0.035 / 0.037 | 0.044 / 0.044 | 0.007 | 0.029 | 0.040 |
+| 40% | 500 | 0.040 / 0.041 | 0.044 / 0.047 | 0.014 | 0.056 | **0.069** |
+
+**C7 FAILS** as pre-registered: `"fixed"` is at or below **0.047** in all 20 cells (so `"fixed"` is calibrated here), but `"own"` exceeds 6.5% in three cells: 0.083 and 0.075 at n = 200 with 40% missing in the single-null cells, and 0.069 at n = 500, 40% missing, near-intersection (.1, 0); a fourth sits exactly at 0.065. Monte Carlo se is about 0.007, so 0.083 is about 2.6 se above the bound. The excess grows with missingness (relative increase in variance `r4` about 0.7-0.9 in those cells) and shrinks with n.
+
+Per the rule above: `"own"` is documented as liberal for a plain Gaussian model with high missingness too, and the manuscript session is told. Consequence for `medsim` (default `ariv = "own"`, Gaussian, k = 1): its p-values at about 40% missingness and n of about 200 can be liberal by up to a few points of size; whether to switch to `"fixed"` is that session's decision.
