@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | APPROVED DESIGN, amended after adverse review 2026-10-08 (S3 reversed to structural-only; calibration gates added; see section 10); S1-S10 grilled ([GRILL-sem-mbco-2026-10-08.md](GRILL-sem-mbco-2026-10-08.md)); calibration and MLR are gated on simulations; not implemented |
+| **Status** | ML IMPLEMENTED on `feature/mbco-provider` (T1-T6, T9) 2026-10-08, pending the ML calibration gate (T8a, section 11). MLR (T7, T8b) DEFERRED: refused until its own gate runs. Design amended after adverse review (S3 reversed to structural-only; section 10); S1-S10 grilled ([GRILL-sem-mbco-2026-10-08.md](GRILL-sem-mbco-2026-10-08.md)) |
 | **Date** | 2026-10-08 |
 | **Target** | 0.8.0 (feature; 0.7.0 shipped without it) |
 | **Closes** | SPEC-s7-sem-engine-2026-09-23.md, Q4 ("MBCO for SEM gets its own spec") |
@@ -100,9 +100,9 @@ Each criterion must be able to fail; the probe's PASS lines are the seed tests.
 | T4 | Refusals (S4), convergence and improper-solution handling (S5, S6) | M | T2 |
 | T5 | Wire `infer()` and `sensitivity_mnar()`; remove the Q4 refusal; update its tests | S | T2, T4 |
 | T6 | `mbco_d4(model = )` (S7), with its parity test | S | T5 |
-| T7 | MLR path: scaled difference per imputation and on the stacked data, experimental warning | M | T4 |
+| T7 | MLR path: scaled difference per imputation and on the stacked data, experimental warning. **Deferred**: not implemented; `estimator = "MLR"` is refused naming the option | M | T4 |
 | T8a | ML calibration simulation in `medsim` (observed and latent, incl. intersection cells); blocks 0.8.0 | M | T5 |
-| T8b | MLR size simulation in `medsim` (the gate); decide enable or refuse | M | T7, T8a |
+| T8b | MLR size simulation (the gate); decide enable or refuse. **Deferred** with T7; runs on hopper (`dev/sim-sem-mbco-calibration*.R` is the ML harness to extend) | M | T7, T8a |
 | T9 | NEWS, `lavaan-sem` article section, `?infer` and `?mbco_d4` help (state: conservative at a = b = 0; direct indicator effects are not constrained) | S | T6, T8a |
 
 Checkpoint after T3: parity and latent oracle green. Checkpoint after T5: full suite and `R CMD check`. Checkpoint after T8a: ML calibration decides whether 0.8.0 ships. Checkpoint after T8b: the MLR simulation decides whether MLR ships; ML ships as 0.8.0 without waiting on it (Q5).
