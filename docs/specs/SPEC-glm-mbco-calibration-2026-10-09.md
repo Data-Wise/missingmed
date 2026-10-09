@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | DRAFT for author review. No harness written, nothing run. |
+| **Status** | T1, T2 done 2026-10-09 (harness and local smoke on `feature/glm-mbco-calibration`); T3 (hopper pilot) next. |
 | **Plan / grill** | [PLAN-open-items-2026-10-09.md](PLAN-open-items-2026-10-09.md) item B; [GRILL-open-items-2026-10-09.md](GRILL-open-items-2026-10-09.md) Q2 (re-asked: glm-specific grid) |
 | **Predecessor** | ML calibration for lavaan: `SPEC-sem-mbco-2026-10-08.md` section 11 (40 cells, max size 0.057) |
 | **Measures** | the procedure as of `dev` `fb17b60`: D4 with Chan and Meng eq. 2.15 denominator df (#62) |
@@ -41,8 +41,7 @@ For `gauss_xm` the b-null is `b = th = 0` (otherwise `a (b + th x)` is not zero)
 | Main | `gauss_xm`, `bin_y`, `pois_y`, `bin_m` | 200, 500 | 25%, 40% | 20 | 6 | 96 |
 | Near-separation | `rare_y` | 150, 300 | 40% | 20 | 6 | 12 |
 | Small K | `gauss_xm`, `bin_y` | 200 | 40% | 5, 10 | 6 | 24 |
-| Positive control (section 3) | `bin_y` | 200 | 40% | 20 | 2 | 2 |
-| | | | | | **Total** | **134** |
+| | | | | | **Total** | **132** |
 
 Per replication the harness records `p` under `ariv = "fixed"` and under `"own"`, `r4`, `nu`, `k`, the winning branch, and whether the replication was **refused** (non-convergence, non-finite likelihood), with the refusal's reason. Size is computed over replications that returned a p-value; the refusal share is reported beside it, because conditioning on non-refusal can bias size.
 
@@ -54,7 +53,7 @@ Each can fail. Report per cell, never pooled.
 2. **Small K.** The same 6.5% bound holds in the `m = 5` and `m = 10` cells (the cells where the df change is largest).
 3. **The test is not dead.** Power at the power point is reported per cell and is at least 50% in the n = 500 main cells; a vacuous always-accept test would otherwise pass criterion 1.
 4. **Refusals.** In the main and small-K blocks the refusal share is at most 1% per cell; above that, investigate before reading size. `rare_y` refusal shares are reported without a bound (refusing is the designed behavior there).
-5. **Positive control (planted defect).** Two control cells replace the D4 p-value by the naive pooled test (mean of the per-imputation statistics referred to `chi-square_k / k`, the rule `vignette("technical")` shows is anti-conservative). The gate is valid only if the control cells show size **above 6.5%** in the same harness; otherwise the harness cannot see liberal behavior and the run is void.
+5. **Positive control (planted defect).** Every replication also records the naive pooled p-value (the mean of the per-imputation statistics referred to `chi-square_k`, the rule `vignette("technical")` shows is anti-conservative), derived from the same fit. The gate is valid only if the naive test shows size **above 6.5%** in the `bin_y`, n = 200, 40% missing, single-null cells `(0, .3)` and `(.3, 0)`; otherwise the harness cannot see liberal behavior and the run is void. (Folded into the main cells, so it costs no extra replications.)
 6. **`ariv = "own"` is reported**, not gated: it is the 0.4.0 behavior and is documented as such.
 
 **If a cell fails criterion 1 or 2:** rerun that cell with 3000 replications (se about 0.004) to separate noise from bias; if confirmed, do not change the procedure inside the gate. Document the limitation in `?mbco_d4` and NEWS and open its own spec for the fix.
@@ -63,19 +62,19 @@ Each can fail. Report per cell, never pooled.
 
 Standing rule: large simulations run on hopper through a SLURM array, piloted through `sbatch` (memory `large-sims-go-to-hopper`; account 2016507, `~/Rlib-sem`, `module load r/4.4.0-ytj2` after `source /etc/profile.d/modules.sh`, array index at most 2000 and at most 512 queued tasks).
 
-New files, separate from the archived lavaan harness: `dev/sim-glm-mbco-lib.R` (generators, `one()`), `dev/sim-glm-mbco-hopper.R` (task id to cell and chunk), `dev/sim-glm-mbco-combine.R`, `dev/sim-glm-mbco.sbatch`. `CHUNKS = 3`, so 134 cells x 3 = 402 tasks (under 512), about 333 replications per task; a replication is one `mice` run (m imputations) plus about 3(K + 1) glm fits, roughly 1-3 s, so a task is on the order of 10-15 minutes.
+New files, separate from the archived lavaan harness: `dev/sim-glm-mbco-lib.R` (generators, `one()`), `dev/sim-glm-mbco-hopper.R` (task id to cell and chunk), `dev/sim-glm-mbco-combine.R`, `dev/sim-glm-mbco.sbatch`. `CHUNKS = 3`, so 132 cells x 3 = 396 tasks (under 512), 333 replications per task. Measured in the smoke test (T2): about 0.15 s per replication, so a task takes about a minute and the whole array well under an hour of cluster time.
 
 ## 5. Tasks
 
 | Task | Scope | Size |
 |---|---|---|
-| T1 | Harness: generators, `one()` recording the fields of section 2, the naive-pooling control, combine script | S |
-| T2 | Local smoke: each family, 3 replications, checks the recorded fields and that `gauss_xm` really reaches k = 2 and the control cell inflates | XS |
+| T1 | DONE. Harness: generators, `one_glm()` recording the fields of section 2, the naive-pooling control, combine script | S |
+| T2 | DONE. Local smoke (`dev/sim-glm-mbco-smoke.R`): each family, 3 replications, the recorded fields, `gauss_xm` reaching k = 2, the naive control inflating (0.100 vs 0.025 at 120 replications) | XS |
 | T3 | Pilot on hopper: `sbatch --array=1-1` with `REPS = 20` for one cell per block | XS |
-| T4 | Full array on hopper (402 tasks) and combine | M (wall time) |
+| T4 | Full array on hopper (396 tasks) and combine | S (wall time) |
 | T5 | Report: new section 12 in `SPEC-sem-mbco-2026-10-08.md` or a results note here; the operating-characteristics table in `vignettes/mbco-mi.Rmd` gains the glm rows if the gate passes | S |
 
-Checkpoint after T2 (the control inflates, k = 2 appears) and after T3 (the harness runs under SLURM) before T4.
+Checkpoint after T2 (the naive control inflates, k = 2 appears) and after T3 (the harness runs under SLURM) before T4.
 
 ## 6. Not in scope
 
