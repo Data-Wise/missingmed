@@ -179,3 +179,24 @@ In `std` and `aux` every form is within 0.004 of zero.
 ### 11a. Amendment declared before it was run (post hoc, labeled as such)
 
 The as-written decision above stands and is recorded first. Because the C4 failure is a harness defect that hits every arm equally, a second run changes **only** the interval step: when `type = "dop"` returns no interval for a positive-definite block, the interval is taken from `type = "MC"` (seeded per replication) and the replication is flagged `fallback`. Nothing else changes: same cells, seeds, forms, criteria and bars. C4 then counts only replications that error, do not converge, have a non-positive-definite block, or get no interval from either method. Both decisions are reported, and **which one governs is the author's call.** The point estimates and weights are identical by construction, so C1 and the controls reproduce exactly; only C2 and C4 can move.
+
+### 11b. Results, run 2 (amended)
+
+Hopper job 4335160, 324 of 324 tasks completed, harness commit `ba614c4`, 810,000 rows. Full output: [RESULTS-ipw-missingness-gate-run2-2026-10-09.txt](RESULTS-ipw-missingness-gate-run2-2026-10-09.txt).
+
+- **Interval fallback:** about 0.6% of replications used the MC interval (sequential 0.59%, joint 0.60%, known weights 0.53%, marginal 0.27%). No replication of any form in any cell is now without an interval, and no cell has a failed share above 0.
+- **Controls and C1 reproduce exactly** (same estimates): both controls pass; the sequential form's largest bias in `b` is 0.0043 over the 54 n = 5000 cells.
+- **C2 PASS.** P4 coverage at n = 5000: minimum 0.934, median 0.946. Null rejection: three cells exceed the 0.065 bar, `sim` / `std` / 25% / P1 at 0.107 (known weights 0.106), `mono` / `std` / 25% / P1 at 0.095 (0.107), `sim` / `auxm` / 25% / P1 at 0.074 (0.077). The known-weights arm is as high, so this is a limit of the shipped variance and interval, not of the weight model; the cells pass through the escape clause (section 8a, item 3).
+- **C3 PASS, vacuously** (as in run 1: the sequential and joint weights are identical under simultaneous missingness).
+- **C4 PASS.**
+
+**Decision as amended: ADOPT D.**
+
+**Two caveats the rule did not test, both from the same data.**
+
+1. **C3 gives no evidence in the mechanisms where the forms differ.** In independent and monotone missingness at n = 200 and 500 (72 cells), the sequential form's coverage is within -0.004 to +0.007 of the joint form's (null rejection within -0.005 to +0.003), but its RMSE of `b` is more than 5% higher in **29 of 72** cells (maximum ratio 1.135; 18 of 24 `aux` cells, 11 of 24 `auxm`, 0 of 24 `std`). In `aux`, no form is biased, so that is a pure variance cost of fitting the second factor on a subset. In `auxm` it trades against bias: at n = 200 and 500 the joint form is biased by -0.015 to -0.018 in independent missingness and the sequential form's RMSE is 3% to 7% higher. Had C3 covered these cells, 29 would have failed its RMSE clause.
+2. **The amendment was declared after run 1 was seen.** It touches only the interval step, which all arms share, and leaves every estimate unchanged, but the as-written decision (keep the joint default) is the conservative reading and remains on record.
+
+### 11c. Question for the author
+
+6. **Which decision governs: as written (keep the joint default, add a warning, sequential as opt-in) or amended (adopt the sequential default)?** Recommended: **amended, adopt D**. The sequential form removes a bias of up to 0.021 in `b` that the joint default carries and the marginal list reverses (+0.045 under simultaneous missingness), the estimates and controls are identical in both runs, and the only difference is an interval routine that failed equally for every arm. The cost is a small-sample variance increase (caveat 1), with no measured coverage loss. If you prefer the conservative reading, the opt-in route delivers the same estimator without changing anyone's default. T5 (implementation) waits for this answer.
