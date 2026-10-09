@@ -31,8 +31,9 @@
 #'   `n.mc`
 #'   (Monte-Carlo draws for `"mc"`, default `1e5`), and `ariv` (for `"mbco"`:
 #'   `"fixed"` (default) tests every imputation on the branch the stacked
-#'   constrained fit chose; `"own"` uses each imputation's own winning branch
-#'   and reproduces missingmed 0.4.0 on full-rank designs; see [mbco_d4()]),
+#'   constrained fit chose; `"own"` uses each imputation's own winning branch,
+#'   matches the `D4` and `r4` of missingmed 0.4.0 on full-rank designs, and
+#'   can be liberal at high missingness; see [mbco_d4()]),
 #'   and `treatment_level` (for `"mc"` on a model with an `X:M` term, and
 #'   only there: the treatment level \eqn{x} at which the indirect effect
 #'   \eqn{a (b + \theta_3 x)} is evaluated, that is, the effect of a one-unit

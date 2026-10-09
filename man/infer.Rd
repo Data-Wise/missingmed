@@ -16,8 +16,9 @@ object's \verb{@conf_level}, itself \code{0.95} unless set in \code{\link[=set_m
 \code{n.mc}
 (Monte-Carlo draws for \code{"mc"}, default \code{1e5}), and \code{ariv} (for \code{"mbco"}:
 \code{"fixed"} (default) tests every imputation on the branch the stacked
-constrained fit chose; \code{"own"} uses each imputation's own winning branch
-and reproduces missingmed 0.4.0 on full-rank designs; see \code{\link[=mbco_d4]{mbco_d4()}}),
+constrained fit chose; \code{"own"} uses each imputation's own winning branch,
+matches the \code{D4} and \code{r4} of missingmed 0.4.0 on full-rank designs, and
+can be liberal at high missingness; see \code{\link[=mbco_d4]{mbco_d4()}}),
 and \code{treatment_level} (for \code{"mc"} on a model with an \code{X:M} term, and
 only there: the treatment level \eqn{x} at which the indirect effect
 \eqn{a (b + \theta_3 x)} is evaluated, that is, the effect of a one-unit
