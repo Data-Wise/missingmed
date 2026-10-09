@@ -75,7 +75,7 @@ Each must be able to fail.
 |---|---|---|
 | A real analysis that worked "by accident" with one non-converged imputation now errors | Medium | Intended: its p-value was invalid. The message says which imputation and branch, and suggests rescaling or merging sparse levels |
 | m = 20 with a rare binary outcome refuses on one imputation | Medium | Same message; C7 leaves a `control =` argument for a separate spec if users hit it |
-| Message text changes break a downstream string match | Low | The `Fitting the MBCO models failed` prefix is unchanged; dependents' use of MBCO error text has not been checked, so T4 greps the mediationverse repos read-only before the PR |
+| Message text changes break a downstream string match | Low | The `Fitting the MBCO models failed` prefix is unchanged; checked read-only 2026-10-08: `medfit`, `mediationverse`, `medrobust`, `medsim`, `probmed`, `rmediation` contain no reference to `mbco_d4`, `sensitivity_mnar`, `type = "mbco"` or the error text (T4 done) |
 | `sensitivity_mnar(type = "mbco")` has no per-rung `tryCatch` (`R/sensitivity_mnar.R:287`): an extreme delta that induces separation now aborts the whole sweep and discards the valid rungs, where it used to return an invalid p-value for that rung | Medium | **In scope: the error names the rung** (`rung i of n, delta = ...`), so the user can see which delta failed and rerun with a narrower grid. Keeping the successful rungs needs a result class that can hold a failed rung (`MDSensitivityResult`), which is a separate spec (section 10, open question) |
 
 ## 8. Boundaries
