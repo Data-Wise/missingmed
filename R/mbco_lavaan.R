@@ -55,13 +55,28 @@
 }
 
 # Refuse before any fit the `fit_args` the lavaan MBCO does not support (S4).
+# MLR is accepted but experimental (T7): D4 of the naive LRTs divided by the mean
+# scaling correction is a construction the T8b simulation gate has to validate.
+.mm_lav_is_mlr <- function(fa) {
+  est <- .lav_arg(fa, "estimator")
+  !is.null(est) && identical(toupper(as.character(est)), "MLR")
+}
+
 .mm_lav_check_args <- function(fa) {
   est <- .lav_arg(fa, "estimator")
-  if (!is.null(est) && !identical(toupper(as.character(est)), "ML")) {
-    stop("MBCO for engine = \"lavaan\" supports estimator = \"ML\" only; the ",
-      "`fit_args` estimator is \"", est, "\". Robust tests (MLR, MLM) and ",
+  if (!is.null(est) && !identical(toupper(as.character(est)), "ML") && !.mm_lav_is_mlr(fa)) {
+    stop("MBCO for engine = \"lavaan\" supports estimator = \"ML\" or \"MLR\" only; the ",
+      "`fit_args` estimator is \"", est, "\". Other robust tests (MLM) and ",
       "limited-information estimators (WLSMV, ...) are not supported: D4 pooling ",
       "of a scaled statistic is unvalidated (SPEC-sem-mbco-2026-10-08.md, S4).",
+      call. = FALSE
+    )
+  }
+  if (.mm_lav_is_mlr(fa)) {
+    warning("MBCO under estimator = \"MLR\" is experimental: it pools the naive ",
+      "likelihood-ratio statistics with D4 and divides by the mean Satorra-Bentler ",
+      "(2001) scaling correction, a construction that is not yet validated by ",
+      "simulation (SPEC-sem-mbco-2026-10-08.md, T8b).",
       call. = FALSE
     )
   }
@@ -91,6 +106,37 @@
   invisible(TRUE)
 }
 
+# Satorra-Bentler (2001) scaling correction of a nested difference,
+# cd = (df0 c0 - df1 c1) / (df0 - df1), where fit 0 is the null (more df) and
+# fit 1 the full model. A saturated full model (df1 = 0) has no scaling factor
+# and contributes 0.
+.mm_scaling_cd <- function(c0, df0, c1, df1) {
+  t1 <- if (df1 == 0) 0 else df1 * c1
+  (df0 * c0 - t1) / (df0 - df1)
+}
+
+# A scaling correction that is not positive makes the scaled difference
+# undefined (SB 2001 can go negative); refuse rather than pool it.
+.mm_check_cd <- function(cd, branch) {
+  if (!is.finite(cd) || cd <= 0) {
+    stop("the scaled difference test for the ", branch, " null is undefined: its ",
+      "Satorra-Bentler (2001) scaling correction is ", format(cd), ", not a positive ",
+      "number. Use estimator = \"ML\", or simplify the model.",
+      call. = FALSE
+    )
+  }
+  invisible(cd)
+}
+
+# The scaling correction of the full-versus-null difference. The pooling checks
+# it (.mm_check_cd) so the error can name the dataset.
+.mm_lav_cd <- function(full, null) {
+  m <- function(f) as.numeric(lavaan::fitMeasures(f, c("df", "chisq.scaling.factor")))
+  mf <- m(full)
+  mn <- m(null)
+  .mm_scaling_cd(c0 = mn[2], df0 = mn[1], c1 = mf[2], df1 = mf[1])
+}
+
 .mm_lav_ll <- function(fit, branch) {
   if (!isTRUE(lavaan::lavInspect(fit, "converged"))) {
     stop("the ", branch, " lavaan model did not converge. Simplify the model, ",
@@ -110,6 +156,14 @@
 # model/outcome/fit_args as stored by set_md_mediation(engine = "lavaan").
 .mm_lav_provider <- function(model, treatment, mediator, outcome, fit_args = list()) {
   force(model)
+  mlr <- .mm_lav_is_mlr(fit_args)
+  # lavaan's `se = "none"` (every fit here) silently switches MLR from observed
+  # to expected information, which moves the Yuan-Bentler scaling factor by a few
+  # percent (1.211 vs 1.247 in the T7 probe). Pin the MLR default, the one a
+  # run() fit with standard errors uses, unless the user chose.
+  if (mlr && is.null(.lav_arg(fit_args, "information"))) {
+    fit_args <- c(fit_args, list(information = "observed"))
+  }
   refit_args <- .mm_lav_refit_args(fit_args)
   function(d) {
     # The full fit is the one run() makes, so the nulls start from the same
@@ -127,6 +181,13 @@
       full = ll_full, a = .mm_lav_ll(a0, "a = 0"), b = .mm_lav_ll(b0, "b = 0"),
       k_a = npar(full) - npar(a0), k_b = npar(full) - npar(b0)
     )
+    # MLR: the SB (2001) scaling correction of each null's difference (T7). The
+    # pooling divides D4 by its mean over the winning branch.
+    if (mlr) {
+      out <- c(out,
+        cd_a = .mm_lav_cd(full, a0), cd_b = .mm_lav_cd(full, b0)
+      )
+    }
     # An improper solution (a Heywood case, post.check failed) is not refused
     # (S6): the pooling warns once, naming the datasets.
     fits <- list(full = full, `a = 0` = a0, `b = 0` = b0)

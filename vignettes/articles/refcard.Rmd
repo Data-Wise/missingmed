@@ -39,7 +39,7 @@ Notes:
 
 * `regmedint` needs medfit 0.4.0 or later and `method = "mi"`. Its MBCO test refits
   with `glm()`, which matches it for the Gaussian and binomial models it accepts.
-* MBCO with `lavaan` is maximum likelihood only: `estimator = "MLR"`, `"MLM"`,
+* MBCO with `lavaan` is maximum likelihood only: `estimator = "MLM"`,
   `"WLSMV"`, and `group`, `ordered` and `sampling.weights` in `fit_args` are
   refused, naming the option.
 * IPW has no imputations, so it has no MBCO test and no delta sensitivity analysis.
@@ -70,7 +70,7 @@ set `options(lifecycle_verbosity = "warning")` to see every one).
 | `sensitivity_mnar(on_error = "continue")`: a rung failed (warning) | `rung(s) failed` | `tidy()` has an `error` column naming each failure; fix the cause and rerun the failed deltas |
 | MBCO: improper solution in a refit (warning) | `improper solution` | check the model for a negative variance or a boundary estimate; the test proceeds |
 | MBCO with IPW | `MBCO inference for IPW is not yet implemented` | use `type = "mc"` |
-| MBCO with a lavaan estimator other than ML | `supports estimator = "ML" only` | use `type = "mc"`, or refit with ML |
+| MBCO with a lavaan estimator other than ML or MLR | `supports estimator = "ML" or "MLR" only` | use `type = "mc"`, or refit with ML |
 | MBCO with fewer than two imputations | `at least 2 imputations` | re-impute with `m >= 2` |
 | MBCO: missing values in a variable the constraint drops | `which the MBCO constraint drops` | impute every model variable |
 | MBCO: the constraint removes a different number of parameters across imputations | `Under ariv = "fixed"` | drop or merge the sparse factor level |

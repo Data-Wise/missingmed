@@ -143,8 +143,8 @@ triggers <- list(
   "MBCO inference for IPW is not yet implemented" = function() {
     msg_of(infer(suppressWarnings(run(md_of("glm, IPW"))), type = "mbco"))
   },
-  "supports estimator = \"ML\" only" = function() {
-    msg_of(infer(suppressWarnings(run(lav_md(list(estimator = "MLR")))), type = "mbco"))
+  "supports estimator = \"ML\" or \"MLR\" only" = function() {
+    msg_of(infer(suppressWarnings(run(lav_md(list(estimator = "MLM")))), type = "mbco"))
   },
   "at least 2 imputations" = function() {
     msg_of(mbco_d4(list(d), Y ~ M + X, M ~ X, treatment = "X", mediator = "M"))

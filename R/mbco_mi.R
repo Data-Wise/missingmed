@@ -287,7 +287,14 @@
   # names that dataset; the provider's own message is kept verbatim.
   lls_of <- function(d, where) {
     tryCatch(
-      provider(d),
+      {
+        l <- provider(d)
+        # MLR providers also return the scaling corrections cd_a, cd_b.
+        for (nm in intersect(c("cd_a", "cd_b"), names(l))) {
+          .mm_check_cd(l[[nm]], if (nm == "cd_a") "a = 0" else "b = 0")
+        }
+        l
+      },
       error = function(e) {
         stop("Fitting the MBCO models failed in ", where, ": ",
           conditionMessage(e),
@@ -352,9 +359,27 @@
     k <- as.numeric(k_S)
   }
 
+  stats_d4 <- .mm_d4_from_stats(d_k, d_S, k = k)
+  # MLR (T7): the provider also returns each null's SB (2001) scaling correction.
+  # D4 pooled the NAIVE statistics; the scaled statistic divides by the mean
+  # correction of the winning branch (the lavaan.mi `pool.robust = FALSE`
+  # construction). "fixed" tests every imputation on the stacked branch, "own"
+  # on each imputation's own.
+  scaling <- NA_real_
+  if (!is.null(names(lls[[1L]])) && "cd_a" %in% names(lls[[1L]])) {
+    cd_k <- if (ariv == "own") {
+      vapply(lls, function(l) if (l[["a"]] >= l[["b"]]) l[["cd_a"]] else l[["cd_b"]], numeric(1))
+    } else {
+      vapply(lls, function(l) l[[if (stacked_a) "cd_a" else "cd_b"]], numeric(1))
+    }
+    scaling <- mean(cd_k)
+    stats_d4[["D4"]] <- stats_d4[["D4"]] / scaling
+    stats_d4[["p"]] <- stats::pf(stats_d4[["D4"]], k, stats_d4[["nu"]], lower.tail = FALSE)
+  }
+
   MbcoMIResult(
-    .mm_d4_from_stats(d_k, d_S, k = k),
-    ariv = ariv, k = k, m = K,
+    stats_d4,
+    ariv = ariv, k = k, m = K, scaling = scaling,
     stacked_branch = if (stacked_a) "a" else "b",
     branch_mix = length(unique(a_wins)) > 1L,
     p_branch_a = mean(a_wins)
