@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | DRAFT for author review. Reading and note-taking only until approved; any documentation edit is a separate PR. |
+| **Status** | APPROVED 2026-10-09 ("approved"; PDFs supplied through Zotero). T1 to T5 DONE: [NOTE-ipw-literature-check-2026-10-09.md](NOTE-ipw-literature-check-2026-10-09.md). T6 (the docs PR) waits for the author. |
 | **Follows** | [SPEC-ipw-missingness-default-2026-10-09.md](SPEC-ipw-missingness-default-2026-10-09.md) section 3 ("Verification status": abstracts and search summaries only) |
 | **Closes** | The gap left when F7 shipped (#77): the sequential default rests on a chain-rule identity that needs no citation, but the spec cites papers that were never read, and `vignettes/technical.Rmd` already carries a literature claim nobody checked. |
 
