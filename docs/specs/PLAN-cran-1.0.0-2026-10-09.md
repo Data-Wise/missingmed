@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | DRAFT. Item I reopened as a plan only, gated on E (author, 2026-10-09: "A"). D5 decided: **wait for a medfit CRAN release with the 0.4.0 features, then raise the floor** (author, 2026-10-09: "A"). D6 decided: **the medfit release is 0.7.0 (native SEM)**, not the tagged 0.6.0 (author, 2026-10-09: "B"). Scope freeze (T1) still open. |
+| **Status** | DRAFT. Item I reopened as a plan only, gated on E (author, 2026-10-09: "A"). D5 decided: **wait for a medfit CRAN release with the 0.4.0 features, then raise the floor** (author, 2026-10-09: "A"). D6 decided: **the medfit release is 0.7.0 (native SEM)**, not the tagged 0.6.0 (author, 2026-10-09: "B"). D7 decided (T1): **E before 1.0.0; C and F conditional on evidence** (author, 2026-10-09: "A"). |
 | **Follows** | [PLAN-open-items-2026-10-09.md](PLAN-open-items-2026-10-09.md), item I |
 | **Owner of the release** | The author. Version bump, `dev` to `main`, tag, GitHub release and the CRAN upload are release engineering and are not done from a feature session without an explicit request. |
 
@@ -55,7 +55,7 @@ Order: T0, T1, T2 decide scope; T3 to T7 are independent prep and can land as sm
 | # | Task | Acceptance | Verify |
 |---|---|---|---|
 | T0 | Reopen item I (author decision) DONE 2026-10-09 | the open-items plan says "reopened 2026-10-09" | one line in the plan |
-| T1 | Scope freeze: decide whether C (MLR), E (weight-score stacking) and F (drop `.lav_round_nobs()`) land before 1.0.0 or after | each of C, E, F is "before" or "after 1.0.0", with the reason | table in this file, section 6 |
+| T1 | Scope freeze DONE 2026-10-09 (D7): E before 1.0.0, committed. C ships enabled if its simulation gate passes before medfit 0.7.0 is on CRAN, otherwise refused as today. F is dropped only if a read-only check shows medfit 0.7.0's lavaan path fixes what `.lav_round_nobs()` works around. | each of C, E, F has its rule | this row |
 | T2 | Dependency floors against CRAN | the floor names a CRAN medfit release; no `Remotes:`. **Partly done:** the suite and check pass against CRAN medfit 0.3.2 (section 2); what remains is the decision in D5 | `pak` resolves from CRAN only; `R CMD check` on a clean library |
 | T3 | `inst/WORDLIST` and a clean spelling run | `spelling::spell_check_package(".")` returns no rows; each added word is a real term, not a typo | the command, and a diff review of the WORDLIST |
 | T4 | Multi-platform check | win-builder release and devel, mac-builder and an rhub Linux R-devel run all show 0 errors, 0 warnings; notes explained | the result URLs in `cran-comments.md` |
