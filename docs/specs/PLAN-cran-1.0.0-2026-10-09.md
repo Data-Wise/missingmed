@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | DRAFT. Item I reopened as a plan only, gated on E (author, 2026-10-09: "A"). D5 decided: **wait for a medfit CRAN release with the 0.4.0 features, then raise the floor** (author, 2026-10-09: "A"). Scope freeze (T1) and which medfit release still open. |
+| **Status** | DRAFT. Item I reopened as a plan only, gated on E (author, 2026-10-09: "A"). D5 decided: **wait for a medfit CRAN release with the 0.4.0 features, then raise the floor** (author, 2026-10-09: "A"). D6 decided: **the medfit release is 0.7.0 (native SEM)**, not the tagged 0.6.0 (author, 2026-10-09: "B"). Scope freeze (T1) still open. |
 | **Follows** | [PLAN-open-items-2026-10-09.md](PLAN-open-items-2026-10-09.md), item I |
 | **Owner of the release** | The author. Version bump, `dev` to `main`, tag, GitHub release and the CRAN upload are release engineering and are not done from a feature session without an explicit request. |
 
@@ -72,6 +72,7 @@ Order: T0, T1, T2 decide scope; T3 to T7 are independent prep and can land as sm
 |---|---|---|
 | lavaan floor `>= 0.7-3` is one day old | a CRAN mirror lag can make the floor unsatisfiable for some users | confirm the floor is needed (it was raised for `.lav_round_nobs()` behavior) or lower it to 0.7-2 if the code works there |
 | E needs a medfit change | CRAN submission waits for a medfit release, and every medfit write needs per-instance permission | decide in T1; do not start T8 until medfit is on CRAN |
+| missingmed 1.0.0 now waits on an unreleased medfit 0.7.0 (D6) | the submission date is set by medfit's native-SEM work (its `.STATUS`: PRs 1 to 5 merged, PR 6 needs an explicit go-ahead, gate S1 still open); missingmed cannot test against 0.7.0 until it exists, and any `Remotes:` pin is not allowed on CRAN | keep missingmed's own CRAN prep ready (T3 to T7); test against medfit `dev` in a scratch library as native SEM lands; submit nothing until 0.7.0 is on CRAN |
 | CRAN medfit 0.3.2 lacks the 0.4.0 features | a CRAN missingmed 1.0.0 would ship `engine = "regmedint"` as an engine that errors for every CRAN user, and the exactly-zero-interaction `m_ref` path without covariate means | D5 below |
 | `1.0.0` signals stability | the S7 classes and the lavaan engine are young | T7 states what is experimental |
 | Spelling WORDLIST hides a typo | a real misspelling ships | review each added word in the PR |
