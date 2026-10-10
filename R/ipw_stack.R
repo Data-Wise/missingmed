@@ -53,8 +53,12 @@
   # all rows (zero where the model dropped a row for a missing predictor).
   nuis <- lapply(info$blocks, function(b) {
     mod <- b$model
-    used <- seq_len(N)
-    if (!is.null(mod$na.action)) used <- setdiff(used, as.integer(mod$na.action))
+    # the rows the model was fitted on (a sequential factor uses a subset)
+    used <- b$rows
+    if (is.null(used)) {
+      used <- seq_len(N)
+      if (!is.null(mod$na.action)) used <- setdiff(used, as.integer(mod$na.action))
+    }
     Z <- stats::model.matrix(mod)
     mu <- unname(stats::fitted(mod))
     Zf <- matrix(0, N, ncol(Z))
