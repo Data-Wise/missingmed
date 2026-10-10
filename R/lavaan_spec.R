@@ -61,6 +61,33 @@
   invisible(TRUE)
 }
 
+# medfit names the three structural paths `a`, `b` and `c_prime` in the pooled
+# estimates and covariance. A model label equal to one of those names on any
+# other parameter (a loading, a covariance, a `:=`) pairs that path's variance with the wrong estimate in older medfit,
+# and is refused by newer medfit only at run(). A label on its own role path is
+# fine, and so is `cp`, which medfit does not use as a name.
+.check_lavaan_alias_labels <- function(pt, treatment, mediator, outcome) {
+  alias_path <- list(
+    a = c(mediator, treatment),
+    b = c(outcome, mediator),
+    c_prime = c(outcome, treatment)
+  )
+  reg <- pt[pt$label %in% names(alias_path), , drop = FALSE]
+  for (i in seq_len(nrow(reg))) {
+    lab <- reg$label[i]
+    want <- alias_path[[lab]]
+    if (!(reg$op[i] == "~" && identical(c(reg$lhs[i], reg$rhs[i]), want))) {
+      stop("The label `", lab, "` is the name missingmed uses for the path `",
+        want[1L], " ~ ", want[2L], "`, but `model` puts it on `", reg$lhs[i],
+        " ", reg$op[i], " ", reg$rhs[i], "`. Rename that label (for example `",
+        lab, "_", reg$lhs[i], "`).",
+        call. = FALSE
+      )
+    }
+  }
+  invisible(TRUE)
+}
+
 # `outcome` on the glm engines is optional: it is the response of `formula_y`,
 # and is checked against it when given.
 .check_glm_outcome <- function(outcome, formula_y) {
@@ -99,13 +126,15 @@
         call. = FALSE
       )
     }
-    warning(warningCondition(
-      paste0("Passing arguments through `", caller, "` is deprecated and will ",
-        "be removed in a future release: set ",
-        paste0("`", nms, "`", collapse = ", "),
+    lifecycle::deprecate_warn(
+      when = "0.7.0",
+      what = I(paste0("Passing arguments through `", sub("\\(\\)$", "(...)", caller), "`")),
+      with = I("`fit_args` in `set_md_mediation()`"),
+      details = paste0("Set ", paste0("`", nms, "`", collapse = ", "),
         " with `fit_args` in set_md_mediation()."),
-      class = "md_dots_deprecated", call = NULL
-    ))
+      id = paste0("missingmed-dots-", caller),
+      user_env = rlang::global_env()
+    )
   }
   extra <- c(fa, dots)
   reserved <- c(.md_reserved_args, if (ipw) c("weights", "se_type"))
@@ -182,6 +211,8 @@
       call. = FALSE
     )
   }
+
+  .check_lavaan_alias_labels(pt, treatment, mediator, outcome)
 
   absent <- setdiff(lavaan::lavNames(pt, "ov"), names(data))
   if (length(absent)) {

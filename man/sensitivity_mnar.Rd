@@ -15,6 +15,7 @@ sensitivity_mnar(
   ums = NULL,
   treatment_level = NULL,
   ariv = c("fixed", "own"),
+  on_error = c("stop", "continue"),
   ...
 )
 }
@@ -30,9 +31,8 @@ be \code{NULL} when \code{delta} is a data frame.}
 
 \item{type}{Inference per rung: \code{"mc"} (default) or \code{"mbco"}. \code{"mbco"} works
 for \code{engine = "glm"} and for \code{engine = "lavaan"} (maximum likelihood only,
-see \code{\link[=infer]{infer()}}). If an MBCO refit does not converge at a rung, the sweep
-stops and the error names the rung and its delta; no partial result is
-returned.}
+see \code{\link[=infer]{infer()}}). If a refit does not converge at a rung, the sweep stops by
+default and the error names the rung and its delta (see \code{on_error}).}
 
 \item{seed}{Integer seed pinned across rungs. Defaults to the seed stored in
 the \code{mids} object, or \code{20260822L} when that is \code{NA}. A fractional value is
@@ -56,7 +56,18 @@ not compute a tipping point for it.}
 (\code{"fixed"}, the default, or \code{"own"}; see \code{\link[=mbco_d4]{mbco_d4()}}). Ignored, with a
 warning, for \code{type = "mc"}.}
 
-\item{...}{Deprecated. Extra arguments for the engine; set them with
+\item{on_error}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} What to do when fitting or inference fails at a rung (a refit
+that did not converge, a non-finite likelihood). \code{"stop"} (default) aborts
+the sweep and the error names the rung and its delta. \code{"continue"} keeps
+the rungs that succeeded, records the message of each failed rung in
+\verb{@failed} (and in a column \code{error} of \code{\link[=tidy]{tidy()}}), and warns once naming the
+failed rungs; a failed rung reads as \code{NA} in \code{tidy()} and in the tipping
+point, which is then reported as undetermined if a failed rung could change
+it. It is an error if every rung fails. Re-imputation errors and a
+non-finite shifted value always stop. Only errors are caught; warnings pass
+through.}
+
+\item{...}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Extra arguments for the engine; set them with
 \code{fit_args} in \code{\link[=set_md_mediation]{set_md_mediation()}}, which every refit here reads. They
 are still honored, with one warning, and may not repeat a name already in
 \code{fit_args}.}

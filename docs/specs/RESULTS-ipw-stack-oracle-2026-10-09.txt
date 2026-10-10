@@ -1,0 +1,145 @@
+aux_unstab 1 done
+aux_unstab 2 done
+aux_unstab 3 done
+aux_unstab 4 done
+aux_unstab 5 done
+aux_stab 1 done
+aux_stab 2 done
+aux_stab 3 done
+aux_stab 4 done
+aux_stab 5 done
+aux_stab_trim 1 done
+aux_stab_trim 2 done
+aux_stab_trim 3 done
+aux_stab_trim 4 done
+aux_stab_trim 5 done
+aux_stab_pervar 1 done
+aux_stab_pervar 2 done
+aux_stab_pervar 3 done
+aux_stab_pervar 4 done
+aux_stab_pervar 5 done
+unstab_joint 1 done
+unstab_joint 2 done
+unstab_joint 3 done
+unstab_joint 4 done
+unstab_joint 5 done
+stab_joint 1 done
+stab_joint 2 done
+stab_joint 3 done
+stab_joint 4 done
+stab_joint 5 done
+stab_pervar 1 done
+stab_pervar 2 done
+stab_pervar 3 done
+stab_pervar 4 done
+stab_pervar 5 done
+stab_joint_trim 1 done
+stab_joint_trim 2 done
+stab_joint_trim 3 done
+stab_joint_trim 4 done
+stab_joint_trim 5 done
+          config seed n_cc n_trim  ok ratio_a_stacked ratio_b_stacked
+      aux_unstab    1  276      0 500           0.977           0.979
+      aux_unstab    2  239      0 500           0.974           0.940
+      aux_unstab    3  275      0 500           1.015           0.934
+      aux_unstab    4  257      0 500           0.990           1.013
+      aux_unstab    5  271      0 500           0.960           0.929
+        aux_stab    1  276      0 500           0.977           0.980
+        aux_stab    2  239      0 500           0.974           0.944
+        aux_stab    3  275      0 500           1.016           0.937
+        aux_stab    4  257      0 500           0.990           1.017
+        aux_stab    5  271      0 500           0.959           0.925
+   aux_stab_trim    1  276     14 500           0.954           0.970
+   aux_stab_trim    2  239     12 500           0.948           0.936
+   aux_stab_trim    3  275     14 500           1.011           0.938
+   aux_stab_trim    4  257     13 500           0.986           1.003
+   aux_stab_trim    5  271     14 500           0.979           0.935
+ aux_stab_pervar    1  276      0 500           0.984           0.983
+ aux_stab_pervar    2  239      0 500           0.982           0.939
+ aux_stab_pervar    3  275      0 500           1.009           0.946
+ aux_stab_pervar    4  257      0 500           1.001           1.005
+ aux_stab_pervar    5  271      0 500           0.970           0.928
+    unstab_joint    1  252      0 500           0.907           1.009
+    unstab_joint    2  236      0 500           0.987           0.973
+    unstab_joint    3  250      0 500           0.943           0.987
+    unstab_joint    4  235      0 500           0.995           0.940
+    unstab_joint    5  249      0 500           0.921           0.961
+      stab_joint    1  252      0 500           0.907           1.015
+      stab_joint    2  236      0 500           0.985           0.972
+      stab_joint    3  250      0 500           0.944           1.003
+      stab_joint    4  235      0 500           0.994           0.941
+      stab_joint    5  249      0 500           0.919           0.958
+     stab_pervar    1  252      0 500           0.905           1.016
+     stab_pervar    2  236      0 500           0.986           0.975
+     stab_pervar    3  250      0 500           0.945           1.001
+     stab_pervar    4  235      0 500           0.988           0.942
+     stab_pervar    5  249      0 500           0.920           0.959
+ stab_joint_trim    1  252     13 500           0.908           1.020
+ stab_joint_trim    2  236     12 500           0.983           0.974
+ stab_joint_trim    3  250     13 500           0.943           1.006
+ stab_joint_trim    4  235     12 500           0.999           0.947
+ stab_joint_trim    5  249     13 500           0.919           0.963
+ ratio_a_known ratio_b_known corr_stacked corr_boot  pass
+         0.988         0.982      0.01679   -0.0297  TRUE
+         0.998         0.941     -0.01732   -0.0629  TRUE
+         1.038         0.960     -0.32196   -0.2991  TRUE
+         1.019         1.031      0.05580    0.1060  TRUE
+         0.979         0.930      0.04816    0.1098  TRUE
+         0.987         0.980      0.01016   -0.0389  TRUE
+         0.999         0.945     -0.01367   -0.0575  TRUE
+         1.035         0.963     -0.31939   -0.2991  TRUE
+         1.020         1.035      0.05197    0.1034  TRUE
+         0.978         0.926      0.04815    0.1029  TRUE
+         0.957         0.967     -0.01344   -0.0622  TRUE
+         0.945         0.935     -0.00604   -0.0723  TRUE
+         1.014         0.937     -0.10563   -0.1030  TRUE
+         1.009         0.992     -0.11111   -0.0439  TRUE
+         0.987         0.932      0.05369    0.1636 FALSE
+         0.997         0.984      0.02263   -0.0234  TRUE
+         1.009         0.941     -0.01643   -0.0598  TRUE
+         1.033         0.985     -0.44432   -0.4239  TRUE
+         1.033         1.034      0.14550    0.1722  TRUE
+         0.993         0.928      0.04748    0.0862  TRUE
+         0.908         1.010      0.03981    0.0288  TRUE
+         0.989         0.974     -0.12995   -0.0878  TRUE
+         0.946         0.989     -0.22321   -0.2796  TRUE
+         1.010         0.941     -0.11582   -0.0472  TRUE
+         0.921         0.963      0.03411    0.1156  TRUE
+         0.908         1.015      0.03450    0.0222  TRUE
+         0.988         0.973     -0.13094   -0.0936  TRUE
+         0.946         1.005     -0.20136   -0.2512  TRUE
+         1.009         0.942     -0.13387   -0.0566  TRUE
+         0.919         0.960      0.05850    0.1322  TRUE
+         0.905         1.016      0.04359    0.0313  TRUE
+         0.989         0.975     -0.12955   -0.0922  TRUE
+         0.948         1.003     -0.19539   -0.2457  TRUE
+         1.000         0.943     -0.11848   -0.0448  TRUE
+         0.920         0.960      0.06007    0.1332  TRUE
+         0.909         1.019      0.03997    0.0349  TRUE
+         0.982         0.974     -0.13052   -0.0897  TRUE
+         0.944         1.006     -0.21109   -0.2599  TRUE
+         1.002         0.948     -0.12175   -0.0397  TRUE
+         0.920         0.962      0.01563    0.0885  TRUE
+
+PASS 39 of 40 
+
+Means by config (SE ratio to bootstrap; correlation of a and b):
+          config ratio_a_stacked ratio_a_known ratio_b_stacked ratio_b_known
+        aux_stab           0.983         1.004           0.961         0.970
+ aux_stab_pervar           0.989         1.013           0.960         0.974
+   aux_stab_trim           0.976         0.982           0.956         0.953
+      aux_unstab           0.983         1.004           0.959         0.969
+      stab_joint           0.950         0.954           0.978         0.979
+ stab_joint_trim           0.950         0.951           0.982         0.982
+     stab_pervar           0.949         0.952           0.979         0.980
+    unstab_joint           0.951         0.955           0.974         0.975
+ corr_stacked corr_boot
+       -0.045    -0.038
+       -0.049    -0.050
+       -0.037    -0.024
+       -0.044    -0.035
+       -0.075    -0.049
+       -0.082    -0.053
+       -0.068    -0.044
+       -0.079    -0.054
+stacked closer to bootstrap than known-weights (a, b): 12 17 of 40 

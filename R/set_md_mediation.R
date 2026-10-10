@@ -60,18 +60,31 @@
 #' @param family_y,family_m `stats::family` objects for the outcome and mediator
 #'   models. Default `stats::gaussian()`.
 #' @param method Estimator axis: `"mi"` (default) or `"ipw"`.
-#' @param mechanism **Deprecated.** The pipeline estimates under MAR regardless,
+#' @param mechanism `r lifecycle::badge("deprecated")` The pipeline estimates under MAR regardless,
 #'   so this argument never changed behavior. Passing `"mnar"` warns and is
 #'   ignored. Use [sensitivity_mnar()] to assess departures from MAR; it sets
 #'   `mechanism = "mnar"` on the objects it creates.
-#' @param weight_formula (IPW) Missingness model: `NULL` (default; all observed
-#'   predictors), a single `formula`, or a named `list` of per-variable formulas.
+#' @param weight_formula (IPW) Missingness model: `NULL` (default), a single
+#'   `formula`, or a named `list` of per-variable formulas. `NULL` and a list fit a
+#'   sequential (chain-rule) model, P(V1 observed) x P(V2 observed | V1 observed)
+#'   x ..., each factor on the rows where the earlier variables are observed.
+#'   `NULL` orders the incomplete model variables by ascending share of missing
+#'   values and predicts with the fully observed model variables; a list gives the
+#'   order (its names) and the predictors (its formulas). A single formula fits
+#'   **one** model for "every model variable is observed", which is right when the
+#'   variables go missing together and biased when they go missing separately.
+#'   With one incomplete variable the three agree.
 #' @param weight_stabilize (IPW) Use stabilized weights? Default `TRUE`.
 #' @param weight_trim (IPW) Upper quantile to cap weights; `1` (default) = none.
 #' @param se_type (IPW) `"sandwich"` (default, HC robust) or `"model"`.
 #' @param model (`engine = "lavaan"`) lavaan model syntax, a single string, for
 #'   example `"M ~ a*X + C\nY ~ b*M + cp*X + C"`. A latent mediator
 #'   (`"Mlat =~ m1 + m2 + m3"`) is allowed. Must be `NULL` for other engines.
+#'   The paths are found by role (`treatment`, `mediator`, `outcome`), not by
+#'   label. The labels `a`, `b` and `c_prime` are the names the pooled estimates
+#'   use for the three structural paths, so each may only label its own path
+#'   (`mediator ~ treatment`, `outcome ~ mediator`, `outcome ~ treatment`); on
+#'   any other path it is an error.
 #' @param outcome Name of the outcome variable. Required for
 #'   `engine = "lavaan"`, where it must be regressed on the mediator in `model`.
 #'   For the other engines it is optional: it defaults to the response of
@@ -146,11 +159,14 @@ set_md_mediation <- function(data, formula_y, formula_m,
   # regardless of what is passed here, so accepting "mnar" silently would imply
   # an estimator change that does not happen. Only sensitivity_mnar() stamps it.
   if (!missing(mechanism) && identical(match.arg(mechanism), "mnar")) {
-    warning(
-      "`mechanism = \"mnar\"` is deprecated and has no effect: run() estimates ",
-      "under MAR either way. Use sensitivity_mnar() to assess departures from ",
-      "MAR; it stamps mechanism = \"mnar\" on the objects it produces.",
-      call. = FALSE
+    lifecycle::deprecate_warn(
+      when = "0.3.0",
+      what = I("Setting `mechanism = \"mnar\"` in `set_md_mediation()`"),
+      details = c(i = paste0("It has no effect: run() estimates under MAR either way. ",
+        "Use sensitivity_mnar() to assess departures from MAR; it stamps ",
+        "mechanism = \"mnar\" on the objects it produces.")),
+      id = "missingmed-mechanism-mnar",
+      user_env = rlang::global_env()
     )
   }
   mechanism <- "mar"

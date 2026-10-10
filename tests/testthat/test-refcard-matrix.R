@@ -116,13 +116,14 @@ lat_md_of <- local({
   }
 })
 triggers <- list(
-  "is deprecated and will" = function() {
+  "was deprecated in missingmed" = function() {
     w <- NULL
+    rlang::local_options(lifecycle_verbosity = "warning")
     try(withCallingHandlers(run(md_of("glm, MI"), m_star = 0), warning = function(x) {
       w <<- x
       invokeRestart("muffleWarning")
     }), silent = TRUE)
-    expect_s3_class(w, "md_dots_deprecated")
+    expect_s3_class(w, "lifecycle_warning_deprecated")
     conditionMessage(w)
   },
   "did not converge on imputation" = function() {
@@ -159,6 +160,7 @@ triggers <- list(
     msg_of(sensitivity_mnar(md_of("glm, IPW"), delta = c(0, 0.5)))
   },
   "sensitivity rung" = function() src(sensitivity_mnar),
+  "rung(s) failed" = function() src(sensitivity_mnar),
   "`target` is required" = function() {
     msg_of(sensitivity_mnar(lat_md_of(), delta = c(0, 0.5), n.mc = 500))
   }

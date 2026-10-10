@@ -71,7 +71,8 @@
 # the b-path (mediator -> outcome) dropped.
 #
 # NB engine: this refits with stats::glm() regardless of @engine, and carries no
-# weights. infer(type = "mbco") errors on IPW fits by design; on the MI path a
+# weights. infer(type = "mbco") errors on IPW fits by design, and on a fit_args
+# entry that would change the likelihood (.check_mbco_fit_args()); on the MI path a
 # fit with engine = "regmedint" is retested here with glm, which matches it for
 # the Gaussian and binomial models regmedint accepts. A known limitation
 # (SPEC-mbco-constrained-models-2026-08-30.md, section 6).
@@ -168,12 +169,11 @@
   if (gap <= 1e-10 * max(1, abs(dbar), abs(d_S))) gap <- 0
   r4 <- max(0, (K + 1) / (k * (K - 1)) * gap)
   D4 <- d_S / (k * (1 + r4))
-  km1 <- k * (K - 1)
-  nu <- if (km1 > 4) {
-    4 + (km1 - 4) * (1 + (1 - 2 / km1) / r4)^2
-  } else {
-    0.5 * km1 * (1 + 1 / k) * (1 + 1 / r4)^2
-  }
+  # Chan & Meng (2022; arXiv:1711.08822) eq. 2.15, the reference df of their Algorithm 2 and of
+  # mitml::testModels(method = "D4"): k (K - 1) (1 + 1 / r4)^2. Not the Li et
+  # al. (1991) df (their eq. 1.6), which they show approximates this test worse.
+  # Equals Inf when r4 is 0.
+  nu <- k * (K - 1) * (1 + 1 / r4)^2
   c(D4 = D4, p = stats::pf(D4, k, nu, lower.tail = FALSE), r4 = r4, nu = nu, d_S = d_S)
 }
 
@@ -446,9 +446,11 @@
 #' \eqn{D_4 = d_S / (k (1 + r_4))}, referred to \eqn{F(k, \nu)}, where
 #' \eqn{d_S} is the statistic on the stacked data divided by \eqn{K} and
 #' \eqn{r_4} is the relative increase in variance estimated from the
-#' per-imputation statistics. `ariv` chooses how those statistics are formed:
+#' per-imputation statistics, and \eqn{\nu = k (K - 1) (1 + 1 / r_4)^2}
+#' (Chan and Meng 2022, eq. 2.15 of arXiv:1711.08822; the same reference distribution as
+#' `mitml::testModels(method = "D4")`). `ariv` chooses how those statistics are formed:
 #'
-#' * `"fixed"` (default): each imputation's statistic is computed on the branch
+#' * `"fixed"` (default, calibrated): each imputation's statistic is computed on the branch
 #'   (`a = 0` or `b = 0`) that the **stacked** constrained fit selected.
 #'   Imputations that disagree on the winning branch then cannot pull
 #'   \eqn{r_4} down, and every imputation uses the stacked fit's `k`. An error
@@ -458,11 +460,18 @@
 #'   from one imputation). `k` is a difference of design-matrix ranks, so a
 #'   sparse level of a main-effect factor does not trigger it.
 #' * `"own"`: each imputation's statistic is computed on its own winning branch
-#'   (the standard Chan & Meng \eqn{r_4}). On full-rank designs this
-#'   reproduces missingmed 0.4.0; `k` is now a rank difference rather than a
-#'   column count, so a design with aliased columns gets a smaller `k`.
-#'   It errors when the winning branches remove different numbers of
-#'   parameters, since there is then no single `k`.
+#'   (the standard Chan & Meng \eqn{r_4}). On full-rank designs its `D4` and
+#'   `r4` equal missingmed 0.4.0's; `nu` and `p` differ slightly, because the
+#'   denominator degrees of freedom now follow Chan & Meng (see NEWS). `k` is
+#'   a rank difference rather than a column count, so a design with aliased
+#'   columns gets a smaller `k`. It errors when the winning branches remove
+#'   different numbers of parameters, since there is then no single `k`.
+#'   **It can be liberal.** In simulation (1000 replications per cell, 20
+#'   imputations, MAR missingness in the mediator, 5% level) it rejected a true
+#'   null up to 8.3% of the time for a plain Gaussian model with 40% missing
+#'   and n = 200, and up to 13.8% for binary and count outcomes at 40%
+#'   missing, where `"fixed"` stayed at or below 5.7% on the same data. Use
+#'   `"fixed"` unless you need to reproduce an earlier analysis.
 #'
 #' **Cost.** Every imputation is fit three times (the full model and both
 #' single-path nulls), plus the same three fits on the stacked data. The

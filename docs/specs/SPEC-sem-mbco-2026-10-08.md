@@ -194,3 +194,13 @@ was not rerun.
 The glm engine shares the pooling code but was not run through this grid; its only
 calibration evidence is the prototype (size 0.050 at a = 0, b = 0.3; 0.007 at the
 intersection; n = 200, m = 5, 300 replications).
+
+### Addendum (2026-10-09): D4 denominator df
+
+The cells above ran with the Li et al. (1991) denominator df, which turned out
+to differ from Chan and Meng (2022, eq. 2.15) and `mitml`
+([NOTE-d4-denominator-vs-mitml-2026-10-09.md](NOTE-d4-denominator-vs-mitml-2026-10-09.md)).
+The code now uses eq. 2.15. At K = 20 the two critical values differ by at most
+about 0.04 (F = 3.92 vs 3.90 at r4 = 0.5), a size shift of at most about 0.002, so
+the maximum observed size of 0.057 moves to at most about 0.059, inside the 6.5%
+criterion. The 40 cells were not re-run.

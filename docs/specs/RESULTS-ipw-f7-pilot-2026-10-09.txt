@@ -1,0 +1,88 @@
+RESULTS: F7 pilot of missingness-model forms (laptop, standalone, 2026-10-09)
+Pilot only: 8 replications at n = 1e5, 300 at n = 500. se column is the standard error of the mean bias.
+mnom = multinomial pattern model; in the sim mechanism it errors (two patterns only, where it equals joint) so its rows are NaN.
+
+===== SCRIPT =====
+# F7 pilot (laptop, pilot only): bias in b of five missingness-model forms under
+# three mechanisms, as (weighted complete-case b) - (full-data b) per replication.
+# (Z confounds M and Y and is omitted from the outcome model, so the population b
+# is about 0.6, not 0.3; the full-data estimate is the benchmark.) Unstabilized weights, no trimming.
+suppressMessages(library(nnet))
+al_for <- function(target) uniroot(function(a) mean(plogis(a + rnorm(2e5))) - target, c(-3, 3))$root
+set.seed(1); al <- al_for(.6)
+gen <- function(n, mech) {
+  C <- rnorm(n); Z <- rnorm(n); X <- rbinom(n, 1, plogis(.3 * C))
+  M <- .3 * X + .5 * C + .7 * Z + rnorm(n)
+  Y <- .3 * M + .2 * X + .5 * C + .7 * Z + rnorm(n)
+  pr <- plogis(al + Z)
+  if (mech == "ind")  { rm <- rbinom(n, 1, pr); ry <- rbinom(n, 1, pr) }
+  if (mech == "sim")  { rm <- ry <- rbinom(n, 1, pr) }
+  if (mech == "mono") { rm <- rbinom(n, 1, pr); ry <- rm * rbinom(n, 1, plogis(al + .8 + Z)) }
+  data.frame(X, C, Z, M = ifelse(rm == 1, M, NA), Y = ifelse(ry == 1, Y, NA), rm, ry, M0 = M, Y0 = Y)
+}
+pcc <- function(d, form) {
+  cc <- d$rm == 1 & d$ry == 1
+  f <- function(y, dat, rhs) glm(reformulate(rhs, y), binomial, dat)
+  switch(form,
+    joint = fitted(f("cc", transform(d, cc = as.integer(cc)), c("X", "C", "Z"))),
+    spv   = fitted(f("rm", d, c("X", "C", "Z"))) * fitted(f("ry", d, c("X", "C", "Z"))),
+    seq   = { pm <- fitted(f("rm", d, c("X", "C", "Z")))
+              m2 <- suppressWarnings(f("ry", d[d$rm == 1, ], c("X", "C", "Z")))
+              pm * predict(m2, d, type = "response") },
+    seqrev = { py <- fitted(f("ry", d, c("X", "C", "Z")))   # reverse order: Y first, then M | Y observed
+              m2 <- suppressWarnings(f("rm", d[d$ry == 1, ], c("X", "C", "Z")))
+              py * predict(m2, d, type = "response") },
+    mnom  = { pat <- factor(2 * d$rm + d$ry)   # 3 = both observed
+              m <- multinom(pat ~ X + C + Z, d, trace = FALSE)
+              pp <- fitted(m)
+              if (is.matrix(pp)) pp[, "3"] else pp })   # two levels: P(second level = "3")
+}
+est <- function(d, p) {
+  cc <- d$rm == 1 & d$ry == 1; w <- 1 / p; dd <- d[cc, ]; w <- w[cc]
+  unname(coef(lm(Y ~ X + M + C, dd, weights = w))["M"])
+}
+run <- function(n, reps) {
+  out <- NULL
+  for (mech in c("ind", "sim", "mono")) for (form in c("joint", "spv", "seq", "seqrev", "mnom")) {
+    b <- replicate(reps, { d <- gen(n, mech); bf <- unname(coef(lm(Y0 ~ X + M0 + C, d))["M0"])
+      tryCatch(est(d, pcc(d, form)) - bf, error = function(e) NA_real_) })
+    out <- rbind(out, data.frame(n = n, mech, form, bias = mean(b, na.rm = TRUE), se = sd(b, na.rm = TRUE) / sqrt(sum(!is.na(b))), na = sum(is.na(b))))
+  }
+  out
+}
+set.seed(2); big <- run(1e5, 8)
+set.seed(3); small <- run(500, 300)
+print(rbind(big, small), digits = 3, row.names = FALSE)
+
+===== OUTPUT =====
+     n mech   form      bias       se  na
+ 1e+05  ind  joint -0.024397 0.003090   0
+ 1e+05  ind    spv  0.010216 0.008004   0
+ 1e+05  ind    seq -0.001705 0.002828   0
+ 1e+05  ind seqrev -0.002581 0.003098   0
+ 1e+05  ind   mnom -0.009020 0.003017   0
+ 1e+05  sim  joint -0.001089 0.001118   0
+ 1e+05  sim    spv  0.051278 0.004659   0
+ 1e+05  sim    seq  0.000363 0.001251   0
+ 1e+05  sim seqrev -0.000634 0.000718   0
+ 1e+05  sim   mnom       NaN       NA   8
+ 1e+05 mono  joint -0.013771 0.002252   0
+ 1e+05 mono    spv  0.031671 0.009568   0
+ 1e+05 mono    seq  0.002331 0.002996   0
+ 1e+05 mono seqrev -0.021305 0.001482   0
+ 1e+05 mono   mnom -0.017915 0.001728   0
+ 5e+02  ind  joint -0.023565 0.004831   0
+ 5e+02  ind    spv -0.014696 0.005473   0
+ 5e+02  ind    seq -0.022085 0.005447   0
+ 5e+02  ind seqrev -0.021257 0.005217   0
+ 5e+02  ind   mnom -0.015973 0.005989   0
+ 5e+02  sim  joint -0.001225 0.002892   0
+ 5e+02  sim    spv  0.030631 0.005836   0
+ 5e+02  sim    seq -0.002659 0.003085   0
+ 5e+02  sim seqrev  0.003879 0.002989   0
+ 5e+02  sim   mnom       NaN       NA 300
+ 5e+02 mono  joint -0.023496 0.004060   0
+ 5e+02 mono    spv -0.001965 0.006721   0
+ 5e+02 mono    seq -0.001837 0.004463   0
+ 5e+02 mono seqrev -0.016483 0.004162   0
+ 5e+02 mono   mnom -0.027346 0.004029   0

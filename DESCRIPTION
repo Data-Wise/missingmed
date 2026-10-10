@@ -1,7 +1,7 @@
 Package: missingmed
 Type: Package
 Title: Mediation Analysis with Multiple Imputation for Missing Data
-Version: 0.8.0
+Version: 0.9.0
 Date: 2026-10-09
 Authors@R: person("Davood", "Tofighi",
         email = "dtofighi@gmail.com",
@@ -20,9 +20,11 @@ Imports:
     tibble (>= 3.0.0),
     broom (>= 0.7.0),
     rlang (>= 0.4.0),
+    lifecycle (>= 1.0.3),
     sandwich
 Suggests:
     testthat (>= 3.0.0),
+    mitml,
     knitr,
     rmarkdown,
     quarto,

@@ -1,0 +1,71 @@
+% Records for the IPW missing-data literature check
+% (docs/specs/PLAN-ipw-literature-check-2026-10-09.md).
+% Metadata (authors, title, venue, volume, issue, pages, DOI) taken from Crossref on
+% 2026-10-09. None of these papers has been read in full yet; the `note` field says
+% what each is cited for in this repo. Import into Zotero: File > Import... > this file.
+% `keywords` become Zotero tags.
+
+@article{robins1994estimation,
+  author    = {Robins, James M. and Rotnitzky, Andrea and Zhao, Lue Ping},
+  title     = {Estimation of Regression Coefficients When Some Regressors are not Always Observed},
+  journal   = {Journal of the American Statistical Association},
+  year      = {1994},
+  volume    = {89},
+  number    = {427},
+  pages     = {846--866},
+  doi       = {10.1080/01621459.1994.10476818},
+  keywords  = {missingmed-ipw, to-read},
+  note      = {Cited in vignettes/technical.Rmd (section 7A.1, line 1115) for the claim that estimating the weights reduces the variance relative to known weights (plan question Q6).}
+}
+
+@article{robins1997nonresponse,
+  author    = {Robins, James M. and Gill, Richard D.},
+  title     = {Non-Response Models for the Analysis of Non-Monotone Ignorable Missing Data},
+  journal   = {Statistics in Medicine},
+  year      = {1997},
+  volume    = {16},
+  number    = {1},
+  pages     = {39--56},
+  doi       = {10.1002/(SICI)1097-0258(19970115)16:1<39::AID-SIM535>3.0.CO;2-D},
+  keywords  = {missingmed-ipw, to-read},
+  note      = {Randomized monotone missingness models for non-monotone ignorable data; plan questions Q1 to Q3 (is the sequential default a member of the class, and does the order matter). Companion paper in the same issue, pages 21--37, treats the non-ignorable case.}
+}
+
+@article{sun2018inverse,
+  author    = {Sun, BaoLuo and {Tchetgen Tchetgen}, Eric J.},
+  title     = {On Inverse Probability Weighting for Nonmonotone Missing at Random Data},
+  journal   = {Journal of the American Statistical Association},
+  year      = {2018},
+  volume    = {113},
+  number    = {521},
+  pages     = {369--379},
+  doi       = {10.1080/01621459.2016.1256814},
+  keywords  = {missingmed-ipw, to-read, open-access},
+  note      = {Open copies: arXiv 1411.5310 (v2 preprint) and PubMed Central PMC6051732 (accepted manuscript). Online 2017-12-01. Plan questions Q3 to Q5 (coherence of non-monotone missingness models; scope of the default's assumption).}
+}
+
+@article{seaman2013review,
+  author    = {Seaman, Shaun R. and White, Ian R.},
+  title     = {Review of inverse probability weighting for dealing with missing data},
+  journal   = {Statistical Methods in Medical Research},
+  year      = {2013},
+  volume    = {22},
+  number    = {3},
+  pages     = {278--295},
+  doi       = {10.1177/0962280210395740},
+  keywords  = {missingmed-ipw, to-read},
+  note      = {Listed in vignettes/technical.Rmd section 8. Plan question Q7 (stabilization and truncation). Online 2011-01-10.}
+}
+
+@article{lunceford2004stratification,
+  author    = {Lunceford, Jared K. and Davidian, Marie},
+  title     = {Stratification and weighting via the propensity score in estimation of causal treatment effects: a comparative study},
+  journal   = {Statistics in Medicine},
+  year      = {2004},
+  volume    = {23},
+  number    = {19},
+  pages     = {2937--2960},
+  doi       = {10.1002/sim.1903},
+  keywords  = {missingmed-ipw, to-read},
+  note      = {A causal-inference paper (propensity-score weighting), not a missing-data paper; cited in the spec and the Codex review for the variance of estimators with estimated weights. Plan question Q8.}
+}

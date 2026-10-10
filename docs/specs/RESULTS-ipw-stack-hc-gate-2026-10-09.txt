@@ -1,0 +1,1119 @@
+# IPW stack second coverage gate, full run (hopper job 4334434, 384 tasks, 96 cells x 2000 replications, branch feature/ipw-stack-hc cf70ede)
+# Produced by: Rscript dev/sim-ipw-stack-combine.R <task-dir>  then  IPW_DIR=<task-dir> Rscript dev/sim-ipw-stack-hc-failures.R
+
+########## combine
+384 task files, 4032000 rows, missingmed 0.8.0.9000, 39941 total task-seconds
+CONTROL 2 (model-based arm shows a detectable size distortion in an aux* null cell): PASS
+
+DECISION PER WEIGHT FORM (decisive cells only; variant rule: hc3 primary, hc1 secondary)
+ form    decision
+   sj        none
+  sjt viable: hc3
+  spv        none
+   uj        none
+
+CRITERIA PER FORM AND VARIANT
+ form     variant decisive_cells    C1 C1star    C2   C3 conditional viable
+   sj stacked_hc3             48  TRUE   TRUE FALSE TRUE       FALSE  FALSE
+   sj stacked_hc1             48 FALSE  FALSE FALSE TRUE       FALSE  FALSE
+  sjt stacked_hc3             48  TRUE   TRUE  TRUE TRUE       FALSE   TRUE
+  sjt stacked_hc1             48 FALSE  FALSE FALSE TRUE       FALSE  FALSE
+  spv stacked_hc3             48 FALSE  FALSE FALSE TRUE       FALSE  FALSE
+  spv stacked_hc1             48 FALSE  FALSE FALSE TRUE       FALSE  FALSE
+   uj stacked_hc3             48  TRUE   TRUE FALSE TRUE       FALSE  FALSE
+   uj stacked_hc1             48 FALSE  FALSE FALSE TRUE       FALSE  FALSE
+ failing_cells
+             2
+             7
+             0
+             1
+             8
+            23
+             2
+             9
+
+BIAS-LIMITED DECISIVE CELLS (the shipped path also fails C1; stacked within 0.010)
+none
+
+FAILURE SHARES (C5): arms with more than 1% dropped replications (sizes there are conditional)
+none
+
+PAIRED stacked_hc3 vs known_hc3, decisive cells with McNemar p < 0.01
+   dgm   n miss point form n_stacked_only n_known_only mcnemar_p width_ratio
+   aux 200 0.25    P4  spv             22            0  4.77e-07       0.983
+   aux 200 0.40    P4  spv             18            0  7.63e-06       0.976
+   aux 500 0.25    P4  spv             21            0  9.54e-07       0.990
+   aux 500 0.40    P4  spv             20            0  1.91e-06       0.984
+  auxj 200 0.25    P4   sj             15            0  6.10e-05       0.991
+  auxj 200 0.25    P4   uj             17            0  1.53e-05       0.991
+  auxj 200 0.40    P4   sj             14            0  1.22e-04       0.985
+  auxj 200 0.40    P4   uj             13            0  2.44e-04       0.984
+  auxj 500 0.40    P4   sj             10            0  1.95e-03       0.992
+  auxj 500 0.40    P4   uj              9            0  3.91e-03       0.992
+  auxm 200 0.25    P1  spv             21            0  9.54e-07       0.969
+  auxm 200 0.25    P4  spv             43            0  2.27e-13       0.969
+  auxm 200 0.40    P1  spv             13            0  2.44e-04       0.974
+  auxm 200 0.40    P4  spv             27            0  1.49e-08       0.972
+  auxm 500 0.25    P1  spv             23            0  2.38e-07       0.977
+  auxm 500 0.25    P4  spv             50            0  1.78e-15       0.975
+  auxm 500 0.40    P1  spv             17            0  1.53e-05       0.983
+  auxm 500 0.40    P4  spv             33            0  2.33e-10       0.980
+ auxmj 200 0.25    P1   sj             10            0  1.95e-03       0.975
+ auxmj 200 0.25    P1   uj             10            0  1.95e-03       0.975
+ auxmj 200 0.25    P4   sj             39            0  3.64e-12       0.975
+ auxmj 200 0.25    P4  sjt              9            0  3.91e-03       0.992
+ auxmj 200 0.25    P4   uj             38            0  7.28e-12       0.975
+ auxmj 200 0.40    P1   sj             14            0  1.22e-04       0.973
+ auxmj 200 0.40    P1   uj             14            0  1.22e-04       0.973
+ auxmj 200 0.40    P4   sj             32            0  4.66e-10       0.973
+ auxmj 200 0.40    P4   uj             37            0  1.46e-11       0.973
+ auxmj 500 0.25    P4   sj             35            0  5.82e-11       0.979
+ auxmj 500 0.25    P4  sjt             10            0  1.95e-03       0.993
+ auxmj 500 0.25    P4   uj             34            0  1.16e-10       0.979
+ auxmj 500 0.40    P1   sj             11            0  9.77e-04       0.982
+ auxmj 500 0.40    P1   uj             12            0  4.88e-04       0.981
+ auxmj 500 0.40    P4   sj             28            0  7.45e-09       0.982
+ auxmj 500 0.40    P4  sjt             12            0  4.88e-04       0.996
+ auxmj 500 0.40    P4   uj             31            0  9.31e-10       0.982
+   std 200 0.25    P4  spv              8            0  7.81e-03       0.993
+   std 200 0.40    P4  spv             13            0  2.44e-04       0.987
+   std 500 0.40    P4  spv             15            0  6.10e-05       0.996
+
+C6: BIAS OF b AND WEIGHT CONCENTRATION AT P4 (form = the DGM's first decisive form, arm known_hc3)
+   dgm   n miss form    bias_a    bias_b   bias_ab   ess max_w_share
+   aux 200 0.25  spv -5.18e-03  0.005251 -0.000584  91.8     0.03520
+   aux 200 0.40  spv  6.57e-03  0.001134  0.001334  49.0     0.06737
+   aux 500 0.25  spv  7.71e-03 -0.002789  0.001154 225.6     0.01947
+   aux 500 0.40  spv  9.02e-04 -0.000978  0.000673 115.5     0.03889
+  auxj 200 0.25   sj  8.52e-03 -0.000628  0.001724 138.9     0.01730
+  auxj 200 0.40   sj  8.15e-03  0.003297  0.003468 101.1     0.02760
+  auxj 500 0.25   sj  9.09e-04 -0.000133  0.000618 346.5     0.00835
+  auxj 500 0.40   sj  1.05e-03 -0.002904 -0.000276 251.4     0.01386
+  auxj 200 0.25  sjt  9.03e-03 -0.001663  0.001647 144.5     0.01005
+  auxj 200 0.40  sjt  8.39e-03  0.001918  0.003166 109.3     0.01504
+  auxj 500 0.25  sjt  4.58e-05  0.000209  0.000440 360.5     0.00406
+  auxj 500 0.40  sjt  7.42e-04 -0.002934 -0.000498 273.2     0.00610
+  auxj 200 0.25   uj  8.49e-03 -0.000505  0.001744 138.5     0.01757
+  auxj 200 0.40   uj  8.18e-03  0.003358  0.003432 100.6     0.02802
+  auxj 500 0.25   uj  9.04e-04 -0.000168  0.000600 346.1     0.00836
+  auxj 500 0.40   uj  1.05e-03 -0.002917 -0.000270 251.0     0.01394
+  auxm 200 0.25  spv -3.35e-03 -0.015800 -0.005748  92.3     0.03538
+  auxm 200 0.40  spv  1.34e-02 -0.027213 -0.001629  49.4     0.06665
+  auxm 500 0.25  spv  8.17e-03 -0.005667  0.000456 224.0     0.01982
+  auxm 500 0.40  spv -6.65e-03 -0.015162 -0.007099 114.2     0.03920
+ auxmj 200 0.25   sj -2.50e-03 -0.003613 -0.002326 139.1     0.01728
+ auxmj 200 0.40   sj  1.12e-02 -0.005095  0.001448 101.0     0.02771
+ auxmj 500 0.25   sj -5.37e-04 -0.001496 -0.000895 347.2     0.00837
+ auxmj 500 0.40   sj  8.81e-03 -0.003737  0.001897 251.1     0.01367
+ auxmj 200 0.25  sjt -2.35e-03 -0.019946 -0.006989 144.6     0.01003
+ auxmj 200 0.40  sjt  8.59e-03 -0.025376 -0.005324 109.3     0.01505
+ auxmj 500 0.25  sjt  7.89e-04 -0.019181 -0.005730 360.8     0.00405
+ auxmj 500 0.40  sjt  8.13e-03 -0.027219 -0.005679 272.7     0.00608
+ auxmj 200 0.25   uj -2.52e-03 -0.003557 -0.002285 138.7     0.01756
+ auxmj 200 0.40   uj  1.11e-02 -0.004766  0.001545 100.3     0.02815
+ auxmj 500 0.25   uj -5.37e-04 -0.001464 -0.000888 346.8     0.00847
+ auxmj 500 0.40   uj  8.79e-03 -0.003669  0.001909 250.4     0.01379
+   std 200 0.25  spv -8.22e-03 -0.002445 -0.003580 106.8     0.01921
+   std 200 0.40  spv  3.59e-03 -0.001149  0.001048  64.6     0.03531
+   std 500 0.25  spv  5.80e-04  0.000787  0.000168 268.0     0.00890
+   std 500 0.40  spv  5.06e-03 -0.000420  0.001964 160.9     0.01686
+  stdj 200 0.25   sj  7.30e-03 -0.000971  0.001419 147.2     0.01075
+  stdj 200 0.40   sj -2.85e-03 -0.001444 -0.001195 113.9     0.01574
+  stdj 500 0.25   sj  1.24e-03  0.000563  0.000614 367.8     0.00460
+  stdj 500 0.40   sj  2.81e-03 -0.002584  0.000322 287.6     0.00688
+  stdj 200 0.25  sjt  6.86e-03 -0.000951  0.001336 148.2     0.00837
+  stdj 200 0.40  sjt -2.88e-03 -0.001554 -0.001264 115.6     0.01170
+  stdj 500 0.25  sjt  1.33e-03  0.000678  0.000676 369.9     0.00334
+  stdj 500 0.40  sjt  3.09e-03 -0.002639  0.000401 291.0     0.00463
+  stdj 200 0.25   uj  7.30e-03 -0.001090  0.001388 145.9     0.01153
+  stdj 200 0.40   uj -2.76e-03 -0.001570 -0.001352 111.3     0.01765
+  stdj 500 0.25   uj  1.32e-03  0.000664  0.000677 365.0     0.00494
+  stdj 500 0.40   uj  2.90e-03 -0.002609  0.000331 282.0     0.00764
+
+SIZE / COVERAGE TABLE, decisive cells (reject at P1-P3, coverage at P4)
+   dgm   n miss point form         arm reject cover  width dropped
+   aux 200 0.25    P1  spv   known_hc0 0.0305 0.970 0.2848   0e+00
+   aux 200 0.25    P1  spv   known_hc3 0.0200 0.980 0.3060   0e+00
+   aux 200 0.25    P1  spv stacked_hc0 0.0345 0.965 0.2805   0e+00
+   aux 200 0.25    P1  spv stacked_hc1 0.0315 0.970 0.2853   0e+00
+   aux 200 0.25    P1  spv stacked_hc3 0.0215 0.978 0.3005   0e+00
+   aux 200 0.25    P2  spv   known_hc0 0.0195 0.980 0.2123   0e+00
+   aux 200 0.25    P2  spv   known_hc3 0.0100 0.990 0.2334   0e+00
+   aux 200 0.25    P2  spv stacked_hc0 0.0220 0.978 0.2089   0e+00
+   aux 200 0.25    P2  spv stacked_hc1 0.0210 0.980 0.2133   0e+00
+   aux 200 0.25    P2  spv stacked_hc3 0.0125 0.987 0.2277   0e+00
+   aux 200 0.25    P3  spv   known_hc0 0.0035 0.997 0.1663   0e+00
+   aux 200 0.25    P3  spv   known_hc3 0.0010 0.999 0.1840   0e+00
+   aux 200 0.25    P3  spv stacked_hc0 0.0050 0.995 0.1633   0e+00
+   aux 200 0.25    P3  spv stacked_hc1 0.0035 0.997 0.1667   0e+00
+   aux 200 0.25    P3  spv stacked_hc3 0.0020 0.998 0.1804   0e+00
+   aux 200 0.25    P4  spv   known_hc0 0.2125 0.932 0.3123   0e+00
+   aux 200 0.25    P4  spv   known_hc3 0.1730 0.953 0.3380   0e+00
+   aux 200 0.25    P4  spv stacked_hc0 0.2205 0.925 0.3086   0e+00
+   aux 200 0.25    P4  spv stacked_hc1 0.2130 0.930 0.3134   0e+00
+   aux 200 0.25    P4  spv stacked_hc3 0.1840 0.946 0.3293   0e+00
+   aux 200 0.40    P1  spv   known_hc0 0.0390 0.961 0.3946   0e+00
+   aux 200 0.40    P1  spv   known_hc3 0.0215 0.980 0.4531   0e+00
+   aux 200 0.40    P1  spv stacked_hc0 0.0420 0.958 0.3858   0e+00
+   aux 200 0.40    P1  spv stacked_hc1 0.0380 0.962 0.3958   0e+00
+   aux 200 0.40    P1  spv stacked_hc3 0.0240 0.976 0.4404   0e+00
+   aux 200 0.40    P2  spv   known_hc0 0.0230 0.977 0.3096   0e+00
+   aux 200 0.40    P2  spv   known_hc3 0.0065 0.994 0.3701   0e+00
+   aux 200 0.40    P2  spv stacked_hc0 0.0300 0.970 0.3033   0e+00
+   aux 200 0.40    P2  spv stacked_hc1 0.0235 0.977 0.3132   0e+00
+   aux 200 0.40    P2  spv stacked_hc3 0.0095 0.991 0.3619   0e+00
+   aux 200 0.40    P3  spv   known_hc0 0.0100 0.990 0.2683   0e+00
+   aux 200 0.40    P3  spv   known_hc3 0.0010 0.999 0.3162   0e+00
+   aux 200 0.40    P3  spv stacked_hc0 0.0110 0.989 0.2610   0e+00
+   aux 200 0.40    P3  spv stacked_hc1 0.0105 0.990 0.2694   0e+00
+   aux 200 0.40    P3  spv stacked_hc3 0.0020 0.998 0.3101   0e+00
+   aux 200 0.40    P4  spv   known_hc0 0.1115 0.926 0.4209   0e+00
+   aux 200 0.40    P4  spv   known_hc3 0.0655 0.962 0.4872   0e+00
+   aux 200 0.40    P4  spv stacked_hc0 0.1165 0.920 0.4114   0e+00
+   aux 200 0.40    P4  spv stacked_hc1 0.1060 0.926 0.4224   0e+00
+   aux 200 0.40    P4  spv stacked_hc3 0.0745 0.947 0.4741   0e+00
+   aux 500 0.25    P1  spv   known_hc0 0.0515 0.949 0.1688   0e+00
+   aux 500 0.25    P1  spv   known_hc3 0.0470 0.954 0.1747   0e+00
+   aux 500 0.25    P1  spv stacked_hc0 0.0535 0.947 0.1680   0e+00
+   aux 500 0.25    P1  spv stacked_hc1 0.0520 0.947 0.1689   0e+00
+   aux 500 0.25    P1  spv stacked_hc3 0.0495 0.953 0.1724   0e+00
+   aux 500 0.25    P2  spv   known_hc0 0.0330 0.967 0.1169   0e+00
+   aux 500 0.25    P2  spv   known_hc3 0.0290 0.972 0.1226   0e+00
+   aux 500 0.25    P2  spv stacked_hc0 0.0360 0.965 0.1159   0e+00
+   aux 500 0.25    P2  spv stacked_hc1 0.0340 0.965 0.1168   0e+00
+   aux 500 0.25    P2  spv stacked_hc3 0.0300 0.970 0.1208   0e+00
+   aux 500 0.25    P3  spv   known_hc0 0.0020 0.998 0.0743   0e+00
+   aux 500 0.25    P3  spv   known_hc3 0.0020 0.998 0.0775   0e+00
+   aux 500 0.25    P3  spv stacked_hc0 0.0030 0.997 0.0737   0e+00
+   aux 500 0.25    P3  spv stacked_hc1 0.0025 0.998 0.0743   0e+00
+   aux 500 0.25    P3  spv stacked_hc3 0.0020 0.998 0.0768   0e+00
+   aux 500 0.25    P4  spv   known_hc0 0.5705 0.946 0.1913   0e+00
+   aux 500 0.25    P4  spv   known_hc3 0.5425 0.958 0.1991   0e+00
+   aux 500 0.25    P4  spv stacked_hc0 0.5795 0.945 0.1901   0e+00
+   aux 500 0.25    P4  spv stacked_hc1 0.5760 0.946 0.1913   0e+00
+   aux 500 0.25    P4  spv stacked_hc3 0.5530 0.951 0.1960   0e+00
+   aux 500 0.40    P1  spv   known_hc0 0.0515 0.948 0.2386   0e+00
+   aux 500 0.40    P1  spv   known_hc3 0.0380 0.962 0.2554   0e+00
+   aux 500 0.40    P1  spv stacked_hc0 0.0550 0.945 0.2360   0e+00
+   aux 500 0.40    P1  spv stacked_hc1 0.0540 0.946 0.2381   0e+00
+   aux 500 0.40    P1  spv stacked_hc3 0.0410 0.960 0.2521   0e+00
+   aux 500 0.40    P2  spv   known_hc0 0.0240 0.977 0.1730   0e+00
+   aux 500 0.40    P2  spv   known_hc3 0.0130 0.987 0.1912   0e+00
+   aux 500 0.40    P2  spv stacked_hc0 0.0240 0.976 0.1711   0e+00
+   aux 500 0.40    P2  spv stacked_hc1 0.0235 0.977 0.1732   0e+00
+   aux 500 0.40    P2  spv stacked_hc3 0.0140 0.985 0.1869   0e+00
+   aux 500 0.40    P3  spv   known_hc0 0.0060 0.994 0.1271   0e+00
+   aux 500 0.40    P3  spv   known_hc3 0.0025 0.998 0.1403   0e+00
+   aux 500 0.40    P3  spv stacked_hc0 0.0060 0.994 0.1260   0e+00
+   aux 500 0.40    P3  spv stacked_hc1 0.0060 0.994 0.1276   0e+00
+   aux 500 0.40    P3  spv stacked_hc3 0.0025 0.998 0.1379   0e+00
+   aux 500 0.40    P4  spv   known_hc0 0.2985 0.925 0.2606   0e+00
+   aux 500 0.40    P4  spv   known_hc3 0.2430 0.947 0.2850   0e+00
+   aux 500 0.40    P4  spv stacked_hc0 0.3060 0.921 0.2586   0e+00
+   aux 500 0.40    P4  spv stacked_hc1 0.2985 0.923 0.2612   0e+00
+   aux 500 0.40    P4  spv stacked_hc3 0.2530 0.940 0.2778   0e+00
+  auxj 200 0.25    P1   sj   known_hc0 0.0370 0.962 0.2311   0e+00
+  auxj 200 0.25    P1   sj   known_hc3 0.0330 0.967 0.2400   0e+00
+  auxj 200 0.25    P1   sj stacked_hc0 0.0390 0.961 0.2286   0e+00
+  auxj 200 0.25    P1   sj stacked_hc1 0.0360 0.963 0.2315   0e+00
+  auxj 200 0.25    P1   sj stacked_hc3 0.0350 0.966 0.2368   0e+00
+  auxj 200 0.25    P2   sj   known_hc0 0.0235 0.977 0.1647   0e+00
+  auxj 200 0.25    P2   sj   known_hc3 0.0160 0.985 0.1740   0e+00
+  auxj 200 0.25    P2   sj stacked_hc0 0.0270 0.973 0.1630   0e+00
+  auxj 200 0.25    P2   sj stacked_hc1 0.0240 0.978 0.1654   0e+00
+  auxj 200 0.25    P2   sj stacked_hc3 0.0165 0.985 0.1719   0e+00
+  auxj 200 0.25    P3   sj   known_hc0 0.0035 0.997 0.1172   0e+00
+  auxj 200 0.25    P3   sj   known_hc3 0.0025 0.998 0.1240   0e+00
+  auxj 200 0.25    P3   sj stacked_hc0 0.0040 0.996 0.1156   0e+00
+  auxj 200 0.25    P3   sj stacked_hc1 0.0035 0.997 0.1177   0e+00
+  auxj 200 0.25    P3   sj stacked_hc3 0.0030 0.997 0.1221   0e+00
+  auxj 200 0.25    P4   sj   known_hc0 0.3245 0.940 0.2558   0e+00
+  auxj 200 0.25    P4   sj   known_hc3 0.2960 0.950 0.2670   0e+00
+  auxj 200 0.25    P4   sj stacked_hc0 0.3320 0.937 0.2537   0e+00
+  auxj 200 0.25    P4   sj stacked_hc1 0.3235 0.939 0.2567   0e+00
+  auxj 200 0.25    P4   sj stacked_hc3 0.3035 0.947 0.2630   0e+00
+  auxj 200 0.40    P1   sj   known_hc0 0.0285 0.972 0.2731   0e+00
+  auxj 200 0.40    P1   sj   known_hc3 0.0205 0.980 0.2888   0e+00
+  auxj 200 0.40    P1   sj stacked_hc0 0.0310 0.967 0.2694   0e+00
+  auxj 200 0.40    P1   sj stacked_hc1 0.0305 0.970 0.2739   0e+00
+  auxj 200 0.40    P1   sj stacked_hc3 0.0220 0.978 0.2848   0e+00
+  auxj 200 0.40    P2   sj   known_hc0 0.0175 0.983 0.2000   0e+00
+  auxj 200 0.40    P2   sj   known_hc3 0.0150 0.985 0.2189   0e+00
+  auxj 200 0.40    P2   sj stacked_hc0 0.0190 0.980 0.1974   0e+00
+  auxj 200 0.40    P2   sj stacked_hc1 0.0175 0.983 0.2016   0e+00
+  auxj 200 0.40    P2   sj stacked_hc3 0.0155 0.984 0.2146   0e+00
+  auxj 200 0.40    P3   sj   known_hc0 0.0030 0.997 0.1575   0e+00
+  auxj 200 0.40    P3   sj   known_hc3 0.0025 0.998 0.1710   0e+00
+  auxj 200 0.40    P3   sj stacked_hc0 0.0035 0.997 0.1549   0e+00
+  auxj 200 0.40    P3   sj stacked_hc1 0.0030 0.997 0.1585   0e+00
+  auxj 200 0.40    P3   sj stacked_hc3 0.0025 0.998 0.1681   0e+00
+  auxj 200 0.40    P4   sj   known_hc0 0.2315 0.936 0.3023   0e+00
+  auxj 200 0.40    P4   sj   known_hc3 0.2035 0.953 0.3224   0e+00
+  auxj 200 0.40    P4   sj stacked_hc0 0.2435 0.932 0.2977   0e+00
+  auxj 200 0.40    P4   sj stacked_hc1 0.2305 0.935 0.3028   0e+00
+  auxj 200 0.40    P4   sj stacked_hc3 0.2105 0.945 0.3155   0e+00
+  auxj 500 0.25    P1   sj   known_hc0 0.0475 0.953 0.1359   0e+00
+  auxj 500 0.25    P1   sj   known_hc3 0.0455 0.954 0.1375   0e+00
+  auxj 500 0.25    P1   sj stacked_hc0 0.0480 0.953 0.1352   0e+00
+  auxj 500 0.25    P1   sj stacked_hc1 0.0475 0.954 0.1358   0e+00
+  auxj 500 0.25    P1   sj stacked_hc3 0.0460 0.954 0.1369   0e+00
+  auxj 500 0.25    P2   sj   known_hc0 0.0370 0.964 0.0903   0e+00
+  auxj 500 0.25    P2   sj   known_hc3 0.0320 0.969 0.0922   0e+00
+  auxj 500 0.25    P2   sj stacked_hc0 0.0375 0.963 0.0898   0e+00
+  auxj 500 0.25    P2   sj stacked_hc1 0.0360 0.964 0.0903   0e+00
+  auxj 500 0.25    P2   sj stacked_hc3 0.0340 0.968 0.0918   0e+00
+  auxj 500 0.25    P3   sj   known_hc0 0.0025 0.998 0.0476   0e+00
+  auxj 500 0.25    P3   sj   known_hc3 0.0025 0.998 0.0488   0e+00
+  auxj 500 0.25    P3   sj stacked_hc0 0.0025 0.998 0.0473   0e+00
+  auxj 500 0.25    P3   sj stacked_hc1 0.0025 0.998 0.0476   0e+00
+  auxj 500 0.25    P3   sj stacked_hc3 0.0025 0.998 0.0484   0e+00
+  auxj 500 0.25    P4   sj   known_hc0 0.7815 0.946 0.1541   0e+00
+  auxj 500 0.25    P4   sj   known_hc3 0.7745 0.950 0.1562   0e+00
+  auxj 500 0.25    P4   sj stacked_hc0 0.7850 0.945 0.1537   0e+00
+  auxj 500 0.25    P4   sj stacked_hc1 0.7820 0.946 0.1544   0e+00
+  auxj 500 0.25    P4   sj stacked_hc3 0.7780 0.947 0.1559   0e+00
+  auxj 500 0.40    P1   sj   known_hc0 0.0445 0.954 0.1626   0e+00
+  auxj 500 0.40    P1   sj   known_hc3 0.0410 0.960 0.1663   0e+00
+  auxj 500 0.40    P1   sj stacked_hc0 0.0475 0.953 0.1619   0e+00
+  auxj 500 0.40    P1   sj stacked_hc1 0.0455 0.954 0.1628   0e+00
+  auxj 500 0.40    P1   sj stacked_hc3 0.0430 0.957 0.1648   0e+00
+  auxj 500 0.40    P2   sj   known_hc0 0.0225 0.975 0.1102   0e+00
+  auxj 500 0.40    P2   sj   known_hc3 0.0190 0.980 0.1146   0e+00
+  auxj 500 0.40    P2   sj stacked_hc0 0.0255 0.975 0.1095   0e+00
+  auxj 500 0.40    P2   sj stacked_hc1 0.0235 0.975 0.1103   0e+00
+  auxj 500 0.40    P2   sj stacked_hc3 0.0210 0.979 0.1132   0e+00
+  auxj 500 0.40    P3   sj   known_hc0 0.0020 0.998 0.0661   0e+00
+  auxj 500 0.40    P3   sj   known_hc3 0.0010 0.999 0.0689   0e+00
+  auxj 500 0.40    P3   sj stacked_hc0 0.0020 0.998 0.0657   0e+00
+  auxj 500 0.40    P3   sj stacked_hc1 0.0020 0.998 0.0662   0e+00
+  auxj 500 0.40    P3   sj stacked_hc3 0.0015 0.999 0.0680   0e+00
+  auxj 500 0.40    P4   sj   known_hc0 0.6130 0.944 0.1806   0e+00
+  auxj 500 0.40    P4   sj   known_hc3 0.5975 0.952 0.1864   0e+00
+  auxj 500 0.40    P4   sj stacked_hc0 0.6145 0.943 0.1796   0e+00
+  auxj 500 0.40    P4   sj stacked_hc1 0.6115 0.944 0.1806   0e+00
+  auxj 500 0.40    P4   sj stacked_hc3 0.6025 0.946 0.1837   0e+00
+  auxj 200 0.25    P1  sjt   known_hc0 0.0385 0.962 0.2255   0e+00
+  auxj 200 0.25    P1  sjt   known_hc3 0.0335 0.967 0.2324   0e+00
+  auxj 200 0.25    P1  sjt stacked_hc0 0.0385 0.962 0.2252   0e+00
+  auxj 200 0.25    P1  sjt stacked_hc1 0.0375 0.962 0.2280   0e+00
+  auxj 200 0.25    P1  sjt stacked_hc3 0.0335 0.967 0.2325   0e+00
+  auxj 200 0.25    P2  sjt   known_hc0 0.0250 0.975 0.1568   0e+00
+  auxj 200 0.25    P2  sjt   known_hc3 0.0200 0.981 0.1638   0e+00
+  auxj 200 0.25    P2  sjt stacked_hc0 0.0250 0.975 0.1567   0e+00
+  auxj 200 0.25    P2  sjt stacked_hc1 0.0225 0.978 0.1591   0e+00
+  auxj 200 0.25    P2  sjt stacked_hc3 0.0200 0.981 0.1641   0e+00
+  auxj 200 0.25    P3  sjt   known_hc0 0.0020 0.998 0.1101   0e+00
+  auxj 200 0.25    P3  sjt   known_hc3 0.0015 0.999 0.1159   0e+00
+  auxj 200 0.25    P3  sjt stacked_hc0 0.0020 0.998 0.1099   0e+00
+  auxj 200 0.25    P3  sjt stacked_hc1 0.0015 0.999 0.1118   0e+00
+  auxj 200 0.25    P3  sjt stacked_hc3 0.0015 0.999 0.1154   0e+00
+  auxj 200 0.25    P4  sjt   known_hc0 0.3445 0.940 0.2496   0e+00
+  auxj 200 0.25    P4  sjt   known_hc3 0.3215 0.951 0.2587   0e+00
+  auxj 200 0.25    P4  sjt stacked_hc0 0.3455 0.941 0.2495   0e+00
+  auxj 200 0.25    P4  sjt stacked_hc1 0.3365 0.944 0.2526   0e+00
+  auxj 200 0.25    P4  sjt stacked_hc3 0.3220 0.946 0.2570   0e+00
+  auxj 200 0.40    P1  sjt   known_hc0 0.0315 0.968 0.2630   0e+00
+  auxj 200 0.40    P1  sjt   known_hc3 0.0235 0.977 0.2758   0e+00
+  auxj 200 0.40    P1  sjt stacked_hc0 0.0325 0.967 0.2616   0e+00
+  auxj 200 0.40    P1  sjt stacked_hc1 0.0285 0.971 0.2660   0e+00
+  auxj 200 0.40    P1  sjt stacked_hc3 0.0250 0.976 0.2743   0e+00
+  auxj 200 0.40    P2  sjt   known_hc0 0.0180 0.982 0.1866   0e+00
+  auxj 200 0.40    P2  sjt   known_hc3 0.0145 0.986 0.1998   0e+00
+  auxj 200 0.40    P2  sjt stacked_hc0 0.0180 0.982 0.1864   0e+00
+  auxj 200 0.40    P2  sjt stacked_hc1 0.0170 0.983 0.1901   0e+00
+  auxj 200 0.40    P2  sjt stacked_hc3 0.0145 0.986 0.1992   0e+00
+  auxj 200 0.40    P3  sjt   known_hc0 0.0025 0.998 0.1443   0e+00
+  auxj 200 0.40    P3  sjt   known_hc3 0.0025 0.998 0.1544   0e+00
+  auxj 200 0.40    P3  sjt stacked_hc0 0.0025 0.998 0.1436   0e+00
+  auxj 200 0.40    P3  sjt stacked_hc1 0.0025 0.998 0.1470   0e+00
+  auxj 200 0.40    P3  sjt stacked_hc3 0.0025 0.998 0.1536   0e+00
+  auxj 200 0.40    P4  sjt   known_hc0 0.2585 0.939 0.2893   0e+00
+  auxj 200 0.40    P4  sjt   known_hc3 0.2265 0.950 0.3050   0e+00
+  auxj 200 0.40    P4  sjt stacked_hc0 0.2610 0.936 0.2891   0e+00
+  auxj 200 0.40    P4  sjt stacked_hc1 0.2490 0.941 0.2938   0e+00
+  auxj 200 0.40    P4  sjt stacked_hc3 0.2290 0.946 0.3034   0e+00
+  auxj 500 0.25    P1  sjt   known_hc0 0.0520 0.949 0.1324   0e+00
+  auxj 500 0.25    P1  sjt   known_hc3 0.0500 0.949 0.1338   0e+00
+  auxj 500 0.25    P1  sjt stacked_hc0 0.0525 0.949 0.1324   0e+00
+  auxj 500 0.25    P1  sjt stacked_hc1 0.0520 0.949 0.1330   0e+00
+  auxj 500 0.25    P1  sjt stacked_hc3 0.0500 0.949 0.1338   0e+00
+  auxj 500 0.25    P2  sjt   known_hc0 0.0370 0.964 0.0859   0e+00
+  auxj 500 0.25    P2  sjt   known_hc3 0.0335 0.968 0.0874   0e+00
+  auxj 500 0.25    P2  sjt stacked_hc0 0.0375 0.963 0.0858   0e+00
+  auxj 500 0.25    P2  sjt stacked_hc1 0.0370 0.965 0.0864   0e+00
+  auxj 500 0.25    P2  sjt stacked_hc3 0.0340 0.968 0.0874   0e+00
+  auxj 500 0.25    P3  sjt   known_hc0 0.0020 0.998 0.0443   0e+00
+  auxj 500 0.25    P3  sjt   known_hc3 0.0020 0.998 0.0451   0e+00
+  auxj 500 0.25    P3  sjt stacked_hc0 0.0020 0.998 0.0443   0e+00
+  auxj 500 0.25    P3  sjt stacked_hc1 0.0020 0.998 0.0446   0e+00
+  auxj 500 0.25    P3  sjt stacked_hc3 0.0020 0.998 0.0451   0e+00
+  auxj 500 0.25    P4  sjt   known_hc0 0.8110 0.950 0.1503   0e+00
+  auxj 500 0.25    P4  sjt   known_hc3 0.8055 0.952 0.1517   0e+00
+  auxj 500 0.25    P4  sjt stacked_hc0 0.8120 0.950 0.1502   0e+00
+  auxj 500 0.25    P4  sjt stacked_hc1 0.8100 0.951 0.1508   0e+00
+  auxj 500 0.25    P4  sjt stacked_hc3 0.8070 0.951 0.1520   0e+00
+  auxj 500 0.40    P1  sjt   known_hc0 0.0435 0.957 0.1561   0e+00
+  auxj 500 0.40    P1  sjt   known_hc3 0.0400 0.960 0.1586   0e+00
+  auxj 500 0.40    P1  sjt stacked_hc0 0.0445 0.956 0.1560   0e+00
+  auxj 500 0.40    P1  sjt stacked_hc1 0.0425 0.958 0.1568   0e+00
+  auxj 500 0.40    P1  sjt stacked_hc3 0.0405 0.959 0.1583   0e+00
+  auxj 500 0.40    P2  sjt   known_hc0 0.0245 0.975 0.1007   0e+00
+  auxj 500 0.40    P2  sjt   known_hc3 0.0220 0.979 0.1035   0e+00
+  auxj 500 0.40    P2  sjt stacked_hc0 0.0245 0.975 0.1007   0e+00
+  auxj 500 0.40    P2  sjt stacked_hc1 0.0245 0.976 0.1015   0e+00
+  auxj 500 0.40    P2  sjt stacked_hc3 0.0220 0.979 0.1035   0e+00
+  auxj 500 0.40    P3  sjt   known_hc0 0.0020 0.998 0.0583   0e+00
+  auxj 500 0.40    P3  sjt   known_hc3 0.0010 0.999 0.0600   0e+00
+  auxj 500 0.40    P3  sjt stacked_hc0 0.0020 0.998 0.0582   0e+00
+  auxj 500 0.40    P3  sjt stacked_hc1 0.0015 0.999 0.0587   0e+00
+  auxj 500 0.40    P3  sjt stacked_hc3 0.0010 0.999 0.0599   0e+00
+  auxj 500 0.40    P4  sjt   known_hc0 0.6725 0.945 0.1719   0e+00
+  auxj 500 0.40    P4  sjt   known_hc3 0.6593 0.948 0.1760   5e-04
+  auxj 500 0.40    P4  sjt stacked_hc0 0.6735 0.945 0.1717   0e+00
+  auxj 500 0.40    P4  sjt stacked_hc1 0.6685 0.945 0.1727   0e+00
+  auxj 500 0.40    P4  sjt stacked_hc3 0.6610 0.946 0.1745   0e+00
+  auxj 200 0.25    P1   uj   known_hc0 0.0370 0.962 0.2307   0e+00
+  auxj 200 0.25    P1   uj   known_hc3 0.0330 0.967 0.2401   0e+00
+  auxj 200 0.25    P1   uj stacked_hc0 0.0395 0.960 0.2282   0e+00
+  auxj 200 0.25    P1   uj stacked_hc1 0.0360 0.963 0.2310   0e+00
+  auxj 200 0.25    P1   uj stacked_hc3 0.0345 0.966 0.2367   0e+00
+  auxj 200 0.25    P2   uj   known_hc0 0.0245 0.975 0.1647   0e+00
+  auxj 200 0.25    P2   uj   known_hc3 0.0140 0.987 0.1739   0e+00
+  auxj 200 0.25    P2   uj stacked_hc0 0.0285 0.973 0.1625   0e+00
+  auxj 200 0.25    P2   uj stacked_hc1 0.0235 0.976 0.1651   0e+00
+  auxj 200 0.25    P2   uj stacked_hc3 0.0155 0.985 0.1718   0e+00
+  auxj 200 0.25    P3   uj   known_hc0 0.0035 0.997 0.1171   0e+00
+  auxj 200 0.25    P3   uj   known_hc3 0.0025 0.998 0.1241   0e+00
+  auxj 200 0.25    P3   uj stacked_hc0 0.0040 0.996 0.1159   0e+00
+  auxj 200 0.25    P3   uj stacked_hc1 0.0035 0.997 0.1179   0e+00
+  auxj 200 0.25    P3   uj stacked_hc3 0.0030 0.997 0.1225   0e+00
+  auxj 200 0.25    P4   uj   known_hc0 0.3250 0.940 0.2560   0e+00
+  auxj 200 0.25    P4   uj   known_hc3 0.2940 0.951 0.2667   0e+00
+  auxj 200 0.25    P4   uj stacked_hc0 0.3315 0.937 0.2537   0e+00
+  auxj 200 0.25    P4   uj stacked_hc1 0.3245 0.941 0.2568   0e+00
+  auxj 200 0.25    P4   uj stacked_hc3 0.3025 0.946 0.2631   0e+00
+  auxj 200 0.40    P1   uj   known_hc0 0.0290 0.971 0.2730   0e+00
+  auxj 200 0.40    P1   uj   known_hc3 0.0200 0.980 0.2892   0e+00
+  auxj 200 0.40    P1   uj stacked_hc0 0.0320 0.967 0.2688   0e+00
+  auxj 200 0.40    P1   uj stacked_hc1 0.0310 0.969 0.2733   0e+00
+  auxj 200 0.40    P1   uj stacked_hc3 0.0235 0.977 0.2845   0e+00
+  auxj 200 0.40    P2   uj   known_hc0 0.0180 0.982 0.2002   0e+00
+  auxj 200 0.40    P2   uj   known_hc3 0.0145 0.985 0.2193   0e+00
+  auxj 200 0.40    P2   uj stacked_hc0 0.0195 0.981 0.1976   0e+00
+  auxj 200 0.40    P2   uj stacked_hc1 0.0185 0.983 0.2016   0e+00
+  auxj 200 0.40    P2   uj stacked_hc3 0.0160 0.984 0.2146   0e+00
+  auxj 200 0.40    P3   uj   known_hc0 0.0030 0.997 0.1581   0e+00
+  auxj 200 0.40    P3   uj   known_hc3 0.0025 0.998 0.1715   0e+00
+  auxj 200 0.40    P3   uj stacked_hc0 0.0030 0.997 0.1556   0e+00
+  auxj 200 0.40    P3   uj stacked_hc1 0.0025 0.998 0.1590   0e+00
+  auxj 200 0.40    P3   uj stacked_hc3 0.0025 0.998 0.1685   0e+00
+  auxj 200 0.40    P4   uj   known_hc0 0.2300 0.936 0.3015   0e+00
+  auxj 200 0.40    P4   uj   known_hc3 0.2020 0.951 0.3227   0e+00
+  auxj 200 0.40    P4   uj stacked_hc0 0.2415 0.931 0.2975   0e+00
+  auxj 200 0.40    P4   uj stacked_hc1 0.2285 0.936 0.3024   0e+00
+  auxj 200 0.40    P4   uj stacked_hc3 0.2085 0.946 0.3152   0e+00
+  auxj 500 0.25    P1   uj   known_hc0 0.0470 0.953 0.1360   0e+00
+  auxj 500 0.25    P1   uj   known_hc3 0.0455 0.955 0.1377   0e+00
+  auxj 500 0.25    P1   uj stacked_hc0 0.0480 0.953 0.1354   0e+00
+  auxj 500 0.25    P1   uj stacked_hc1 0.0465 0.954 0.1360   0e+00
+  auxj 500 0.25    P1   uj stacked_hc3 0.0460 0.954 0.1371   0e+00
+  auxj 500 0.25    P2   uj   known_hc0 0.0360 0.965 0.0903   0e+00
+  auxj 500 0.25    P2   uj   known_hc3 0.0320 0.968 0.0923   0e+00
+  auxj 500 0.25    P2   uj stacked_hc0 0.0370 0.962 0.0897   0e+00
+  auxj 500 0.25    P2   uj stacked_hc1 0.0360 0.963 0.0903   0e+00
+  auxj 500 0.25    P2   uj stacked_hc3 0.0345 0.968 0.0918   0e+00
+  auxj 500 0.25    P3   uj   known_hc0 0.0025 0.998 0.0476   0e+00
+  auxj 500 0.25    P3   uj   known_hc3 0.0025 0.998 0.0488   0e+00
+  auxj 500 0.25    P3   uj stacked_hc0 0.0025 0.998 0.0473   0e+00
+  auxj 500 0.25    P3   uj stacked_hc1 0.0025 0.998 0.0476   0e+00
+  auxj 500 0.25    P3   uj stacked_hc3 0.0025 0.998 0.0484   0e+00
+  auxj 500 0.25    P4   uj   known_hc0 0.7815 0.946 0.1540   0e+00
+  auxj 500 0.25    P4   uj   known_hc3 0.7740 0.950 0.1563   0e+00
+  auxj 500 0.25    P4   uj stacked_hc0 0.7845 0.945 0.1535   0e+00
+  auxj 500 0.25    P4   uj stacked_hc1 0.7810 0.945 0.1542   0e+00
+  auxj 500 0.25    P4   uj stacked_hc3 0.7770 0.946 0.1558   0e+00
+  auxj 500 0.40    P1   uj   known_hc0 0.0455 0.954 0.1624   0e+00
+  auxj 500 0.40    P1   uj   known_hc3 0.0410 0.960 0.1662   0e+00
+  auxj 500 0.40    P1   uj stacked_hc0 0.0480 0.952 0.1615   0e+00
+  auxj 500 0.40    P1   uj stacked_hc1 0.0470 0.953 0.1624   5e-04
+  auxj 500 0.40    P1   uj stacked_hc3 0.0420 0.958 0.1646   0e+00
+  auxj 500 0.40    P2   uj   known_hc0 0.0210 0.976 0.1102   0e+00
+  auxj 500 0.40    P2   uj   known_hc3 0.0185 0.981 0.1147   0e+00
+  auxj 500 0.40    P2   uj stacked_hc0 0.0245 0.975 0.1095   0e+00
+  auxj 500 0.40    P2   uj stacked_hc1 0.0225 0.976 0.1103   0e+00
+  auxj 500 0.40    P2   uj stacked_hc3 0.0200 0.980 0.1132   0e+00
+  auxj 500 0.40    P3   uj   known_hc0 0.0020 0.998 0.0664   0e+00
+  auxj 500 0.40    P3   uj   known_hc3 0.0015 0.999 0.0688   0e+00
+  auxj 500 0.40    P3   uj stacked_hc0 0.0020 0.998 0.0659   0e+00
+  auxj 500 0.40    P3   uj stacked_hc1 0.0020 0.998 0.0665   0e+00
+  auxj 500 0.40    P3   uj stacked_hc3 0.0015 0.999 0.0683   0e+00
+  auxj 500 0.40    P4   uj   known_hc0 0.6125 0.944 0.1806   0e+00
+  auxj 500 0.40    P4   uj   known_hc3 0.5960 0.954 0.1865   0e+00
+  auxj 500 0.40    P4   uj stacked_hc0 0.6155 0.943 0.1795   0e+00
+  auxj 500 0.40    P4   uj stacked_hc1 0.6120 0.944 0.1804   0e+00
+  auxj 500 0.40    P4   uj stacked_hc3 0.6005 0.947 0.1836   0e+00
+  auxm 200 0.25    P1  spv   known_hc0 0.0480 0.952 0.3230   0e+00
+  auxm 200 0.25    P1  spv   known_hc3 0.0280 0.972 0.3455   0e+00
+  auxm 200 0.25    P1  spv stacked_hc0 0.0560 0.943 0.3125   0e+00
+  auxm 200 0.25    P1  spv stacked_hc1 0.0535 0.947 0.3172   0e+00
+  auxm 200 0.25    P1  spv stacked_hc3 0.0385 0.961 0.3342   0e+00
+  auxm 200 0.25    P2  spv   known_hc0 0.0125 0.988 0.1994   0e+00
+  auxm 200 0.25    P2  spv   known_hc3 0.0040 0.996 0.2239   0e+00
+  auxm 200 0.25    P2  spv stacked_hc0 0.0155 0.985 0.1939   0e+00
+  auxm 200 0.25    P2  spv stacked_hc1 0.0130 0.987 0.1977   0e+00
+  auxm 200 0.25    P2  spv stacked_hc3 0.0070 0.993 0.2158   0e+00
+  auxm 200 0.25    P3  spv   known_hc0 0.0030 0.997 0.1671   0e+00
+  auxm 200 0.25    P3  spv   known_hc3 0.0010 0.999 0.1891   0e+00
+  auxm 200 0.25    P3  spv stacked_hc0 0.0050 0.995 0.1610   0e+00
+  auxm 200 0.25    P3  spv stacked_hc1 0.0050 0.995 0.1647   0e+00
+  auxm 200 0.25    P3  spv stacked_hc3 0.0020 0.998 0.1817   0e+00
+  auxm 200 0.25    P4  spv   known_hc0 0.1690 0.922 0.3372   0e+00
+  auxm 200 0.25    P4  spv   known_hc3 0.1250 0.950 0.3617   0e+00
+  auxm 200 0.25    P4  spv stacked_hc0 0.1830 0.914 0.3259   0e+00
+  auxm 200 0.25    P4  spv stacked_hc1 0.1775 0.916 0.3310   0e+00
+  auxm 200 0.25    P4  spv stacked_hc3 0.1465 0.930 0.3507   0e+00
+  auxm 200 0.40    P1  spv   known_hc0 0.0550 0.944 0.4086   0e+00
+  auxm 200 0.40    P1  spv   known_hc3 0.0200 0.981 0.4757   0e+00
+  auxm 200 0.40    P1  spv stacked_hc0 0.0690 0.932 0.3986   0e+00
+  auxm 200 0.40    P1  spv stacked_hc1 0.0615 0.938 0.4082   0e+00
+  auxm 200 0.40    P1  spv stacked_hc3 0.0265 0.973 0.4602   0e+00
+  auxm 200 0.40    P2  spv   known_hc0 0.0255 0.975 0.3031   0e+00
+  auxm 200 0.40    P2  spv   known_hc3 0.0070 0.993 0.3697   0e+00
+  auxm 200 0.40    P2  spv stacked_hc0 0.0295 0.971 0.2945   0e+00
+  auxm 200 0.40    P2  spv stacked_hc1 0.0255 0.975 0.3040   0e+00
+  auxm 200 0.40    P2  spv stacked_hc3 0.0090 0.991 0.3598   0e+00
+  auxm 200 0.40    P3  spv   known_hc0 0.0080 0.992 0.2695   0e+00
+  auxm 200 0.40    P3  spv   known_hc3 0.0000 1.000 0.3320   0e+00
+  auxm 200 0.40    P3  spv stacked_hc0 0.0110 0.989 0.2606   0e+00
+  auxm 200 0.40    P3  spv stacked_hc1 0.0085 0.992 0.2688   0e+00
+  auxm 200 0.40    P3  spv stacked_hc3 0.0020 0.998 0.3188   0e+00
+  auxm 200 0.40    P4  spv   known_hc0 0.1175 0.897 0.4203   0e+00
+  auxm 200 0.40    P4  spv   known_hc3 0.0605 0.960 0.4961   0e+00
+  auxm 200 0.40    P4  spv stacked_hc0 0.1305 0.891 0.4092   0e+00
+  auxm 200 0.40    P4  spv stacked_hc1 0.1220 0.899 0.4197   0e+00
+  auxm 200 0.40    P4  spv stacked_hc3 0.0740 0.930 0.4770   0e+00
+  auxm 500 0.25    P1  spv   known_hc0 0.0495 0.951 0.2073   0e+00
+  auxm 500 0.25    P1  spv   known_hc3 0.0405 0.961 0.2131   0e+00
+  auxm 500 0.25    P1  spv stacked_hc0 0.0630 0.937 0.2017   0e+00
+  auxm 500 0.25    P1  spv stacked_hc1 0.0605 0.941 0.2028   0e+00
+  auxm 500 0.25    P1  spv stacked_hc3 0.0520 0.949 0.2075   0e+00
+  auxm 500 0.25    P2  spv   known_hc0 0.0330 0.967 0.1044   0e+00
+  auxm 500 0.25    P2  spv   known_hc3 0.0255 0.974 0.1109   0e+00
+  auxm 500 0.25    P2  spv stacked_hc0 0.0360 0.962 0.1019   0e+00
+  auxm 500 0.25    P2  spv stacked_hc1 0.0360 0.964 0.1027   0e+00
+  auxm 500 0.25    P2  spv stacked_hc3 0.0290 0.970 0.1073   0e+00
+  auxm 500 0.25    P3  spv   known_hc0 0.0030 0.997 0.0751   0e+00
+  auxm 500 0.25    P3  spv   known_hc3 0.0020 0.998 0.0800   0e+00
+  auxm 500 0.25    P3  spv stacked_hc0 0.0035 0.997 0.0728   0e+00
+  auxm 500 0.25    P3  spv stacked_hc1 0.0035 0.997 0.0735   0e+00
+  auxm 500 0.25    P3  spv stacked_hc3 0.0025 0.998 0.0772   0e+00
+  auxm 500 0.25    P4  spv   known_hc0 0.4225 0.936 0.2181   0e+00
+  auxm 500 0.25    P4  spv   known_hc3 0.3940 0.950 0.2259   0e+00
+  auxm 500 0.25    P4  spv stacked_hc0 0.4475 0.930 0.2125   0e+00
+  auxm 500 0.25    P4  spv stacked_hc1 0.4430 0.932 0.2137   0e+00
+  auxm 500 0.25    P4  spv stacked_hc3 0.4190 0.936 0.2186   0e+00
+  auxm 500 0.40    P1  spv   known_hc0 0.0620 0.938 0.2736   0e+00
+  auxm 500 0.40    P1  spv   known_hc3 0.0410 0.958 0.2921   0e+00
+  auxm 500 0.40    P1  spv stacked_hc0 0.0680 0.931 0.2674   0e+00
+  auxm 500 0.40    P1  spv stacked_hc1 0.0660 0.934 0.2697   0e+00
+  auxm 500 0.40    P1  spv stacked_hc3 0.0495 0.951 0.2881   0e+00
+  auxm 500 0.40    P2  spv   known_hc0 0.0240 0.976 0.1600   0e+00
+  auxm 500 0.40    P2  spv   known_hc3 0.0130 0.987 0.1786   0e+00
+  auxm 500 0.40    P2  spv stacked_hc0 0.0265 0.973 0.1572   0e+00
+  auxm 500 0.40    P2  spv stacked_hc1 0.0250 0.974 0.1591   0e+00
+  auxm 500 0.40    P2  spv stacked_hc3 0.0155 0.985 0.1742   0e+00
+  auxm 500 0.40    P3  spv   known_hc0 0.0075 0.993 0.1359   0e+00
+  auxm 500 0.40    P3  spv   known_hc3 0.0015 0.999 0.1530   0e+00
+  auxm 500 0.40    P3  spv stacked_hc0 0.0090 0.991 0.1329   0e+00
+  auxm 500 0.40    P3  spv stacked_hc1 0.0090 0.991 0.1346   0e+00
+  auxm 500 0.40    P3  spv stacked_hc3 0.0020 0.998 0.1493   0e+00
+  auxm 500 0.40    P4  spv   known_hc0 0.2285 0.906 0.2864   0e+00
+  auxm 500 0.40    P4  spv   known_hc3 0.1700 0.941 0.3088   0e+00
+  auxm 500 0.40    P4  spv stacked_hc0 0.2400 0.899 0.2806   0e+00
+  auxm 500 0.40    P4  spv stacked_hc1 0.2355 0.902 0.2836   0e+00
+  auxm 500 0.40    P4  spv stacked_hc3 0.1865 0.920 0.3030   0e+00
+ auxmj 200 0.25    P1   sj   known_hc0 0.0475 0.953 0.2717   0e+00
+ auxmj 200 0.25    P1   sj   known_hc3 0.0415 0.959 0.2804   0e+00
+ auxmj 200 0.25    P1   sj stacked_hc0 0.0525 0.948 0.2636   0e+00
+ auxmj 200 0.25    P1   sj stacked_hc1 0.0515 0.950 0.2667   0e+00
+ auxmj 200 0.25    P1   sj stacked_hc3 0.0465 0.953 0.2732   0e+00
+ auxmj 200 0.25    P2   sj   known_hc0 0.0170 0.983 0.1460   0e+00
+ auxmj 200 0.25    P2   sj   known_hc3 0.0120 0.988 0.1556   0e+00
+ auxmj 200 0.25    P2   sj stacked_hc0 0.0190 0.981 0.1425   0e+00
+ auxmj 200 0.25    P2   sj stacked_hc1 0.0175 0.982 0.1448   0e+00
+ auxmj 200 0.25    P2   sj stacked_hc3 0.0145 0.986 0.1507   0e+00
+ auxmj 200 0.25    P3   sj   known_hc0 0.0015 0.999 0.1166   0e+00
+ auxmj 200 0.25    P3   sj   known_hc3 0.0010 0.999 0.1237   0e+00
+ auxmj 200 0.25    P3   sj stacked_hc0 0.0015 0.999 0.1128   0e+00
+ auxmj 200 0.25    P3   sj stacked_hc1 0.0015 0.999 0.1147   0e+00
+ auxmj 200 0.25    P3   sj stacked_hc3 0.0015 0.999 0.1199   0e+00
+ auxmj 200 0.25    P4   sj   known_hc0 0.2610 0.945 0.2809   0e+00
+ auxmj 200 0.25    P4   sj   known_hc3 0.2355 0.951 0.2926   0e+00
+ auxmj 200 0.25    P4   sj stacked_hc0 0.2795 0.938 0.2736   0e+00
+ auxmj 200 0.25    P4   sj stacked_hc1 0.2720 0.942 0.2768   0e+00
+ auxmj 200 0.25    P4   sj stacked_hc3 0.2550 0.946 0.2835   0e+00
+ auxmj 200 0.40    P1   sj   known_hc0 0.0455 0.954 0.3183   0e+00
+ auxmj 200 0.40    P1   sj   known_hc3 0.0355 0.966 0.3375   0e+00
+ auxmj 200 0.40    P1   sj stacked_hc0 0.0525 0.948 0.3100   0e+00
+ auxmj 200 0.40    P1   sj stacked_hc1 0.0510 0.949 0.3147   0e+00
+ auxmj 200 0.40    P1   sj stacked_hc3 0.0425 0.959 0.3280   0e+00
+ auxmj 200 0.40    P2   sj   known_hc0 0.0125 0.988 0.1826   0e+00
+ auxmj 200 0.40    P2   sj   known_hc3 0.0060 0.994 0.2007   0e+00
+ auxmj 200 0.40    P2   sj stacked_hc0 0.0140 0.986 0.1770   0e+00
+ auxmj 200 0.40    P2   sj stacked_hc1 0.0130 0.987 0.1807   0e+00
+ auxmj 200 0.40    P2   sj stacked_hc3 0.0080 0.992 0.1935   0e+00
+ auxmj 200 0.40    P3   sj   known_hc0 0.0040 0.996 0.1552   0e+00
+ auxmj 200 0.40    P3   sj   known_hc3 0.0010 0.999 0.1701   0e+00
+ auxmj 200 0.40    P3   sj stacked_hc0 0.0040 0.996 0.1501   0e+00
+ auxmj 200 0.40    P3   sj stacked_hc1 0.0040 0.996 0.1536   0e+00
+ auxmj 200 0.40    P3   sj stacked_hc3 0.0015 0.999 0.1647   0e+00
+ auxmj 200 0.40    P4   sj   known_hc0 0.2020 0.932 0.3327   0e+00
+ auxmj 200 0.40    P4   sj   known_hc3 0.1660 0.954 0.3533   0e+00
+ auxmj 200 0.40    P4   sj stacked_hc0 0.2180 0.925 0.3241   0e+00
+ auxmj 200 0.40    P4   sj stacked_hc1 0.2110 0.928 0.3290   0e+00
+ auxmj 200 0.40    P4   sj stacked_hc3 0.1820 0.938 0.3422   0e+00
+ auxmj 500 0.25    P1   sj   known_hc0 0.0470 0.953 0.1669   0e+00
+ auxmj 500 0.25    P1   sj   known_hc3 0.0445 0.956 0.1689   0e+00
+ auxmj 500 0.25    P1   sj stacked_hc0 0.0510 0.950 0.1633   0e+00
+ auxmj 500 0.25    P1   sj stacked_hc1 0.0505 0.951 0.1640   0e+00
+ auxmj 500 0.25    P1   sj stacked_hc3 0.0480 0.951 0.1654   0e+00
+ auxmj 500 0.25    P2   sj   known_hc0 0.0335 0.968 0.0761   0e+00
+ auxmj 500 0.25    P2   sj   known_hc3 0.0310 0.969 0.0783   0e+00
+ auxmj 500 0.25    P2   sj stacked_hc0 0.0350 0.964 0.0745   0e+00
+ auxmj 500 0.25    P2   sj stacked_hc1 0.0340 0.966 0.0749   0e+00
+ auxmj 500 0.25    P2   sj stacked_hc3 0.0330 0.968 0.0765   0e+00
+ auxmj 500 0.25    P3   sj   known_hc0 0.0030 0.997 0.0472   0e+00
+ auxmj 500 0.25    P3   sj   known_hc3 0.0025 0.998 0.0486   0e+00
+ auxmj 500 0.25    P3   sj stacked_hc0 0.0030 0.997 0.0459   0e+00
+ auxmj 500 0.25    P3   sj stacked_hc1 0.0030 0.997 0.0462   0e+00
+ auxmj 500 0.25    P3   sj stacked_hc3 0.0030 0.997 0.0472   0e+00
+ auxmj 500 0.25    P4   sj   known_hc0 0.5850 0.949 0.1760   0e+00
+ auxmj 500 0.25    P4   sj   known_hc3 0.5770 0.955 0.1790   0e+00
+ auxmj 500 0.25    P4   sj stacked_hc0 0.6035 0.946 0.1722   0e+00
+ auxmj 500 0.25    P4   sj stacked_hc1 0.6000 0.947 0.1730   0e+00
+ auxmj 500 0.25    P4   sj stacked_hc3 0.5945 0.948 0.1747   0e+00
+ auxmj 500 0.40    P1   sj   known_hc0 0.0555 0.944 0.1983   0e+00
+ auxmj 500 0.40    P1   sj   known_hc3 0.0500 0.948 0.2023   0e+00
+ auxmj 500 0.40    P1   sj stacked_hc0 0.0630 0.938 0.1936   0e+00
+ auxmj 500 0.40    P1   sj stacked_hc1 0.0625 0.939 0.1947   0e+00
+ auxmj 500 0.40    P1   sj stacked_hc3 0.0555 0.942 0.1980   0e+00
+ auxmj 500 0.40    P2   sj   known_hc0 0.0285 0.971 0.0951   0e+00
+ auxmj 500 0.40    P2   sj   known_hc3 0.0230 0.977 0.0990   0e+00
+ auxmj 500 0.40    P2   sj stacked_hc0 0.0305 0.968 0.0936   0e+00
+ auxmj 500 0.40    P2   sj stacked_hc1 0.0305 0.971 0.0943   0e+00
+ auxmj 500 0.40    P2   sj stacked_hc3 0.0245 0.975 0.0970   0e+00
+ auxmj 500 0.40    P3   sj   known_hc0 0.0025 0.998 0.0668   0e+00
+ auxmj 500 0.40    P3   sj   known_hc3 0.0025 0.998 0.0699   0e+00
+ auxmj 500 0.40    P3   sj stacked_hc0 0.0035 0.997 0.0651   0e+00
+ auxmj 500 0.40    P3   sj stacked_hc1 0.0035 0.997 0.0656   0e+00
+ auxmj 500 0.40    P3   sj stacked_hc3 0.0025 0.998 0.0681   0e+00
+ auxmj 500 0.40    P4   sj   known_hc0 0.4650 0.937 0.2085   0e+00
+ auxmj 500 0.40    P4   sj   known_hc3 0.4510 0.951 0.2144   0e+00
+ auxmj 500 0.40    P4   sj stacked_hc0 0.4810 0.933 0.2042   0e+00
+ auxmj 500 0.40    P4   sj stacked_hc1 0.4750 0.934 0.2054   0e+00
+ auxmj 500 0.40    P4   sj stacked_hc3 0.4650 0.938 0.2088   0e+00
+ auxmj 200 0.25    P1  sjt   known_hc0 0.0460 0.954 0.2470   0e+00
+ auxmj 200 0.25    P1  sjt   known_hc3 0.0415 0.959 0.2545   0e+00
+ auxmj 200 0.25    P1  sjt stacked_hc0 0.0480 0.953 0.2454   0e+00
+ auxmj 200 0.25    P1  sjt stacked_hc1 0.0445 0.954 0.2481   0e+00
+ auxmj 200 0.25    P1  sjt stacked_hc3 0.0420 0.958 0.2526   0e+00
+ auxmj 200 0.25    P2  sjt   known_hc0 0.0190 0.982 0.1361   0e+00
+ auxmj 200 0.25    P2  sjt   known_hc3 0.0160 0.984 0.1425   0e+00
+ auxmj 200 0.25    P2  sjt stacked_hc0 0.0190 0.982 0.1353   0e+00
+ auxmj 200 0.25    P2  sjt stacked_hc1 0.0175 0.983 0.1374   0e+00
+ auxmj 200 0.25    P2  sjt stacked_hc3 0.0160 0.984 0.1417   0e+00
+ auxmj 200 0.25    P3  sjt   known_hc0 0.0020 0.998 0.1065   0e+00
+ auxmj 200 0.25    P3  sjt   known_hc3 0.0010 0.999 0.1123   0e+00
+ auxmj 200 0.25    P3  sjt stacked_hc0 0.0020 0.998 0.1057   0e+00
+ auxmj 200 0.25    P3  sjt stacked_hc1 0.0020 0.998 0.1076   0e+00
+ auxmj 200 0.25    P3  sjt stacked_hc3 0.0015 0.999 0.1115   0e+00
+ auxmj 200 0.25    P4  sjt   known_hc0 0.2750 0.940 0.2561   0e+00
+ auxmj 200 0.25    P4  sjt   known_hc3 0.2545 0.944 0.2653   0e+00
+ auxmj 200 0.25    P4  sjt stacked_hc0 0.2795 0.940 0.2548   0e+00
+ auxmj 200 0.25    P4  sjt stacked_hc1 0.2705 0.942 0.2579   0e+00
+ auxmj 200 0.25    P4  sjt stacked_hc3 0.2590 0.946 0.2625   0e+00
+ auxmj 200 0.40    P1  sjt   known_hc0 0.0450 0.955 0.2799   0e+00
+ auxmj 200 0.40    P1  sjt   known_hc3 0.0375 0.963 0.2937   0e+00
+ auxmj 200 0.40    P1  sjt stacked_hc0 0.0460 0.955 0.2780   0e+00
+ auxmj 200 0.40    P1  sjt stacked_hc1 0.0440 0.957 0.2821   0e+00
+ auxmj 200 0.40    P1  sjt stacked_hc3 0.0390 0.961 0.2898   0e+00
+ auxmj 200 0.40    P2  sjt   known_hc0 0.0095 0.991 0.1673   0e+00
+ auxmj 200 0.40    P2  sjt   known_hc3 0.0070 0.993 0.1787   0e+00
+ auxmj 200 0.40    P2  sjt stacked_hc0 0.0100 0.990 0.1672   0e+00
+ auxmj 200 0.40    P2  sjt stacked_hc1 0.0085 0.992 0.1707   0e+00
+ auxmj 200 0.40    P2  sjt stacked_hc3 0.0070 0.992 0.1781   0e+00
+ auxmj 200 0.40    P3  sjt   known_hc0 0.0020 0.998 0.1390   0e+00
+ auxmj 200 0.40    P3  sjt   known_hc3 0.0015 0.999 0.1496   0e+00
+ auxmj 200 0.40    P3  sjt stacked_hc0 0.0020 0.998 0.1386   0e+00
+ auxmj 200 0.40    P3  sjt stacked_hc1 0.0020 0.998 0.1416   0e+00
+ auxmj 200 0.40    P3  sjt stacked_hc3 0.0020 0.998 0.1481   0e+00
+ auxmj 200 0.40    P4  sjt   known_hc0 0.2115 0.933 0.2954   0e+00
+ auxmj 200 0.40    P4  sjt   known_hc3 0.1810 0.945 0.3105   0e+00
+ auxmj 200 0.40    P4  sjt stacked_hc0 0.2145 0.932 0.2943   0e+00
+ auxmj 200 0.40    P4  sjt stacked_hc1 0.2025 0.933 0.2988   0e+00
+ auxmj 200 0.40    P4  sjt stacked_hc3 0.1840 0.939 0.3076   0e+00
+ auxmj 500 0.25    P1  sjt   known_hc0 0.0495 0.952 0.1481   0e+00
+ auxmj 500 0.25    P1  sjt   known_hc3 0.0475 0.952 0.1499   0e+00
+ auxmj 500 0.25    P1  sjt stacked_hc0 0.0505 0.950 0.1471   0e+00
+ auxmj 500 0.25    P1  sjt stacked_hc1 0.0505 0.951 0.1478   0e+00
+ auxmj 500 0.25    P1  sjt stacked_hc3 0.0495 0.952 0.1486   0e+00
+ auxmj 500 0.25    P2  sjt   known_hc0 0.0455 0.954 0.0712   0e+00
+ auxmj 500 0.25    P2  sjt   known_hc3 0.0420 0.959 0.0727   0e+00
+ auxmj 500 0.25    P2  sjt stacked_hc0 0.0455 0.955 0.0710   0e+00
+ auxmj 500 0.25    P2  sjt stacked_hc1 0.0440 0.955 0.0714   0e+00
+ auxmj 500 0.25    P2  sjt stacked_hc3 0.0420 0.958 0.0723   0e+00
+ auxmj 500 0.25    P3  sjt   known_hc0 0.0030 0.997 0.0431   0e+00
+ auxmj 500 0.25    P3  sjt   known_hc3 0.0025 0.998 0.0439   0e+00
+ auxmj 500 0.25    P3  sjt stacked_hc0 0.0030 0.997 0.0428   0e+00
+ auxmj 500 0.25    P3  sjt stacked_hc1 0.0025 0.998 0.0431   0e+00
+ auxmj 500 0.25    P3  sjt stacked_hc3 0.0025 0.998 0.0437   0e+00
+ auxmj 500 0.25    P4  sjt   known_hc0 0.6455 0.944 0.1583   0e+00
+ auxmj 500 0.25    P4  sjt   known_hc3 0.6395 0.949 0.1602   0e+00
+ auxmj 500 0.25    P4  sjt stacked_hc0 0.6525 0.943 0.1575   0e+00
+ auxmj 500 0.25    P4  sjt stacked_hc1 0.6480 0.944 0.1582   0e+00
+ auxmj 500 0.25    P4  sjt stacked_hc3 0.6443 0.945 0.1592   5e-04
+ auxmj 500 0.40    P1  sjt   known_hc0 0.0490 0.950 0.1680   5e-04
+ auxmj 500 0.40    P1  sjt   known_hc3 0.0470 0.953 0.1707   0e+00
+ auxmj 500 0.40    P1  sjt stacked_hc0 0.0495 0.950 0.1672   0e+00
+ auxmj 500 0.40    P1  sjt stacked_hc1 0.0495 0.951 0.1681   0e+00
+ auxmj 500 0.40    P1  sjt stacked_hc3 0.0475 0.952 0.1697   0e+00
+ auxmj 500 0.40    P2  sjt   known_hc0 0.0400 0.959 0.0878   0e+00
+ auxmj 500 0.40    P2  sjt   known_hc3 0.0335 0.965 0.0901   0e+00
+ auxmj 500 0.40    P2  sjt stacked_hc0 0.0400 0.958 0.0877   0e+00
+ auxmj 500 0.40    P2  sjt stacked_hc1 0.0390 0.961 0.0883   0e+00
+ auxmj 500 0.40    P2  sjt stacked_hc3 0.0340 0.965 0.0899   0e+00
+ auxmj 500 0.40    P3  sjt   known_hc0 0.0020 0.998 0.0577   0e+00
+ auxmj 500 0.40    P3  sjt   known_hc3 0.0015 0.999 0.0596   0e+00
+ auxmj 500 0.40    P3  sjt stacked_hc0 0.0025 0.998 0.0575   0e+00
+ auxmj 500 0.40    P3  sjt stacked_hc1 0.0020 0.998 0.0580   0e+00
+ auxmj 500 0.40    P3  sjt stacked_hc3 0.0015 0.999 0.0592   0e+00
+ auxmj 500 0.40    P4  sjt   known_hc0 0.5365 0.938 0.1797   0e+00
+ auxmj 500 0.40    P4  sjt   known_hc3 0.5230 0.944 0.1834   0e+00
+ auxmj 500 0.40    P4  sjt stacked_hc0 0.5405 0.936 0.1787   0e+00
+ auxmj 500 0.40    P4  sjt stacked_hc1 0.5375 0.938 0.1797   0e+00
+ auxmj 500 0.40    P4  sjt stacked_hc3 0.5290 0.943 0.1815   0e+00
+ auxmj 200 0.25    P1   uj   known_hc0 0.0475 0.953 0.2714   0e+00
+ auxmj 200 0.25    P1   uj   known_hc3 0.0415 0.959 0.2803   0e+00
+ auxmj 200 0.25    P1   uj stacked_hc0 0.0530 0.947 0.2644   0e+00
+ auxmj 200 0.25    P1   uj stacked_hc1 0.0510 0.950 0.2674   0e+00
+ auxmj 200 0.25    P1   uj stacked_hc3 0.0465 0.953 0.2733   0e+00
+ auxmj 200 0.25    P2   uj   known_hc0 0.0170 0.982 0.1465   0e+00
+ auxmj 200 0.25    P2   uj   known_hc3 0.0115 0.987 0.1556   0e+00
+ auxmj 200 0.25    P2   uj stacked_hc0 0.0195 0.980 0.1421   0e+00
+ auxmj 200 0.25    P2   uj stacked_hc1 0.0175 0.982 0.1443   0e+00
+ auxmj 200 0.25    P2   uj stacked_hc3 0.0150 0.985 0.1507   0e+00
+ auxmj 200 0.25    P3   uj   known_hc0 0.0015 0.999 0.1168   0e+00
+ auxmj 200 0.25    P3   uj   known_hc3 0.0015 0.999 0.1241   0e+00
+ auxmj 200 0.25    P3   uj stacked_hc0 0.0015 0.999 0.1127   0e+00
+ auxmj 200 0.25    P3   uj stacked_hc1 0.0015 0.999 0.1147   0e+00
+ auxmj 200 0.25    P3   uj stacked_hc3 0.0015 0.999 0.1198   0e+00
+ auxmj 200 0.25    P4   uj   known_hc0 0.2610 0.945 0.2805   0e+00
+ auxmj 200 0.25    P4   uj   known_hc3 0.2365 0.951 0.2929   0e+00
+ auxmj 200 0.25    P4   uj stacked_hc0 0.2810 0.938 0.2732   0e+00
+ auxmj 200 0.25    P4   uj stacked_hc1 0.2730 0.942 0.2765   0e+00
+ auxmj 200 0.25    P4   uj stacked_hc3 0.2555 0.945 0.2835   0e+00
+ auxmj 200 0.40    P1   uj   known_hc0 0.0460 0.955 0.3191   0e+00
+ auxmj 200 0.40    P1   uj   known_hc3 0.0355 0.966 0.3389   0e+00
+ auxmj 200 0.40    P1   uj stacked_hc0 0.0520 0.948 0.3101   0e+00
+ auxmj 200 0.40    P1   uj stacked_hc1 0.0505 0.950 0.3146   0e+00
+ auxmj 200 0.40    P1   uj stacked_hc3 0.0425 0.959 0.3293   0e+00
+ auxmj 200 0.40    P2   uj   known_hc0 0.0120 0.988 0.1833   0e+00
+ auxmj 200 0.40    P2   uj   known_hc3 0.0055 0.994 0.2009   0e+00
+ auxmj 200 0.40    P2   uj stacked_hc0 0.0135 0.987 0.1771   0e+00
+ auxmj 200 0.40    P2   uj stacked_hc1 0.0130 0.987 0.1808   0e+00
+ auxmj 200 0.40    P2   uj stacked_hc3 0.0075 0.993 0.1935   0e+00
+ auxmj 200 0.40    P3   uj   known_hc0 0.0030 0.997 0.1549   0e+00
+ auxmj 200 0.40    P3   uj   known_hc3 0.0010 0.999 0.1704   0e+00
+ auxmj 200 0.40    P3   uj stacked_hc0 0.0035 0.997 0.1499   0e+00
+ auxmj 200 0.40    P3   uj stacked_hc1 0.0035 0.997 0.1534   0e+00
+ auxmj 200 0.40    P3   uj stacked_hc3 0.0020 0.998 0.1642   0e+00
+ auxmj 200 0.40    P4   uj   known_hc0 0.2035 0.931 0.3334   0e+00
+ auxmj 200 0.40    P4   uj   known_hc3 0.1650 0.954 0.3535   0e+00
+ auxmj 200 0.40    P4   uj stacked_hc0 0.2190 0.924 0.3242   0e+00
+ auxmj 200 0.40    P4   uj stacked_hc1 0.2125 0.927 0.3291   0e+00
+ auxmj 200 0.40    P4   uj stacked_hc3 0.1835 0.936 0.3420   0e+00
+ auxmj 500 0.25    P1   uj   known_hc0 0.0470 0.953 0.1669   0e+00
+ auxmj 500 0.25    P1   uj   known_hc3 0.0445 0.955 0.1691   5e-04
+ auxmj 500 0.25    P1   uj stacked_hc0 0.0505 0.951 0.1633   0e+00
+ auxmj 500 0.25    P1   uj stacked_hc1 0.0505 0.951 0.1640   0e+00
+ auxmj 500 0.25    P1   uj stacked_hc3 0.0480 0.952 0.1654   0e+00
+ auxmj 500 0.25    P2   uj   known_hc0 0.0335 0.967 0.0760   0e+00
+ auxmj 500 0.25    P2   uj   known_hc3 0.0315 0.969 0.0783   0e+00
+ auxmj 500 0.25    P2   uj stacked_hc0 0.0360 0.963 0.0744   0e+00
+ auxmj 500 0.25    P2   uj stacked_hc1 0.0345 0.965 0.0748   0e+00
+ auxmj 500 0.25    P2   uj stacked_hc3 0.0330 0.968 0.0764   0e+00
+ auxmj 500 0.25    P3   uj   known_hc0 0.0030 0.997 0.0473   0e+00
+ auxmj 500 0.25    P3   uj   known_hc3 0.0025 0.998 0.0487   0e+00
+ auxmj 500 0.25    P3   uj stacked_hc0 0.0030 0.997 0.0460   0e+00
+ auxmj 500 0.25    P3   uj stacked_hc1 0.0030 0.997 0.0463   0e+00
+ auxmj 500 0.25    P3   uj stacked_hc3 0.0030 0.997 0.0473   0e+00
+ auxmj 500 0.25    P4   uj   known_hc0 0.5850 0.949 0.1761   0e+00
+ auxmj 500 0.25    P4   uj   known_hc3 0.5775 0.956 0.1790   0e+00
+ auxmj 500 0.25    P4   uj stacked_hc0 0.6030 0.945 0.1722   0e+00
+ auxmj 500 0.25    P4   uj stacked_hc1 0.6000 0.947 0.1730   0e+00
+ auxmj 500 0.25    P4   uj stacked_hc3 0.5945 0.948 0.1747   0e+00
+ auxmj 500 0.40    P1   uj   known_hc0 0.0560 0.944 0.1983   0e+00
+ auxmj 500 0.40    P1   uj   known_hc3 0.0500 0.948 0.2022   0e+00
+ auxmj 500 0.40    P1   uj stacked_hc0 0.0625 0.938 0.1939   0e+00
+ auxmj 500 0.40    P1   uj stacked_hc1 0.0620 0.939 0.1950   0e+00
+ auxmj 500 0.40    P1   uj stacked_hc3 0.0560 0.941 0.1980   0e+00
+ auxmj 500 0.40    P2   uj   known_hc0 0.0275 0.972 0.0951   0e+00
+ auxmj 500 0.40    P2   uj   known_hc3 0.0225 0.978 0.0989   0e+00
+ auxmj 500 0.40    P2   uj stacked_hc0 0.0315 0.969 0.0937   0e+00
+ auxmj 500 0.40    P2   uj stacked_hc1 0.0295 0.969 0.0944   0e+00
+ auxmj 500 0.40    P2   uj stacked_hc3 0.0240 0.975 0.0973   0e+00
+ auxmj 500 0.40    P3   uj   known_hc0 0.0025 0.998 0.0669   0e+00
+ auxmj 500 0.40    P3   uj   known_hc3 0.0025 0.998 0.0698   0e+00
+ auxmj 500 0.40    P3   uj stacked_hc0 0.0035 0.997 0.0653   0e+00
+ auxmj 500 0.40    P3   uj stacked_hc1 0.0030 0.997 0.0658   0e+00
+ auxmj 500 0.40    P3   uj stacked_hc3 0.0025 0.998 0.0681   0e+00
+ auxmj 500 0.40    P4   uj   known_hc0 0.4640 0.938 0.2083   0e+00
+ auxmj 500 0.40    P4   uj   known_hc3 0.4505 0.951 0.2141   0e+00
+ auxmj 500 0.40    P4   uj stacked_hc0 0.4805 0.932 0.2043   0e+00
+ auxmj 500 0.40    P4   uj stacked_hc1 0.4750 0.933 0.2054   0e+00
+ auxmj 500 0.40    P4   uj stacked_hc3 0.4660 0.937 0.2088   0e+00
+   std 200 0.25    P1  spv   known_hc0 0.0460 0.955 0.2512   0e+00
+   std 200 0.25    P1  spv   known_hc3 0.0370 0.964 0.2638   0e+00
+   std 200 0.25    P1  spv stacked_hc0 0.0460 0.954 0.2496   0e+00
+   std 200 0.25    P1  spv stacked_hc1 0.0430 0.957 0.2537   0e+00
+   std 200 0.25    P1  spv stacked_hc3 0.0390 0.961 0.2612   0e+00
+   std 200 0.25    P2  spv   known_hc0 0.0165 0.983 0.1586   0e+00
+   std 200 0.25    P2  spv   known_hc3 0.0110 0.989 0.1703   0e+00
+   std 200 0.25    P2  spv stacked_hc0 0.0180 0.982 0.1576   0e+00
+   std 200 0.25    P2  spv stacked_hc1 0.0150 0.986 0.1608   0e+00
+   std 200 0.25    P2  spv stacked_hc3 0.0120 0.988 0.1684   0e+00
+   std 200 0.25    P3  spv   known_hc0 0.0015 0.999 0.1214   0e+00
+   std 200 0.25    P3  spv   known_hc3 0.0010 0.999 0.1312   0e+00
+   std 200 0.25    P3  spv stacked_hc0 0.0015 0.999 0.1203   0e+00
+   std 200 0.25    P3  spv stacked_hc1 0.0015 0.999 0.1229   0e+00
+   std 200 0.25    P3  spv stacked_hc3 0.0010 0.999 0.1298   0e+00
+   std 200 0.25    P4  spv   known_hc0 0.2625 0.933 0.2741   0e+00
+   std 200 0.25    P4  spv   known_hc3 0.2320 0.941 0.2888   0e+00
+   std 200 0.25    P4  spv stacked_hc0 0.2655 0.933 0.2717   0e+00
+   std 200 0.25    P4  spv stacked_hc1 0.2590 0.935 0.2762   0e+00
+   std 200 0.25    P4  spv stacked_hc3 0.2360 0.943 0.2846   0e+00
+   std 200 0.40    P1  spv   known_hc0 0.0475 0.954 0.3430   0e+00
+   std 200 0.40    P1  spv   known_hc3 0.0290 0.970 0.3793   0e+00
+   std 200 0.40    P1  spv stacked_hc0 0.0480 0.953 0.3401   0e+00
+   std 200 0.40    P1  spv stacked_hc1 0.0440 0.956 0.3484   0e+00
+   std 200 0.40    P1  spv stacked_hc3 0.0305 0.970 0.3718   0e+00
+   std 200 0.40    P2  spv   known_hc0 0.0150 0.985 0.2296   0e+00
+   std 200 0.40    P2  spv   known_hc3 0.0065 0.994 0.2602   0e+00
+   std 200 0.40    P2  spv stacked_hc0 0.0150 0.985 0.2268   0e+00
+   std 200 0.40    P2  spv stacked_hc1 0.0135 0.987 0.2346   0e+00
+   std 200 0.40    P2  spv stacked_hc3 0.0075 0.992 0.2559   0e+00
+   std 200 0.40    P3  spv   known_hc0 0.0025 0.998 0.1994   0e+00
+   std 200 0.40    P3  spv   known_hc3 0.0020 0.998 0.2280   0e+00
+   std 200 0.40    P3  spv stacked_hc0 0.0030 0.997 0.1963   0e+00
+   std 200 0.40    P3  spv stacked_hc1 0.0025 0.998 0.2038   0e+00
+   std 200 0.40    P3  spv stacked_hc3 0.0020 0.998 0.2238   0e+00
+   std 200 0.40    P4  spv   known_hc0 0.1530 0.931 0.3690   0e+00
+   std 200 0.40    P4  spv   known_hc3 0.1120 0.960 0.4076   0e+00
+   std 200 0.40    P4  spv stacked_hc0 0.1585 0.927 0.3650   0e+00
+   std 200 0.40    P4  spv stacked_hc1 0.1480 0.934 0.3744   0e+00
+   std 200 0.40    P4  spv stacked_hc3 0.1185 0.950 0.4010   0e+00
+   std 500 0.25    P1  spv   known_hc0 0.0600 0.940 0.1544   0e+00
+   std 500 0.25    P1  spv   known_hc3 0.0555 0.944 0.1565   0e+00
+   std 500 0.25    P1  spv stacked_hc0 0.0615 0.939 0.1539   0e+00
+   std 500 0.25    P1  spv stacked_hc1 0.0600 0.940 0.1547   0e+00
+   std 500 0.25    P1  spv stacked_hc3 0.0560 0.943 0.1565   0e+00
+   std 500 0.25    P2  spv   known_hc0 0.0315 0.968 0.0845   0e+00
+   std 500 0.25    P2  spv   known_hc3 0.0275 0.972 0.0870   0e+00
+   std 500 0.25    P2  spv stacked_hc0 0.0315 0.967 0.0843   0e+00
+   std 500 0.25    P2  spv stacked_hc1 0.0305 0.969 0.0850   0e+00
+   std 500 0.25    P2  spv stacked_hc3 0.0275 0.972 0.0867   0e+00
+   std 500 0.25    P3  spv   known_hc0 0.0010 0.999 0.0491   0e+00
+   std 500 0.25    P3  spv   known_hc3 0.0005 1.000 0.0506   0e+00
+   std 500 0.25    P3  spv stacked_hc0 0.0010 0.999 0.0489   0e+00
+   std 500 0.25    P3  spv stacked_hc1 0.0010 0.999 0.0493   0e+00
+   std 500 0.25    P3  spv stacked_hc3 0.0005 1.000 0.0504   0e+00
+   std 500 0.25    P4  spv   known_hc0 0.6705 0.942 0.1675   0e+00
+   std 500 0.25    P4  spv   known_hc3 0.6590 0.947 0.1703   0e+00
+   std 500 0.25    P4  spv stacked_hc0 0.6735 0.942 0.1670   0e+00
+   std 500 0.25    P4  spv stacked_hc1 0.6695 0.942 0.1681   0e+00
+   std 500 0.25    P4  spv stacked_hc3 0.6605 0.944 0.1700   0e+00
+   std 500 0.40    P1  spv   known_hc0 0.0535 0.945 0.2030   0e+00
+   std 500 0.40    P1  spv   known_hc3 0.0465 0.954 0.2111   0e+00
+   std 500 0.40    P1  spv stacked_hc0 0.0565 0.943 0.2019   0e+00
+   std 500 0.40    P1  spv stacked_hc1 0.0535 0.945 0.2039   0e+00
+   std 500 0.40    P1  spv stacked_hc3 0.0480 0.952 0.2087   0e+00
+   std 500 0.40    P2  spv   known_hc0 0.0215 0.979 0.1186   0e+00
+   std 500 0.40    P2  spv   known_hc3 0.0180 0.982 0.1247   0e+00
+   std 500 0.40    P2  spv stacked_hc0 0.0235 0.977 0.1180   0e+00
+   std 500 0.40    P2  spv stacked_hc1 0.0210 0.979 0.1195   0e+00
+   std 500 0.40    P2  spv stacked_hc3 0.0185 0.981 0.1240   0e+00
+   std 500 0.40    P3  spv   known_hc0 0.0010 0.999 0.0819   0e+00
+   std 500 0.40    P3  spv   known_hc3 0.0010 0.999 0.0874   0e+00
+   std 500 0.40    P3  spv stacked_hc0 0.0020 0.998 0.0813   0e+00
+   std 500 0.40    P3  spv stacked_hc1 0.0015 0.999 0.0824   0e+00
+   std 500 0.40    P3  spv stacked_hc3 0.0010 0.999 0.0865   0e+00
+   std 500 0.40    P4  spv   known_hc0 0.4510 0.935 0.2210   0e+00
+   std 500 0.40    P4  spv   known_hc3 0.4230 0.947 0.2299   0e+00
+   std 500 0.40    P4  spv stacked_hc0 0.4550 0.933 0.2198   0e+00
+   std 500 0.40    P4  spv stacked_hc1 0.4500 0.937 0.2218   0e+00
+   std 500 0.40    P4  spv stacked_hc3 0.4305 0.943 0.2280   0e+00
+  stdj 200 0.25    P1   sj   known_hc0 0.0515 0.949 0.2111   0e+00
+  stdj 200 0.25    P1   sj   known_hc3 0.0465 0.953 0.2175   0e+00
+  stdj 200 0.25    P1   sj stacked_hc0 0.0525 0.948 0.2104   0e+00
+  stdj 200 0.25    P1   sj stacked_hc1 0.0500 0.950 0.2129   0e+00
+  stdj 200 0.25    P1   sj stacked_hc3 0.0470 0.953 0.2170   0e+00
+  stdj 200 0.25    P2   sj   known_hc0 0.0195 0.981 0.1271   0e+00
+  stdj 200 0.25    P2   sj   known_hc3 0.0180 0.982 0.1332   0e+00
+  stdj 200 0.25    P2   sj stacked_hc0 0.0200 0.981 0.1266   0e+00
+  stdj 200 0.25    P2   sj stacked_hc1 0.0195 0.981 0.1286   0e+00
+  stdj 200 0.25    P2   sj stacked_hc3 0.0180 0.982 0.1322   0e+00
+  stdj 200 0.25    P3   sj   known_hc0 0.0025 0.998 0.0905   0e+00
+  stdj 200 0.25    P3   sj   known_hc3 0.0020 0.998 0.0948   0e+00
+  stdj 200 0.25    P3   sj stacked_hc0 0.0025 0.998 0.0900   0e+00
+  stdj 200 0.25    P3   sj stacked_hc1 0.0025 0.998 0.0916   0e+00
+  stdj 200 0.25    P3   sj stacked_hc3 0.0020 0.998 0.0944   0e+00
+  stdj 200 0.25    P4   sj   known_hc0 0.4140 0.940 0.2311   0e+00
+  stdj 200 0.25    P4   sj   known_hc3 0.3930 0.951 0.2380   0e+00
+  stdj 200 0.25    P4   sj stacked_hc0 0.4170 0.939 0.2303   0e+00
+  stdj 200 0.25    P4   sj stacked_hc1 0.4075 0.941 0.2329   0e+00
+  stdj 200 0.25    P4   sj stacked_hc3 0.3945 0.947 0.2372   0e+00
+  stdj 200 0.40    P1   sj   known_hc0 0.0350 0.965 0.2448   0e+00
+  stdj 200 0.40    P1   sj   known_hc3 0.0275 0.973 0.2552   0e+00
+  stdj 200 0.40    P1   sj stacked_hc0 0.0360 0.964 0.2432   0e+00
+  stdj 200 0.40    P1   sj stacked_hc1 0.0335 0.966 0.2469   0e+00
+  stdj 200 0.40    P1   sj stacked_hc3 0.0285 0.972 0.2530   0e+00
+  stdj 200 0.40    P2   sj   known_hc0 0.0135 0.986 0.1501   0e+00
+  stdj 200 0.40    P2   sj   known_hc3 0.0100 0.990 0.1597   0e+00
+  stdj 200 0.40    P2   sj stacked_hc0 0.0140 0.986 0.1490   0e+00
+  stdj 200 0.40    P2   sj stacked_hc1 0.0135 0.987 0.1519   0e+00
+  stdj 200 0.40    P2   sj stacked_hc3 0.0110 0.990 0.1585   0e+00
+  stdj 200 0.40    P3   sj   known_hc0 0.0020 0.998 0.1164   0e+00
+  stdj 200 0.40    P3   sj   known_hc3 0.0010 0.999 0.1244   0e+00
+  stdj 200 0.40    P3   sj stacked_hc0 0.0025 0.998 0.1155   0e+00
+  stdj 200 0.40    P3   sj stacked_hc1 0.0020 0.998 0.1181   0e+00
+  stdj 200 0.40    P3   sj stacked_hc3 0.0010 0.999 0.1235   0e+00
+  stdj 200 0.40    P4   sj   known_hc0 0.2915 0.944 0.2627   0e+00
+  stdj 200 0.40    P4   sj   known_hc3 0.2645 0.954 0.2739   0e+00
+  stdj 200 0.40    P4   sj stacked_hc0 0.2975 0.942 0.2604   0e+00
+  stdj 200 0.40    P4   sj stacked_hc1 0.2835 0.946 0.2642   0e+00
+  stdj 200 0.40    P4   sj stacked_hc3 0.2665 0.949 0.2720   0e+00
+  stdj 500 0.25    P1   sj   known_hc0 0.0650 0.934 0.1279   0e+00
+  stdj 500 0.25    P1   sj   known_hc3 0.0625 0.938 0.1296   0e+00
+  stdj 500 0.25    P1   sj stacked_hc0 0.0650 0.934 0.1277   0e+00
+  stdj 500 0.25    P1   sj stacked_hc1 0.0645 0.934 0.1283   0e+00
+  stdj 500 0.25    P1   sj stacked_hc3 0.0635 0.938 0.1290   0e+00
+  stdj 500 0.25    P2   sj   known_hc0 0.0350 0.965 0.0695   0e+00
+  stdj 500 0.25    P2   sj   known_hc3 0.0335 0.966 0.0705   0e+00
+  stdj 500 0.25    P2   sj stacked_hc0 0.0350 0.965 0.0694   0e+00
+  stdj 500 0.25    P2   sj stacked_hc1 0.0350 0.966 0.0698   0e+00
+  stdj 500 0.25    P2   sj stacked_hc3 0.0340 0.966 0.0706   0e+00
+  stdj 500 0.25    P3   sj   known_hc0 0.0010 0.999 0.0357   0e+00
+  stdj 500 0.25    P3   sj   known_hc3 0.0010 0.999 0.0364   0e+00
+  stdj 500 0.25    P3   sj stacked_hc0 0.0010 0.999 0.0356   0e+00
+  stdj 500 0.25    P3   sj stacked_hc1 0.0010 0.999 0.0359   0e+00
+  stdj 500 0.25    P3   sj stacked_hc3 0.0010 0.999 0.0364   0e+00
+  stdj 500 0.25    P4   sj   known_hc0 0.8110 0.951 0.1416   0e+00
+  stdj 500 0.25    P4   sj   known_hc3 0.8040 0.954 0.1431   0e+00
+  stdj 500 0.25    P4   sj stacked_hc0 0.8115 0.949 0.1414   0e+00
+  stdj 500 0.25    P4   sj stacked_hc1 0.8085 0.951 0.1420   0e+00
+  stdj 500 0.25    P4   sj stacked_hc3 0.8045 0.953 0.1429   0e+00
+  stdj 500 0.40    P1   sj   known_hc0 0.0560 0.943 0.1466   0e+00
+  stdj 500 0.40    P1   sj   known_hc3 0.0525 0.947 0.1487   0e+00
+  stdj 500 0.40    P1   sj stacked_hc0 0.0585 0.941 0.1464   0e+00
+  stdj 500 0.40    P1   sj stacked_hc1 0.0560 0.944 0.1472   0e+00
+  stdj 500 0.40    P1   sj stacked_hc3 0.0545 0.947 0.1484   0e+00
+  stdj 500 0.40    P2   sj   known_hc0 0.0305 0.970 0.0819   0e+00
+  stdj 500 0.40    P2   sj   known_hc3 0.0270 0.973 0.0840   0e+00
+  stdj 500 0.40    P2   sj stacked_hc0 0.0310 0.968 0.0817   0e+00
+  stdj 500 0.40    P2   sj stacked_hc1 0.0300 0.970 0.0823   0e+00
+  stdj 500 0.40    P2   sj stacked_hc3 0.0285 0.972 0.0837   0e+00
+  stdj 500 0.40    P3   sj   known_hc0 0.0015 0.999 0.0463   0e+00
+  stdj 500 0.40    P3   sj   known_hc3 0.0015 0.999 0.0476   0e+00
+  stdj 500 0.40    P3   sj stacked_hc0 0.0015 0.999 0.0462   0e+00
+  stdj 500 0.40    P3   sj stacked_hc1 0.0015 0.999 0.0466   0e+00
+  stdj 500 0.40    P3   sj stacked_hc3 0.0015 0.999 0.0474   0e+00
+  stdj 500 0.40    P4   sj   known_hc0 0.6955 0.938 0.1602   0e+00
+  stdj 500 0.40    P4   sj   known_hc3 0.6875 0.941 0.1628   0e+00
+  stdj 500 0.40    P4   sj stacked_hc0 0.6975 0.938 0.1597   0e+00
+  stdj 500 0.40    P4   sj stacked_hc1 0.6935 0.939 0.1606   0e+00
+  stdj 500 0.40    P4   sj stacked_hc3 0.6885 0.942 0.1624   0e+00
+  stdj 200 0.25    P1  sjt   known_hc0 0.0515 0.948 0.2105   0e+00
+  stdj 200 0.25    P1  sjt   known_hc3 0.0470 0.953 0.2164   0e+00
+  stdj 200 0.25    P1  sjt stacked_hc0 0.0520 0.948 0.2103   0e+00
+  stdj 200 0.25    P1  sjt stacked_hc1 0.0505 0.950 0.2127   0e+00
+  stdj 200 0.25    P1  sjt stacked_hc3 0.0475 0.953 0.2160   0e+00
+  stdj 200 0.25    P2  sjt   known_hc0 0.0195 0.981 0.1263   0e+00
+  stdj 200 0.25    P2  sjt   known_hc3 0.0180 0.982 0.1323   0e+00
+  stdj 200 0.25    P2  sjt stacked_hc0 0.0195 0.981 0.1261   0e+00
+  stdj 200 0.25    P2  sjt stacked_hc1 0.0195 0.981 0.1281   0e+00
+  stdj 200 0.25    P2  sjt stacked_hc3 0.0185 0.982 0.1317   0e+00
+  stdj 200 0.25    P3  sjt   known_hc0 0.0025 0.998 0.0896   0e+00
+  stdj 200 0.25    P3  sjt   known_hc3 0.0015 0.999 0.0940   0e+00
+  stdj 200 0.25    P3  sjt stacked_hc0 0.0025 0.998 0.0896   0e+00
+  stdj 200 0.25    P3  sjt stacked_hc1 0.0025 0.998 0.0912   0e+00
+  stdj 200 0.25    P3  sjt stacked_hc3 0.0020 0.998 0.0939   0e+00
+  stdj 200 0.25    P4  sjt   known_hc0 0.4170 0.940 0.2302   0e+00
+  stdj 200 0.25    P4  sjt   known_hc3 0.3935 0.953 0.2372   0e+00
+  stdj 200 0.25    P4  sjt stacked_hc0 0.4185 0.940 0.2295   0e+00
+  stdj 200 0.25    P4  sjt stacked_hc1 0.4065 0.944 0.2324   0e+00
+  stdj 200 0.25    P4  sjt stacked_hc3 0.3950 0.948 0.2368   0e+00
+  stdj 200 0.40    P1  sjt   known_hc0 0.0320 0.968 0.2435   0e+00
+  stdj 200 0.40    P1  sjt   known_hc3 0.0285 0.971 0.2535   0e+00
+  stdj 200 0.40    P1  sjt stacked_hc0 0.0325 0.967 0.2423   0e+00
+  stdj 200 0.40    P1  sjt stacked_hc1 0.0310 0.969 0.2461   0e+00
+  stdj 200 0.40    P1  sjt stacked_hc3 0.0285 0.972 0.2518   0e+00
+  stdj 200 0.40    P2  sjt   known_hc0 0.0135 0.986 0.1498   0e+00
+  stdj 200 0.40    P2  sjt   known_hc3 0.0105 0.990 0.1584   0e+00
+  stdj 200 0.40    P2  sjt stacked_hc0 0.0135 0.986 0.1492   0e+00
+  stdj 200 0.40    P2  sjt stacked_hc1 0.0135 0.987 0.1524   0e+00
+  stdj 200 0.40    P2  sjt stacked_hc3 0.0110 0.989 0.1581   0e+00
+  stdj 200 0.40    P3  sjt   known_hc0 0.0010 0.999 0.1154   0e+00
+  stdj 200 0.40    P3  sjt   known_hc3 0.0010 0.999 0.1230   0e+00
+  stdj 200 0.40    P3  sjt stacked_hc0 0.0010 0.999 0.1148   0e+00
+  stdj 200 0.40    P3  sjt stacked_hc1 0.0010 0.999 0.1174   0e+00
+  stdj 200 0.40    P3  sjt stacked_hc3 0.0010 0.999 0.1222   0e+00
+  stdj 200 0.40    P4  sjt   known_hc0 0.2980 0.941 0.2619   0e+00
+  stdj 200 0.40    P4  sjt   known_hc3 0.2685 0.950 0.2723   0e+00
+  stdj 200 0.40    P4  sjt stacked_hc0 0.2995 0.940 0.2606   0e+00
+  stdj 200 0.40    P4  sjt stacked_hc1 0.2850 0.943 0.2646   0e+00
+  stdj 200 0.40    P4  sjt stacked_hc3 0.2695 0.950 0.2704   0e+00
+  stdj 500 0.25    P1  sjt   known_hc0 0.0620 0.937 0.1276   0e+00
+  stdj 500 0.25    P1  sjt   known_hc3 0.0610 0.940 0.1293   0e+00
+  stdj 500 0.25    P1  sjt stacked_hc0 0.0620 0.936 0.1275   0e+00
+  stdj 500 0.25    P1  sjt stacked_hc1 0.0620 0.938 0.1281   0e+00
+  stdj 500 0.25    P1  sjt stacked_hc3 0.0615 0.940 0.1287   0e+00
+  stdj 500 0.25    P2  sjt   known_hc0 0.0345 0.965 0.0694   0e+00
+  stdj 500 0.25    P2  sjt   known_hc3 0.0320 0.968 0.0704   0e+00
+  stdj 500 0.25    P2  sjt stacked_hc0 0.0345 0.965 0.0694   0e+00
+  stdj 500 0.25    P2  sjt stacked_hc1 0.0345 0.966 0.0698   0e+00
+  stdj 500 0.25    P2  sjt stacked_hc3 0.0325 0.968 0.0704   0e+00
+  stdj 500 0.25    P3  sjt   known_hc0 0.0015 0.999 0.0355   0e+00
+  stdj 500 0.25    P3  sjt   known_hc3 0.0015 0.999 0.0363   0e+00
+  stdj 500 0.25    P3  sjt stacked_hc0 0.0015 0.999 0.0355   0e+00
+  stdj 500 0.25    P3  sjt stacked_hc1 0.0015 0.999 0.0357   0e+00
+  stdj 500 0.25    P3  sjt stacked_hc3 0.0015 0.999 0.0362   0e+00
+  stdj 500 0.25    P4  sjt   known_hc0 0.8120 0.950 0.1416   0e+00
+  stdj 500 0.25    P4  sjt   known_hc3 0.8075 0.954 0.1427   0e+00
+  stdj 500 0.25    P4  sjt stacked_hc0 0.8125 0.950 0.1416   0e+00
+  stdj 500 0.25    P4  sjt stacked_hc1 0.8110 0.951 0.1421   0e+00
+  stdj 500 0.25    P4  sjt stacked_hc3 0.8075 0.952 0.1431   0e+00
+  stdj 500 0.40    P1  sjt   known_hc0 0.0575 0.943 0.1456   0e+00
+  stdj 500 0.40    P1  sjt   known_hc3 0.0525 0.948 0.1473   0e+00
+  stdj 500 0.40    P1  sjt stacked_hc0 0.0580 0.943 0.1454   0e+00
+  stdj 500 0.40    P1  sjt stacked_hc1 0.0570 0.945 0.1462   0e+00
+  stdj 500 0.40    P1  sjt stacked_hc3 0.0540 0.947 0.1473   0e+00
+  stdj 500 0.40    P2  sjt   known_hc0 0.0330 0.969 0.0816   0e+00
+  stdj 500 0.40    P2  sjt   known_hc3 0.0280 0.971 0.0833   0e+00
+  stdj 500 0.40    P2  sjt stacked_hc0 0.0330 0.968 0.0814   0e+00
+  stdj 500 0.40    P2  sjt stacked_hc1 0.0310 0.969 0.0820   0e+00
+  stdj 500 0.40    P2  sjt stacked_hc3 0.0290 0.971 0.0831   0e+00
+  stdj 500 0.40    P3  sjt   known_hc0 0.0015 0.999 0.0458   0e+00
+  stdj 500 0.40    P3  sjt   known_hc3 0.0015 0.999 0.0469   0e+00
+  stdj 500 0.40    P3  sjt stacked_hc0 0.0015 0.999 0.0457   0e+00
+  stdj 500 0.40    P3  sjt stacked_hc1 0.0015 0.999 0.0461   0e+00
+  stdj 500 0.40    P3  sjt stacked_hc3 0.0015 0.999 0.0469   0e+00
+  stdj 500 0.40    P4  sjt   known_hc0 0.7040 0.940 0.1592   0e+00
+  stdj 500 0.40    P4  sjt   known_hc3 0.6925 0.943 0.1619   0e+00
+  stdj 500 0.40    P4  sjt stacked_hc0 0.7050 0.938 0.1590   0e+00
+  stdj 500 0.40    P4  sjt stacked_hc1 0.7005 0.942 0.1599   0e+00
+  stdj 500 0.40    P4  sjt stacked_hc3 0.6930 0.944 0.1612   0e+00
+  stdj 200 0.25    P1   uj   known_hc0 0.0515 0.948 0.2113   0e+00
+  stdj 200 0.25    P1   uj   known_hc3 0.0470 0.953 0.2179   0e+00
+  stdj 200 0.25    P1   uj stacked_hc0 0.0515 0.947 0.2104   0e+00
+  stdj 200 0.25    P1   uj stacked_hc1 0.0500 0.951 0.2129   0e+00
+  stdj 200 0.25    P1   uj stacked_hc3 0.0470 0.952 0.2166   0e+00
+  stdj 200 0.25    P2   uj   known_hc0 0.0200 0.981 0.1276   0e+00
+  stdj 200 0.25    P2   uj   known_hc3 0.0180 0.982 0.1335   0e+00
+  stdj 200 0.25    P2   uj stacked_hc0 0.0200 0.980 0.1270   0e+00
+  stdj 200 0.25    P2   uj stacked_hc1 0.0195 0.981 0.1290   0e+00
+  stdj 200 0.25    P2   uj stacked_hc3 0.0185 0.981 0.1330   0e+00
+  stdj 200 0.25    P3   uj   known_hc0 0.0025 0.998 0.0904   0e+00
+  stdj 200 0.25    P3   uj   known_hc3 0.0015 0.999 0.0949   0e+00
+  stdj 200 0.25    P3   uj stacked_hc0 0.0025 0.998 0.0899   0e+00
+  stdj 200 0.25    P3   uj stacked_hc1 0.0025 0.998 0.0915   0e+00
+  stdj 200 0.25    P3   uj stacked_hc3 0.0020 0.998 0.0944   0e+00
+  stdj 200 0.25    P4   uj   known_hc0 0.4135 0.939 0.2314   0e+00
+  stdj 200 0.25    P4   uj   known_hc3 0.3905 0.951 0.2377   0e+00
+  stdj 200 0.25    P4   uj stacked_hc0 0.4165 0.938 0.2303   0e+00
+  stdj 200 0.25    P4   uj stacked_hc1 0.4060 0.941 0.2331   0e+00
+  stdj 200 0.25    P4   uj stacked_hc3 0.3935 0.948 0.2374   0e+00
+  stdj 200 0.40    P1   uj   known_hc0 0.0355 0.964 0.2443   0e+00
+  stdj 200 0.40    P1   uj   known_hc3 0.0280 0.973 0.2547   0e+00
+  stdj 200 0.40    P1   uj stacked_hc0 0.0370 0.963 0.2427   0e+00
+  stdj 200 0.40    P1   uj stacked_hc1 0.0355 0.964 0.2463   0e+00
+  stdj 200 0.40    P1   uj stacked_hc3 0.0285 0.972 0.2525   0e+00
+  stdj 200 0.40    P2   uj   known_hc0 0.0130 0.986 0.1519   0e+00
+  stdj 200 0.40    P2   uj   known_hc3 0.0105 0.990 0.1623   0e+00
+  stdj 200 0.40    P2   uj stacked_hc0 0.0140 0.985 0.1505   0e+00
+  stdj 200 0.40    P2   uj stacked_hc1 0.0125 0.987 0.1537   0e+00
+  stdj 200 0.40    P2   uj stacked_hc3 0.0105 0.989 0.1606   0e+00
+  stdj 200 0.40    P3   uj   known_hc0 0.0020 0.998 0.1171   0e+00
+  stdj 200 0.40    P3   uj   known_hc3 0.0015 0.999 0.1257   0e+00
+  stdj 200 0.40    P3   uj stacked_hc0 0.0020 0.998 0.1156   0e+00
+  stdj 200 0.40    P3   uj stacked_hc1 0.0020 0.998 0.1182   0e+00
+  stdj 200 0.40    P3   uj stacked_hc3 0.0020 0.998 0.1238   0e+00
+  stdj 200 0.40    P4   uj   known_hc0 0.2880 0.942 0.2618   0e+00
+  stdj 200 0.40    P4   uj   known_hc3 0.2620 0.954 0.2741   0e+00
+  stdj 200 0.40    P4   uj stacked_hc0 0.2935 0.941 0.2598   0e+00
+  stdj 200 0.40    P4   uj stacked_hc1 0.2840 0.944 0.2638   0e+00
+  stdj 200 0.40    P4   uj stacked_hc3 0.2655 0.948 0.2706   0e+00
+  stdj 500 0.25    P1   uj   known_hc0 0.0650 0.935 0.1279   0e+00
+  stdj 500 0.25    P1   uj   known_hc3 0.0630 0.938 0.1292   0e+00
+  stdj 500 0.25    P1   uj stacked_hc0 0.0650 0.934 0.1277   0e+00
+  stdj 500 0.25    P1   uj stacked_hc1 0.0645 0.935 0.1283   0e+00
+  stdj 500 0.25    P1   uj stacked_hc3 0.0630 0.938 0.1290   0e+00
+  stdj 500 0.25    P2   uj   known_hc0 0.0340 0.964 0.0698   0e+00
+  stdj 500 0.25    P2   uj   known_hc3 0.0325 0.967 0.0710   0e+00
+  stdj 500 0.25    P2   uj stacked_hc0 0.0345 0.964 0.0697   0e+00
+  stdj 500 0.25    P2   uj stacked_hc1 0.0335 0.965 0.0701   0e+00
+  stdj 500 0.25    P2   uj stacked_hc3 0.0325 0.967 0.0710   0e+00
+  stdj 500 0.25    P3   uj   known_hc0 0.0020 0.998 0.0359   0e+00
+  stdj 500 0.25    P3   uj   known_hc3 0.0020 0.998 0.0365   0e+00
+  stdj 500 0.25    P3   uj stacked_hc0 0.0020 0.998 0.0358   0e+00
+  stdj 500 0.25    P3   uj stacked_hc1 0.0020 0.998 0.0361   0e+00
+  stdj 500 0.25    P3   uj stacked_hc3 0.0020 0.998 0.0365   0e+00
+  stdj 500 0.25    P4   uj   known_hc0 0.8110 0.952 0.1417   0e+00
+  stdj 500 0.25    P4   uj   known_hc3 0.8040 0.953 0.1435   0e+00
+  stdj 500 0.25    P4   uj stacked_hc0 0.8110 0.952 0.1416   0e+00
+  stdj 500 0.25    P4   uj stacked_hc1 0.8085 0.953 0.1422   0e+00
+  stdj 500 0.25    P4   uj stacked_hc3 0.8045 0.954 0.1431   0e+00
+  stdj 500 0.40    P1   uj   known_hc0 0.0555 0.944 0.1463   0e+00
+  stdj 500 0.40    P1   uj   known_hc3 0.0510 0.949 0.1484   0e+00
+  stdj 500 0.40    P1   uj stacked_hc0 0.0565 0.943 0.1460   0e+00
+  stdj 500 0.40    P1   uj stacked_hc1 0.0555 0.945 0.1468   0e+00
+  stdj 500 0.40    P1   uj stacked_hc3 0.0515 0.947 0.1481   0e+00
+  stdj 500 0.40    P2   uj   known_hc0 0.0285 0.973 0.0825   0e+00
+  stdj 500 0.40    P2   uj   known_hc3 0.0265 0.975 0.0842   0e+00
+  stdj 500 0.40    P2   uj stacked_hc0 0.0295 0.972 0.0822   0e+00
+  stdj 500 0.40    P2   uj stacked_hc1 0.0280 0.973 0.0828   0e+00
+  stdj 500 0.40    P2   uj stacked_hc3 0.0270 0.975 0.0842   0e+00
+  stdj 500 0.40    P3   uj   known_hc0 0.0015 0.999 0.0465   0e+00
+  stdj 500 0.40    P3   uj   known_hc3 0.0015 0.999 0.0478   0e+00
+  stdj 500 0.40    P3   uj stacked_hc0 0.0015 0.999 0.0463   0e+00
+  stdj 500 0.40    P3   uj stacked_hc1 0.0015 0.999 0.0467   0e+00
+  stdj 500 0.40    P3   uj stacked_hc3 0.0015 0.999 0.0476   0e+00
+  stdj 500 0.40    P4   uj   known_hc0 0.7005 0.937 0.1597   0e+00
+  stdj 500 0.40    P4   uj   known_hc3 0.6910 0.943 0.1629   0e+00
+  stdj 500 0.40    P4   uj stacked_hc0 0.7010 0.937 0.1595   0e+00
+  stdj 500 0.40    P4   uj stacked_hc1 0.6985 0.938 0.1604   0e+00
+  stdj 500 0.40    P4   uj stacked_hc3 0.6935 0.941 0.1621   0e+00
+
+########## failing decisive cells
+== form sj: decisive cells where stacked_hc3 fails C1*, C2 or C3 (reject at P1-P3, coverage at P4)
+  auxmj n=200 miss=0.40 P4: shipped 0.954 | hc0 0.925 | hc1 0.928 | HC3 0.938   (bias b -0.005, ESS 101)
+  auxmj n=500 miss=0.40 P4: shipped 0.951 | hc0 0.933 | hc1 0.934 | HC3 0.938   (bias b -0.004, ESS 251)
+== form uj: decisive cells where stacked_hc3 fails C1*, C2 or C3 (reject at P1-P3, coverage at P4)
+  auxmj n=200 miss=0.40 P4: shipped 0.954 | hc0 0.924 | hc1 0.927 | HC3 0.936   (bias b -0.005, ESS 100)
+  auxmj n=500 miss=0.40 P4: shipped 0.951 | hc0 0.932 | hc1 0.933 | HC3 0.937   (bias b -0.004, ESS 250)
+== form spv: decisive cells where stacked_hc3 fails C1*, C2 or C3 (reject at P1-P3, coverage at P4)
+  aux   n=200 miss=0.40 P4: shipped 0.962 | hc0 0.920 | hc1 0.926 | HC3 0.947   (bias b 0.001, ESS 49)
+  auxm  n=200 miss=0.25 P1: shipped 0.028 | hc0 0.056 | hc1 0.053 | HC3 0.038   (bias b -0.008, ESS 93)
+  auxm  n=200 miss=0.25 P4: shipped 0.950 | hc0 0.914 | hc1 0.916 | HC3 0.930   (bias b -0.016, ESS 92)
+  auxm  n=200 miss=0.40 P4: shipped 0.960 | hc0 0.891 | hc1 0.899 | HC3 0.930   (bias b -0.027, ESS 49)
+  auxm  n=500 miss=0.25 P1: shipped 0.041 | hc0 0.063 | hc1 0.060 | HC3 0.052   (bias b -0.002, ESS 225)
+  auxm  n=500 miss=0.25 P4: shipped 0.950 | hc0 0.930 | hc1 0.932 | HC3 0.936   (bias b -0.006, ESS 224)
+  auxm  n=500 miss=0.40 P4: shipped 0.941 | hc0 0.899 | hc1 0.902 | HC3 0.920   (bias b -0.015, ESS 114)
+  std   n=200 miss=0.40 P4: shipped 0.960 | hc0 0.927 | hc1 0.934 | HC3 0.950   (bias b -0.001, ESS 65)
+== form sjt: decisive cells where stacked_hc3 fails C1*, C2 or C3 (reject at P1-P3, coverage at P4)
+  none
+
+MAX null size / MIN P4 coverage over decisive cells, by form: shipped | stacked_hc0 | hc1 | hc3
+  uj  0.063 / 0.943 | 0.065 / 0.924 | 0.065 / 0.927 | 0.063 / 0.936
+  sj  0.062 / 0.941 | 0.065 / 0.925 | 0.065 / 0.928 | 0.064 / 0.938
+  sjt 0.061 / 0.943 | 0.062 / 0.932 | 0.062 / 0.933 | 0.061 / 0.939
+  spv 0.056 / 0.941 | 0.069 / 0.891 | 0.066 / 0.899 | 0.056 / 0.920

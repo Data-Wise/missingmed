@@ -61,9 +61,8 @@
 #'   be `NULL` when `delta` is a data frame.
 #' @param type Inference per rung: `"mc"` (default) or `"mbco"`. `"mbco"` works
 #'   for `engine = "glm"` and for `engine = "lavaan"` (maximum likelihood only,
-#'   see [infer()]). If an MBCO refit does not converge at a rung, the sweep
-#'   stops and the error names the rung and its delta; no partial result is
-#'   returned.
+#'   see [infer()]). If a refit does not converge at a rung, the sweep stops by
+#'   default and the error names the rung and its delta (see `on_error`).
 #' @param seed Integer seed pinned across rungs. Defaults to the seed stored in
 #'   the `mids` object, or `20260822L` when that is `NA`. A fractional value is
 #'   truncated, as [set.seed()] does, and the result records the integer used.
@@ -76,13 +75,23 @@
 #' @param ariv For `type = "mbco"`: passed to [infer()] for every rung
 #'   (`"fixed"`, the default, or `"own"`; see [mbco_d4()]). Ignored, with a
 #'   warning, for `type = "mc"`.
+#' @param on_error `r lifecycle::badge("experimental")` What to do when fitting or inference fails at a rung (a refit
+#'   that did not converge, a non-finite likelihood). `"stop"` (default) aborts
+#'   the sweep and the error names the rung and its delta. `"continue"` keeps
+#'   the rungs that succeeded, records the message of each failed rung in
+#'   `@failed` (and in a column `error` of [tidy()]), and warns once naming the
+#'   failed rungs; a failed rung reads as `NA` in `tidy()` and in the tipping
+#'   point, which is then reported as undetermined if a failed rung could change
+#'   it. It is an error if every rung fails. Re-imputation errors and a
+#'   non-finite shifted value always stop. Only errors are caught; warnings pass
+#'   through.
 #' @param ums Optional character vector for a **covariate-varying** delta, one
 #'   rung per string, passed verbatim to `mice`'s NARFCS `ums` (e.g.
 #'   `"1 + 0.5*C"`: the offset is 1 + 0.5 C per row). Each string needs exactly
 #'   one intercept term. Only for a single target routed to `mnar.norm` or
 #'   `mnar.logreg`. A `ums` grid has no numeric ordering, so `summary()` does
 #'   not compute a tipping point for it.
-#' @param ... Deprecated. Extra arguments for the engine; set them with
+#' @param ... `r lifecycle::badge("deprecated")` Extra arguments for the engine; set them with
 #'   `fit_args` in [set_md_mediation()], which every refit here reads. They
 #'   are still honored, with one warning, and may not repeat a name already in
 #'   `fit_args`.
@@ -111,7 +120,9 @@ sensitivity_mnar <- function(object, delta, target = NULL,
                              type = c("mc", "mbco"), seed = NULL,
                              level = NULL, n.mc = 1e5,
                              ums = NULL, treatment_level = NULL,
-                             ariv = c("fixed", "own"), ...) {
+                             ariv = c("fixed", "own"),
+                             on_error = c("stop", "continue"), ...) {
+  on_error <- match.arg(on_error)
   # missing() is only reliable before an argument is reassigned. `level` is not
   # listed: under "mbco" it still sets the test size for the tipping point.
   supplied <- c(n.mc = !missing(n.mc),
@@ -273,6 +284,7 @@ sensitivity_mnar <- function(object, delta, target = NULL,
       caller = "sensitivity_mnar()")
   }
   rungs <- vector("list", nrow(grid))
+  failed <- rep(NA_character_, nrow(grid))
   msp <- numeric(nrow(grid))
   for (i in seq_len(nrow(grid))) {
     imp_i <- .mnar_reimpute(mids, grid[i, , drop = FALSE], seed)
@@ -283,24 +295,53 @@ sensitivity_mnar <- function(object, delta, target = NULL,
     obj_i <- object
     obj_i@data <- imp_i
     obj_i@mechanism <- "mnar"
-    fit_i <- run(obj_i)
-    rungs[[i]] <- if (type == "mc") {
-      infer(pool(fit_i), type = "mc", level = level, n.mc = n.mc,
-        treatment_level = treatment_level)
+    # Fitting and inference are the rung-specific failure points (a glm or lavaan
+    # refit that did not converge, a non-finite likelihood). Re-imputation and
+    # the finiteness check above are not caught: they fail every rung alike.
+    # Only error conditions are caught, so warnings and interrupts pass through.
+    res_i <- tryCatch(
+      {
+        fit_i <- run(obj_i)
+        if (type == "mc") {
+          infer(pool(fit_i), type = "mc", level = level, n.mc = n.mc,
+            treatment_level = treatment_level)
+        } else {
+          infer(fit_i, type = "mbco", ariv = ariv)
+        }
+      },
+      error = function(e) {
+        if (on_error == "stop") {
+          stop("sensitivity rung ", i, " of ", nrow(grid), " (",
+            paste(names(grid), "=", unlist(grid[i, , drop = FALSE]), collapse = ", "),
+            "): ", conditionMessage(e),
+            call. = FALSE
+          )
+        }
+        structure(list(message = conditionMessage(e)), class = "mm_rung_failed")
+      }
+    )
+    if (inherits(res_i, "mm_rung_failed")) {
+      failed[i] <- res_i$message
     } else {
-      # A failing MBCO refit aborts the sweep; the error names the rung.
-      tryCatch(infer(fit_i, type = "mbco", ariv = ariv), error = function(e) {
-        stop("sensitivity rung ", i, " of ", nrow(grid), " (",
-          paste(names(grid), "=", unlist(grid[i, , drop = FALSE]), collapse = ", "),
-          "): ", conditionMessage(e),
-          call. = FALSE
-        )
-      })
+      rungs[[i]] <- res_i
     }
+  }
+  if (!all(is.na(failed))) {
+    n_bad <- sum(!is.na(failed))
+    if (n_bad == nrow(grid)) {
+      stop("sensitivity_mnar(): all ", nrow(grid), " rung(s) failed; first: ",
+        failed[1], call. = FALSE)
+    }
+    bad <- which(!is.na(failed))
+    warning("sensitivity_mnar(): ", n_bad, " of ", nrow(grid), " rung(s) failed (",
+      if (n_bad == 1L) "rung " else "rungs ", paste(bad, collapse = ", "),
+      "); see tidy() for the messages.", call. = FALSE)
+  } else {
+    failed <- character()
   }
 
   MDSensitivityResult(
-    rungs = rungs, grid = grid, msp = msp, target = targets,
+    rungs = rungs, failed = failed, grid = grid, msp = msp, target = targets,
     type = type, level = level, seed = seed, seed_source = seed_source,
     method_target = meth, mechanism_used = mechanism, scale = scales,
     source = object

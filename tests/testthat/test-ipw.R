@@ -130,3 +130,22 @@ test_that("a weight_formula naming a non-column is refused", {
   )
   expect_error(missingmed:::.ipw_weights(md), "Nope")
 })
+
+test_that("a per-variable weight_formula must cover every incomplete model variable", {
+  d <- make_ipw_data()   # M and Y both incomplete
+  mk <- function(wf) set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M", method = "ipw", weight_formula = wf)
+  expect_error(missingmed:::.ipw_weights(mk(list(M = ~ X + C))), "'Y' is missing")
+  expect_error(missingmed:::.ipw_weights(mk(list(Y = ~ X + C))), "'M' is missing")
+  # covering both works, in either order
+  w <- missingmed:::.ipw_weights(mk(list(Y = ~ X + C, M = ~ X + C)))
+  expect_equal(sum(!is.na(w)), sum(stats::complete.cases(d)))
+  # a complete variable needs no entry: only M incomplete -> list(M = ) is enough
+  d2 <- d
+  d2$Y[is.na(d2$Y)] <- 0
+  md <- set_md_mediation(d2, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M", method = "ipw", weight_formula = list(M = ~ X + C))
+  expect_no_error(missingmed:::.ipw_weights(md))
+  # a joint formula is not affected
+  expect_no_error(missingmed:::.ipw_weights(mk(~ X + C)))
+})

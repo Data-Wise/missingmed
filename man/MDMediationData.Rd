@@ -51,8 +51,9 @@ models. Default \code{stats::gaussian()}.}
 \item{mechanism}{Assumed missing-data mechanism: \code{"mar"} (default) or \code{"mnar"}.}
 
 \item{weight_formula}{(IPW) Missingness model specification: \code{NULL} (default;
-use all observed predictors), a single \code{formula} (joint complete-case
-model), or a named \code{list} of formulas (per-variable models). Ignored for MI.}
+a sequential model on the fully observed predictors), a single \code{formula} (one
+joint complete-case model), or a named \code{list} of formulas (a sequential model,
+in list order). Ignored for MI. See \code{\link[=set_md_mediation]{set_md_mediation()}}.}
 
 \item{weight_stabilize}{(IPW) Logical; if \code{TRUE} (default) use stabilized
 weights \code{P(R=1|X) / P(R=1|Z)}. Ignored for MI.}

@@ -68,9 +68,9 @@ probabilities.
 
 ## Choosing the missingness model
 
-By default the missingness model uses every observed predictor. `weight_formula`
-overrides it: a single formula, or a named list with one formula per incomplete
-variable.
+By default the missingness model is sequential (below) and uses every fully
+observed model variable as a predictor. `weight_formula` overrides it: a single
+formula, or a named list with one formula per incomplete variable.
 
 ```{r wf}
 md2 <- set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
@@ -80,11 +80,58 @@ md2 <- set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
 summary(run(md2)@weights)
 ```
 
+**A sequence of models, or one.** A row is complete with probability
+P(`M` observed) x P(`Y` observed given `M` observed), each factor given the
+observed predictors. The default and a named list fit exactly that, each factor
+on the rows where the earlier variables are observed. The default puts the
+variable with fewer missing values first; a list is used in the order written.
+A single formula instead fits **one** model for "every model variable is
+observed". Which is right depends on how the values go missing, which the data
+cannot show:
+
+| Missingness | Default or list (sequential) | Single formula (joint) |
+| --- | --- | --- |
+| One variable incomplete | correct | correct |
+| Several incomplete, separately | correct | biased |
+| Several incomplete, together | correct | correct |
+| Several incomplete, one after another | correct if ordered right | biased |
+
+"Biased" here means at any sample size. "Separately" means each variable's
+missingness depends only on the observed predictors, not on the others';
+"together" means one event drops a row's values.
+
+When the variables go missing separately the probability that all are observed
+is a *product* of logistic probabilities, which one logistic model cannot
+represent. When they go missing together, `Y` is observed on every row where `M`
+is, so its factor is 1: the sequence reduces to one model and fits nothing for
+`Y`. When one drops out after another, the order matters: the factor of the
+variable that drops out second is the one that is logistic given the first, so
+list the variables in the order in which they drop out if the default (fewest
+missing first) is not that order. If several variables are incomplete, name
+every one of them in a list (`run()` refuses a list that omits an incomplete
+variable).
+
+With the default predictors, these models predict missingness from the
+variables that are fully observed. The probability of being complete is then
+assumed to depend on those only, not on the observed values of the other
+incomplete variables. For non-monotone data that is stricter than general
+missing at random (technical vignette, section 5.2).
+
+In a simulation with known weights (162 settings, n up to 5,000, 25% and 40%
+missing in each variable), the largest bias in `b` at n = 5,000 was 0.004 for the
+sequential model, 0.024 for a single formula (separate missingness) and 0.046
+for the earlier per-variable list that fitted each variable on all rows (missing
+together). At n = 500 or fewer, where the forms differ, the sequential model's
+root mean squared error for `b` was 3% to 13% above the single formula's, even
+where the single formula was biased; coverage differed by at most 0.007. The
+bias that remains at a few hundred complete cases (below) is shared by every
+form.
+
 ## Stabilizing and trimming
 
-`weight_stabilize = TRUE` (the default) multiplies by the marginal probability of
-being observed, which leaves the estimate's target unchanged and shrinks the
-weights' spread. `weight_trim` is an upper quantile: `0.95` caps the largest 5% of
+`weight_stabilize = TRUE` (the default) multiplies by the marginal probability
+of being observed. When the outcome regression is correctly specified this
+leaves the estimate's target unchanged, and it shrinks the weights' spread. `weight_trim` is an upper quantile: `0.95` caps the largest 5% of
 weights at the 95th percentile. `1` (default) means no trimming.
 
 ```{r trim}
@@ -97,14 +144,35 @@ rbind(
 )
 ```
 
-Trimming trades a little bias for less variance. Report whether you trimmed.
+Trimming trades a little bias for less variance. Report whether you trimmed,
+and vary the cap to check that the result does not depend on it. In
+the simulated mechanism above (n = 200 or 500, 25% or 40% missing in each of `M`
+and `Y`), trimming at 0.95 moved the mean `b` a further 0.02 to 0.03 below the
+untrimmed stabilized weights (0.285 to 0.264, 0.282 to 0.258, 0.268 to 0.244 and
+0.265 to 0.237 across the four settings).
 
 ## Standard errors
 
 `se_type = "sandwich"` (default) uses a heteroskedasticity-robust (HC) variance;
 `"model"` uses the usual model-based one, which is wrong for weighted fits and is
 there for comparison only. The weights are treated as **known**: the uncertainty
-from estimating them is not propagated.
+from estimating them is not propagated. A variance that does propagate it exists
+internally but is not enabled: in a 48-setting simulation (2,000 replications each)
+it was no better than the current one.
+
+Two things limit how far the intervals can be trusted, whatever the variance:
+
+* **Misspecified weights** (a single formula when the variables go missing
+  separately, above) bias the estimate at any sample size, so the interval is
+  centered in the wrong place. In the worst simulated setting (n = 500, 40%
+  missing in each variable) the 95% interval for `a*b` at `a = b = 0.3` covered
+  0.921 of the time with one joint model and 0.929 with per-variable weights,
+  the form that is correct for that mechanism.
+* **Few complete cases.** Even with correct weights the estimate was biased low at
+  small counts: with 40% missing in each of `M` and `Y` (about 36% complete cases),
+  the mean `b` was 0.282 at n = 200, 0.288 at n = 500 and 0.301 at n = 5,000 (true
+  value 0.30). Treat IPW results from a few hundred complete cases with heavy
+  weights as approximate, and look at `summary(fit@weights)`.
 
 ## IPW or imputation?
 

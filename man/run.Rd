@@ -9,7 +9,7 @@ run(object, ...)
 \arguments{
 \item{object}{An \link{MDMediationData} object.}
 
-\item{...}{Deprecated. Additional arguments forwarded to
+\item{...}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Additional arguments forwarded to
 \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}}; set them with \code{fit_args} in
 \code{\link[=set_md_mediation]{set_md_mediation()}} instead. They are still honored, with a warning, and
 may not repeat a name already in \code{fit_args}.}
