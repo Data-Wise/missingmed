@@ -593,8 +593,17 @@ Let \(R = 1\) mark a complete case over the model variables.
   model. `weight_formula = NULL` orders the variables by ascending share of
   missing values (ties in model-variable order) and predicts with the **fully
   observed** model variables (the MAR drivers); a list gives the order and the
-  predictors. The order matters when the factors are not all logistic, as under
-  a monotone dropout.
+  predictors. It is the standard factorization for monotone missingness
+  (Robins, Rotnitzky and Zhao 1994, section 7.1; Seaman and White 2013, section
+  2.3, equations 4 and 5). For one fixed order it is an "observed past"
+  missingness process, which Robins and Gill (1997, section 9) show is a
+  randomized monotone missingness process. The order is an assumption: if the
+  true order differs from subject to subject, the probability of being complete
+  is a sum over orders, not one product (Robins and Gill 1997, section 4). The
+  order matters when the factors are not all logistic. Under a monotone dropout
+  the factor of the variable that drops out second is logistic given the first;
+  in the reversed order the first factor is the probability that both are
+  observed, a product of two logistic probabilities, which is not.
 - **Joint complete-case model (a single `formula`).** One model, \(\text{logit
   }P(R=1\mid Z)\), with the formula's predictors. Correct when the incomplete
   variables go missing together or only one is incomplete; biased at any \(n\)
@@ -604,8 +613,21 @@ Let \(R = 1\) mark a complete case over the model variables.
   product) is not offered: it is biased at any \(n\) when the variables go
   missing together or one after another.
 
-**Stabilized weights** (`weight_stabilize = TRUE`, default) use a treatment-only
-numerator to reduce variance:
+**What is assumed.** With the default predictors, and with any formula built
+from fully observed variables (the advice throughout), the probability of being
+complete is assumed to depend on the fully observed model variables only, not
+on the observed values of the other incomplete variables. This is the usual
+restriction (Seaman and White 2013, appendix 2: "commonly restricted to fully
+observed predictors"). For non-monotone data it is strictly stronger than
+missing at random, where the probability of a pattern may depend on any
+variable observed in that pattern (Sun and Tchetgen Tchetgen 2018, section 3.1
+of the arXiv version). Modeling that general case is hard (Robins and Gill
+1997; Sun and Tchetgen Tchetgen 2018) and is not attempted here.
+
+**Stabilized weights** (`weight_stabilize = TRUE`, default) use a
+treatment-only numerator to reduce variance. The numerator needs no correct
+model of its own; the stabilized estimator is consistent when the outcome
+(mean) regression is correct (Seaman and White 2013, section 6):
 \[
 w_i = \frac{\hat P(R=1\mid X_i)}{\hat P(R=1\mid Z_i)} .
 \]
@@ -1112,9 +1134,23 @@ table in section 5B.2 shows `msp = 0.244` at `delta = 0`.
 
 **"`se_type = "sandwich"` corrects for having estimated the weights."**
 No. The sandwich is heteroskedasticity-consistent and treats \(\hat\pi\) as
-fixed. Robins, Rotnitzky and Zhao (1994) show that ignoring weight estimation
-makes the variance **conservative** -- estimating the weights *reduces* variance
-relative to knowing them. The intervals are honest, just wider than necessary.
+fixed. When the missingness model is correct, ignoring the estimation of the
+weights makes the variance estimate **conservative** for each coefficient: the
+asymptotic variance with estimated selection probabilities is no larger than
+with the true ones (Robins, Rotnitzky and Zhao 1994, section 6.1 and
+proposition 6.1; the same for propensity-score weights in Lunceford and
+Davidian 2004, section 3.1; stated for IPW generally in Seaman and White 2013,
+section 8). The intervals are then wider than necessary, not too narrow.
+
+Three limits. The result is asymptotic and assumes a correct missingness model;
+with a misspecified or heavily weighted model the interval is centered in the
+wrong place and can under-cover. It is proved for a regression coefficient, not
+for a product of two, so for \(a b\) it is an extrapolation: in this package's
+simulations the variance that accounts for estimated weights was 1% to 3%
+narrower, and in no setting did it repair an interval that under-covered. And
+Robins, Rotnitzky and Zhao (1994, after proposition 6.1) warn that a richly
+parameterized missingness model biases the estimated variance in finite samples
+and suggest the bootstrap.
 
 **"IPW and MI should agree; if they disagree, one is broken."**
 No. They target the same estimand under MAR but use different information: MI
@@ -1135,8 +1171,21 @@ substantive model -- not of a bug.
 - Grund, S., Lüdtke, O., & Robitzsch, A. (2023). Pooling methods for
   likelihood ratio tests in multiply imputed data sets. *Psychological
   Methods*, *28*(5), 1207--1221.
+- Lunceford, J. K., & Davidian, M. (2004). Stratification and weighting via the
+  propensity score in estimation of causal treatment effects: a comparative
+  study. *Statistics in Medicine*, 23(19), 2937--2960. doi:10.1002/sim.1903
+- Robins, J. M., & Gill, R. D. (1997). Non-response models for the analysis of
+  non-monotone ignorable missing data. *Statistics in Medicine*, 16(1), 39--56.
+- Robins, J. M., Rotnitzky, A., & Zhao, L. P. (1994). Estimation of regression
+  coefficients when some regressors are not always observed. *Journal of the
+  American Statistical Association*, 89(427), 846--866. doi:10.1080/01621459.1994.10476818
 - Seaman, S. R., & White, I. R. (2013). Review of inverse probability weighting
-  for dealing with missing data. *Statistical Methods in Medical Research*.
+  for dealing with missing data. *Statistical Methods in Medical Research*,
+  22(3), 278--295.
+- Sun, B., & Tchetgen Tchetgen, E. J. (2018). On inverse probability weighting
+  for nonmonotone missing at random data. *Journal of the American Statistical
+  Association*, 113(521), 369--379. Section numbers cited here are those of the
+  arXiv version, [arXiv:1411.5310](https://arxiv.org/abs/1411.5310).
 - van Buuren, S. *Flexible Imputation of Missing Data*, 2nd ed., §9.2 (delta
   adjustment).
 - Leacy, F. P., Floyd, S., Yates, T. A., & White, I. R. (2017). Analyses of

@@ -52,7 +52,7 @@ What the pilot supports, and what it does not:
 - Sun and Tchetgen Tchetgen (2018, [JASA 113:369](https://doi.org/10.1080/01621459.2016.1256814)): IPW for non-monotone MAR has been held back by the lack of coherent missingness models; they propose a class of models and two estimators.
 - Lunceford and Davidian (2004, [Stat Med 23:2937](https://doi.org/10.1002/sim.1903)): variance implications of estimated weights (the stacking work).
 
-**Verification status.** I read the abstracts and search summaries, not the full texts. The chain-rule identity above needs no citation. Whether the sequential form is a special case of Robins and Gill's model class, and how Sun and Tchetgen Tchetgen's class relates to it, are **unverified**; read both before the documentation cites them (task T6).
+**Verification status (updated 2026-10-09).** All five papers were read against the full text, to the depth stated in [NOTE-ipw-literature-check-2026-10-09.md](NOTE-ipw-literature-check-2026-10-09.md). Results that change this section's descriptions: the sequential form with a fixed order is an "observed past" missingness process and so is randomized-monotone-missingness representable (Robins and Gill 1997, section 9); the default's restriction to fully observed predictors is strictly stronger than general non-monotone MAR (Sun and Tchetgen Tchetgen, section 3.1 of the arXiv version); and Lunceford and Davidian (2004) is a causal-inference paper whose link to missing data is the estimated-weight variance result. The chain-rule identity itself needs no citation.
 
 ## 4. Options
 
