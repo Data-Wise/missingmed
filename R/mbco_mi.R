@@ -12,7 +12,7 @@
 
 # Drop EVERY term whose variables include `var`, not just the main effect.
 #
-# stats::update(f, . ~ . - M) removes only the term labelled exactly "M", so
+# stats::update(f, . ~ . - M) removes only the term labeled exactly "M", so
 # `Y ~ X * M + C` keeps X:M and `Y ~ poly(M, 2) + X` is left completely
 # unchanged -- in the latter case the "constrained" model equals the full model,
 # T = 0, and the test can never reject. Filtering on all.vars() of each term
