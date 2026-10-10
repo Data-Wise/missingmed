@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | DRAFT, awaiting approval. T0 waits for the author ("make the branch"). |
+| **Status** | APPROVED 2026-10-09 (D1 revised to "A": force role resolution, plus the alias-label refusal and the run() cross-check). T0 to T9 done; T10 after merge. |
 | **Source** | Codex adversarial review of `main...dev` (job `bcyvxedf1`, 2026-10-09 21:54), triaged the same evening |
 | **Checklist** | [TODO-codex-review-fixes-2026-10-09.md](TODO-codex-review-fixes-2026-10-09.md) |
 | **Feeds** | [PLAN-cran-1.0.0-2026-10-09.md](PLAN-cran-1.0.0-2026-10-09.md) T1: both bugs belong before 1.0.0 |

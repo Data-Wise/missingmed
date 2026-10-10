@@ -4,26 +4,26 @@ Plan: [PLAN-codex-review-fixes-2026-10-09.md](PLAN-codex-review-fixes-2026-10-09
 
 ## Gate
 
-- [ ] Author approves the plan and answers D1 to D4 (all four recommendations are the defaults)
-- [ ] T0: author says "make the branch"; `feature/codex-review-fixes` exists
+- [x] Author approves the plan and answers D1 to D4 (all four recommendations are the defaults)
+- [x] T0: author says "make the branch"; `feature/codex-review-fixes` exists
 
 ## F1: lavaan labels override roles
 
-- [ ] T1: reserved labels and precedence read from medfit (read-only)
-- [ ] T2: failing test (`a` on a covariate path)
-- [ ] T3: `.check_lavaan_spec()` rejects the conflict
-- [ ] T4: `run()` cross-check against `parTable()` plus planted-defect test
+- [x] T1: reserved labels and precedence read from medfit (read-only)
+- [x] T2: failing test (`a` on a covariate path)
+- [x] T3: roles decide (medfit labels switched off) and `.check_lavaan_alias_labels()` rejects the conflict
+- [x] T4: `run()` cross-check against `parTable()` plus planted-defect test
 
 ## F2: weighted MI fits and MBCO
 
-- [ ] T5: failing test (`weights`, `offset` in `fit_args`)
-- [ ] T6: `infer(type = "mbco")` refuses; `control` still allowed
+- [x] T5: failing test (`weights`, `offset` in `fit_args`)
+- [x] T6: `infer(type = "mbco")` refuses; `control` still allowed
 
 ## Ship
 
-- [ ] T7: docs, NEWS, comment and spec wording
-- [ ] T8: end-to-end transcripts (both reproductions plus a passing control)
-- [ ] T9: full suite vs baseline 1523 / 0 / 8; PR to `dev`
+- [x] T7: docs, NEWS, comment and spec wording
+- [x] T8: end-to-end transcripts (both reproductions plus a passing control)
+- [x] T9: full suite 1547 / 0 / 8 (baseline 1523 plus 24 new); PR to `dev` opened
 - [ ] T10: memory `mbco-glm-refits-ignore-fit-args` updated after merge
 
 ## Then
