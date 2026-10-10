@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | DRAFT. Item I reopened as a plan only, gated on E (author, 2026-10-09: "A"). Scope freeze (T1) still open. |
+| **Status** | DRAFT. Item I reopened as a plan only, gated on E (author, 2026-10-09: "A"). D5 decided: **wait for a medfit CRAN release with the 0.4.0 features, then raise the floor** (author, 2026-10-09: "A"). Scope freeze (T1) and which medfit release still open. |
 | **Follows** | [PLAN-open-items-2026-10-09.md](PLAN-open-items-2026-10-09.md), item I |
 | **Owner of the release** | The author. Version bump, `dev` to `main`, tag, GitHub release and the CRAN upload are release engineering and are not done from a feature session without an explicit request. |
 
