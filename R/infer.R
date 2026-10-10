@@ -98,6 +98,7 @@ S7::method(infer, MDMediationFit) <- function(object, type = c("mc", "mbco"),
     stop("MBCO inference for IPW is not yet implemented. Use type = \"mc\" for ",
       "IPW objects (weighted Monte-Carlo CI).", call. = FALSE)
   }
+  if (!identical(object@engine, "lavaan")) .check_mbco_fit_args(src@fit_args)
   implist <- mice::complete(src@data, action = "all")
   if (identical(object@engine, "lavaan")) {
     .mm_lav_check_mbco(src)
@@ -109,6 +110,23 @@ S7::method(infer, MDMediationFit) <- function(object, type = c("mc", "mbco"),
     .expand_dot(src@formula_y, src@original_data),
     .expand_dot(src@formula_m, src@original_data),
     src@family_y, src@family_m, src@treatment, src@mediator, ariv = ariv)
+}
+
+# MBCO refits every imputation with bare stats::glm(), so a fit_args entry that
+# changes the likelihood would fit one model in run() and test another here.
+# Entries that only steer convergence (`control`, `start`) are harmless.
+.mbco_refused_args <- c("weights", "offset", "subset", "na.action")
+
+.check_mbco_fit_args <- function(fit_args) {
+  bad <- intersect(names(fit_args), .mbco_refused_args)
+  if (length(bad)) {
+    stop("MBCO inference refits with an unweighted, unsubsetted glm(), so it ",
+      "cannot honor ", paste0("`", bad, "`", collapse = ", "), " in ",
+      "`fit_args`. Use type = \"mc\", or drop the entry.",
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
 }
 
 S7::method(infer, MDMediationResult) <- function(object, type = c("mc", "mbco"),
