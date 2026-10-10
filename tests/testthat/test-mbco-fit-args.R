@@ -29,7 +29,7 @@ fw_fit <- function(...) {
 
 test_that("MBCO refuses weights in fit_args, and the control run still works", {
   fit <- fw_fit(fit_args = list(weights = fw_w))
-  expect_error(infer(fit, type = "mbco"), "`weights`.*MBCO")
+  expect_error(infer(fit, type = "mbco"), "cannot honor `weights`")
   expect_no_error(infer(fit, type = "mc", n.mc = 2000))
 })
 
