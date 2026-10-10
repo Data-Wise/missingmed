@@ -547,10 +547,10 @@
 ## Bug fixes
 
 * **MBCO's constrained models did not null the whole path.** The constraint was
-  imposed with `update(. ~ . - M)`, which removes only the term labelled exactly
+  imposed with `update(. ~ . - M)`, which removes only the term labeled exactly
   `M`; every other term carrying the mediator survived. `Y ~ X * M + C` kept
   `X:M`, and `Y ~ poly(M, 2) + X` was left **completely unchanged** -- so the
-  "constrained" model equalled the full model, the statistic was exactly 0, and
+  "constrained" model equaled the full model, the statistic was exactly 0, and
   the test could never reject, at any sample size, with no error or warning.
   The constraint now drops every term whose variables include the target, which
   covers `poly(M, 2)`, `I(M^2)`, `log(M)`, splines and interactions alike.

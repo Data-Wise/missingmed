@@ -277,7 +277,7 @@ set_md_mediation <- function(data, formula_y, formula_m,
       call. = FALSE
     )
   }
-  # A `formula_m` modelling another variable fits, but its "a path" is the
+  # A `formula_m` modeling another variable fits, but its "a path" is the
   # treatment's effect on that variable, so the indirect effect is silently
   # wrong.
   if (!identical(all.vars(formula_m[[2]]), mediator)) {
