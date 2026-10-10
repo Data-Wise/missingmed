@@ -151,7 +151,8 @@ extreme probabilities.</p>
 <div class="section level2">
 <h2 id="choosing-the-missingness-model">Choosing the missingness model<a class="anchor" aria-label="anchor" href="#choosing-the-missingness-model"></a>
 </h2>
-<p>By default the missingness model uses every observed predictor.
+<p>By default the missingness model is sequential (below) and uses every
+fully observed model variable as a predictor.
 <code>weight_formula</code> overrides it: a single formula, or a named
 list with one formula per incomplete variable.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -162,17 +163,25 @@ list with one formula per incomplete variable.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md2</span><span class="op">)</span><span class="op">@</span><span class="va">weights</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.     NAs </span></span>
 <span><span class="co">#&gt;  0.7375  0.8632  0.9375  0.9958  1.0796  2.1085     119</span></span></code></pre></div>
-<p><strong>One model or one per variable.</strong> The default, and a
-single formula, fit <strong>one</strong> model for “every model variable
-is observed”. A named list fits <strong>one model per incomplete
-variable, each on all rows,</strong> and multiplies the probabilities.
-Which is right depends on how the values go missing, which the data
-cannot show:</p>
+<p><strong>A sequence of models, or one.</strong> A row is complete with
+probability P(<code>M</code> observed) x P(<code>Y</code> observed given
+<code>M</code> observed), each factor given the observed predictors. The
+default and a named list fit exactly that, each factor on the rows where
+the earlier variables are observed. The default puts the variable with
+fewer missing values first; a list is used in the order written. A
+single formula instead fits <strong>one</strong> model for “every model
+variable is observed”. Which is right depends on how the values go
+missing, which the data cannot show:</p>
 <table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
 <thead><tr class="header">
 <th>Missingness</th>
-<th>Joint model</th>
-<th>Per-variable list</th>
+<th>Default or list (sequential)</th>
+<th>Single formula (joint)</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -181,13 +190,18 @@ cannot show:</p>
 <td>correct</td>
 </tr>
 <tr class="even">
-<td>Several incomplete, missing separately</td>
-<td>biased</td>
+<td>Several incomplete, separately</td>
 <td>correct</td>
+<td>biased</td>
 </tr>
 <tr class="odd">
-<td>Several incomplete, missing together</td>
+<td>Several incomplete, together</td>
 <td>correct</td>
+<td>correct</td>
+</tr>
+<tr class="even">
+<td>Several incomplete, one after another</td>
+<td>correct if ordered right</td>
 <td>biased</td>
 </tr>
 </tbody>
@@ -195,20 +209,28 @@ cannot show:</p>
 <p>“Biased” here means at any sample size. “Separately” means each
 variable’s missingness depends only on the observed predictors, not on
 the others’; “together” means one event drops a row’s values.</p>
-<p>In the separate case the probability that all are observed is a
-<em>product</em> of logistic probabilities, which one logistic model
-cannot represent. In the joint case it equals each variable’s own
-probability, so the product double-counts. In a simulated check
-(<code>M</code> and <code>Y</code> each missing 40% of the time, driven
-by an auxiliary variable, true <code>b</code> = 0.30), the joint default
-converged to <code>b</code> = 0.278 at n = 100,000 under separate
-missingness, while a per-variable
-<code>weight_formula = list(M = ..., Y = ...)</code> converged to 0.300.
-In a pilot of the opposite structure (laptop, 8 replications at n =
-100,000, bias against the full-data estimate), the per-variable list was
-about 0.05 too high and the joint model unbiased. If several variables
-are incomplete, name every one of them in the list (<code><a href="../reference/run.html">run()</a></code>
-refuses a list that omits an incomplete variable).</p>
+<p>When the variables go missing separately the probability that all are
+observed is a <em>product</em> of logistic probabilities, which one
+logistic model cannot represent. When they go missing together,
+<code>Y</code> is observed on every row where <code>M</code> is, so its
+factor is 1: the sequence reduces to one model and fits nothing for
+<code>Y</code>. When one drops out after another, the order matters: the
+factor of the variable that drops out second is the one that is logistic
+given the first, so list the variables in the order in which they drop
+out if the default (fewest missing first) is not that order. If several
+variables are incomplete, name every one of them in a list
+(<code><a href="../reference/run.html">run()</a></code> refuses a list that omits an incomplete
+variable).</p>
+<p>In a simulation with known weights (162 settings, n up to 5,000, 25%
+and 40% missing in each variable), the largest bias in <code>b</code> at
+n = 5,000 was 0.004 for the sequential model, 0.024 for a single formula
+(separate missingness) and 0.046 for the earlier per-variable list that
+fitted each variable on all rows (missing together). At n = 500 or
+fewer, where the forms differ, the sequential model’s root mean squared
+error for <code>b</code> was 3% to 13% above the single formula’s, even
+where the single formula was biased; coverage differed by at most 0.007.
+The bias that remains at a few hundred complete cases (below) is shared
+by every form.</p>
 </div>
 <div class="section level2">
 <h2 id="stabilizing-and-trimming">Stabilizing and trimming<a class="anchor" aria-label="anchor" href="#stabilizing-and-trimming"></a>
@@ -252,12 +274,13 @@ one.</p>
 variance:</p>
 <ul>
 <li>
-<strong>Misspecified weights</strong> (the joint model above) bias
-the estimate at any sample size, so the interval is centered in the
-wrong place. In the worst simulated setting (n = 500, 40% missing in
-each variable) the 95% interval for <code>a*b</code> at
-<code>a = b = 0.3</code> covered 0.921 of the time with the joint
-default and 0.929 with per-variable weights.</li>
+<strong>Misspecified weights</strong> (a single formula when the
+variables go missing separately, above) bias the estimate at any sample
+size, so the interval is centered in the wrong place. In the worst
+simulated setting (n = 500, 40% missing in each variable) the 95%
+interval for <code>a*b</code> at <code>a = b = 0.3</code> covered 0.921
+of the time with one joint model and 0.929 with per-variable weights,
+the form that is correct for that mechanism.</li>
 <li>
 <strong>Few complete cases.</strong> Even with correct weights the
 estimate was biased low at small counts: with 40% missing in each of

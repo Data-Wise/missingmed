@@ -128,8 +128,9 @@ models. Default <code><a href="https://rdrr.io/r/stats/family.html" class="exter
 
 <dt id="arg-weight-formula">weight_formula<a class="anchor" aria-label="anchor" href="#arg-weight-formula"></a></dt>
 <dd><p>(IPW) Missingness model specification: <code>NULL</code> (default;
-use all observed predictors), a single <code>formula</code> (joint complete-case
-model), or a named <code>list</code> of formulas (per-variable models). Ignored for MI.</p></dd>
+a sequential model on the fully observed predictors), a single <code>formula</code> (one
+joint complete-case model), or a named <code>list</code> of formulas (a sequential model,
+in list order). Ignored for MI. See <code><a href="set_md_mediation.html">set_md_mediation()</a></code>.</p></dd>
 
 
 <dt id="arg-weight-stabilize">weight_stabilize<a class="anchor" aria-label="anchor" href="#arg-weight-stabilize"></a></dt>

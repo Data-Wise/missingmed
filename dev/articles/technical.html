@@ -832,26 +832,38 @@ downstream changes.</p>
 mark a complete case over the model variables.</p>
 <ul>
 <li>
-<strong>Joint complete-case model (default).</strong>
-<code>weight_formula = NULL</code> fits
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">logit </mtext><mspace width="0.333em"></mspace></mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{logit }P(R=1\mid Z)</annotation></semantics></math>
-on the <strong>fully observed</strong> model variables (the MAR
-drivers); a single <code>formula</code> overrides the predictors.
-Correct when the incomplete variables go missing together or only one is
-incomplete; biased at any
+<strong>Sequential (chain-rule) factorization (default, and a named
+list).</strong> With incomplete variables
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>V</mi><mn>1</mn></msub><mo>,</mo><msub><mi>V</mi><mn>2</mn></msub><mo>,</mo><mi>…</mi></mrow><annotation encoding="application/x-tex">V_1, V_2, \dots</annotation></semantics></math>
+in a given order,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">complete</mtext><mo>∣</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>V</mi><mn>1</mn></msub><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> obs</mtext></mrow><mo>∣</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>P</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>V</mi><mn>2</mn></msub><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> obs</mtext></mrow><mo>∣</mo><msub><mi>V</mi><mn>1</mn></msub><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> obs</mtext></mrow><mo>,</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo><mi>⋯</mi></mrow><annotation encoding="application/x-tex">P(\text{complete}\mid Z) = P(V_1\text{ obs}\mid Z)\, P(V_2\text{ obs}\mid
+V_1\text{ obs}, Z)\cdots</annotation></semantics></math>, each factor a
+logistic model fitted on the rows where the earlier variables are
+observed. It is an identity, so it is correct whenever each factor is
+logistic, whether the variables go missing separately, together or one
+after another. A factor observed on every fitted row (the second
+variable under simultaneous missingness) is 1 and fits no model.
+<code>weight_formula = NULL</code> orders the variables by ascending
+share of missing values (ties in model-variable order) and predicts with
+the <strong>fully observed</strong> model variables (the MAR drivers); a
+list gives the order and the predictors. The order matters when the
+factors are not all logistic, as under a monotone dropout.</li>
+<li>
+<strong>Joint complete-case model (a single
+<code>formula</code>).</strong> One model,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">logit
+</mtext><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{logit
+}P(R=1\mid Z)</annotation></semantics></math>, with the formula’s
+predictors. Correct when the incomplete variables go missing together or
+only one is incomplete; biased at any
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
 when they go missing separately, because
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(R=1\mid Z)</annotation></semantics></math>
 is then a product of logistics.</li>
-<li>
-<strong>Per-variable (marginal) factorization.</strong> A <em>named
-list</em> of formulas fits one model per incomplete variable, each on
-<strong>all</strong> rows, and multiplies:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">complete</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mo>∏</mo><mi>V</mi></msub><mi>P</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>R</mi><mi>V</mi></msub><mo>=</mo><mn>1</mn><mo>∣</mo><mi>⋅</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(\text{complete}) = \prod_V P(R_V = 1\mid \cdot)</annotation></semantics></math>.
-Correct when the incomplete variables go missing separately given the
-predictors; biased at any
+<li>The earlier marginal form (each variable on <strong>all</strong>
+rows, weights from the product) is not offered: it is biased at any
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
-when they go missing together (the product double-counts).</li>
+when the variables go missing together or one after another.</li>
 </ul>
 <p><strong>Stabilized weights</strong>
 (<code>weight_stabilize = TRUE</code>, default) use a treatment-only

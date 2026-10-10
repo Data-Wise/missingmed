@@ -84,9 +84,11 @@ MDMediationData(
 
 - weight_formula:
 
-  (IPW) Missingness model specification: `NULL` (default; use all
-  observed predictors), a single `formula` (joint complete-case model),
-  or a named `list` of formulas (per-variable models). Ignored for MI.
+  (IPW) Missingness model specification: `NULL` (default; a sequential
+  model on the fully observed predictors), a single `formula` (one joint
+  complete-case model), or a named `list` of formulas (a sequential
+  model, in list order). Ignored for MI. See
+  [`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md).
 
 - weight_stabilize:
 

@@ -94,13 +94,17 @@ set_md_mediation(
 
 - weight_formula:
 
-  (IPW) Missingness model: `NULL` (default; all observed predictors), a
-  single `formula`, or a named `list` of per-variable formulas. `NULL`
-  and a single formula fit **one** model for "every model variable is
-  observed", which is right when several incomplete variables go missing
-  together and biased when they go missing separately; a list fits one
-  model per variable on all rows, right for separate missingness and
-  biased for simultaneous. If one variable is incomplete the two agree.
+  (IPW) Missingness model: `NULL` (default), a single `formula`, or a
+  named `list` of per-variable formulas. `NULL` and a list fit a
+  sequential (chain-rule) model, P(V1 observed) x P(V2 observed \| V1
+  observed) x ..., each factor on the rows where the earlier variables
+  are observed. `NULL` orders the incomplete model variables by
+  ascending share of missing values and predicts with the fully observed
+  model variables; a list gives the order (its names) and the predictors
+  (its formulas). A single formula fits **one** model for "every model
+  variable is observed", which is right when the variables go missing
+  together and biased when they go missing separately. With one
+  incomplete variable the three agree.
 
 - weight_stabilize:
 
