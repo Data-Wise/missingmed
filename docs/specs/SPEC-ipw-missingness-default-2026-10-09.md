@@ -112,6 +112,28 @@ Same harness as the earlier gates (`dev/sim-ipw-stack-*`, hopper array, per-colu
 | T5 | If D: implement in `.ipw_weights_info()` (TDD), NEWS, man pages | known-answer test (weights equal the product of the conditional fits); planted-defect test (marginal fails under simultaneous at n = 2e4); degenerate-factor test; order test | full suite, counts quoted; `R CMD check` clean |
 | T6 | If D: documentation per section 7 plus the literature check in section 3 | each claim matches a result | docs render; links resolve |
 
+## 8a. Addendum A (T1, before any grid result): what the harness pilot changed
+
+Written after the T1 harness and its 40-replication control pilot (`dev/sim-ipw-mech-smoke.R --controls 40`, n = 5000, 40% missing, P4, 26 s), before the grid has run. The pilot's mean bias in `b`:
+
+| Mechanism / DGM | joint | marginal | sequential | reversed | true weights |
+|---|---|---|---|---|---|
+| independent / auxm | -0.023 | -0.001 | -0.002 | -0.002 | -0.000 |
+| simultaneous / auxm | +0.001 | **+0.046** | +0.001 | +0.001 | +0.001 |
+| monotone / auxm | -0.011 | +0.018 | +0.001 | -0.011 | +0.001 |
+
+In `std` and `aux` every form is within 0.007 of zero in all three mechanisms: with no auxiliary variable acting on both M and Y, a wrong weight model does not move `b`. **Only `auxm` discriminates between forms.** The `std` and `aux` cells stay in the grid as no-harm cells for C2 to C4, and C1 is read in `auxm`.
+
+Corrections to section 5, all declared now:
+
+1. **Planted-defect bar.** "Fails C1 by more than 0.03" (bias above 0.04) is replaced by: in `sim` / `auxm` / P4 / 40% missing / n = 5000, the marginal form's absolute mean bias in `b` exceeds **0.03**. The pilot gave +0.046 with 40 replications, too close to 0.04 for a control that voids the run if it misses.
+2. **Known-weights control.** The `true` arm (the DGM's own P(complete)) must have absolute mean bias in `b` at most 0.010 in every n = 5000 cell, or the run is void.
+3. **C2 was incomplete in two ways.** (a) Scope: at P4 the bar is coverage of the indirect effect at least 0.93; at the null points P1 and P2 it is rejection of zero at most 0.065 (the earlier gates' size bar), since coverage of a near-zero truth is not the question there. (b) Escape clause, as in the earlier gates' C1*: a cell also passes if sequential is within 0.01 of the `true` arm in that cell (coverage not more than 0.01 lower, rejection not more than 0.01 higher), because the shipped variance's own limit is not what the default decision is about.
+4. **A C2 failure alone** was unassigned in the decision rule. It follows the C3/C4 branch: keep the joint default, add warning B, ship the sequential form as opt-in.
+5. **C3 scope.** All `sim` cells at n = 200 and 500 (the mechanism where the joint default is correct): at P4 coverage, at nulls rejection, each paired against the joint form's on the same replications; RMSE of `b` against the stored population `b` in every such cell.
+6. **C4 failure** is a replication that errors, returns a non-converged model, or has no interval (non-positive-definite block). A degenerate factor (the second factor under simultaneous missingness) is expected, is not a failure, and is counted separately.
+7. **Cost.** 0.07 s per replication at n = 5000, so the grid is about 2.5 core-hours (about 10 minutes on hopper at 40 concurrent tasks), below the 15 to 30 minutes estimated above.
+
 ## 9. Boundaries
 
 - **Always:** pre-register before running; report failure shares per column; stage explicit paths; US spelling.
@@ -126,3 +148,55 @@ Same harness as the earlier gates (`dev/sim-ipw-stack-*`, hopper array, per-colu
 3. **API: no new argument; a named list means the sequence in list order (recommended).** Alternative: a `weight_model = c("sequential", "joint", "marginal")` argument, which keeps old lists reproducible but adds a knob whose right setting the user cannot determine from the data.
 4. **T0 now, as a docs-only PR (recommended).** The correction to the article does not depend on the gate.
 5. **Order rule: ascending missing share (recommended).** Alternative: model-variable order, simpler to explain, wrong for monotone dropout where the outcome is listed first in the formula.
+
+## 11. Results, run 1 (T3 and T4), applied as written
+
+Hopper job 4334835: 324 of 324 tasks completed, 162 cells x 1000 replications x 5 forms (810,000 rows), harness commit `d62295d`. Full output: [RESULTS-ipw-missingness-gate-run1-2026-10-09.txt](RESULTS-ipw-missingness-gate-run1-2026-10-09.txt).
+
+**Mean bias in `b`, n = 5000, 40% missing, P4:**
+
+| Mechanism / DGM | joint | marginal | **sequential** | reversed | true weights |
+|---|---|---|---|---|---|
+| independent / auxm | -0.0212 | -0.0004 | **-0.0004** | -0.0004 | -0.0005 |
+| simultaneous / auxm | -0.0004 | **+0.0452** | **-0.0004** | -0.0004 | -0.0004 |
+| monotone / auxm | -0.0121 | +0.0150 | **-0.0009** | **-0.0121** | -0.0009 |
+
+In `std` and `aux` every form is within 0.004 of zero.
+
+| Criterion | Result |
+|---|---|
+| Controls | **Both pass.** Planted defect: the marginal form's bias in `sim` / `auxm` / P4 / 40% / n = 5000 is +0.0452 (bar 0.03). Known weights: absolute bias at most 0.004 in every n = 5000 cell (bar 0.010). |
+| **C1** consistency | **PASS.** The sequential form's largest absolute bias in `b` over the 54 n = 5000 cells is **0.0043** (0.0039 in `auxm`). For comparison the joint form's largest is 0.0244 (independent / `auxm`) and the marginal form's 0.0462 (simultaneous / `auxm`). |
+| **C2** coverage | **PASS**, with a caveat. P4 coverage at n = 5000 is 0.935 at the minimum, 0.951 median. Null rejection is at most 0.063 in cells with under 1% failed intervals; it reaches 0.119 in cells with 17% to 20% failed intervals, which pass only through the known-weights escape clause. These figures are conditional on an interval being returned. |
+| **C3** non-inferiority | **PASS, vacuously.** Under simultaneous missingness the sequential weights equal the joint weights exactly (the second factor is degenerate in 100% of replications), so every difference is 0.0000. The criterion cannot fail for this form and mechanism. |
+| **C4** failures | **FAIL.** 8 cells, all n = 5000, 25% missing, in `mono` and `sim`, `std` and `auxm`: 2.5% to 20% of sequential replications have no interval. At n = 200 and 500 the largest failed share over all forms and cells is 0.1%. |
+| C5 (reported) | Reversed order under monotone missingness: bias -0.0121 in `auxm` at 40% (sequential: -0.0009); at most 0.0020 in `std` and `aux`. |
+
+**Decision as written: KEEP JOINT DEFAULT.** Add warning B and ship the sequential form as an explicit opt-in (section 5: C1 passes, C4 fails).
+
+**What the C4 failures are.** Every failed replication is an interval returned as `NA`: no error, no non-convergence, no degenerate weight model. The known-weights arm fails at 15% to 18% in the same cells, and the joint and reversed forms at about the sequential form's share. `RMediation::ci(type = "dop")` stops with "Numerical algorithm does not work in type='dop'" at some large-n estimates (reproduced: `a` = 0.327, `b` = 0.329, se = 0.033 and 0.017); `type = "MC"` returns an interval for the same inputs. The earlier gates stopped at n = 500 and never reached this. So C4 failed because of the interval routine in the harness, not because of any weight model, and the C2 figures in those eight cells describe the replications where the routine worked. C1 uses the point estimates of all replications and is unaffected.
+
+### 11a. Amendment declared before it was run (post hoc, labeled as such)
+
+The as-written decision above stands and is recorded first. Because the C4 failure is a harness defect that hits every arm equally, a second run changes **only** the interval step: when `type = "dop"` returns no interval for a positive-definite block, the interval is taken from `type = "MC"` (seeded per replication) and the replication is flagged `fallback`. Nothing else changes: same cells, seeds, forms, criteria and bars. C4 then counts only replications that error, do not converge, have a non-positive-definite block, or get no interval from either method. Both decisions are reported, and **which one governs is the author's call.** The point estimates and weights are identical by construction, so C1 and the controls reproduce exactly; only C2 and C4 can move.
+
+### 11b. Results, run 2 (amended)
+
+Hopper job 4335160, 324 of 324 tasks completed, harness commit `ba614c4`, 810,000 rows. Full output: [RESULTS-ipw-missingness-gate-run2-2026-10-09.txt](RESULTS-ipw-missingness-gate-run2-2026-10-09.txt).
+
+- **Interval fallback:** about 0.6% of replications used the MC interval (sequential 0.59%, joint 0.60%, known weights 0.53%, marginal 0.27%). No replication of any form in any cell is now without an interval, and no cell has a failed share above 0.
+- **Controls and C1 reproduce exactly** (same estimates): both controls pass; the sequential form's largest bias in `b` is 0.0043 over the 54 n = 5000 cells.
+- **C2 PASS.** P4 coverage at n = 5000: minimum 0.934, median 0.946. Null rejection: three cells exceed the 0.065 bar, `sim` / `std` / 25% / P1 at 0.107 (known weights 0.106), `mono` / `std` / 25% / P1 at 0.095 (0.107), `sim` / `auxm` / 25% / P1 at 0.074 (0.077). The known-weights arm is as high, so this is a limit of the shipped variance and interval, not of the weight model; the cells pass through the escape clause (section 8a, item 3).
+- **C3 PASS, vacuously** (as in run 1: the sequential and joint weights are identical under simultaneous missingness).
+- **C4 PASS.**
+
+**Decision as amended: ADOPT D.**
+
+**Two caveats the rule did not test, both from the same data.**
+
+1. **C3 gives no evidence in the mechanisms where the forms differ.** In independent and monotone missingness at n = 200 and 500 (72 cells), the sequential form's coverage is within -0.004 to +0.007 of the joint form's (null rejection within -0.005 to +0.003), but its RMSE of `b` is more than 5% higher in **29 of 72** cells (maximum ratio 1.135; 18 of 24 `aux` cells, 11 of 24 `auxm`, 0 of 24 `std`). In `aux`, no form is biased, so that is a pure variance cost of fitting the second factor on a subset. In `auxm` (40% missing, P4) the sequential form has less bias than the joint form but a higher RMSE in all six comparisons, because variance dominates at these sample sizes. Independent: bias -0.018 against -0.029 at n = 200, -0.015 against -0.029 at n = 500, -0.0004 against -0.021 at n = 5000, RMSE 4%, 7% and 6% higher. Monotone: bias -0.013 against -0.020, -0.004 against -0.013 and -0.001 against -0.012, RMSE 3%, 6% and 4% higher. Removing the bias does not lower RMSE even at n = 5000. Had C3 covered these cells, 29 would have failed its RMSE clause.
+2. **The amendment was declared after run 1 was seen.** It touches only the interval step, which all arms share, and leaves every estimate unchanged, but the as-written decision (keep the joint default) is the conservative reading and remains on record.
+
+### 11c. Question for the author
+
+6. **Which decision governs: as written (keep the joint default, add a warning, sequential as opt-in) or amended (adopt the sequential default)?** Recommended: **amended, adopt D**. The sequential form removes a bias of up to 0.021 in `b` that the joint default carries and the marginal list reverses (+0.045 under simultaneous missingness), the estimates and controls are identical in both runs, and the only difference is an interval routine that failed equally for every arm. The cost is a variance increase (caveat 1: RMSE of `b` 3% to 13% higher where the forms differ, even where the joint default is biased), with coverage within 0.007 of the joint form's; what is bought is consistency, not lower RMSE. If you prefer the conservative reading, the opt-in route delivers the same estimator without changing anyone's default. T5 (implementation) waits for this answer.

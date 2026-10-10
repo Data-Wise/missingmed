@@ -2,10 +2,14 @@
 # (SPEC-ipw-stack-coverage-2026-10-09.md). Sourced by sim-ipw-stack-hopper.R
 # (SLURM array), sim-ipw-stack-combine.R and sim-ipw-stack-smoke.R. Not part of
 # the package build.
-if (nzchar(Sys.getenv("SIM_INSTALLED"))) {
-  suppressMessages(library(missingmed))
-} else {
-  suppressMessages(devtools::load_all(".", quiet = TRUE))
+# SIM_NO_PKG=1 skips loading missingmed, for scripts that need only the DGM and
+# interval helpers (dev/sim-ipw-mech-lib.R).
+if (!nzchar(Sys.getenv("SIM_NO_PKG"))) {
+  if (nzchar(Sys.getenv("SIM_INSTALLED"))) {
+    suppressMessages(library(missingmed))
+  } else {
+    suppressMessages(devtools::load_all(".", quiet = TRUE))
+  }
 }
 
 # Auxiliary Z: effect on the mediator (zm) and on the outcome (zy), and the
