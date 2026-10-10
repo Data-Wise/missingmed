@@ -201,10 +201,46 @@ S7::method(run, MDMediationData) <- function(object, ...) {
   if (!isTRUE(lavaan::lavInspect(fit, "post.check")) && n_warn == 0L) {
     warning("improper solution (lavaan's post.check failed).", call. = FALSE)
   }
-  medfit::extract_mediation(fit,
+  md <- medfit::extract_mediation(fit,
     treatment = object@treatment, mediator = object@mediator,
-    outcome = object@outcome
+    outcome = object@outcome,
+    a_label = .md_no_label, b_label = .md_no_label, cp_label = .md_no_label
   )
+  .lav_check_roles(md, fit, object@treatment, object@mediator, object@outcome)
+  md
+}
+
+# medfit::extract_mediation() reads the paths labeled `a`, `b` and `cp` when each
+# occurs exactly once, and only otherwise falls back to the treatment, mediator
+# and outcome roles. A user label `a` on a covariate path therefore redirected
+# the a path. A label no model can carry switches that branch off, so the roles
+# always decide.
+.md_no_label <- ".missingmed.no.label"
+
+# The extracted a, b and c_prime against the role rows of the fit's own
+# parameter table. It holds the roles to the estimates whatever medfit's
+# precedence rule becomes; a role with no row, or with more than one (several
+# groups), is left unchecked.
+.lav_check_roles <- function(md, fit, treatment, mediator, outcome) {
+  pt <- lavaan::parTable(fit)
+  roles <- list(
+    a = c(mediator, treatment),
+    b = c(outcome, mediator),
+    c_prime = c(outcome, treatment)
+  )
+  for (nm in names(roles)) {
+    rows <- pt[pt$op == "~" & pt$lhs == roles[[nm]][1L] &
+      pt$rhs == roles[[nm]][2L], , drop = FALSE]
+    if (nrow(rows) != 1L) next
+    got <- unname(md@estimates[nm])
+    if (!isTRUE(all.equal(got, rows$est, tolerance = 1e-8))) {
+      stop("medfit read the `", nm, "` path as ", format(got), ", but the ",
+        "lavaan fit has ", rows$est, " for `", roles[[nm]][1L], " ~ ",
+        roles[[nm]][2L], "`.", call. = FALSE
+      )
+    }
+  }
+  invisible(TRUE)
 }
 
 # lavaan normalizes sampling weights to sum to N with floating-point error, so
