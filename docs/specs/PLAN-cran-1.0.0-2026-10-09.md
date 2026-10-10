@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | DRAFT, awaiting approval. Reopens a closed decision (section 1). |
+| **Status** | DRAFT. Item I reopened as a plan only, gated on E (author, 2026-10-09: "A"). Scope freeze (T1) still open. |
 | **Follows** | [PLAN-open-items-2026-10-09.md](PLAN-open-items-2026-10-09.md), item I |
 | **Owner of the release** | The author. Version bump, `dev` to `main`, tag, GitHub release and the CRAN upload are release engineering and are not done from a feature session without an explicit request. |
 
@@ -51,7 +51,7 @@ Order: T0, T1, T2 decide scope; T3 to T7 are independent prep and can land as sm
 
 | # | Task | Acceptance | Verify |
 |---|---|---|---|
-| T0 | Reopen item I (author decision) | the open-items plan says "reopened 2026-10-09" | one line in the plan |
+| T0 | Reopen item I (author decision) DONE 2026-10-09 | the open-items plan says "reopened 2026-10-09" | one line in the plan |
 | T1 | Scope freeze: decide whether C (MLR), E (weight-score stacking) and F (drop `.lav_round_nobs()`) land before 1.0.0 or after | each of C, E, F is "before" or "after 1.0.0", with the reason | table in this file, section 6 |
 | T2 | Dependency floors against CRAN | if E needs medfit changes, the floor names a CRAN medfit release; no `Remotes:` | `pak` resolves from CRAN only; `R CMD check` on a clean library |
 | T3 | `inst/WORDLIST` and a clean spelling run | `spelling::spell_check_package(".")` returns no rows; each added word is a real term, not a typo | the command, and a diff review of the WORDLIST |
