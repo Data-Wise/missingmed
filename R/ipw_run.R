@@ -17,11 +17,15 @@
 #' for estimating them (docs/specs/NOTE-ipw-weight-score-stacking-2026-10-09.md),
 #' the fitted missingness models. `info$blocks` has one entry per fitted model:
 #' `kind` is `"miss"` (P(R = 1 | z), the denominator) or `"num"` (the
-#' stabilization numerator), `var` the variable of a per-variable model (`NA`
-#' for the joint model), `model` the `glm`, and `p` the full-length fitted
-#' probability (`NA` where a predictor is missing). `info$cc` flags the complete
-#' cases, `info$trimmed` the complete cases whose weight was capped, and
-#' `info$w_untrimmed` the weights before the cap.
+#' stabilization numerator), `var` the variable of a sequential factor (`NA`
+#' for the joint model), `model` the `glm`, `p` the full-length fitted
+#' probability (`NA` where a predictor is missing) and `rows` the rows of the
+#' data the model was fitted on. `info$sequential` is `TRUE` unless a single
+#' formula asked for the joint model; `info$order` is the sequence of variables,
+#' and `info$degenerate` the variables observed wherever the earlier ones are (no
+#' model, probability 1). `info$cc` flags the complete cases, `info$trimmed` the
+#' complete cases whose weight was capped, and `info$w_untrimmed` the weights
+#' before the cap.
 #' @inheritParams .ipw_weights
 #' @return A list with `w` (as [.ipw_weights()]) and `info`.
 #' @keywords internal
@@ -79,66 +83,97 @@
   # converge.
   if (all(cc)) {
     return(list(w = rep(1, n), info = list(
-      cc = cc, stabilize = stabilize, per_var = per_var, blocks = list(),
+      cc = cc, stabilize = stabilize, per_var = per_var, sequential = !inherits(wf, "formula"),
+      order = NULL, degenerate = character(), blocks = list(),
       trimmed = rep(FALSE, n), cap = NA_real_, w_untrimmed = rep(1, n)
     )))
   }
   blocks <- list()
 
   # Probability of being observed, P(R = 1 | Z), per row.
-  if (per_var) {
-    # Per-variable (sequential factorization): P(complete) = prod_V P(R_V = 1).
+  seq_vars <- NULL
+  degenerate <- character()
+  if (!inherits(wf, "formula")) {
+    # Sequential (chain-rule) factorization,
+    #   P(complete) = P(V1 obs | Z) * P(V2 obs | V1 obs, Z) * ...,
+    # each factor fitted on the rows where the earlier variables are observed. It is
+    # an identity, so it is correct whenever each factor is logistic, whether the
+    # variables go missing separately, together or in a monotone order
+    # (docs/specs/SPEC-ipw-missingness-default-2026-10-09.md). A named list gives
+    # the order and the predictors; the default orders the incomplete model
+    # variables by ascending share of missing values (ties: model-variable order)
+    # and uses the fully observed model variables as predictors.
+    wf_env <- environment()
+    if (per_var) {
+      seq_vars <- names(wf)
+      rhs_of <- function(v) attr(stats::terms(wf[[v]]), "term.labels")
+      env_of <- function(v) environment(wf[[v]]) # the user's formula environment, so a
+      # name in it (a constant `k` in `I(C * k)`) is found, and not shadowed by a
+      # local here such as `n`
+    } else {
+      incomplete <- model_vars[vapply(data[model_vars], anyNA, logical(1))]
+      share <- vapply(data[incomplete], function(x) mean(is.na(x)), numeric(1))
+      seq_vars <- incomplete[order(share, match(incomplete, model_vars))]
+      fully_obs <- setdiff(model_vars, incomplete)
+      rhs0 <- if (length(fully_obs) == 0L) treatment else fully_obs
+      rhs_of <- function(v) rhs0
+      env_of <- function(v) wf_env
+    }
     p <- rep(1, n)
     p_num <- rep(1, n)
-    for (v in names(wf)) {
-      Rv <- as.integer(!is.na(data[[v]]))
+    earlier <- rep(TRUE, n)
+    for (v in seq_vars) {
+      obs_v <- !is.na(data[[v]])
+      if (all(obs_v[earlier])) {
+        # Observed wherever the earlier variables are (the second factor under
+        # simultaneous missingness): probability 1, nothing to fit.
+        degenerate <- c(degenerate, v)
+        next
+      }
       dd <- data
-      dd[[".R_v"]] <- Rv
-      rhs <- attr(stats::terms(wf[[v]]), "term.labels")
-      # The user's formula environment, so a name in it (a constant `k` in
-      # `I(C * k)`) is found, and not shadowed by a local here such as `n`.
+      dd[[".R_v"]] <- as.integer(obs_v)
+      sub <- dd[earlier, , drop = FALSE]
       mod <- stats::glm(
-        stats::reformulate(rhs, ".R_v", env = environment(wf[[v]])),
-        data = dd, family = stats::binomial()
+        stats::reformulate(rhs_of(v), ".R_v", env = env_of(v)),
+        data = sub, family = stats::binomial()
       )
       p_v <- .ipw_prob(mod, dd)
       p <- p * p_v
       blocks[[length(blocks) + 1L]] <- list(kind = "miss", var = v, model = mod,
-        p = p_v)
-      if (stabilize) {
-        num <- stats::glm(stats::reformulate(treatment, ".R_v"), data = dd,
+        p = p_v, rows = .ipw_model_rows(mod, earlier))
+      # The numerator is any function of the treatment. Where the indicator is
+      # constant on the rows with an observed treatment (the factor of an
+      # incomplete treatment itself) it is 1, not a model of a constant.
+      usable <- earlier & !is.na(data[[treatment]])
+      if (stabilize && !all(obs_v[usable])) {
+        num <- stats::glm(stats::reformulate(treatment, ".R_v"), data = sub,
           family = stats::binomial())
         q_v <- .ipw_prob(num, dd)
         p_num <- p_num * q_v
         blocks[[length(blocks) + 1L]] <- list(kind = "num", var = v, model = num,
-          p = q_v)
+          p = q_v, rows = .ipw_model_rows(num, earlier))
       }
+      earlier <- earlier & obs_v
     }
   } else {
-    # Joint complete-case model. Predictors: an explicit weight_formula RHS, else
-    # all fully-observed model variables (the MAR drivers).
-    wf_env <- environment()
-    if (inherits(wf, "formula")) {
-      rhs <- attr(stats::terms(wf), "term.labels")
-      wf_env <- environment(wf) # as for the per-variable formulas above
-    } else {
-      fully_obs <- model_vars[vapply(data[model_vars], function(x) !anyNA(x), logical(1))]
-      rhs <- setdiff(fully_obs, character(0))
-      if (length(rhs) == 0L) rhs <- treatment
-    }
+    # One joint model for "every model variable is observed", the explicit choice
+    # of a single formula: its predictors are the formula's right-hand side.
+    wf_env <- environment(wf) # as for the per-variable formulas above
+    rhs <- attr(stats::terms(wf), "term.labels")
     dd <- data
     dd[[".R_ind"]] <- R
     mod <- stats::glm(stats::reformulate(rhs, ".R_ind", env = wf_env),
       data = dd, family = stats::binomial())
     p <- .ipw_prob(mod, dd)
-    blocks[[1L]] <- list(kind = "miss", var = NA_character_, model = mod, p = p)
+    blocks[[1L]] <- list(kind = "miss", var = NA_character_, model = mod, p = p,
+      rows = .ipw_model_rows(mod, rep(TRUE, n)))
     p_num <- rep(1, n)
     if (stabilize) {
       num <- stats::glm(stats::reformulate(treatment, ".R_ind"), data = dd,
         family = stats::binomial())
       p_num <- .ipw_prob(num, dd)
       blocks[[2L]] <- list(kind = "num", var = NA_character_, model = num,
-        p = p_num)
+        p = p_num, rows = .ipw_model_rows(num, rep(TRUE, n)))
     }
   }
 
@@ -168,7 +203,8 @@
     w[trimmed] <- cap
   }
   list(w = w, info = list(
-    cc = cc, stabilize = stabilize, per_var = per_var, blocks = blocks,
+    cc = cc, stabilize = stabilize, per_var = per_var, sequential = !inherits(wf, "formula"),
+    order = seq_vars, degenerate = degenerate, blocks = blocks,
     trimmed = trimmed, cap = cap, w_untrimmed = w_untrimmed
   ))
 }
@@ -239,4 +275,12 @@
     }
   )
   unname(out)
+}
+
+# Row indices (of the full data) a missingness model was fitted on: the rows it
+# was given, less those glm dropped for a missing predictor.
+.ipw_model_rows <- function(mod, given) {
+  idx <- which(given)
+  if (!is.null(mod$na.action)) idx <- idx[-as.integer(mod$na.action)]
+  idx
 }
