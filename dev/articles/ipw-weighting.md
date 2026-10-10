@@ -142,6 +142,12 @@ them in a list
 ([`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md)
 refuses a list that omits an incomplete variable).
 
+With the default predictors, these models predict missingness from the
+variables that are fully observed. The probability of being complete is
+then assumed to depend on those only, not on the observed values of the
+other incomplete variables. For non-monotone data that is stricter than
+general missing at random (technical vignette, section 5.2).
+
 In a simulation with known weights (162 settings, n up to 5,000, 25% and
 40% missing in each variable), the largest bias in `b` at n = 5,000 was
 0.004 for the sequential model, 0.024 for a single formula (separate
@@ -155,10 +161,11 @@ a few hundred complete cases (below) is shared by every form.
 ## Stabilizing and trimming
 
 `weight_stabilize = TRUE` (the default) multiplies by the marginal
-probability of being observed, which leaves the estimate’s target
-unchanged and shrinks the weights’ spread. `weight_trim` is an upper
-quantile: `0.95` caps the largest 5% of weights at the 95th percentile.
-`1` (default) means no trimming.
+probability of being observed. When the outcome regression is correctly
+specified this leaves the estimate’s target unchanged, and it shrinks
+the weights’ spread. `weight_trim` is an upper quantile: `0.95` caps the
+largest 5% of weights at the 95th percentile. `1` (default) means no
+trimming.
 
 ``` r
 
@@ -175,10 +182,11 @@ rbind(
 ```
 
 Trimming trades a little bias for less variance. Report whether you
-trimmed. In the simulated mechanism above (n = 200 or 500, 25% or 40%
-missing in each of `M` and `Y`), trimming at 0.95 moved the mean `b` a
-further 0.02 to 0.03 below the untrimmed stabilized weights (0.285 to
-0.264, 0.282 to 0.258, 0.268 to 0.244 and 0.265 to 0.237 across the four
+trimmed, and vary the cap to check that the result does not depend on
+it. In the simulated mechanism above (n = 200 or 500, 25% or 40% missing
+in each of `M` and `Y`), trimming at 0.95 moved the mean `b` a further
+0.02 to 0.03 below the untrimmed stabilized weights (0.285 to 0.264,
+0.282 to 0.258, 0.268 to 0.244 and 0.265 to 0.237 across the four
 settings).
 
 ## Standard errors

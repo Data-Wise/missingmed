@@ -846,8 +846,19 @@ variable under simultaneous missingness) is 1 and fits no model.
 <code>weight_formula = NULL</code> orders the variables by ascending
 share of missing values (ties in model-variable order) and predicts with
 the <strong>fully observed</strong> model variables (the MAR drivers); a
-list gives the order and the predictors. The order matters when the
-factors are not all logistic, as under a monotone dropout.</li>
+list gives the order and the predictors. It is the standard
+factorization for monotone missingness (Robins, Rotnitzky and Zhao 1994,
+section 7.1; Seaman and White 2013, section 2.3, equations 4 and 5). For
+one fixed order it is an “observed past” missingness process, which
+Robins and Gill (1997, section 9) show is a randomized monotone
+missingness process. The order is an assumption: if the true order
+differs from subject to subject, the probability of being complete is a
+sum over orders, not one product (Robins and Gill 1997, section 4). The
+order matters when the factors are not all logistic. Under a monotone
+dropout the factor of the variable that drops out second is logistic
+given the first; in the reversed order the first factor is the
+probability that both are observed, a product of two logistic
+probabilities, which is not.</li>
 <li>
 <strong>Joint complete-case model (a single
 <code>formula</code>).</strong> One model,
@@ -865,9 +876,22 @@ rows, weights from the product) is not offered: it is biased at any
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
 when the variables go missing together or one after another.</li>
 </ul>
+<p><strong>What is assumed.</strong> With the default predictors, and
+with any formula built from fully observed variables (the advice
+throughout), the probability of being complete is assumed to depend on
+the fully observed model variables only, not on the observed values of
+the other incomplete variables. This is the usual restriction (Seaman
+and White 2013, appendix 2: “commonly restricted to fully observed
+predictors”). For non-monotone data it is strictly stronger than missing
+at random, where the probability of a pattern may depend on any variable
+observed in that pattern (Sun and Tchetgen Tchetgen 2018, section 3.1 of
+the arXiv version). Modeling that general case is hard (Robins and Gill
+1997; Sun and Tchetgen Tchetgen 2018) and is not attempted here.</p>
 <p><strong>Stabilized weights</strong>
 (<code>weight_stabilize = TRUE</code>, default) use a treatment-only
-numerator to reduce variance:
+numerator to reduce variance. The numerator needs no correct model of
+its own; the stabilized estimator is consistent when the outcome (mean)
+regression is correct (Seaman and White 2013, section 6):
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>i</mi></msub><mo>=</mo><mfrac><mrow><mover><mi>P</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>=</mo><mn>1</mn><mo>∣</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mover><mi>P</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>=</mo><mn>1</mn><mo>∣</mo><msub><mi>Z</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
 w_i = \frac{\hat P(R=1\mid X_i)}{\hat P(R=1\mid Z_i)} .
 </annotation></semantics></math></p>
@@ -1676,10 +1700,25 @@ shows <code>msp = 0.244</code> at <code>delta = 0</code>.</p>
 estimated the weights.”</strong> No. The sandwich is
 heteroskedasticity-consistent and treats
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>π</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat\pi</annotation></semantics></math>
-as fixed. Robins, Rotnitzky and Zhao (1994) show that ignoring weight
-estimation makes the variance <strong>conservative</strong> – estimating
-the weights <em>reduces</em> variance relative to knowing them. The
-intervals are honest, just wider than necessary.</p>
+as fixed. When the missingness model is correct, ignoring the estimation
+of the weights makes the variance estimate <strong>conservative</strong>
+for each coefficient: the asymptotic variance with estimated selection
+probabilities is no larger than with the true ones (Robins, Rotnitzky
+and Zhao 1994, section 6.1 and proposition 6.1; the same for
+propensity-score weights in Lunceford and Davidian 2004, section 3.1;
+stated for IPW generally in Seaman and White 2013, section 8). The
+intervals are then wider than necessary, not too narrow.</p>
+<p>Three limits. The result is asymptotic and assumes a correct
+missingness model; with a misspecified or heavily weighted model the
+interval is centered in the wrong place and can under-cover. It is
+proved for a regression coefficient, not for a product of two, so for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">a b</annotation></semantics></math>
+it is an extrapolation: in this package’s simulations the variance that
+accounts for estimated weights was 1% to 3% narrower, and in no setting
+did it repair an interval that under-covered. And Robins, Rotnitzky and
+Zhao (1994, after proposition 6.1) warn that a richly parameterized
+missingness model biases the estimated variance in finite samples and
+suggest the bootstrap.</p>
 <p><strong>“IPW and MI should agree; if they disagree, one is
 broken.”</strong> No. They target the same estimand under MAR but use
 different information: MI uses partially observed rows, IPW discards
@@ -1705,9 +1744,26 @@ Sinica</em>.</li>
 <li>Grund, S., Lüdtke, O., &amp; Robitzsch, A. (2023). Pooling methods
 for likelihood ratio tests in multiply imputed data sets.
 <em>Psychological Methods</em>, <em>28</em>(5), 1207–1221.</li>
+<li>Lunceford, J. K., &amp; Davidian, M. (2004). Stratification and
+weighting via the propensity score in estimation of causal treatment
+effects: a comparative study. <em>Statistics in Medicine</em>, 23(19),
+2937–2960. <a href="doi:10.1002/sim.1903" class="uri">doi:10.1002/sim.1903</a>
+</li>
+<li>Robins, J. M., &amp; Gill, R. D. (1997). Non-response models for the
+analysis of non-monotone ignorable missing data. <em>Statistics in
+Medicine</em>, 16(1), 39–56.</li>
+<li>Robins, J. M., Rotnitzky, A., &amp; Zhao, L. P. (1994). Estimation
+of regression coefficients when some regressors are not always observed.
+<em>Journal of the American Statistical Association</em>, 89(427),
+846–866. <a href="doi:10.1080/01621459.1994.10476818" class="uri">doi:10.1080/01621459.1994.10476818</a>
+</li>
 <li>Seaman, S. R., &amp; White, I. R. (2013). Review of inverse
 probability weighting for dealing with missing data. <em>Statistical
-Methods in Medical Research</em>.</li>
+Methods in Medical Research</em>, 22(3), 278–295.</li>
+<li>Sun, B., &amp; Tchetgen Tchetgen, E. J. (2018). On inverse
+probability weighting for nonmonotone missing at random data.
+<em>Journal of the American Statistical Association</em>, 113(521),
+369–379. Section numbers cited here are those of the arXiv version, <a href="https://arxiv.org/abs/1411.5310" class="external-link">arXiv:1411.5310</a>.</li>
 <li>van Buuren, S. <em>Flexible Imputation of Missing Data</em>, 2nd
 ed., §9.2 (delta adjustment).</li>
 <li>Leacy, F. P., Floyd, S., Yates, T. A., &amp; White, I. R. (2017).
