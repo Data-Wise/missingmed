@@ -836,14 +836,22 @@ mark a complete case over the model variables.</p>
 <code>weight_formula = NULL</code> fits
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">logit </mtext><mspace width="0.333em"></mspace></mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{logit }P(R=1\mid Z)</annotation></semantics></math>
 on the <strong>fully observed</strong> model variables (the MAR
-drivers); a single <code>formula</code> overrides the predictors.</li>
+drivers); a single <code>formula</code> overrides the predictors.
+Correct when the incomplete variables go missing together or only one is
+incomplete; biased at any
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+when they go missing separately, because
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(R=1\mid Z)</annotation></semantics></math>
+is then a product of logistics.</li>
 <li>
-<strong>Per-variable / sequential factorization.</strong> A
-<em>named list</em> of formulas fits one model per incomplete variable
-and multiplies:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">complete</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mo>∏</mo><mi>V</mi></msub><mi>P</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>R</mi><mi>V</mi></msub><mo>=</mo><mn>1</mn><mo>∣</mo><mi>⋅</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(\text{complete}) = \prod_V P(R_V = 1\mid \cdot)</annotation></semantics></math>,
-following the causal order
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>→</mo><mi>M</mi><mo>→</mo><mi>Y</mi></mrow><annotation encoding="application/x-tex">X \to M \to Y</annotation></semantics></math>.</li>
+<strong>Per-variable (marginal) factorization.</strong> A <em>named
+list</em> of formulas fits one model per incomplete variable, each on
+<strong>all</strong> rows, and multiplies:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">complete</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mo>∏</mo><mi>V</mi></msub><mi>P</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>R</mi><mi>V</mi></msub><mo>=</mo><mn>1</mn><mo>∣</mo><mi>⋅</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(\text{complete}) = \prod_V P(R_V = 1\mid \cdot)</annotation></semantics></math>.
+Correct when the incomplete variables go missing separately given the
+predictors; biased at any
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+when they go missing together (the product double-counts).</li>
 </ul>
 <p><strong>Stabilized weights</strong>
 (<code>weight_stabilize = TRUE</code>, default) use a treatment-only

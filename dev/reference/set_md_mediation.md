@@ -95,7 +95,12 @@ set_md_mediation(
 - weight_formula:
 
   (IPW) Missingness model: `NULL` (default; all observed predictors), a
-  single `formula`, or a named `list` of per-variable formulas.
+  single `formula`, or a named `list` of per-variable formulas. `NULL`
+  and a single formula fit **one** model for "every model variable is
+  observed", which is right when several incomplete variables go missing
+  together and biased when they go missing separately; a list fits one
+  model per variable on all rows, right for separate missingness and
+  biased for simultaneous. If one variable is incomplete the two agree.
 
 - weight_stabilize:
 

@@ -164,19 +164,51 @@ list with one formula per incomplete variable.</p>
 <span><span class="co">#&gt;  0.7375  0.8632  0.9375  0.9958  1.0796  2.1085     119</span></span></code></pre></div>
 <p><strong>One model or one per variable.</strong> The default, and a
 single formula, fit <strong>one</strong> model for “every model variable
-is observed”. When only one variable is incomplete that is the same as a
-per-variable model. When several are incomplete and each is missing for
-its own reasons, the probability that all are observed is a
+is observed”. A named list fits <strong>one model per incomplete
+variable, each on all rows,</strong> and multiplies the probabilities.
+Which is right depends on how the values go missing, which the data
+cannot show:</p>
+<table class="table">
+<thead><tr class="header">
+<th>Missingness</th>
+<th>Joint model</th>
+<th>Per-variable list</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>One variable incomplete</td>
+<td>correct</td>
+<td>correct</td>
+</tr>
+<tr class="even">
+<td>Several incomplete, missing separately</td>
+<td>biased</td>
+<td>correct</td>
+</tr>
+<tr class="odd">
+<td>Several incomplete, missing together</td>
+<td>correct</td>
+<td>biased</td>
+</tr>
+</tbody>
+</table>
+<p>“Biased” here means at any sample size. “Separately” means each
+variable’s missingness depends only on the observed predictors, not on
+the others’; “together” means one event drops a row’s values.</p>
+<p>In the separate case the probability that all are observed is a
 <em>product</em> of logistic probabilities, which one logistic model
-cannot represent: the weights are misspecified and the estimate stays
-biased however large the sample. In one simulated mechanism of this kind
+cannot represent. In the joint case it equals each variable’s own
+probability, so the product double-counts. In a simulated check
 (<code>M</code> and <code>Y</code> each missing 40% of the time, driven
 by an auxiliary variable, true <code>b</code> = 0.30), the joint default
-converged to <code>b</code> = 0.278 at n = 100,000, while a per-variable
+converged to <code>b</code> = 0.278 at n = 100,000 under separate
+missingness, while a per-variable
 <code>weight_formula = list(M = ..., Y = ...)</code> converged to 0.300.
-If several variables are incomplete, name every one of them in the list
-(<code><a href="../reference/run.html">run()</a></code> refuses a list that omits an incomplete
-variable).</p>
+In a pilot of the opposite structure (laptop, 8 replications at n =
+100,000, bias against the full-data estimate), the per-variable list was
+about 0.05 too high and the joint model unbiased. If several variables
+are incomplete, name every one of them in the list (<code><a href="../reference/run.html">run()</a></code>
+refuses a list that omits an incomplete variable).</p>
 </div>
 <div class="section level2">
 <h2 id="stabilizing-and-trimming">Stabilizing and trimming<a class="anchor" aria-label="anchor" href="#stabilizing-and-trimming"></a>

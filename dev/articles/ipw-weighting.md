@@ -109,17 +109,33 @@ summary(run(md2)@weights)
 ```
 
 **One model or one per variable.** The default, and a single formula,
-fit **one** model for “every model variable is observed”. When only one
-variable is incomplete that is the same as a per-variable model. When
-several are incomplete and each is missing for its own reasons, the
-probability that all are observed is a *product* of logistic
-probabilities, which one logistic model cannot represent: the weights
-are misspecified and the estimate stays biased however large the sample.
-In one simulated mechanism of this kind (`M` and `Y` each missing 40% of
-the time, driven by an auxiliary variable, true `b` = 0.30), the joint
-default converged to `b` = 0.278 at n = 100,000, while a per-variable
-`weight_formula = list(M = ..., Y = ...)` converged to 0.300. If several
-variables are incomplete, name every one of them in the list
+fit **one** model for “every model variable is observed”. A named list
+fits **one model per incomplete variable, each on all rows,** and
+multiplies the probabilities. Which is right depends on how the values
+go missing, which the data cannot show:
+
+| Missingness                            | Joint model | Per-variable list |
+|----------------------------------------|-------------|-------------------|
+| One variable incomplete                | correct     | correct           |
+| Several incomplete, missing separately | biased      | correct           |
+| Several incomplete, missing together   | correct     | biased            |
+
+“Biased” here means at any sample size. “Separately” means each
+variable’s missingness depends only on the observed predictors, not on
+the others’; “together” means one event drops a row’s values.
+
+In the separate case the probability that all are observed is a
+*product* of logistic probabilities, which one logistic model cannot
+represent. In the joint case it equals each variable’s own probability,
+so the product double-counts. In a simulated check (`M` and `Y` each
+missing 40% of the time, driven by an auxiliary variable, true `b` =
+0.30), the joint default converged to `b` = 0.278 at n = 100,000 under
+separate missingness, while a per-variable
+`weight_formula = list(M = ..., Y = ...)` converged to 0.300. In a pilot
+of the opposite structure (laptop, 8 replications at n = 100,000, bias
+against the full-data estimate), the per-variable list was about 0.05
+too high and the joint model unbiased. If several variables are
+incomplete, name every one of them in the list
 ([`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md)
 refuses a list that omits an incomplete variable).
 

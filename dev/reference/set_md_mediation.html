@@ -135,7 +135,12 @@ ignored. Use <code><a href="sensitivity_mnar.html">sensitivity_mnar()</a></code>
 
 <dt id="arg-weight-formula">weight_formula<a class="anchor" aria-label="anchor" href="#arg-weight-formula"></a></dt>
 <dd><p>(IPW) Missingness model: <code>NULL</code> (default; all observed
-predictors), a single <code>formula</code>, or a named <code>list</code> of per-variable formulas.</p></dd>
+predictors), a single <code>formula</code>, or a named <code>list</code> of per-variable formulas.
+<code>NULL</code> and a single formula fit <strong>one</strong> model for "every model variable is
+observed", which is right when several incomplete variables go missing
+together and biased when they go missing separately; a list fits one model
+per variable on all rows, right for separate missingness and biased for
+simultaneous. If one variable is incomplete the two agree.</p></dd>
 
 
 <dt id="arg-weight-stabilize">weight_stabilize<a class="anchor" aria-label="anchor" href="#arg-weight-stabilize"></a></dt>

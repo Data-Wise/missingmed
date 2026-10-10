@@ -538,11 +538,15 @@ Let $`R = 1`$ mark a complete case over the model variables.
 - **Joint complete-case model (default).** `weight_formula = NULL` fits
   $`\text{logit }P(R=1\mid Z)`$ on the **fully observed** model
   variables (the MAR drivers); a single `formula` overrides the
-  predictors.
-- **Per-variable / sequential factorization.** A *named list* of
-  formulas fits one model per incomplete variable and multiplies:
-  $`P(\text{complete}) = \prod_V P(R_V = 1\mid \cdot)`$, following the
-  causal order $`X \to M \to Y`$.
+  predictors. Correct when the incomplete variables go missing together
+  or only one is incomplete; biased at any $`n`$ when they go missing
+  separately, because $`P(R=1\mid Z)`$ is then a product of logistics.
+- **Per-variable (marginal) factorization.** A *named list* of formulas
+  fits one model per incomplete variable, each on **all** rows, and
+  multiplies: $`P(\text{complete}) = \prod_V P(R_V = 1\mid \cdot)`$.
+  Correct when the incomplete variables go missing separately given the
+  predictors; biased at any $`n`$ when they go missing together (the
+  product double-counts).
 
 **Stabilized weights** (`weight_stabilize = TRUE`, default) use a
 treatment-only numerator to reduce variance:
