@@ -71,7 +71,8 @@
 # the b-path (mediator -> outcome) dropped.
 #
 # NB engine: this refits with stats::glm() regardless of @engine, and carries no
-# weights. infer(type = "mbco") errors on IPW fits by design; on the MI path a
+# weights. infer(type = "mbco") errors on IPW fits by design, and on a fit_args
+# entry that would change the likelihood (.check_mbco_fit_args()); on the MI path a
 # fit with engine = "regmedint" is retested here with glm, which matches it for
 # the Gaussian and binomial models regmedint accepts. A known limitation
 # (SPEC-mbco-constrained-models-2026-08-30.md, section 6).

@@ -15,6 +15,9 @@
 #'   \eqn{H_0: a b = 0}, computed from the per-imputation datasets (MBCO does not
 #'   commute with Rubin's rules; see [per_imputation_list()]). The engine is
 #'   [mbco_d4()]; see there for `ariv`, the branch diagnostics and the cost.
+#'   Every imputation is refit with an unweighted [stats::glm()], so `weights`,
+#'   `offset`, `subset` and `na.action` in `fit_args` are an error here; use
+#'   `type = "mc"` for such fits.
 #'   At least two imputations are required. It also works for
 #'   `engine = "lavaan"` fits (including a latent mediator), with lavaan doing
 #'   the refits: the tested paths are the structural regressions `mediator ~

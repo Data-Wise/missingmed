@@ -80,6 +80,11 @@
 #' @param model (`engine = "lavaan"`) lavaan model syntax, a single string, for
 #'   example `"M ~ a*X + C\nY ~ b*M + cp*X + C"`. A latent mediator
 #'   (`"Mlat =~ m1 + m2 + m3"`) is allowed. Must be `NULL` for other engines.
+#'   The paths are found by role (`treatment`, `mediator`, `outcome`), not by
+#'   label. The labels `a`, `b` and `c_prime` are the names the pooled estimates
+#'   use for the three structural paths, so each may only label its own path
+#'   (`mediator ~ treatment`, `outcome ~ mediator`, `outcome ~ treatment`); on
+#'   any other path it is an error.
 #' @param outcome Name of the outcome variable. Required for
 #'   `engine = "lavaan"`, where it must be regressed on the mediator in `model`.
 #'   For the other engines it is optional: it defaults to the response of

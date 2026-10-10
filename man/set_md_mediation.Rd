@@ -84,7 +84,12 @@ default \code{level} of \code{\link[=infer]{infer()}}. Defaults to \code{0.95}.}
 
 \item{model}{(\code{engine = "lavaan"}) lavaan model syntax, a single string, for
 example \code{"M ~ a*X + C\\nY ~ b*M + cp*X + C"}. A latent mediator
-(\code{"Mlat =~ m1 + m2 + m3"}) is allowed. Must be \code{NULL} for other engines.}
+(\code{"Mlat =~ m1 + m2 + m3"}) is allowed. Must be \code{NULL} for other engines.
+The paths are found by role (\code{treatment}, \code{mediator}, \code{outcome}), not by
+label. The labels \code{a}, \code{b} and \code{c_prime} are the names the pooled estimates
+use for the three structural paths, so each may only label its own path
+(\code{mediator ~ treatment}, \code{outcome ~ mediator}, \code{outcome ~ treatment}); on
+any other path it is an error.}
 
 \item{outcome}{Name of the outcome variable. Required for
 \code{engine = "lavaan"}, where it must be regressed on the mediator in \code{model}.

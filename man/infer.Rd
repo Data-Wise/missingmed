@@ -54,6 +54,9 @@ set \code{treatment_level} to choose it. The interval then comes from
 \eqn{H_0: a b = 0}, computed from the per-imputation datasets (MBCO does not
 commute with Rubin's rules; see \code{\link[=per_imputation_list]{per_imputation_list()}}). The engine is
 \code{\link[=mbco_d4]{mbco_d4()}}; see there for \code{ariv}, the branch diagnostics and the cost.
+Every imputation is refit with an unweighted \code{\link[stats:glm]{stats::glm()}}, so \code{weights},
+\code{offset}, \code{subset} and \code{na.action} in \code{fit_args} are an error here; use
+\code{type = "mc"} for such fits.
 At least two imputations are required. It also works for
 \code{engine = "lavaan"} fits (including a latent mediator), with lavaan doing
 the refits: the tested paths are the structural regressions \code{mediator ~ treatment} and \code{outcome ~ mediator}. Only \code{estimator = "ML"} (the default)
