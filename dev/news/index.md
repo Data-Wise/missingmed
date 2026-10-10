@@ -2,6 +2,8 @@
 
 ## missingmed (development version)
 
+## missingmed 0.9.0
+
 ### New features
 
 - [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/dev/reference/sensitivity_mnar.md)

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.8.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.9.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,8 +41,11 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="missingmed-development-version">missingmed (development version)<a class="anchor" aria-label="anchor" href="#missingmed-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.9.0" id="missingmed-090">missingmed 0.9.0<a class="anchor" aria-label="anchor" href="#missingmed-090"></a></h2>
 <div class="section level3">
-<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<h3 id="new-features-0-9-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-9-0"></a></h3>
 <ul><li>
 <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> gains <code>on_error = c("stop", "continue")</code>. The default, <code>"stop"</code>, aborts at the first rung whose fit or inference fails, as before. With <code>"continue"</code> the rungs that worked are kept: a failed rung reads as <code>NA</code>, its message is in the new <code>@failed</code> property and in an <code>error</code> column of <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code>, one warning names the failed rungs, and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> reports the tipping point as undetermined when a failed rung could change it. It is an error if every rung fails. Re-imputation errors always stop.</li>
 <li>A failure in <code><a href="../reference/run.html">run()</a></code> or <code>infer(type = "mc")</code> at a rung now carries the same “sensitivity rung i of n (delta …)” prefix that the MBCO failure already had.</li>
@@ -50,7 +53,7 @@
 <strong>Breaking change to the IPW missingness model</strong> (<code>method = "ipw"</code>). When two or more model variables are incomplete, the default <code>weight_formula = NULL</code> and a named <code>weight_formula = list(...)</code> now fit a <strong>sequential (chain-rule)</strong> model: P(all observed | Z) = P(V1 observed | Z) x P(V2 observed | V1 observed, Z) x …, each factor fitted only on the rows where the earlier variables are observed. The default orders the incomplete variables by ascending share of missing values (ties in model-variable order) and uses the fully observed model variables as predictors; a list is the sequence in list order. A factor that is observed wherever the earlier variables are (the second factor when the variables go missing together) has probability 1 and fits no model. A single formula still fits one joint model, and a model with only one incomplete variable gives the same weights as before. Why: the joint model (the old default) is biased at any sample size when the variables go missing separately (about -0.02 in <code>b</code> in the simulated check), and the old per-variable list, which fitted each variable on all rows, is biased when they go missing together (about +0.05). The sequential form was unbiased in independent, simultaneous and monotone missingness in a 162-cell simulation (largest bias in <code>b</code> 0.004 at n = 5000); at n &lt;= 500 its RMSE of <code>b</code> is 3% to 13% above the joint model’s where the two differ. The order matters under monotone missingness (a reversed order was biased, -0.012). <code>docs/specs/SPEC-ipw-missingness-default-2026-10-09.md</code>.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<h3 id="bug-fixes-0-9-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-9-0"></a></h3>
 <ul><li>
 <code>engine = "lavaan"</code>: <code><a href="../reference/run.html">run()</a></code> now reads the a, b and c’ paths by role (<code>treatment</code>, <code>mediator</code>, <code>outcome</code>). Before, a model that labeled a covariate path <code>a</code>, <code>b</code> or <code>cp</code> (for example <code>M ~ am*X + a*C</code>) made medfit take that path as the a path, so <code>infer(type = "mc")</code> targeted a different indirect effect than <code>infer(type = "mbco")</code>. <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code> now refuses the labels <code>a</code>, <code>b</code> and <code>c_prime</code> on any path other than their own, and <code><a href="../reference/run.html">run()</a></code> checks the extracted estimates against the fit’s parameter table.</li>
 <li>
@@ -62,7 +65,7 @@
 <code><a href="../reference/run.html">run()</a></code> with <code>method = "ipw"</code> and a per-variable <code>weight_formula = list(...)</code> now refuses a list that omits an incomplete model variable. Complete cases are selected on every incomplete variable, so weights built from a subset left the rest of the selection uncorrected and still returned plausible estimates and standard errors. The error names the missing variables. A list that covers every incomplete variable, a single formula, and the default are unchanged; an analysis that relied on the old behavior must now name the missing variable (for example <code>Y = ~ X + C</code>).</li>
 </ul></div>
 <div class="section level3">
-<h3 id="documentation-development-version">Documentation<a class="anchor" aria-label="anchor" href="#documentation-development-version"></a></h3>
+<h3 id="documentation-0-9-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-9-0"></a></h3>
 <ul><li>
 <strong><code>ariv = "own"</code> can be liberal.</strong> A calibration of the glm engine (132 settings, 1000 replications each) found the default <code>"fixed"</code> at or below 5.7% rejection of a true null everywhere, while <code>"own"</code> exceeded 6.5% in 23 of 80 non-Gaussian settings (up to 13.8%) and, in a separate plain-Gaussian grid, reached 8.3% at n = 200 with 40% missing. <code><a href="../reference/mbco_d4.html">?mbco_d4</a></code>, <code><a href="../articles/mbco-mi.html">vignette("mbco-mi")</a></code> and the FAQ now say so and recommend <code>"fixed"</code> unless you need to reproduce an earlier analysis. The operating-characteristics table covers the glm engine.</li>
 <li>The IPW article now says what the simulations showed about the missingness model and the standard errors: the default joint model is biased at any sample size when several variables are missing for separate reasons (a per-variable <code>weight_formula</code> removes that), trimming added bias in that setting, a finite-sample bias remains at a few hundred complete cases, and the weight-estimation uncertainty is still not propagated. The figures come from <code>dev/sim-ipw-auxm-bias.R</code> and the 48-setting coverage run.</li>
@@ -70,7 +73,7 @@
 <li>The documentation no longer says <code>"own"</code> “reproduces” missingmed 0.4.0 or the research prototype: <code>D4</code>, <code>r4</code> and the branch still match, but <code>nu</code> and <code>p</code> differ slightly since the denominator degrees of freedom changed (see Bug fixes).</li>
 </ul></div>
 <div class="section level3">
-<h3 id="lifecycle-development-version">Lifecycle<a class="anchor" aria-label="anchor" href="#lifecycle-development-version"></a></h3>
+<h3 id="lifecycle-0-9-0">Lifecycle<a class="anchor" aria-label="anchor" href="#lifecycle-0-9-0"></a></h3>
 <ul><li>missingmed now uses the lifecycle package. The deprecations of <code>run(...)</code> and <code>sensitivity_mnar(...)</code> extra arguments (0.7.0) and of <code>set_md_mediation(mechanism = "mnar")</code> (0.3.0) warn through <code><a href="https://lifecycle.r-lib.org/reference/deprecate_soft.html" class="external-link">lifecycle::deprecate_warn()</a></code>: once per session by default, and every time with <code>options(lifecycle_verbosity = "warning")</code>. <strong>The warning class changes</strong> from <code>md_dots_deprecated</code> to <code>lifecycle_warning_deprecated</code> (the dots warning was introduced in 0.7.0); code that caught the old class should catch the new one.</li>
 <li>Stage badges on the help pages: <code>sensitivity_mnar(on_error =)</code> is experimental and the deprecated arguments are badged; the lavaan engine and its MBCO are stable (maximum likelihood only; the refusals for <code>MLR</code>, <code>group</code>, <code>ordered</code> and <code>sampling.weights</code> are documented scope limits). <code>?missingmed-package</code> has a <em>Lifecycle</em> section.</li>
 </ul></div>
