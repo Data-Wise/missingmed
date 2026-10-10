@@ -79,10 +79,10 @@ must be a column of the data.
 res_obs <- pool(run(md_obs))
 res_obs
 #> <MDMediationResult> (pooled, Rubin's rules; m = 5 )
-#>     term  estimate  std_error
-#>        a 0.5625950 0.10220587
-#>        b 0.5178868 0.06889152
-#>  c_prime 0.2318642 0.12522219
+#>     term  estimate   std_error
+#>        a 0.5625950 0.102205867
+#>        b 0.5178868 0.068891519
+#>  c_prime 0.2318642 0.004089056
 #>   indirect effect a*b = 0.2914 
 #>   -> infer(type = "mc") for the indirect-effect CI
 ```
@@ -124,7 +124,7 @@ res_lat@tidy_table[, c("term", "estimate", "std_error", "statistic", "p_value")]
 #> 10     m3~~m3 0.2923506 0.03095271        NA           NA
 #> 11       Y~~Y 1.0303279 0.08692134        NA           NA
 #> 12 Mlat~~Mlat 1.0108630 0.11183901        NA           NA
-#> 13    c_prime 0.1848040 0.12723510  1.452461 1.463803e-01
+#> 13    c_prime 0.1848040 0.01229161 15.034967 1.140356e-04
 ```
 
 Two things to read in that table:

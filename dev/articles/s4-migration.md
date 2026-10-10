@@ -55,7 +55,7 @@ res@tidy_table[, c("term", "estimate", "std_error", "p_value")]
 #> 5     Y~C  0.30234904 0.05931627 3.446507e-07
 #> 6    M~~M  0.87871811 0.07462166           NA
 #> 7    Y~~Y  0.93374164 0.07634275           NA
-#> 8 c_prime -0.06635193 0.11626102 5.681995e-01
+#> 8 c_prime -0.06635193 0.01179289 3.016672e-02
 ```
 
 The p-values are normal-theory z-tests (`df` is `Inf` for a single

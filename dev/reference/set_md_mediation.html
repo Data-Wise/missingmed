@@ -173,7 +173,12 @@ default <code>level</code> of <code><a href="infer.html">infer()</a></code>. Def
 <dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
 <dd><p>(<code>engine = "lavaan"</code>) lavaan model syntax, a single string, for
 example <code>"M ~ a*X + C\nY ~ b*M + cp*X + C"</code>. A latent mediator
-(<code>"Mlat =~ m1 + m2 + m3"</code>) is allowed. Must be <code>NULL</code> for other engines.</p></dd>
+(<code>"Mlat =~ m1 + m2 + m3"</code>) is allowed. Must be <code>NULL</code> for other engines.
+The paths are found by role (<code>treatment</code>, <code>mediator</code>, <code>outcome</code>), not by
+label. The labels <code>a</code>, <code>b</code> and <code>c_prime</code> are the names the pooled estimates
+use for the three structural paths, so each may only label its own path
+(<code>mediator ~ treatment</code>, <code>outcome ~ mediator</code>, <code>outcome ~ treatment</code>); on
+any other path it is an error.</p></dd>
 
 
 <dt id="arg-outcome">outcome<a class="anchor" aria-label="anchor" href="#arg-outcome"></a></dt>

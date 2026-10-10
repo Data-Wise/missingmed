@@ -142,10 +142,10 @@ the data.</p>
 <code class="sourceCode R"><span><span class="va">res_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md_obs</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">res_obs</span></span>
 <span><span class="co">#&gt; &lt;MDMediationResult&gt; (pooled, Rubin's rules; m = 5 )</span></span>
-<span><span class="co">#&gt;     term  estimate  std_error</span></span>
-<span><span class="co">#&gt;        a 0.5625950 0.10220587</span></span>
-<span><span class="co">#&gt;        b 0.5178868 0.06889152</span></span>
-<span><span class="co">#&gt;  c_prime 0.2318642 0.12522219</span></span>
+<span><span class="co">#&gt;     term  estimate   std_error</span></span>
+<span><span class="co">#&gt;        a 0.5625950 0.102205867</span></span>
+<span><span class="co">#&gt;        b 0.5178868 0.068891519</span></span>
+<span><span class="co">#&gt;  c_prime 0.2318642 0.004089056</span></span>
 <span><span class="co">#&gt;   indirect effect a*b = 0.2914 </span></span>
 <span><span class="co">#&gt;   -&gt; infer(type = "mc") for the indirect-effect CI</span></span></code></pre></div>
 <p>The pooled <code>a</code>, <code>b</code> and <code>c_prime</code>
@@ -185,7 +185,7 @@ fine.</p>
 <span><span class="co">#&gt; 10     m3~~m3 0.2923506 0.03095271        NA           NA</span></span>
 <span><span class="co">#&gt; 11       Y~~Y 1.0303279 0.08692134        NA           NA</span></span>
 <span><span class="co">#&gt; 12 Mlat~~Mlat 1.0108630 0.11183901        NA           NA</span></span>
-<span><span class="co">#&gt; 13    c_prime 0.1848040 0.12723510  1.452461 1.463803e-01</span></span></code></pre></div>
+<span><span class="co">#&gt; 13    c_prime 0.1848040 0.01229161 15.034967 1.140356e-04</span></span></code></pre></div>
 <p>Two things to read in that table:</p>
 <ul>
 <li>The pooled <strong>loadings</strong> (<code>Mlat=~m2</code>,

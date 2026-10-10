@@ -44,6 +44,27 @@
 
 ### Bug fixes
 
+- `engine = "lavaan"`:
+  [`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md)
+  now reads the a, b and c’ paths by role (`treatment`, `mediator`,
+  `outcome`). Before, a model that labeled a covariate path `a`, `b` or
+  `cp` (for example `M ~ am*X + a*C`) made medfit take that path as the
+  a path, so `infer(type = "mc")` targeted a different indirect effect
+  than `infer(type = "mbco")`.
+  [`set_md_mediation()`](https://data-wise.github.io/missingmed/dev/reference/set_md_mediation.md)
+  now refuses the labels `a`, `b` and `c_prime` on any path other than
+  their own, and
+  [`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md)
+  checks the extracted estimates against the fit’s parameter table.
+- `infer(type = "mbco")` stops, instead of testing an unweighted model,
+  when `fit_args` holds `weights`, `offset`, `subset` or `na.action`:
+  the MBCO refits use a plain
+  [`glm()`](https://rdrr.io/r/stats/glm.html), so a p-value would have
+  described a different model than the one
+  [`run()`](https://data-wise.github.io/missingmed/dev/reference/run.md)
+  fitted. `type = "mc"` is unaffected, and `control` and `start` still
+  pass. In `sensitivity_mnar(type = "mbco")` the refusal reads as a
+  failed rung under `on_error = "continue"`.
 - The D4 test (`infer(type = "mbco")`,
   [`mbco_d4()`](https://data-wise.github.io/missingmed/dev/reference/mbco_d4.md),
   `sensitivity_mnar(type = "mbco")`) now refers the statistic to
