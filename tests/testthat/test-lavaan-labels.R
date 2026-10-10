@@ -59,7 +59,9 @@ clash_cases <- list(
   "a on the covariate path" = "M ~ am*X + a*C\nY ~ b*M + cp*X + C",
   "a on the covariate path, written first" = "M ~ a*C + am*X\nY ~ b*M + cp*X + C",
   "b on a covariate path" = "M ~ a*X + C\nY ~ bm*M + b*C + cp*X",
-  "c_prime on the mediator path" = "M ~ a*X + C\nY ~ c_prime*M + cp*X + C"
+  "c_prime on the mediator path" = "M ~ a*X + C\nY ~ c_prime*M + cp*X + C",
+  "a on a loading of a latent covariate" =
+    "L =~ a*C + C2\nM ~ X + L\nY ~ M + X + L"
 )
 
 for (nm in names(clash_cases)) {

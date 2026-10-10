@@ -63,7 +63,7 @@
 
 # medfit names the three structural paths `a`, `b` and `c_prime` in the pooled
 # estimates and covariance. A model label equal to one of those names on any
-# other path pairs that path's variance with the wrong estimate in older medfit,
+# other parameter (a loading, a covariance, a `:=`) pairs that path's variance with the wrong estimate in older medfit,
 # and is refused by newer medfit only at run(). A label on its own role path is
 # fine, and so is `cp`, which medfit does not use as a name.
 .check_lavaan_alias_labels <- function(pt, treatment, mediator, outcome) {
@@ -72,15 +72,15 @@
     b = c(outcome, mediator),
     c_prime = c(outcome, treatment)
   )
-  reg <- pt[pt$op == "~" & pt$label %in% names(alias_path), , drop = FALSE]
+  reg <- pt[pt$label %in% names(alias_path), , drop = FALSE]
   for (i in seq_len(nrow(reg))) {
     lab <- reg$label[i]
     want <- alias_path[[lab]]
-    if (!identical(c(reg$lhs[i], reg$rhs[i]), want)) {
+    if (!(reg$op[i] == "~" && identical(c(reg$lhs[i], reg$rhs[i]), want))) {
       stop("The label `", lab, "` is the name missingmed uses for the path `",
         want[1L], " ~ ", want[2L], "`, but `model` puts it on `", reg$lhs[i],
-        " ~ ", reg$rhs[i], "`. Rename that label (for example `",
-        lab, "_", reg$rhs[i], "`).",
+        " ", reg$op[i], " ", reg$rhs[i], "`. Rename that label (for example `",
+        lab, "_", reg$lhs[i], "`).",
         call. = FALSE
       )
     }
