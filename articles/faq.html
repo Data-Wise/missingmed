@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Frequently asked questions</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/v0.8.0/vignettes/articles/faq.Rmd" class="external-link"><code>vignettes/articles/faq.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/dev/vignettes/articles/faq.Rmd" class="external-link"><code>vignettes/articles/faq.Rmd</code></a></small>
       <div class="d-none name"><code>faq.Rmd</code></div>
     </div>
 
@@ -122,8 +122,13 @@ constrained fit chose
 or
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">b = 0</annotation></semantics></math>).
 With <code>ariv = "own"</code>, each imputation uses its own winning
-branch, which reproduces missingmed 0.4.0. The branch diagnostics are
-properties of the returned <code>MbcoMIResult</code>.</p>
+branch, which gives the statistic and <code>r4</code> of missingmed
+0.4.0 but can be liberal at high missingness (up to 8.3% at a 5% level
+for a Gaussian model with 40% missing and n = 200; see <em>Operating
+characteristics</em> in <code><a href="../articles/mbco-mi.html">vignette("mbco-mi")</a></code>). Use
+<code>"fixed"</code> unless you need to reproduce an earlier analysis.
+The branch diagnostics are properties of the returned
+<code>MbcoMIResult</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="how-many-imputations-do-i-need">How many imputations do I need?<a class="anchor" aria-label="anchor" href="#how-many-imputations-do-i-need"></a>
@@ -208,8 +213,9 @@ that passing arguments is deprecated?<a class="anchor" aria-label="anchor" href=
 reused by every later refit (including the refits inside
 <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code>). Passing them through
 <code>run(...)</code> or <code>sensitivity_mnar(...)</code> still works
-but warns, with class <code>md_dots_deprecated</code>. Move the
-argument:</p>
+but warns (a lifecycle deprecation warning, shown once per session; set
+<code>options(lifecycle_verbosity = "warning")</code> to see every one).
+Move the argument:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># before (warns)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span>, m_star <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
@@ -241,6 +247,12 @@ merge sparse levels, or simplify the model. A fit that converged but
 carries glm’s “fitted probabilities numerically 0 or 1” warning is not
 refused; treat its p-value with care. The <em>Reference card</em> lists
 the other messages.</p>
+<p>In <code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> the same failure stops the sweep
+at that rung, and the message names the rung and its delta. To keep the
+rungs that worked, pass <code>on_error = "continue"</code>: the failed
+rungs read as <code>NA</code>, <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code> gains an
+<code>error</code> column with each message, and a warning names
+them.</p>
 </div>
 <div class="section level3">
 <h3 id="how-do-i-cite-missingmed">How do I cite missingmed?<a class="anchor" aria-label="anchor" href="#how-do-i-cite-missingmed"></a>

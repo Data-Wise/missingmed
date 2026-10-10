@@ -30,7 +30,7 @@ run(object, ...)
 
 - ...:
 
-  Deprecated. Additional arguments forwarded to
+  **\[deprecated\]** Additional arguments forwarded to
   [`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html);
   set them with `fit_args` in
   [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)

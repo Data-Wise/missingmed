@@ -28,8 +28,8 @@ infer(object, ...)
   `n.mc` (Monte-Carlo draws for `"mc"`, default `1e5`), and `ariv` (for
   `"mbco"`: `"fixed"` (default) tests every imputation on the branch the
   stacked constrained fit chose; `"own"` uses each imputation's own
-  winning branch and reproduces missingmed 0.4.0 on full-rank designs;
-  see
+  winning branch, matches the `D4` and `r4` of missingmed 0.4.0 on
+  full-rank designs, and can be liberal at high missingness; see
   [`mbco_d4()`](https://data-wise.github.io/missingmed/reference/mbco_d4.md)),
   and `treatment_level` (for `"mc"` on a model with an `X:M` term, and
   only there: the treatment level \\x\\ at which the indirect effect \\a
@@ -71,10 +71,14 @@ the named numeric `c(D4, p, r4, nu, d_S)` (index it with `r["p"]` or
   [`per_imputation_list()`](https://data-wise.github.io/missingmed/reference/per_imputation_list.md)).
   The engine is
   [`mbco_d4()`](https://data-wise.github.io/missingmed/reference/mbco_d4.md);
-  see there for `ariv`, the branch diagnostics and the cost. At least
-  two imputations are required. It also works for `engine = "lavaan"`
-  fits (including a latent mediator), with lavaan doing the refits: the
-  tested paths are the structural regressions `mediator ~ treatment` and
+  see there for `ariv`, the branch diagnostics and the cost. Every
+  imputation is refit with an unweighted
+  [`stats::glm()`](https://rdrr.io/r/stats/glm.html), so `weights`,
+  `offset`, `subset` and `na.action` in `fit_args` are an error here;
+  use `type = "mc"` for such fits. At least two imputations are
+  required. It also works for `engine = "lavaan"` fits (including a
+  latent mediator), with lavaan doing the refits: the tested paths are
+  the structural regressions `mediator ~ treatment` and
   `outcome ~ mediator`. Only `estimator = "ML"` (the default) is
   supported; `MLR`, `MLM`, `WLSMV`, `group`, `ordered`,
   `sampling.weights` and `method = "ipw"` are refused, naming the

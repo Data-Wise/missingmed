@@ -134,7 +134,7 @@ report.
 res <- infer(fit, type = "mbco", ariv = "fixed")
 res
 #> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)
-#>   D4 = 17.13 on F(1, 91.55), p = 7.734e-05
+#>   D4 = 17.13 on F(1, 126.7), p = 6.307e-05
 #>   r4 = 0.6319 (ariv = "fixed") | d_S = 27.96 
 #>   stacked constrained fit: b = 0 branch
 #>   imputations on the a = 0 branch: 20% (mixed)
@@ -148,8 +148,9 @@ How to read it:
 - `p` is the p-value of $`H_0: a b = 0`$.
 - `r4` is the relative increase in variance due to the missing data, the
   between-imputation inflation that deflates `D4`. It is floored at 0.
-- `nu` is the denominator degrees of freedom. It is `Inf` when `r4` is
-  0.
+- `nu` is the denominator degrees of freedom, $`k(K-1)(1 + 1/r_4)^2`$
+  (Chan & Meng, 2022, eq. 2.15 of arXiv:1711.08822, the same as
+  `mitml::testModels(method = "D4")`). It is `Inf` when `r4` is 0.
 - `d_S` is the likelihood-ratio statistic of the stacked data, divided
   by $`K`$.
 
@@ -163,9 +164,9 @@ diagnostics are properties:
 
 res["p"]
 #>            p 
-#> 7.733747e-05
+#> 6.306819e-05
 res[["p"]]
-#> [1] 7.733747e-05
+#> [1] 6.306819e-05
 res@stacked_branch # the null the stacked constrained fit chose
 #> [1] "b"
 res@branch_mix # do the imputations' own winning branches differ?
@@ -176,7 +177,7 @@ tidy(res)
 #> # A tibble: 1 × 12
 #>   term     statistic   df1   df2   p_value    r4   d_S ariv  stacked_branch
 #>   <chr>        <dbl> <dbl> <dbl>     <dbl> <dbl> <dbl> <chr> <chr>         
-#> 1 indirect      17.1     1  91.6 0.0000773 0.632  28.0 fixed b             
+#> 1 indirect      17.1     1  127. 0.0000631 0.632  28.0 fixed b             
 #> # ℹ 3 more variables: branch_mix <lgl>, p_branch_a <dbl>, m <int>
 ```
 
@@ -199,9 +200,12 @@ when the imputations do not all agree.
   imputation’s statistic on the branch the **stacked** constrained fit
   chose. All imputations then test the same constraint, with the same
   $`k`$.
-- `ariv = "own"` lets each imputation use its own winning branch. It
-  reproduces results from missingmed 0.4.0 and earlier on full-rank
-  designs.
+- `ariv = "own"` lets each imputation use its own winning branch. On
+  full-rank designs its `D4` and `r4` equal those of missingmed 0.4.0
+  and earlier (`nu` and `p` differ slightly, because the denominator
+  degrees of freedom now follow Chan & Meng). **It can be liberal**: see
+  *Operating characteristics*. Prefer `"fixed"` unless you need to
+  reproduce an earlier analysis.
 
 The two give the same result when every imputation’s own branch matches
 the stacked fit’s. Reporting `branch_mix` and `p_branch_a` needs both
@@ -219,7 +223,7 @@ mbco_d4(implist, Y ~ X + M + C, M ~ X + C,
   treatment = "X", mediator = "M", ariv = "fixed"
 )
 #> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)
-#>   D4 = 17.13 on F(1, 91.55), p = 7.734e-05
+#>   D4 = 17.13 on F(1, 126.7), p = 6.307e-05
 #>   r4 = 0.6319 (ariv = "fixed") | d_S = 27.96 
 #>   stacked constrained fit: b = 0 branch
 #>   imputations on the a = 0 branch: 20% (mixed)
@@ -236,7 +240,7 @@ mbco_d4(implist,
   treatment = "X", mediator = "M", outcome = "Y"
 )
 #> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)
-#>   D4 = 17.13 on F(1, 91.55), p = 7.734e-05
+#>   D4 = 17.13 on F(1, 126.7), p = 6.307e-05
 #>   r4 = 0.6319 (ariv = "fixed") | d_S = 27.96 
 #>   stacked constrained fit: b = 0 branch
 #>   imputations on the a = 0 branch: 20% (mixed)
@@ -307,7 +311,7 @@ fit2 <- run(set_md_mediation(imp2, Y ~ X * M + C, M ~ X + C,
 res2 <- infer(fit2, type = "mbco", ariv = "fixed")
 res2
 #> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 20 imputations)
-#>   D4 = 10.46 on F(2, 284.2), p = 4.15e-05
+#>   D4 = 10.46 on F(2, 336.3), p = 3.929e-05
 #>   r4 = 0.5064 (ariv = "fixed") | d_S = 31.5 
 #>   stacked constrained fit: b = 0 branch
 #>   imputations on the a = 0 branch: 70% (mixed)
@@ -335,33 +339,33 @@ effect:
 
 infer(fit2, type = "mc", treatment_level = 1)
 #> $CI
-#>      2.5 %     97.5 % 
-#> 0.03448457 0.25713999 
+#>     2.5 %    97.5 % 
+#> 0.0342172 0.2572664 
 #> 
 #> $Estimate
-#> [1] 0.1365269
+#> [1] 0.1365794
 #> 
 #> $SE
-#> [1] 0.05690246
+#> [1] 0.05684491
 #> 
 #> $MC.Error
-#> [1] 5.690246e-07
+#> [1] 5.684491e-07
 #> 
 #> $Estimand
 #> [1] "a * (b + theta3 * 1)"
 infer(fit2, type = "mc", treatment_level = 0)
 #> $CI
-#>      2.5 %     97.5 % 
-#> 0.08705547 0.31659329 
+#>     2.5 %    97.5 % 
+#> 0.0873093 0.3175738 
 #> 
 #> $Estimate
-#> [1] 0.1906082
+#> [1] 0.1905933
 #> 
 #> $SE
-#> [1] 0.05881474
+#> [1] 0.0590961
 #> 
 #> $MC.Error
-#> [1] 5.881474e-07
+#> [1] 5.90961e-07
 #> 
 #> $Estimand
 #> [1] "a * (b + theta3 * 0)"
@@ -392,7 +396,8 @@ Grund, Lüdtke & Robitzsch, 2023):
 ``` math
 d_S = \frac{\text{LRT(stacked data)}}{K}, \quad
 r_4 = \max\!\left(0, \tfrac{K+1}{k(K-1)}(\bar d - d_S)\right), \quad
-D_4 = \frac{d_S}{k(1 + r_4)} \sim F_{k,\nu},
+D_4 = \frac{d_S}{k(1 + r_4)} \sim F_{k,\nu}, \quad
+\nu = k(K-1)\left(1 + \frac{1}{r_4}\right)^2,
 ```
 
 where $`\bar d = K^{-1} \sum_{i} d_{i}`$ averages the per-imputation
@@ -439,10 +444,40 @@ missing, 20 imputations, normal data, 5% level):
 No setting rejected more than 6.5% of the time. The cost of the
 conservatism is power near $`a = b = 0`$: a small indirect effect is
 rejected less often than a test that was exact there would reject it.
-The same pooling code serves the glm engine; this grid exercised the
-lavaan models, and the glm engine’s own evidence is a smaller prototype
-run (300 replications, $`n = 200`$, 5 imputations: 5.0% at
-$`a = 0, b = .3`$ and 0.7% at $`a = b = 0`$).
+
+The glm engine has its own grid (132 settings, 1000 replications each,
+20 imputations unless noted, MAR missingness in the mediator, 5% level,
+default `ariv = "fixed"`): Gaussian models including an `X:M` term
+($`k = 2`$ on one branch), binary and Poisson outcomes, a binary
+mediator, a rare binary outcome with $`n`$ = 150 and 300, $`n`$ = 200
+and 500, 25% and 40% missing, and 5 and 10 imputations at $`n`$ = 200.
+
+| True paths                         | Rejection rate (`"fixed"`) |
+|------------------------------------|----------------------------|
+| one path null, the other strong    | 1.4% to 5.7%, mean 3.5%    |
+| one path null, the other weak (.1) | 0.1% to 2.4%, mean 1.0%    |
+| both null                          | 0.1% to 0.7%, mean 0.3%    |
+
+No setting rejected more than 5.7% of the time, including 5 and 10
+imputations. Power at $`a = b = .3`$ ($`n`$ = 500) ranged from 43%
+(binary mediator) to 100% (Gaussian with `X:M`). Refits that did not
+converge were refused in 14 of 132,000 replications, all in the
+rare-outcome settings.
+
+**`ariv = "own"` is less well behaved.** On the same data it rejected a
+true null more than 6.5% of the time in 23 of the 80 non-Gaussian null
+settings, up to 13.8% (Poisson outcome, $`n`$ = 200, 40% missing), and
+in a separate grid of 20 plain-Gaussian settings ($`k = 1`$ on both
+branches) up to 8.3% ($`n`$ = 200, 40% missing; `"fixed"`: at most
+4.7%). The excess grows with the share of missing data and shrinks with
+$`n`$. The reported Gaussian-with-`X:M` figure for `"own"` is not
+comparable: there `"own"` errors whenever the imputations’ winning
+branches remove different numbers of parameters, which happened in half
+of the replications.
+
+This grid tested the MBCO test only. Coverage of the Monte-Carlo
+interval for a model with an `X:M` term (`type = "mc"` with
+`treatment_level`) was not calibrated.
 
 ## Not covered here
 

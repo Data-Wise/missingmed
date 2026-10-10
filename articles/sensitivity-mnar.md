@@ -145,6 +145,26 @@ The tipping point is then the delta at which the test stops rejecting.
 sensitivity_mnar(md, delta = c(-0.5, 0, 0.5), type = "mbco")
 ```
 
+## When a rung fails
+
+A refit that does not converge at one delta stops the sweep by default,
+and the error names the rung and the delta. For a long grid,
+`on_error = "continue"` keeps the rungs that worked: a failed rung reads
+as `NA`, [`tidy()`](https://generics.r-lib.org/reference/tidy.html)
+gains an `error` column holding each message, and one warning names the
+failed rungs. If a failed rung could change the tipping point,
+[`summary()`](https://rdrr.io/r/base/summary.html) reports it as
+undetermined rather than reading it off the neighboring rungs. If every
+rung fails, it is an error.
+
+``` r
+
+res <- sensitivity_mnar(md, delta = c(-0.5, 0, 0.5, 1), type = "mbco",
+  on_error = "continue")
+tidy(res)
+summary(res)
+```
+
 ## What it assumes, and what it does not cover
 
 - The imputation model you supplied is compatible with the mediation

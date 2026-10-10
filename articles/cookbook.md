@@ -121,8 +121,8 @@ imputations.
 
 Options belong in `fit_args` on
 [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md).
-Passing them through `run(...)` still works but warns (class
-`md_dots_deprecated`).
+Passing them through `run(...)` still works but warns (a lifecycle
+deprecation warning, shown once per session).
 
 ``` r
 

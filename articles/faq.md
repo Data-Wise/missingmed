@@ -50,8 +50,12 @@ It applies to `infer(type = "mbco")` and
 With `ariv = "fixed"` (the default), every imputation’s likelihood ratio
 is taken on the branch the stacked constrained fit chose ($`a = 0`$ or
 $`b = 0`$). With `ariv = "own"`, each imputation uses its own winning
-branch, which reproduces missingmed 0.4.0. The branch diagnostics are
-properties of the returned `MbcoMIResult`.
+branch, which gives the statistic and `r4` of missingmed 0.4.0 but can
+be liberal at high missingness (up to 8.3% at a 5% level for a Gaussian
+model with 40% missing and n = 200; see *Operating characteristics* in
+[`vignette("mbco-mi")`](https://data-wise.github.io/missingmed/articles/mbco-mi.md)).
+Use `"fixed"` unless you need to reproduce an earlier analysis. The
+branch diagnostics are properties of the returned `MbcoMIResult`.
 
 ### How many imputations do I need?
 
@@ -121,7 +125,9 @@ where they are stored on the object and reused by every later refit
 (including the refits inside
 [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/reference/sensitivity_mnar.md)).
 Passing them through `run(...)` or `sensitivity_mnar(...)` still works
-but warns, with class `md_dots_deprecated`. Move the argument:
+but warns (a lifecycle deprecation warning, shown once per session; set
+`options(lifecycle_verbosity = "warning")` to see every one). Move the
+argument:
 
 ``` r
 
@@ -152,6 +158,14 @@ merge sparse levels, or simplify the model. A fit that converged but
 carries glm’s “fitted probabilities numerically 0 or 1” warning is not
 refused; treat its p-value with care. The *Reference card* lists the
 other messages.
+
+In
+[`sensitivity_mnar()`](https://data-wise.github.io/missingmed/reference/sensitivity_mnar.md)
+the same failure stops the sweep at that rung, and the message names the
+rung and its delta. To keep the rungs that worked, pass
+`on_error = "continue"`: the failed rungs read as `NA`,
+[`tidy()`](https://generics.r-lib.org/reference/tidy.html) gains an
+`error` column with each message, and a warning names them.
 
 ### How do I cite missingmed?
 

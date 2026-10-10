@@ -1,5 +1,143 @@
 # Changelog
 
+## missingmed 0.9.0
+
+### New features
+
+- [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/reference/sensitivity_mnar.md)
+  gains `on_error = c("stop", "continue")`. The default, `"stop"`,
+  aborts at the first rung whose fit or inference fails, as before. With
+  `"continue"` the rungs that worked are kept: a failed rung reads as
+  `NA`, its message is in the new `@failed` property and in an `error`
+  column of [`tidy()`](https://generics.r-lib.org/reference/tidy.html),
+  one warning names the failed rungs, and
+  [`summary()`](https://rdrr.io/r/base/summary.html) reports the tipping
+  point as undetermined when a failed rung could change it. It is an
+  error if every rung fails. Re-imputation errors always stop.
+- A failure in
+  [`run()`](https://data-wise.github.io/missingmed/reference/run.md) or
+  `infer(type = "mc")` at a rung now carries the same “sensitivity rung
+  i of n (delta …)” prefix that the MBCO failure already had.
+- **Breaking change to the IPW missingness model** (`method = "ipw"`).
+  When two or more model variables are incomplete, the default
+  `weight_formula = NULL` and a named `weight_formula = list(...)` now
+  fit a **sequential (chain-rule)** model: P(all observed \| Z) = P(V1
+  observed \| Z) x P(V2 observed \| V1 observed, Z) x …, each factor
+  fitted only on the rows where the earlier variables are observed. The
+  default orders the incomplete variables by ascending share of missing
+  values (ties in model-variable order) and uses the fully observed
+  model variables as predictors; a list is the sequence in list order. A
+  factor that is observed wherever the earlier variables are (the second
+  factor when the variables go missing together) has probability 1 and
+  fits no model. A single formula still fits one joint model, and a
+  model with only one incomplete variable gives the same weights as
+  before. Why: the joint model (the old default) is biased at any sample
+  size when the variables go missing separately (about -0.02 in `b` in
+  the simulated check), and the old per-variable list, which fitted each
+  variable on all rows, is biased when they go missing together (about
+  +0.05). The sequential form was unbiased in independent, simultaneous
+  and monotone missingness in a 162-cell simulation (largest bias in `b`
+  0.004 at n = 5000); at n \<= 500 its RMSE of `b` is 3% to 13% above
+  the joint model’s where the two differ. The order matters under
+  monotone missingness (a reversed order was biased, -0.012).
+  `docs/specs/SPEC-ipw-missingness-default-2026-10-09.md`.
+
+### Bug fixes
+
+- `engine = "lavaan"`:
+  [`run()`](https://data-wise.github.io/missingmed/reference/run.md) now
+  reads the a, b and c’ paths by role (`treatment`, `mediator`,
+  `outcome`). Before, a model that labeled a covariate path `a`, `b` or
+  `cp` (for example `M ~ am*X + a*C`) made medfit take that path as the
+  a path, so `infer(type = "mc")` targeted a different indirect effect
+  than `infer(type = "mbco")`.
+  [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)
+  now refuses the labels `a`, `b` and `c_prime` on any path other than
+  their own, and
+  [`run()`](https://data-wise.github.io/missingmed/reference/run.md)
+  checks the extracted estimates against the fit’s parameter table.
+- `infer(type = "mbco")` stops, instead of testing an unweighted model,
+  when `fit_args` holds `weights`, `offset`, `subset` or `na.action`:
+  the MBCO refits use a plain
+  [`glm()`](https://rdrr.io/r/stats/glm.html), so a p-value would have
+  described a different model than the one
+  [`run()`](https://data-wise.github.io/missingmed/reference/run.md)
+  fitted. `type = "mc"` is unaffected, and `control` and `start` still
+  pass. In `sensitivity_mnar(type = "mbco")` the refusal reads as a
+  failed rung under `on_error = "continue"`.
+- The D4 test (`infer(type = "mbco")`,
+  [`mbco_d4()`](https://data-wise.github.io/missingmed/reference/mbco_d4.md),
+  `sensitivity_mnar(type = "mbco")`) now refers the statistic to
+  `F(k, nu)` with the denominator degrees of freedom of Chan and Meng
+  (2022, eq. 2.15), `nu = k (K - 1) (1 + 1 / r4)^2`, the same as
+  `mitml::testModels(method = "D4")`. Earlier versions used the Li et
+  al.
+  1991. df, which Chan and Meng show approximates this test worse. `D4`
+        and `r4` are unchanged; `nu` is larger and `p` slightly smaller
+        when `k (K - 1) > 4` (for example K = 20, k = 1: `nu` 62.6 -\>
+        83.1, p 0.0422 -\> 0.0412 on the probe data). For K = 5 and k =
+        1 the two formulas coincide. The 0.8.0 test was slightly
+        conservative relative to the published procedure; the size gap
+        at K = 20 is at most about 0.002.
+- [`run()`](https://data-wise.github.io/missingmed/reference/run.md)
+  with `method = "ipw"` and a per-variable `weight_formula = list(...)`
+  now refuses a list that omits an incomplete model variable. Complete
+  cases are selected on every incomplete variable, so weights built from
+  a subset left the rest of the selection uncorrected and still returned
+  plausible estimates and standard errors. The error names the missing
+  variables. A list that covers every incomplete variable, a single
+  formula, and the default are unchanged; an analysis that relied on the
+  old behavior must now name the missing variable (for example
+  `Y = ~ X + C`).
+
+### Documentation
+
+- **`ariv = "own"` can be liberal.** A calibration of the glm engine
+  (132 settings, 1000 replications each) found the default `"fixed"` at
+  or below 5.7% rejection of a true null everywhere, while `"own"`
+  exceeded 6.5% in 23 of 80 non-Gaussian settings (up to 13.8%) and, in
+  a separate plain-Gaussian grid, reached 8.3% at n = 200 with 40%
+  missing.
+  [`?mbco_d4`](https://data-wise.github.io/missingmed/reference/mbco_d4.md),
+  [`vignette("mbco-mi")`](https://data-wise.github.io/missingmed/articles/mbco-mi.md)
+  and the FAQ now say so and recommend `"fixed"` unless you need to
+  reproduce an earlier analysis. The operating-characteristics table
+  covers the glm engine.
+- The IPW article now says what the simulations showed about the
+  missingness model and the standard errors: the default joint model is
+  biased at any sample size when several variables are missing for
+  separate reasons (a per-variable `weight_formula` removes that),
+  trimming added bias in that setting, a finite-sample bias remains at a
+  few hundred complete cases, and the weight-estimation uncertainty is
+  still not propagated. The figures come from `dev/sim-ipw-auxm-bias.R`
+  and the 48-setting coverage run.
+- The lavaan tutorial gains a section on lavaan 0.7-3’s
+  `information_meat_hc` and `information_bread` (small-sample sandwich
+  standard errors): they work through `fit_args` with `method = "ipw"`
+  (`"HC1"` only) and with a robust estimator such as `"MLR"`, and are
+  ignored under plain ML.
+- The documentation no longer says `"own"` “reproduces” missingmed 0.4.0
+  or the research prototype: `D4`, `r4` and the branch still match, but
+  `nu` and `p` differ slightly since the denominator degrees of freedom
+  changed (see Bug fixes).
+
+### Lifecycle
+
+- missingmed now uses the lifecycle package. The deprecations of
+  `run(...)` and `sensitivity_mnar(...)` extra arguments (0.7.0) and of
+  `set_md_mediation(mechanism = "mnar")` (0.3.0) warn through
+  [`lifecycle::deprecate_warn()`](https://lifecycle.r-lib.org/reference/deprecate_soft.html):
+  once per session by default, and every time with
+  `options(lifecycle_verbosity = "warning")`. **The warning class
+  changes** from `md_dots_deprecated` to `lifecycle_warning_deprecated`
+  (the dots warning was introduced in 0.7.0); code that caught the old
+  class should catch the new one.
+- Stage badges on the help pages: `sensitivity_mnar(on_error =)` is
+  experimental and the deprecated arguments are badged; the lavaan
+  engine and its MBCO are stable (maximum likelihood only; the refusals
+  for `MLR`, `group`, `ordered` and `sampling.weights` are documented
+  scope limits). `?missingmed-package` has a *Lifecycle* section.
+
 ## missingmed 0.8.0
 
 ### New features

@@ -9,7 +9,7 @@ missingmed pipeline, dispatching to one of two engines:"><meta property="og:imag
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@ missingmed pipeline, dispatching to one of two engines:"><meta property="og:imag
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Inference on the indirect effect under multiple imputation</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/v0.8.0/R/infer.R" class="external-link"><code>R/infer.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/dev/R/infer.R" class="external-link"><code>R/infer.R</code></a></small>
       <div class="d-none name"><code>infer.Rd</code></div>
     </div>
 
@@ -68,8 +68,9 @@ object's <code>@conf_level</code>, itself <code>0.95</code> unless set in <code>
 <code>n.mc</code>
 (Monte-Carlo draws for <code>"mc"</code>, default <code>1e5</code>), and <code>ariv</code> (for <code>"mbco"</code>:
 <code>"fixed"</code> (default) tests every imputation on the branch the stacked
-constrained fit chose; <code>"own"</code> uses each imputation's own winning branch
-and reproduces missingmed 0.4.0 on full-rank designs; see <code><a href="mbco_d4.html">mbco_d4()</a></code>),
+constrained fit chose; <code>"own"</code> uses each imputation's own winning branch,
+matches the <code>D4</code> and <code>r4</code> of missingmed 0.4.0 on full-rank designs, and
+can be liberal at high missingness; see <code><a href="mbco_d4.html">mbco_d4()</a></code>),
 and <code>treatment_level</code> (for <code>"mc"</code> on a model with an <code>X:M</code> term, and
 only there: the treatment level \(x\) at which the indirect effect
 \(a (b + \theta_3 x)\) is evaluated, that is, the effect of a one-unit
@@ -104,6 +105,9 @@ set <code>treatment_level</code> to choose it. The interval then comes from
 \(H_0: a b = 0\), computed from the per-imputation datasets (MBCO does not
 commute with Rubin's rules; see <code><a href="per_imputation_list.html">per_imputation_list()</a></code>). The engine is
 <code><a href="mbco_d4.html">mbco_d4()</a></code>; see there for <code>ariv</code>, the branch diagnostics and the cost.
+Every imputation is refit with an unweighted <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">stats::glm()</a></code>, so <code>weights</code>,
+<code>offset</code>, <code>subset</code> and <code>na.action</code> in <code>fit_args</code> are an error here; use
+<code>type = "mc"</code> for such fits.
 At least two imputations are required. It also works for
 <code>engine = "lavaan"</code> fits (including a latent mediator), with lavaan doing
 the refits: the tested paths are the structural regressions <code>mediator ~ treatment</code> and <code>outcome ~ mediator</code>. Only <code>estimator = "ML"</code> (the default)

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Cookbook</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/v0.8.0/vignettes/articles/cookbook.Rmd" class="external-link"><code>vignettes/articles/cookbook.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/dev/vignettes/articles/cookbook.Rmd" class="external-link"><code>vignettes/articles/cookbook.Rmd</code></a></small>
       <div class="d-none name"><code>cookbook.Rmd</code></div>
     </div>
 
@@ -179,8 +179,8 @@ imputations.</p>
 </h2>
 <p>Options belong in <code>fit_args</code> on
 <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code>. Passing them through
-<code>run(...)</code> still works but warns (class
-<code>md_dots_deprecated</code>).</p>
+<code>run(...)</code> still works but warns (a lifecycle deprecation
+warning, shown once per session).</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># before: warns</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span>, m_star <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>

@@ -84,25 +84,36 @@ example both `M` and `X:M` from `Y ~ X * M`). The D4 statistic is \\D_4
 = d_S / (k (1 + r_4))\\, referred to \\F(k, \nu)\\, where \\d_S\\ is the
 statistic on the stacked data divided by \\K\\ and \\r_4\\ is the
 relative increase in variance estimated from the per-imputation
-statistics. `ariv` chooses how those statistics are formed:
+statistics, and \\\nu = k (K - 1) (1 + 1 / r_4)^2\\ (Chan and Meng 2022,
+eq. 2.15 of arXiv:1711.08822; the same reference distribution as
+`mitml::testModels(method = "D4")`). `ariv` chooses how those statistics
+are formed:
 
-- `"fixed"` (default): each imputation's statistic is computed on the
-  branch (`a = 0` or `b = 0`) that the **stacked** constrained fit
-  selected. Imputations that disagree on the winning branch then cannot
-  pull \\r_4\\ down, and every imputation uses the stacked fit's `k`. An
-  error is raised if that branch's constraint removes a different number
-  of parameters in some imputation than in the stacked data (for
-  example, a level of a factor that interacts with the treatment or
-  mediator is absent from one imputation). `k` is a difference of
-  design-matrix ranks, so a sparse level of a main-effect factor does
-  not trigger it.
+- `"fixed"` (default, calibrated): each imputation's statistic is
+  computed on the branch (`a = 0` or `b = 0`) that the **stacked**
+  constrained fit selected. Imputations that disagree on the winning
+  branch then cannot pull \\r_4\\ down, and every imputation uses the
+  stacked fit's `k`. An error is raised if that branch's constraint
+  removes a different number of parameters in some imputation than in
+  the stacked data (for example, a level of a factor that interacts with
+  the treatment or mediator is absent from one imputation). `k` is a
+  difference of design-matrix ranks, so a sparse level of a main-effect
+  factor does not trigger it.
 
 - `"own"`: each imputation's statistic is computed on its own winning
-  branch (the standard Chan & Meng \\r_4\\). On full-rank designs this
-  reproduces missingmed 0.4.0; `k` is now a rank difference rather than
-  a column count, so a design with aliased columns gets a smaller `k`.
-  It errors when the winning branches remove different numbers of
-  parameters, since there is then no single `k`.
+  branch (the standard Chan & Meng \\r_4\\). On full-rank designs its
+  `D4` and `r4` equal missingmed 0.4.0's; `nu` and `p` differ slightly,
+  because the denominator degrees of freedom now follow Chan & Meng (see
+  NEWS). `k` is a rank difference rather than a column count, so a
+  design with aliased columns gets a smaller `k`. It errors when the
+  winning branches remove different numbers of parameters, since there
+  is then no single `k`. **It can be liberal.** In simulation (1000
+  replications per cell, 20 imputations, MAR missingness in the
+  mediator, 5% level) it rejected a true null up to 8.3% of the time for
+  a plain Gaussian model with 40% missing and n = 200, and up to 13.8%
+  for binary and count outcomes at 40% missing, where `"fixed"` stayed
+  at or below 5.7% on the same data. Use `"fixed"` unless you need to
+  reproduce an earlier analysis.
 
 **Cost.** Every imputation is fit three times (the full model and both
 single-path nulls), plus the same three fits on the stacked data. The

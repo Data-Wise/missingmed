@@ -216,12 +216,12 @@ together, then corrects for the extra variance due to imputation.
 mbco <- infer(fit, type = "mbco", ariv = "fixed")
 mbco
 #> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 10 imputations)
-#>   D4 = 9.126 on F(1, 110.4), p = 0.003131
+#>   D4 = 9.126 on F(1, 286.7), p = 0.002747
 #>   r4 = 0.2153 (ariv = "fixed") | d_S = 11.09 
 #>   stacked constrained fit: a = 0 branch
 #>   imputations on the a = 0 branch: 100% (not mixed)
 mbco[["p"]]
-#> [1] 0.003131344
+#> [1] 0.002746585
 ```
 
 The printout reports the D4 statistic and its F reference distribution,
@@ -263,13 +263,13 @@ fixed <- infer(fit_w, type = "mbco", ariv = "fixed")
 own <- infer(fit_w, type = "mbco", ariv = "own")
 fixed
 #> <MbcoMIResult> D4-stacked MBCO test of H0: a*b = 0 (m = 10 imputations)
-#>   D4 = 0.1104 on F(1, 24.01), p = 0.7425
+#>   D4 = 0.1104 on F(1, 47.05), p = 0.7411
 #>   r4 = 0.7774 (ariv = "fixed") | d_S = 0.1963 
 #>   stacked constrained fit: a = 0 branch
 #>   imputations on the a = 0 branch: 30% (mixed)
 rbind(fixed = S7::S7_data(fixed), own = S7::S7_data(own))
 #>              D4         p        r4       nu       d_S
-#> fixed 0.1104414 0.7425261 0.7773637 24.01066 0.1962945
+#> fixed 0.1104414 0.7411183 0.7773637 47.04859 0.1962945
 #> own   0.1962945 0.6577286 0.0000000      Inf 0.1962945
 ```
 
@@ -418,11 +418,11 @@ fit_xm <- run(set_md_mediation(imp,
 set.seed(3)
 infer(fit_xm, type = "mc", treatment_level = 1)$CI
 #>      2.5 %     97.5 % 
-#> 0.03588194 0.19881073
+#> 0.03630311 0.19849593
 set.seed(3)
 infer(fit_xm, type = "mc", treatment_level = 0)$CI
 #>      2.5 %     97.5 % 
-#> 0.02306856 0.15259671
+#> 0.02329601 0.15239549
 ```
 
 For a 0/1 treatment, `treatment_level = 1` gives the total natural
@@ -452,9 +452,9 @@ sens_mbco
 #> # A tibble: 3 × 6
 #>       M    msp    D4 p_value mechanism scale
 #>   <dbl>  <dbl> <dbl>   <dbl> <chr>     <chr>
-#> 1     0  0.138  9.13 0.00313 post      raw  
-#> 2    -1 -0.862  5.78 0.0180  post      raw  
-#> 3    -2 -1.86   2.98 0.0864  post      raw  
+#> 1     0  0.138  9.13 0.00275 post      raw  
+#> 2    -1 -0.862  5.78 0.0169  post      raw  
+#> 3    -2 -1.86   2.98 0.0852  post      raw  
 #> 
 #>   delta is a CONDITIONAL sensitivity parameter; `msp` is the marginal
 #>   difference actually realized. Compare msp against what you intended.
@@ -466,9 +466,9 @@ summary(sens_mbco)
 #> # A tibble: 3 × 6
 #>       M    msp    D4 p_value mechanism scale
 #>   <dbl>  <dbl> <dbl>   <dbl> <chr>     <chr>
-#> 1     0  0.138  9.13 0.00313 post      raw  
-#> 2    -1 -0.862  5.78 0.0180  post      raw  
-#> 3    -2 -1.86   2.98 0.0864  post      raw  
+#> 1     0  0.138  9.13 0.00275 post      raw  
+#> 2    -1 -0.862  5.78 0.0169  post      raw  
+#> 3    -2 -1.86   2.98 0.0852  post      raw  
 #> 
 #> Tipping point: the smallest departure at which the null is
 #>   retained is delta = -2 (realized msp = -1.8615 ).
