@@ -61,8 +61,9 @@ test_that(".ipw_weights_info() records the numerator, per-variable blocks and tr
   d$Y[sample(nrow(d), 40)] <- NA
   md_s <- suppressWarnings(set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
     treatment = "X", mediator = "M", method = "ipw", weight_stabilize = TRUE))
+  # M and Y both incomplete: the default is sequential, a factor (and numerator) each
   expect_identical(vapply(missingmed:::.ipw_weights_info(md_s)$info$blocks,
-    `[[`, "", "kind"), c("miss", "num"))
+    `[[`, "", "kind"), c("miss", "num", "miss", "num"))
   md_v <- suppressWarnings(set_md_mediation(d, Y ~ X + M + C, M ~ X + C,
     treatment = "X", mediator = "M", method = "ipw", weight_stabilize = TRUE,
     weight_formula = list(M = ~ X + C, Y = ~ X + C)))
@@ -154,6 +155,7 @@ brute_stacked <- function(d, md) {
   bl <- info$blocks
   Zs <- lapply(bl, function(b) stats::model.matrix(b$model))
   ys <- lapply(bl, function(b) b$model$y)
+  ix <- lapply(bl, `[[`, "rows")   # the rows each model was fitted on (a sequential factor uses a subset)
   kinds <- vapply(bl, `[[`, "", "kind")
   gs <- vapply(Zs, ncol, 1L)
   Xm <- stats::model.matrix(fits$m); Xy <- stats::model.matrix(fits$y)
@@ -167,8 +169,10 @@ brute_stacked <- function(d, md) {
     for (b in seq_along(bl)) {
       gam <- par[off + seq_len(gs[b])]
       pb <- as.numeric(stats::plogis(Zs[[b]] %*% gam))
-      out[, off + seq_len(gs[b])] <- Zs[[b]] * (ys[[b]] - pb)
-      logw <- logw + (if (kinds[b] == "num") 1 else -1) * log(pb)
+      out[ix[[b]], off + seq_len(gs[b])] <- Zs[[b]] * (ys[[b]] - pb)
+      lw <- numeric(N)
+      lw[ix[[b]]] <- (if (kinds[b] == "num") 1 else -1) * log(pb)
+      logw <- logw + lw
       off <- off + gs[b]
     }
     wc <- exp(logw)[cc]

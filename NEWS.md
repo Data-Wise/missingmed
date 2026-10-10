@@ -11,6 +11,27 @@
   fails. Re-imputation errors always stop.
 * A failure in `run()` or `infer(type = "mc")` at a rung now carries the same
   "sensitivity rung i of n (delta ...)" prefix that the MBCO failure already had.
+* **Breaking change to the IPW missingness model** (`method = "ipw"`). When two
+  or more model variables are incomplete, the default `weight_formula = NULL`
+  and a named `weight_formula = list(...)` now fit a **sequential
+  (chain-rule)** model: P(all observed | Z) = P(V1 observed | Z) x P(V2
+  observed | V1 observed, Z) x ..., each factor fitted only on the rows where
+  the earlier variables are observed. The default orders the incomplete
+  variables by ascending share of missing values (ties in model-variable order)
+  and uses the fully observed model variables as predictors; a list is the
+  sequence in list order. A factor that is observed wherever the earlier
+  variables are (the second factor when the variables go missing together) has
+  probability 1 and fits no model. A single formula still fits one joint model,
+  and a model with only one incomplete variable gives the same weights as
+  before. Why: the joint model (the old default) is biased at any sample size
+  when the variables go missing separately (about -0.02 in `b` in the simulated
+  check), and the old per-variable list, which fitted each variable on all
+  rows, is biased when they go missing together (about +0.05). The sequential
+  form was unbiased in independent, simultaneous and monotone missingness in a
+  162-cell simulation (largest bias in `b` 0.004 at n = 5000); at n <= 500 its
+  RMSE of `b` is 3% to 13% above the joint model's where the two differ. The
+  order matters under monotone missingness (a reversed order was biased,
+  -0.012). `docs/specs/SPEC-ipw-missingness-default-2026-10-09.md`.
 
 ## Bug fixes
 
