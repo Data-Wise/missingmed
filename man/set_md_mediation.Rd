@@ -57,13 +57,16 @@ so this argument never changed behavior. Passing \code{"mnar"} warns and is
 ignored. Use \code{\link[=sensitivity_mnar]{sensitivity_mnar()}} to assess departures from MAR; it sets
 \code{mechanism = "mnar"} on the objects it creates.}
 
-\item{weight_formula}{(IPW) Missingness model: \code{NULL} (default; all observed
-predictors), a single \code{formula}, or a named \code{list} of per-variable formulas.
-\code{NULL} and a single formula fit \strong{one} model for "every model variable is
-observed", which is right when several incomplete variables go missing
-together and biased when they go missing separately; a list fits one model
-per variable on all rows, right for separate missingness and biased for
-simultaneous. If one variable is incomplete the two agree.}
+\item{weight_formula}{(IPW) Missingness model: \code{NULL} (default), a single
+\code{formula}, or a named \code{list} of per-variable formulas. \code{NULL} and a list fit a
+sequential (chain-rule) model, P(V1 observed) x P(V2 observed | V1 observed)
+x ..., each factor on the rows where the earlier variables are observed.
+\code{NULL} orders the incomplete model variables by ascending share of missing
+values and predicts with the fully observed model variables; a list gives the
+order (its names) and the predictors (its formulas). A single formula fits
+\strong{one} model for "every model variable is observed", which is right when the
+variables go missing together and biased when they go missing separately.
+With one incomplete variable the three agree.}
 
 \item{weight_stabilize}{(IPW) Use stabilized weights? Default \code{TRUE}.}
 

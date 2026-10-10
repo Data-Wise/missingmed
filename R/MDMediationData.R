@@ -25,8 +25,9 @@
 #' @param method Estimator axis: `"mi"` (default) or `"ipw"`.
 #' @param mechanism Assumed missing-data mechanism: `"mar"` (default) or `"mnar"`.
 #' @param weight_formula (IPW) Missingness model specification: `NULL` (default;
-#'   use all observed predictors), a single `formula` (joint complete-case
-#'   model), or a named `list` of formulas (per-variable models). Ignored for MI.
+#'   a sequential model on the fully observed predictors), a single `formula` (one
+#'   joint complete-case model), or a named `list` of formulas (a sequential model,
+#'   in list order). Ignored for MI. See [set_md_mediation()].
 #' @param weight_stabilize (IPW) Logical; if `TRUE` (default) use stabilized
 #'   weights `P(R=1|X) / P(R=1|Z)`. Ignored for MI.
 #' @param weight_trim (IPW) Upper quantile at which to cap weights (e.g. `0.99`);
