@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Date** | 2026-10-09 |
-| **Status** | DRAFT. Item I reopened as a plan only, gated on E (author, 2026-10-09: "A"). D5 decided: **wait for a medfit CRAN release with the 0.4.0 features, then raise the floor** (author, 2026-10-09: "A"). D6 decided: **the medfit release is 0.7.0 (native SEM)**, not the tagged 0.6.0 (author, 2026-10-09: "B"). D7 decided (T1): **E before 1.0.0; C and F conditional on evidence** (author, 2026-10-09: "A"). |
+| **Status** | DRAFT. Item I reopened as a plan only, gated on E (author, 2026-10-09: "A"). D5 decided: **wait for a medfit CRAN release with the 0.4.0 features, then raise the floor** (author, 2026-10-09: "A"). D6 decided: **the medfit release is 0.7.0 (native SEM)**, not the tagged 0.6.0 (author, 2026-10-09: "B"). D8 decided (T7): **stable core = the four verbs, the three S7 classes, `infer(type = c("mc","mbco"))`, `mbco_d4()`; experimental = `engine = "lavaan"`, `ariv = "own"`, `method = "ipw"`** (author, 2026-10-09: "A"). D7 decided (T1): **E before 1.0.0; C and F conditional on evidence** (author, 2026-10-09: "A"). |
 | **Follows** | [PLAN-open-items-2026-10-09.md](PLAN-open-items-2026-10-09.md), item I |
 | **Owner of the release** | The author. Version bump, `dev` to `main`, tag, GitHub release and the CRAN upload are release engineering and are not done from a feature session without an explicit request. |
 
