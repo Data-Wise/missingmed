@@ -118,8 +118,9 @@ issue (`gh issue list` was empty). The original text is kept beneath each tag.
   `p_value`; `pooled@data`, `@sigma_m` and `@sigma_y` are set to `NULL`, `pool.R:132-134`.)
 - **[RESOLVED]** `R/methods-output.R:91` — tipping point in grid order, not |delta|; never found
   for `mbco`. (`.mnar_tipping` takes the smallest distance from the MAR row and is type-aware.)
-- **[OPEN]** `.github/workflows/pkgdown.yaml` — deploys from `dev`; gate on `main`.
-  (The deploy step runs on any non-PR push, and the workflow triggers on `[main, dev]`.)
+- **[RESOLVED 2026-10-10]** `.github/workflows/pkgdown.yaml` — deploys from `dev`; gate on `main`.
+  (PR #85, `7242700`: the deploy step now runs only on `refs/heads/main` or a published
+  release. Not yet exercised on `main`; the next push there is the live test.)
 - **[OPEN]** Runtime warning for link-scale `a*b` under binomial families (docs already cover it).
   (No such warning exists in `R/`.)
 - Cosmetic:
