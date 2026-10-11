@@ -230,7 +230,7 @@ F(k, nu). Size is the share of p < .05 in the replications that did not refuse.
 |---|---|
 | Size at most 0.065 in every cell | **Not met: 79 of 80.** Heavy, latent, n = 500, 25% missing, (.3, 0): **0.067** (Monte Carlo se 0.0069; naive D4 0.058, D2 0.063) |
 | Refusals (non-positive scaling correction, or a non-converged full fit) | 535 of 80,000 (0.7%), all but a handful in latent cells. Five cells exceed 5%: skewed, latent, n = 200, 40% missing, all five nulls (5.4-7.7%); their sizes are conditional on success |
-| Naive D4 (the existing ML MBCO statistic) | at most **0.058 in all 80 cells**: it would pass |
+| Naive D4 (the existing ML MBCO statistic) | at most **0.058 in all 80 cells**, but **conditional on the scaling not refusing** (see the review correction below); in the five cells above 5% refused it is not established by this run |
 | Mean scaling correction | 0.97-1.09: the scaling moves the statistic little, and the scaled size exceeds the naive size in 21 of the 32 single-null cells |
 
 **Reading.** The scaling adds no calibration benefit over the unscaled D4 in this
@@ -239,7 +239,8 @@ introduces a refusal mode (a negative SB 2001 correction) that ML does not have.
 single-null (.3, 0) cells at n = 500 average 0.057 scaled and 0.055 naive, against
 0.048 for (0, .3): a small upward tilt that the naive statistic shares, so it is not
 the scaling. The ML MBCO already shipped looked calibrated on these non-normal errors
-(maximum 0.058), with the usual caveat that this covers only these DGPs.
+(maximum 0.058 among replications where the scaling did not refuse; see the review
+correction), with the usual caveat that this covers only these DGPs.
 
 **Decisions (author, 2026-10-10, on the recommendation above)**
 1. **MLR stays refused publicly**, with a refusal message that names this section.
@@ -264,3 +265,26 @@ the scaling. The ML MBCO already shipped looked calibrated on these non-normal e
 Verification of the refusal (branch `feature/mbco-mlr`): suite 0 failures, 1587
 passing (dev baseline 1548), unchanged skips (8) and warnings (20); gate harness
 smoke OK.
+
+**Review correction (Codex review of PR 84, 2026-10-10).** Two defects in the first
+run, both verified:
+1. The pooling rejected a non-positive correction on the branch that did **not**
+   win, and on the stacked fit (never used), so the refusal counts above are
+   **overstated**. Smoke check: seed 5001, skewed latent n = 200 at 40% missing,
+   refused in the first run and gives a result now. The pooling now validates only
+   the corrections that enter the statistic.
+2. A refusal set every p-value in the replication NA, so the naive comparator was
+   conditional on scaling succeeding. The harness now logs each provider output and
+   pools it twice (corrections stripped for the naive D4, replayed for the scaled
+   one), so the naive p-value exists whenever the fits succeeded, and the combiner
+   separates `refused` from `failed_fit` and labels the naive basis (`all` or
+   `cond.`).
+
+What this changes: not the verdict. The failing cell had 0 refusals, so neither
+defect touches its size of 0.067. What it changes is the refusal rates (upper bounds
+for the 75 cells run under the old validation) and the unconditional naive size. The
+five cells above 5% refused were **rerun under the corrected harness** (hopper job
+4335889, outputs `out-mlr-rerun`); their corrected rows are reported below once that
+job finishes. The other 75 cells keep the first run's rows, labeled `cond.`; their
+refusals are at most 2.7%, so the unconditional naive size there can differ from the
+conditional one by at most that share of replications.
