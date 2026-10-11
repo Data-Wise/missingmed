@@ -46,8 +46,11 @@ worktrees:
     worktree/quiet-meadow-d4ed (tip c751fff, an ancestor of origin/dev, no PR) was also
     deleted by the author, with its remote branch, and `git fetch --prune` cleared 23
     stale origin/feature/* tracking refs. Only local branches dev and main remain; remote
-    has dev, main, gh-pages. Still here: app-made pensive-kare-38530a (detached HEAD at
-    898cb7b; remove by archiving its session).
+    has dev, main, gh-pages. Last worktree, app-made pensive-kare-38530a (detached HEAD
+    at 898cb7b, clean, session already archived), then REMOVED with `git worktree remove
+    --force`; 898cb7b stays on origin as refs/pull/29/head, and its ignored
+    session-report-2026-10-07.html was copied to the main checkout's .remember/. Only
+    the main checkout remains.
   2026-10-07: post-v0.5.1 cleanup. REMOVED 12 worktrees: 7 agent worktrees
     under .claude/worktrees/ and ~/.git-worktrees/missingmed/{feature-defensive-
     tests, feature-docs-site, feature-review-followups, feature-vignette-
