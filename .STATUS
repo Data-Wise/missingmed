@@ -39,10 +39,12 @@ worktrees:
   2026-10-10: REMOVED worktrees and local branches feature/mbco-mlr (PR #84, merge b2b18f2),
     feature/ipw-literature-docs (PR #78, b0dc4df) and feature/us-english-fixes (PR #83,
     eb09373). Each was clean, its tip == its merged PR's head, and the merge commit is in
-    origin/dev; `git branch -d` sufficed. No remote feature/* branches remain. Still here:
-    app-made pensive-kare-38530a (detached HEAD at 898cb7b; remove by archiving its
-    session) and the local branches feature/pool-mref and feature/relicense-lavaan-floor
-    (merge state not checked).
+    origin/dev; `git branch -d` sufficed. No remote feature/* branches remain. Later the
+    same day the author deleted feature/pool-mref (PR #29, bbb89b3) and
+    feature/relicense-lavaan-floor (PR #48, d1588f8) with `git branch -D` (squash merges;
+    tip == PR head, merge commit in origin/dev). Still here: app-made pensive-kare-38530a
+    (detached HEAD at 898cb7b; remove by archiving its session) and the leftover local
+    branch worktree/quiet-meadow-d4ed (merge state not checked).
   2026-10-07: post-v0.5.1 cleanup. REMOVED 12 worktrees: 7 agent worktrees
     under .claude/worktrees/ and ~/.git-worktrees/missingmed/{feature-defensive-
     tests, feature-docs-site, feature-review-followups, feature-vignette-
