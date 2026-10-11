@@ -24,6 +24,9 @@ pub <- suppressWarnings(mbco_d4(il, model = "M ~ X + C\nY ~ M + X + C", treatmen
 row <- one_mlr("skewed", "observed", 300, 0, .3, .25, 5001)
 ok(is.na(row$err), "one_mlr returns a result, not an error row")
 ok(abs(row$p_d4s - unname(pub["p"])) < 1e-8 && abs(row$cd - pub@scaling) < 1e-8, "harness p and scaling equal mbco_d4() under MLR")
+ml <- suppressWarnings(mbco_d4(il, model = "M ~ X + C\nY ~ M + X + C", treatment = "X", mediator = "M",
+  outcome = "Y"))
+ok(abs(row$p_d4n - unname(ml["p"])) < 1e-6, "p_d4n equals the public ML mbco_d4() p-value (planted: the naive comparator is the ML test)")
 ok(if (row$cd > 1) row$p_d4s >= row$p_d4n else row$p_d4s <= row$p_d4n,
   "scaled p is the naive p shifted by cd (cd > 1 shrinks the statistic, so p grows)")
 
@@ -37,9 +40,10 @@ cells <- cells[cells$null == 1, ]
 for (i in seq_len(nrow(cells))) {
   cl <- cells[i, ]; ab <- nulls[[cl$null]]
   r <- do.call(rbind, lapply(1:3, function(s) one_mlr(cl$dist, cl$dgp, cl$n, ab[1], ab[2], cl$miss, 5000 + s)))
-  good <- is.na(r$err)
+  good <- !is.na(r$p_d4s)
   known <- all(grepl("scaled difference test .* is undefined", r$err[!good]))
-  ok(any(good) && known && all(r$p_d4s[good] >= 0 & r$p_d4s[good] <= 1) && all(is.finite(r$cd[good])),
-    sprintf("cell %s %s n=%d runs (%d of 3 refused)", cl$dist, cl$dgp, cl$n, sum(!good)))
+  # A refusal must leave the naive comparator in place (finding 2).
+  ok(any(good) && known && all(!is.na(r$p_d4n)) && all(r$p_d4s[good] >= 0 & r$p_d4s[good] <= 1) && all(is.finite(r$cd[good])),
+    sprintf("cell %s %s n=%d runs (%d of 3 refused, naive p present in all)", cl$dist, cl$dgp, cl$n, sum(!good)))
 }
 cat("smoke OK\n")

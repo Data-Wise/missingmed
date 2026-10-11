@@ -12,10 +12,10 @@ make_run <- function(dir, size = 0.05, bad_cell = NULL, bad_size = NULL, bad_fai
     idx <- split(seq_len(1000), rep_len(seq_len(4), 1000))[[k + 1]]
     sz <- if (!is.null(bad_cell) && cell == bad_cell) bad_size else size
     p <- ifelse(seq_along(idx) <= round(sz * length(idx)), 0.01, 0.5)
-    res <- data.frame(rep = idx, p_d4s = p, p_d4n = p, p_d2 = p, cd = 1, k = 1, r4 = 0.1, err = NA_character_)
+    res <- data.frame(rep = idx, p_d4s = p, p_d4n = p, p_d2 = p, cd = 1, k = 1, r4 = 0.1, err = NA_character_, v = 2L)
     if (!is.null(bad_cell) && cell == bad_cell && bad_fail > 0) {
       nf <- round(bad_fail * length(idx))
-      res[seq_len(nf), c("p_d4s", "p_d4n", "p_d2", "cd")] <- NA
+      res[seq_len(nf), c("p_d4s", "p_d2", "cd")] <- NA # refused: the naive p stays (schema v = 2)
       res$err[seq_len(nf)] <- "Fitting the MBCO models failed in imputation 1: the scaled difference test for the a = 0 null is undefined: x"
     }
     saveRDS(list(task = t, cell = cell, chunk = k, cl = grid[cell, ], ab = nulls[[grid$null[cell]]], res = res),
@@ -49,4 +49,11 @@ r <- run(d5); ok(r$status == 1 && grepl("INVALID", r$verdict), "a cell with 7% r
 d6 <- file.path(tmp, "pilot"); make_run(d6)
 for (f in list.files(d6, full.names = TRUE)[-(1:12)]) unlink(f)
 r <- run(d6, "1000"); ok(r$status == 1 && !grepl("PASS", r$verdict), "a partial run can never print PASS")
+d7 <- file.path(tmp, "legacy"); make_run(d7)
+for (f in list.files(d7, full.names = TRUE)) { x <- readRDS(f); x$res$v <- NULL; saveRDS(x, f) }
+out <- system2("Rscript", c("dev/sim-sem-mbco-mlr-combine.R", d7), stdout = TRUE, stderr = TRUE)
+ok(any(grepl("cond\\.", out)) && grepl("PASS", tail(out, 1)), "rows without v are labeled cond. (naive conditional on scaling success)")
+d8 <- file.path(tmp, "refused-naive"); make_run(d8, bad_cell = 9, bad_size = 0.04, bad_fail = 0.07)
+out <- suppressWarnings(system2("Rscript", c("dev/sim-sem-mbco-mlr-combine.R", d8), stdout = TRUE, stderr = TRUE))
+ok(any(grepl(" all ", out)), "v = 2 rows report the naive basis 'all'")
 cat("combiner tests OK\n")

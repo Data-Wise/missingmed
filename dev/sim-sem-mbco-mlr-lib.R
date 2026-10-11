@@ -55,8 +55,16 @@ d2_p <- function(T_k, k) {
   stats::pf(D2, k, nu2, lower.tail = FALSE)
 }
 
-# One replication. Returns a one-row data.frame; a refusal or failed refit gives
-# NA p-values and the message in `err` (counted per column by the combiner).
+# One replication. Returns a one-row data.frame (schema `v` = 2).
+# The provider is run once per dataset and its outputs are logged; the logged
+# outputs are then pooled twice, with no extra model fits:
+#   pass 1, corrections stripped: the NAIVE D4 (the existing ML MBCO statistic),
+#           available whenever the fits themselves succeeded;
+#   pass 2, replayed with the corrections: the scaled D4 and D2, which can REFUSE
+#           (a used correction that is not positive).
+# So the naive comparator never depends on scaling succeeding (Codex review,
+# 2026-10-10). Failure kinds: p_d4n NA = a fit failed (all p-values NA);
+# p_d4n present with p_d4s NA = the scaling refused. `err` holds the message.
 one_mlr <- function(dist, dgp, n, a, b, miss, seed) {
   d <- gen_nn(dist, dgp, n, a, b, miss, seed)
   imp <- suppressWarnings(mice::mice(d, m = 20, maxit = 5, method = "norm", printFlag = FALSE, seed = seed))
@@ -64,34 +72,48 @@ one_mlr <- function(dist, dgp, n, a, b, miss, seed) {
   model <- if (dgp == "observed") "M ~ X + C\nY ~ M + X + C" else "Ml =~ m1 + m2 + m3\nMl ~ X\nY ~ Ml + X"
   med <- if (dgp == "observed") "M" else "Ml"
   prov <- missingmed:::.mm_lav_provider(model, "X", med, "Y", list(estimator = "MLR"))
-  # Record each provider call: the first K are the imputations (D2 needs them),
-  # the last is the stacked data.
   log <- list()
+  strip <- function(l) {
+    out <- l[setdiff(names(l), c("cd_a", "cd_b"))]
+    attr(out, "improper") <- attr(l, "improper")
+    out
+  }
   logged <- function(dd) {
     l <- prov(dd)
     log[[length(log) + 1L]] <<- l
-    l
+    strip(l)
   }
-  na <- data.frame(p_d4s = NA_real_, p_d4n = NA_real_, p_d2 = NA_real_, cd = NA_real_, k = NA_real_,
-    r4 = NA_real_, err = NA_character_)
-  r <- tryCatch(suppressWarnings(missingmed:::.mm_d4_pool(unname(il), logged, "fixed")),
+  row <- data.frame(p_d4s = NA_real_, p_d4n = NA_real_, p_d2 = NA_real_, cd = NA_real_, k = NA_real_,
+    r4 = NA_real_, err = NA_character_, v = 2L)
+  naive <- tryCatch(suppressWarnings(missingmed:::.mm_d4_pool(unname(il), logged, "fixed")),
+    error = function(e) conditionMessage(e))
+  if (is.character(naive)) {
+    row$err <- naive
+    return(row)
+  }
+  row$p_d4n <- unname(naive["p"])
+  row$k <- naive@k
+  row$r4 <- unname(naive["r4"])
+  i <- 0L
+  replay <- function(dd) {
+    i <<- i + 1L
+    log[[i]]
+  }
+  r <- tryCatch(suppressWarnings(missingmed:::.mm_d4_pool(unname(il), replay, "fixed")),
     error = function(e) conditionMessage(e))
   if (is.character(r)) {
-    na$err <- r
-    return(na)
+    row$err <- r
+    return(row)
   }
   K <- length(il)
-  per <- log[seq_len(K)]
-  T_k <- vapply(per, function(l) {
+  T_k <- vapply(log[seq_len(K)], function(l) {
     key <- if (l[["a"]] >= l[["b"]]) "a" else "b"
     2 * (l[["full"]] - l[[key]]) / l[[paste0("cd_", key)]]
   }, numeric(1))
-  data.frame(
-    p_d4s = unname(r["p"]),
-    p_d4n = stats::pf(unname(r["D4"]) * r@scaling, r@k, unname(r["nu"]), lower.tail = FALSE),
-    p_d2 = tryCatch(d2_p(T_k, r@k), error = function(e) NA_real_),
-    cd = r@scaling, k = r@k, r4 = unname(r["r4"]), err = NA_character_
-  )
+  row$p_d4s <- unname(r["p"])
+  row$p_d2 <- tryCatch(d2_p(T_k, r@k), error = function(e) NA_real_)
+  row$cd <- r@scaling
+  row
 }
 
 # 2 distributions x 2 DGPs x n x missingness x 5 nulls = 80 cells at the spec's grid.

@@ -287,14 +287,7 @@
   # names that dataset; the provider's own message is kept verbatim.
   lls_of <- function(d, where) {
     tryCatch(
-      {
-        l <- provider(d)
-        # MLR providers also return the scaling corrections cd_a, cd_b.
-        for (nm in intersect(c("cd_a", "cd_b"), names(l))) {
-          .mm_check_cd(l[[nm]], if (nm == "cd_a") "a = 0" else "b = 0")
-        }
-        l
-      },
+      provider(d),
       error = function(e) {
         stop("Fitting the MBCO models failed in ", where, ": ",
           conditionMessage(e),
@@ -370,10 +363,21 @@
   # imputation's own.
   scaling <- NA_real_
   if (!is.null(names(lls[[1L]])) && "cd_a" %in% names(lls[[1L]])) {
-    cd_k <- if (ariv == "own") {
-      vapply(lls, function(l) if (l[["a"]] >= l[["b"]]) l[["cd_a"]] else l[["cd_b"]], numeric(1))
+    key_k <- if (ariv == "own") {
+      vapply(lls, function(l) if (l[["a"]] >= l[["b"]]) "a" else "b", "")
     } else {
-      vapply(lls, function(l) l[[if (stacked_a) "cd_a" else "cd_b"]], numeric(1))
+      rep(if (stacked_a) "a" else "b", K)
+    }
+    cd_k <- vapply(seq_len(K), function(i) lls[[i]][[paste0("cd_", key_k[i])]], numeric(1))
+    # Only the corrections that enter the statistic must be usable: not the other
+    # branch's, and not the stacked fit's (which are never used).
+    for (i in seq_len(K)) {
+      tryCatch(.mm_check_cd(cd_k[i], paste0(key_k[i], " = 0")), error = function(e) {
+        stop("Fitting the MBCO models failed in imputation ", i, ": ",
+          conditionMessage(e),
+          call. = FALSE
+        )
+      })
     }
     scaling <- mean(cd_k)
     stats_d4[["D4"]] <- stats_d4[["D4"]] / scaling

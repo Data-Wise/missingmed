@@ -25,29 +25,43 @@ expected <- fmt(grid$dist, grid$dgp, grid$n, grid$miss,
 r <- lapply(list.files(d, "^task_.*\\.rds$", full.names = TRUE), readRDS)
 key <- vapply(r, function(x) with(x, fmt(cl$dist, cl$dgp, cl$n, cl$miss, ab[1], ab[2])), "")
 sz <- function(p) mean(p < .05, na.rm = TRUE)
+# Result schema: v = 2 rows (current harness) keep the naive comparator whenever
+# the fits succeeded, so `refused` (scaling refused, p_d4n present) and `failed`
+# (a fit failed, p_d4n NA) are separate and the naive size is over all non-failed
+# replications ("all"). Earlier rows (no `v`, the 2026-10-09/10 first run) set
+# every p-value NA on a refusal, so refusals and failures are not separable and the
+# naive size is conditional on scaling succeeding ("cond.").
 rows <- lapply(sort(unique(key)), function(k) {
-  x <- do.call(rbind, lapply(r[key == k], `[[`, "res"))
+  x <- do.call(rbind, lapply(r[key == k], function(t) {
+    res <- t$res
+    if (!"v" %in% names(res)) res$v <- 1L
+    res
+  }))
+  v2 <- all(x$v == 2L)
   ok <- !is.na(x$p_d4s)
   data.frame(cell = k, reps = nrow(x), distinct = length(unique(x$rep)),
     complete = nrow(x) == reps_expected && setequal(x$rep, seq_len(reps_expected)) && !anyDuplicated(x$rep),
-    failed = sum(!ok), na_d2 = sum(is.na(x$p_d2) & ok),
-    size_d4s = sz(x$p_d4s), size_d4n = sz(x$p_d4n), size_d2 = sz(x$p_d2),
+    unusable = sum(!ok),
+    refused = if (v2) sum(!ok & !is.na(x$p_d4n)) else NA_integer_,
+    failed_fit = if (v2) sum(is.na(x$p_d4n)) else NA_integer_,
+    size_d4s = sz(x$p_d4s), size_d4n = sz(x$p_d4n), naive_basis = if (v2) "all" else "cond.",
+    size_d2 = sz(x$p_d2),
     se = sqrt(.05 * .95 / max(1, sum(ok))), cd = mean(x$cd, na.rm = TRUE))
 })
 tab <- do.call(rbind, rows)
-tab$fail_pct <- 100 * tab$failed / tab$reps
+tab$fail_pct <- 100 * tab$unusable / tab$reps
 tab$status <- ifelse(!tab$complete, "INCOMPLETE",
   ifelse(tab$fail_pct > max_refused, "UNUSABLE",
     ifelse(tab$size_d4s > bar, "FAIL", "pass")))
-print(format(tab[c("cell", "reps", "failed", "fail_pct", "size_d4s", "size_d4n", "size_d2", "se", "cd", "status")],
-  digits = 3), row.names = FALSE)
+print(format(tab[c("cell", "reps", "unusable", "refused", "failed_fit", "fail_pct", "size_d4s", "size_d4n",
+  "naive_basis", "size_d2", "se", "cd", "status")], digits = 3), row.names = FALSE)
 
 missing_cells <- setdiff(expected, tab$cell)
 extra_cells <- setdiff(tab$cell, expected)
 cat(sprintf("\ncells found: %d of %d expected | status: %s\n", nrow(tab), length(expected),
   paste(names(table(tab$status)), table(tab$status), collapse = ", ")))
-cat(sprintf("failed replications: %d of %d (%.1f%%); limits: %.0f%% refused per cell, size <= %.3f, %d reps per cell\n",
-  sum(tab$failed), sum(tab$reps), 100 * sum(tab$failed) / sum(tab$reps), max_refused, bar, reps_expected))
+cat(sprintf("replications without a scaled p-value (refused or failed): %d of %d (%.1f%%); limits: %.0f%% refused per cell, size <= %.3f, %d reps per cell\n",
+  sum(tab$unusable), sum(tab$reps), 100 * sum(tab$unusable) / sum(tab$reps), max_refused, bar, reps_expected))
 if (length(missing_cells)) cat("missing cells:", length(missing_cells), "e.g.", missing_cells[1], "\n")
 if (length(extra_cells)) cat("unexpected cells:", paste(extra_cells, collapse = "; "), "\n")
 msgs <- unlist(lapply(r, function(x) x$res$err[!is.na(x$res$err)]))

@@ -121,6 +121,33 @@ test_that("a result without scaling (ML) has @scaling NA and an unchanged D4", {
   expect_true(is.na(r@scaling))
 })
 
+test_that("only the corrections that enter the statistic must be usable", {
+  d <- data.frame(x = 1:5)
+  # a wins (-104 > -110): a bad cd_b is unused, so the statistic is defined.
+  unused_b <- function(d) {
+    f <- nrow(d) / 5
+    c(full = -100 * f, a = -104 * f, b = -110 * f, k_a = 1, k_b = 1, cd_a = 0.8, cd_b = -0.2)
+  }
+  r <- missingmed:::.mm_d4_pool(list(d, d, d), unused_b, "fixed")
+  expect_equal(unname(r["D4"]), 2 * 4 / 0.8, tolerance = 1e-9)
+  # The stacked fit's own corrections are never used either.
+  bad_stacked <- function(d) {
+    f <- nrow(d) / 5
+    c(full = -100 * f, a = -104 * f, b = -110 * f, k_a = 1, k_b = 1,
+      cd_a = if (f > 1) -1 else 0.8, cd_b = 1)
+  }
+  expect_equal(unname(missingmed:::.mm_d4_pool(list(d, d, d), bad_stacked, "own")["D4"]), 2 * 4 / 0.8,
+    tolerance = 1e-9)
+  # A bad correction on the USED branch of one imputation refuses, naming it.
+  one_bad <- function(d) {
+    f <- nrow(d) / 5
+    c(full = -100 * f, a = -104 * f, b = -110 * f, k_a = 1, k_b = 1,
+      cd_a = if (f == 1 && d$tag[1] == 2) -0.3 else 0.8, cd_b = 1)
+  }
+  imps <- lapply(1:3, function(i) data.frame(tag = i, x = 1:5))
+  expect_error(missingmed:::.mm_d4_pool(imps, one_bad, "fixed"), "imputation 2.*scaled difference.*a = 0")
+})
+
 test_that("a non-positive cd from the provider refuses, naming the dataset", {
   d <- data.frame(x = 1:5)
   bad <- function(d) c(full = -100, a = -104, b = -110, k_a = 1, k_b = 1, cd_a = -0.2, cd_b = 1)
