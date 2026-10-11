@@ -229,7 +229,7 @@ F(k, nu). Size is the share of p < .05 in the replications that did not refuse.
 | Criterion | Outcome |
 |---|---|
 | Size at most 0.065 in every cell | **Not met: 79 of 80.** Heavy, latent, n = 500, 25% missing, (.3, 0): **0.067** (Monte Carlo se 0.0069; naive D4 0.058, D2 0.063) |
-| Refusals (non-positive scaling correction, or a non-converged full fit) | 535 of 80,000 (0.7%), all but a handful in latent cells. Five cells exceed 5%: skewed, latent, n = 200, 40% missing, all five nulls (5.4-7.7%); their sizes are conditional on success |
+| Refusals (non-positive scaling correction, or a non-converged full fit) | First run: 535 of 80,000 (0.7%), overstated by the unused-branch check (see the review correction); five cells above 5% (skewed, latent, n = 200, 40% missing, 5.4-7.7%). After the corrected rerun of those cells: 443 of 80,000 (0.6%), two cells above 5% ((0, 0) 5.9%, (0, .1) 7.0%) |
 | Naive D4 (the existing ML MBCO statistic) | at most **0.058 in all 80 cells**, but **conditional on the scaling not refusing** (see the review correction below); in the five cells above 5% refused it is not established by this run |
 | Mean scaling correction | 0.97-1.09: the scaling moves the statistic little, and the scaled size exceeds the naive size in 21 of the 32 single-null cells |
 
@@ -284,7 +284,29 @@ What this changes: not the verdict. The failing cell had 0 refusals, so neither
 defect touches its size of 0.067. What it changes is the refusal rates (upper bounds
 for the 75 cells run under the old validation) and the unconditional naive size. The
 five cells above 5% refused were **rerun under the corrected harness** (hopper job
-4335889, outputs `out-mlr-rerun`); their corrected rows are reported below once that
-job finishes. The other 75 cells keep the first run's rows, labeled `cond.`; their
-refusals are at most 2.7%, so the unconditional naive size there can differ from the
-conditional one by at most that share of replications.
+4335889, 20 tasks, same seeds; merged with the other 75 cells into `out-mlr-v3`,
+combined output `out-mlr-combined-v3.txt`). The other 75 cells keep the first run's
+rows, labeled `cond.`; their refusals are at most 2.7%, so the unconditional naive
+size there can differ from the conditional one by at most that share of replications.
+
+Corrected rows, skewed errors, latent model, n = 200, 40% missing (1000 replications
+each; `refused` = scaling refused, `failed fit` = a fit did not converge):
+
+| Null (a, b) | Scaled D4 | Naive D4 (all non-failed fits) | Refused | Failed fit | Without a scaled p | First run (no scaled p) |
+|---|---|---|---|---|---|---|
+| (0, 0) | 0.0021 | 0.0030 | 53 | 6 | 5.9% | 6.4% |
+| (0, .1) | 0.0097 | 0.0111 | 60 | 10 | **7.0%** | 7.7% |
+| (0, .3) | 0.0415 | 0.0403 | 28 | 8 | 3.6% | 6.4% |
+| (.1, 0) | 0.0104 | 0.0161 | 34 | 6 | 4.0% | 5.4% |
+| (.3, 0) | 0.0435 | 0.0502 | 30 | 4 | 3.4% | 7.2% |
+
+Result: the corrected cells' scaled sizes match the first run's to within 0.002, so
+the verdict is unchanged. The unconditional naive size in these five cells is at most
+0.050, which **re-establishes the naive-D4 claim there** (at most 0.058 in all 80
+cells, unconditionally in these five and conditional on scaling success in the other
+75). Refusals fall from 535 to 443 of 80,000 (0.6%). The two intersection cells,
+(0, 0) and (0, .1), are still above 5% unusable (5.9% and 7.0%); both are refusals
+plus non-converged fits, not scaling alone, and their sizes (0.002 and 0.010) are
+far from the bar. Under the combiner's rule they are `UNUSABLE` and the gate verdict
+reads FAIL for two independent reasons (one cell at 0.067, two cells above the
+refusal limit).
