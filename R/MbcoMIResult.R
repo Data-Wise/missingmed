@@ -27,6 +27,10 @@
 #' @param branch_mix Logical; `TRUE` when the imputations disagree on their own
 #'   winning branch.
 #' @param p_branch_a Share of imputations whose own winning branch is `a = 0`.
+#' @param scaling `NA` for every public result. Internal: the mean scaling
+#'   correction by which `D4` was divided, set only when the MLR gate harness
+#'   enables the (publicly refused) MLR path; `d_S` stays the unscaled stacked
+#'   statistic.
 #' @return An `MbcoMIResult` S7 object.
 #' @seealso [infer()], [mbco_d4()]
 #' @examples
@@ -48,7 +52,8 @@ MbcoMIResult <- S7::new_class(
     m = S7::class_numeric,
     stacked_branch = S7::class_character,
     branch_mix = S7::class_logical,
-    p_branch_a = S7::class_numeric
+    p_branch_a = S7::class_numeric,
+    scaling = S7::new_property(S7::class_numeric, default = NA_real_)
   ),
   validator = function(self) {
     if (!identical(names(S7::S7_data(self)), c("D4", "p", "r4", "nu", "d_S"))) {
@@ -72,6 +77,9 @@ MbcoMIResult <- S7::new_class(
     if (length(self@p_branch_a) != 1L || is.na(self@p_branch_a) ||
       self@p_branch_a < 0 || self@p_branch_a > 1) {
       return("@p_branch_a must be a single number in [0, 1].")
+    }
+    if (length(self@scaling) != 1L || (!is.na(self@scaling) && self@scaling <= 0)) {
+      return("@scaling must be NA or a single positive number.")
     }
     NULL
   }

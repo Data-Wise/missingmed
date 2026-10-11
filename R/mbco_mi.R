@@ -352,9 +352,41 @@
     k <- as.numeric(k_S)
   }
 
+  stats_d4 <- .mm_d4_from_stats(d_k, d_S, k = k)
+  # Internal, gate-only (SPEC-sem-mbco-2026-10-08.md, section 12): the provider
+  # also returns each null's SB (2001) scaling correction. D4 pooled the NAIVE
+  # statistics; this divides D4 by the arithmetic mean over imputations of the
+  # difference correction of the winning branch and refers it to F. That is NOT
+  # lavaan.mi's procedure, which takes the harmonic mean (harm = TRUE) of each
+  # model's scaling factor before differencing and refers to chi-square.
+  # "fixed" tests every imputation on the stacked branch, "own" on each
+  # imputation's own.
+  scaling <- NA_real_
+  if (!is.null(names(lls[[1L]])) && "cd_a" %in% names(lls[[1L]])) {
+    key_k <- if (ariv == "own") {
+      vapply(lls, function(l) if (l[["a"]] >= l[["b"]]) "a" else "b", "")
+    } else {
+      rep(if (stacked_a) "a" else "b", K)
+    }
+    cd_k <- vapply(seq_len(K), function(i) lls[[i]][[paste0("cd_", key_k[i])]], numeric(1))
+    # Only the corrections that enter the statistic must be usable: not the other
+    # branch's, and not the stacked fit's (which are never used).
+    for (i in seq_len(K)) {
+      tryCatch(.mm_check_cd(cd_k[i], paste0(key_k[i], " = 0")), error = function(e) {
+        stop("Fitting the MBCO models failed in imputation ", i, ": ",
+          conditionMessage(e),
+          call. = FALSE
+        )
+      })
+    }
+    scaling <- mean(cd_k)
+    stats_d4[["D4"]] <- stats_d4[["D4"]] / scaling
+    stats_d4[["p"]] <- stats::pf(stats_d4[["D4"]], k, stats_d4[["nu"]], lower.tail = FALSE)
+  }
+
   MbcoMIResult(
-    .mm_d4_from_stats(d_k, d_S, k = k),
-    ariv = ariv, k = k, m = K,
+    stats_d4,
+    ariv = ariv, k = k, m = K, scaling = scaling,
     stacked_branch = if (stacked_a) "a" else "b",
     branch_mix = length(unique(a_wins)) > 1L,
     p_branch_a = mean(a_wins)

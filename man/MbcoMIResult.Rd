@@ -11,7 +11,8 @@ MbcoMIResult(
   m = integer(0),
   stacked_branch = character(0),
   branch_mix = logical(0),
-  p_branch_a = integer(0)
+  p_branch_a = integer(0),
+  scaling = NA_real_
 )
 }
 \arguments{
@@ -31,6 +32,11 @@ by the constrained fit on the stacked data.}
 winning branch.}
 
 \item{p_branch_a}{Share of imputations whose own winning branch is \code{a = 0}.}
+
+\item{scaling}{\code{NA} for every public result. Internal: the mean scaling
+correction by which \code{D4} was divided, set only when the MLR gate harness
+enables the (publicly refused) MLR path; \code{d_S} stays the unscaled stacked
+statistic.}
 }
 \value{
 An \code{MbcoMIResult} S7 object.
