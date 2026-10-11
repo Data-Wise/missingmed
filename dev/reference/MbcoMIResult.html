@@ -62,7 +62,8 @@ and the branch diagnostics.</p>
 <span>  m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  stacked_branch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  branch_mix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  p_branch_a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
+<span>  p_branch_a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  scaling <span class="op">=</span> <span class="cn">NA_real_</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -99,6 +100,13 @@ winning branch.</p></dd>
 
 <dt id="arg-p-branch-a">p_branch_a<a class="anchor" aria-label="anchor" href="#arg-p-branch-a"></a></dt>
 <dd><p>Share of imputations whose own winning branch is <code>a = 0</code>.</p></dd>
+
+
+<dt id="arg-scaling">scaling<a class="anchor" aria-label="anchor" href="#arg-scaling"></a></dt>
+<dd><p><code>NA</code> for every public result. Internal: the mean scaling
+correction by which <code>D4</code> was divided, set only when the MLR gate harness
+enables the (publicly refused) MLR path; <code>d_S</code> stays the unscaled stacked
+statistic.</p></dd>
 
 </dl></div>
     <div class="section level2">
