@@ -1,7 +1,9 @@
 # MLR for lavaan MBCO: Satorra-Bentler (2001) scaled difference per dataset, D4 on
 # the naive LRTs, divided by the mean per-imputation scaling correction of the
-# winning branch (SPEC-sem-mbco-2026-10-08.md, T7; the T8b gate decides whether
-# it ships enabled).
+# winning branch (SPEC-sem-mbco-2026-10-08.md, T7). The T8b gate FAILED (section
+# 12), so MLR is refused publicly: these tests exercise the internal machinery
+# the gate harness uses, with options(missingmed.internal_mlr = TRUE), plus the
+# refusal itself.
 
 skip_if_not_installed("mice")
 
@@ -16,6 +18,13 @@ nn_imps <- function(K = 4, n = 200, a = 0.15, b = 0.5, seed = 700) {
 }
 
 MOD2 <- "M ~ X\nY ~ M + X"
+
+# Lift the public MLR refusal for the calling test only.
+allow_internal_mlr <- function(env = parent.frame()) {
+  old <- options(missingmed.internal_mlr = TRUE)
+  do.call(on.exit, list(substitute(options(old)), add = TRUE), envir = env)
+  invisible(old)
+}
 mlr_prov <- function() {
   missingmed:::.mm_lav_provider(MOD2, "X", "M", "Y", list(estimator = "MLR"))
 }
@@ -118,23 +127,34 @@ test_that("a non-positive cd from the provider refuses, naming the dataset", {
   expect_error(missingmed:::.mm_d4_pool(list(d, d), bad, "fixed"), "imputation 1.*scaled difference")
 })
 
-test_that("MLR is accepted for lavaan MBCO with an experimental warning; MLM and WLSMV refuse", {
+test_that("MLR, MLM and WLSMV are refused publicly; MLR only passes behind the internal option", {
   fa <- function(est) {
     mice::mice(nn_imps(K = 1, n = 100)[[1]], m = 2, maxit = 1, method = "norm", printFlag = FALSE, seed = 1) |>
       set_md_mediation(model = MOD2, treatment = "X", mediator = "M", outcome = "Y",
         engine = "lavaan", fit_args = list(estimator = est))
   }
-  expect_warning(missingmed:::.mm_lav_check_mbco(fa("MLR")), "experimental")
-  expect_warning(missingmed:::.mm_lav_check_mbco(fa("mlr")), "experimental")
-  for (est in c("MLM", "WLSMV")) {
-    expect_error(
-      missingmed:::.mm_lav_check_mbco(fa(est)),
-      paste0("supports estimator = \"ML\" or \"MLR\" only.*\"", est, "\"")
-    )
+  for (est in c("MLR", "mlr", "MLM", "WLSMV")) {
+    expect_error(missingmed:::.mm_lav_check_mbco(fa(est)), "supports estimator = \"ML\" only", info = est)
   }
+  expect_error(missingmed:::.mm_lav_check_mbco(fa("MLR")), "section 12")
+  expect_error(missingmed:::.mm_lav_check_mbco(fa("MLM")), "Use estimator = \"ML\"")
+  # The internal option lifts the refusal for MLR only.
+  allow_internal_mlr()
+  expect_silent(missingmed:::.mm_lav_check_mbco(fa("MLR")))
+  expect_error(missingmed:::.mm_lav_check_mbco(fa("MLM")), "supports estimator = \"ML\" only")
 })
 
 test_that("infer(type = 'mbco') runs end to end under MLR and mbco_d4(model = ) agrees", {
+  allow_internal_mlr()
+  local({
+    op <- options(missingmed.internal_mlr = FALSE)
+    on.exit(options(op))
+    expect_error(
+      mbco_d4(nn_imps(K = 2), model = MOD2, treatment = "X", mediator = "M", outcome = "Y",
+        fit_args = list(estimator = "MLR")),
+      "section 12"
+    )
+  })
   set.seed(11)
   d <- nn_imps(K = 1, n = 250, a = 0.3, b = 0.4)[[1]]
   d$M[stats::runif(nrow(d)) < stats::plogis(-0.5 + d$X)] <- NA
@@ -142,15 +162,12 @@ test_that("infer(type = 'mbco') runs end to end under MLR and mbco_d4(model = ) 
   md <- set_md_mediation(imp, model = MOD2, treatment = "X", mediator = "M", outcome = "Y",
     engine = "lavaan", fit_args = list(estimator = "MLR"))
   fit <- suppressWarnings(run(md))
-  expect_warning(r <- infer(fit, type = "mbco"), "experimental")
+  r <- infer(fit, type = "mbco")
   expect_true(S7::S7_inherits(r, MbcoMIResult))
   expect_true(is.finite(r@scaling) && r@scaling > 0)
   expect_true(r[["p"]] >= 0 && r[["p"]] <= 1)
-  expect_warning(
-    r2 <- mbco_d4(mice::complete(imp, "all"), model = MOD2, treatment = "X", mediator = "M",
-      outcome = "Y", fit_args = list(estimator = "MLR")),
-    "experimental"
-  )
+  r2 <- mbco_d4(mice::complete(imp, "all"), model = MOD2, treatment = "X", mediator = "M",
+    outcome = "Y", fit_args = list(estimator = "MLR"))
   expect_equal(as.vector(r2), as.vector(r), tolerance = 1e-8)
   expect_equal(r2@scaling, r@scaling, tolerance = 1e-8)
 })

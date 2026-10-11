@@ -154,14 +154,14 @@ lav_md <- function(fit_args = list(), method = "mi") {
 }
 
 test_that("unsupported options are refused before any fit, naming the option", {
-  for (est in c("MLM", "WLSMV")) {
+  for (est in c("MLR", "MLM", "WLSMV")) {
     expect_error(
       missingmed:::.mm_lav_check_mbco(lav_md(list(estimator = est))),
-      paste0("supports estimator = \"ML\" or \"MLR\" only.*\"", est, "\"")
+      paste0("supports estimator = \"ML\" only.*\"", est, "\"")
     )
   }
-  # End to end: an MLM fit runs, then MBCO refuses (MLR is test-mbco-mlr.R).
-  expect_error(infer(suppressWarnings(run(lav_md(list(estimator = "MLM")))), type = "mbco"), "\"ML\" or \"MLR\" only")
+  # End to end: an MLR fit runs, then MBCO refuses.
+  expect_error(infer(run(lav_md(list(estimator = "MLR"))), type = "mbco"), "estimator = \"ML\" only")
   expect_error(missingmed:::.mm_lav_check_mbco(lav_md(list(group = "X"))), "`group`")
   expect_error(missingmed:::.mm_lav_check_mbco(lav_md(list(sampling.weights = "C"))), "sampling.weights")
   expect_error(missingmed:::.mm_lav_check_mbco(lav_md(list(ordered = "Y"))), "`ordered`")
@@ -252,8 +252,8 @@ test_that("mbco_d4(model = ) is exclusive with the formula and family arguments"
   )
   expect_error(
     mbco_d4(imps, model = MOD, treatment = "X", mediator = "M", outcome = "Y",
-      fit_args = list(estimator = "MLM")),
-    "estimator = \"ML\" or \"MLR\" only"
+      fit_args = list(estimator = "MLR")),
+    "estimator = \"ML\" only"
   )
 })
 

@@ -7,10 +7,14 @@
 # variance: skewed = chi-square(4), heavy = t(5). X and C stay normal.
 # The statistic is the one fixed in section 5: D4 on the naive LRTs divided by
 # the mean per-imputation Satorra-Bentler (2001) scaling correction of the
-# winning branch (ariv = "fixed"). Also recorded, as comparators: the naive D4
-# p-value (what the scaling is for) and D2 on the scaled per-imputation
-# statistics (the lavaan.mi pool.robust = TRUE construction, secondary only).
+# winning branch (ariv = "fixed"); this is NOT lavaan.mi's procedure (harmonic
+# mean of the per-model factors, chi-square reference), see spec section 12.
+# Also recorded, as comparators: the naive D4 p-value (what the scaling is for)
+# and D2 on the scaled per-imputation statistics (own implementation of Li et
+# al. 1991, secondary only). The pooling refuses MLR publicly, so this harness
+# sets options(missingmed.internal_mlr = TRUE).
 source("dev/sim-sem-mbco-lib.R") # nulls, and the package (load_all or installed)
+options(missingmed.internal_mlr = TRUE) # lifts the public MLR refusal for this harness only
 
 err <- function(dist, n) {
   switch(dist,

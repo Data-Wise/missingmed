@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | ML IMPLEMENTED on `feature/mbco-provider` (T1-T6, T9) 2026-10-08, ML calibration gate (T8a) PASSED under the restated criterion (D3 resolved 2026-10-09, section 11). MLR (T7, T8b) DEFERRED: refused until its own gate runs. Design amended after adverse review (S3 reversed to structural-only; section 10); S1-S10 grilled ([GRILL-sem-mbco-2026-10-08.md](GRILL-sem-mbco-2026-10-08.md)) |
+| **Status** | ML IMPLEMENTED on `feature/mbco-provider` (T1-T6, T9) 2026-10-08, ML calibration gate (T8a) PASSED under the restated criterion (D3 resolved 2026-10-09, section 11). MLR (T7, T8b): gate RUN 2026-10-10 and **FAILED**; MLR stays refused (section 12). Design amended after adverse review (S3 reversed to structural-only; section 10); S1-S10 grilled ([GRILL-sem-mbco-2026-10-08.md](GRILL-sem-mbco-2026-10-08.md)) |
 | **Date** | 2026-10-08 |
 | **Target** | 0.8.0 (feature; 0.7.0 shipped without it) |
 | **Closes** | SPEC-s7-sem-engine-2026-09-23.md, Q4 ("MBCO for SEM gets its own spec") |
@@ -85,7 +85,7 @@ Each criterion must be able to fail; the probe's PASS lines are the seed tests.
 - [ ] **Convergence:** a non-converging null fit refuses naming the dataset and the fit; an improper solution warns once naming the datasets.
 - [ ] **`mbco_d4(model = )`** equals `infer(type = "mbco")` on the same imputed data to 1e-12; supplying `model` together with a formula errors.
 - [ ] **ML calibration gate (medsim; blocks the 0.8.0 release).** Normal data, MAR missingness, m = 20, 1000 replications per cell. Cells: DGP {observed path model; latent mediator, 3 indicators, loadings .8/.7/.6} x n {200, 500} x missingness {25%, 40% of the mediator or its indicators, logistic in observed variables} x null {(a, b) = (0, .3), (.3, 0), (0, 0), (0, .1), (.1, 0)}. Pass (as restated 2026-10-09, D3): size at most 6.5% at the 5% level in **every** cell, including the intersection and near-intersection cells (conservative is allowed and reported); the size of the single-null cells (0, .3) and (.3, 0) is reported per cell with its Monte Carlo se (about 0.007 at 1000 reps) and is not held to a lower band. The original criterion also required 3.5-6.5% in those cells. Report size per cell, never pooled. Fail: the release waits and the spec is reopened.
-- [ ] **MLR simulation gate (medsim; run before enabling MLR).** The same cells with non-normal data (skewed: chi-square(4) errors rescaled to unit variance; heavy-tailed: t(5) errors). The statistic is fixed in advance, so the gate evaluates one formula: per-imputation and stacked-data scaled difference tests (Satorra-Bentler 2001 via `lavTestLRT`), D4 applied to the naive LRTs, then divided by the arithmetic mean of the per-imputation scaling corrections of the winning branch (the `lavaan.mi` `pool.robust = FALSE` construction); D2 (`pool.robust = TRUE`) is run as a secondary comparison only. Pass criterion per cell as for ML, and every cell must pass: a failure in any cell keeps MLR refused in 0.8.0 and gives it its own spec.
+- [ ] **MLR simulation gate (medsim; run before enabling MLR).** The same cells with non-normal data (skewed: chi-square(4) errors rescaled to unit variance; heavy-tailed: t(5) errors). The statistic is fixed in advance, so the gate evaluates one formula: per-imputation and stacked-data scaled difference tests (Satorra-Bentler 2001 via `lavTestLRT`), D4 applied to the naive LRTs, then divided by the arithmetic mean of the per-imputation scaling corrections of the winning branch (this was described as the `lavaan.mi` `pool.robust = FALSE` construction; that attribution is wrong, see section 12); D2 is run as a secondary comparison only (own implementation, not `lavaan.mi`'s). Pass criterion per cell as for ML, and every cell must pass: a failure in any cell keeps MLR refused in 0.8.0 and gives it its own spec.
 - [ ] **`sensitivity_mnar(type = "mbco")`** runs for lavaan and matches the glm engine rung by rung on an observed model; the Q4 refusal text is gone.
 - [ ] **No regression:** every existing glm MBCO test passes unchanged.
 - [ ] `R CMD check --as-cran` 0/0/0 (one expected pre-CRAN note), suite green with strictly more tests, `check_pkgdown()` clean.
@@ -204,3 +204,63 @@ The code now uses eq. 2.15. At K = 20 the two critical values differ by at most
 about 0.04 (F = 3.92 vs 3.90 at r4 = 0.5), a size shift of at most about 0.002, so
 the maximum observed size of 0.057 moves to at most about 0.059, inside the 6.5%
 criterion. The 40 cells were not re-run.
+
+## 12. MLR simulation gate (T8b) results, 2026-10-10
+
+**Outcome: the gate FAILS; MLR stays refused.** Harness `dev/sim-sem-mbco-mlr-*.R`
+(hopper job 4335503, 320 tasks, all COMPLETED, 80 cells x 1000 replications, seeds
+`5000 + replication`, m = 20 `mice` imputations, `ariv = "fixed"`, observed
+information). Cells are the ML gate's with skewed (chi-square(4)) or heavy-tailed
+(t(5)) structural and measurement errors scaled to unit variance; X and C stay
+normal. Combined output: `~/projects/missingmed_sim/out-mlr-combined-v2.txt` on hopper.
+
+The statistic under test is the one fixed in section 5: D4 on the naive likelihood
+ratio statistics, divided by the arithmetic mean over imputations of the
+Satorra-Bentler (2001) difference correction of the winning branch, referred to
+F(k, nu). Size is the share of p < .05 in the replications that did not refuse.
+
+| Errors | Model | Single-null cells (0,.3), (.3,0): scaled D4 | Naive D4 | D2 | Intersection and near-intersection (12 cells): scaled D4 | Refused, max per cell |
+|---|---|---|---|---|---|---|
+| skewed | observed | 0.040-0.053 | 0.040-0.052 | 0.041-0.057 | 0.003-0.031 | 1.0% |
+| skewed | latent | 0.042-0.060 | 0.040-0.058 | 0.031-0.056 | 0.002-0.033 | **7.7%** |
+| heavy | observed | 0.033-0.056 | 0.031-0.055 | 0.034-0.056 | 0.003-0.027 | 0.7% |
+| heavy | latent | 0.035-**0.067** | 0.036-0.058 | 0.032-0.063 | 0.001-0.032 | 2.7% |
+
+| Criterion | Outcome |
+|---|---|
+| Size at most 0.065 in every cell | **Not met: 79 of 80.** Heavy, latent, n = 500, 25% missing, (.3, 0): **0.067** (Monte Carlo se 0.0069; naive D4 0.058, D2 0.063) |
+| Refusals (non-positive scaling correction, or a non-converged full fit) | 535 of 80,000 (0.7%), all but a handful in latent cells. Five cells exceed 5%: skewed, latent, n = 200, 40% missing, all five nulls (5.4-7.7%); their sizes are conditional on success |
+| Naive D4 (the existing ML MBCO statistic) | at most **0.058 in all 80 cells**: it would pass |
+| Mean scaling correction | 0.97-1.09: the scaling moves the statistic little, and the scaled size exceeds the naive size in 21 of the 32 single-null cells |
+
+**Reading.** The scaling adds no calibration benefit over the unscaled D4 in this
+grid, it nudges size upward where the correction exceeds 1 (latent models), and it
+introduces a refusal mode (a negative SB 2001 correction) that ML does not have. The
+single-null (.3, 0) cells at n = 500 average 0.057 scaled and 0.055 naive, against
+0.048 for (0, .3): a small upward tilt that the naive statistic shares, so it is not
+the scaling. The ML MBCO already shipped looked calibrated on these non-normal errors
+(maximum 0.058), with the usual caveat that this covers only these DGPs.
+
+**Decisions (author, 2026-10-10, on the recommendation above)**
+1. **MLR stays refused publicly**, with a refusal message that names this section.
+   The scaled-difference code (provider `cd_a`, `cd_b`; pooling `scaling`;
+   `MbcoMIResult@scaling`) stays in the package as an internal capability, lifted
+   only by `options(missingmed.internal_mlr = TRUE)`, so the gate can be rerun.
+2. **Correction of section 5.** The statistic was described as the `lavaan.mi`
+   `pool.robust = FALSE` construction. It is not. `lavaan.mi` (`R/pool-LRT.R`,
+   `robustify()`) takes the **harmonic** mean (`harm = TRUE`) of each model's scaling
+   factor, forms the difference correction from those, divides the D4 statistic by
+   it, and uses a chi-square reference. The tested statistic (arithmetic mean of the
+   already-differenced correction, F reference) is a distinct procedure, and it is
+   the one this gate evaluated. A gate for the `lavaan.mi` variant was not run: the
+   naive D4 passes everywhere, so there is no demonstrated gain to refine.
+3. **The gate combiner was hardened** after an adversarial review: it exits nonzero
+   unless the run is complete (all 80 cells, each with exactly the expected unique
+   replication ids), valid (no cell above 5% refused) and in bounds; a partial run
+   can never print PASS. `dev/sim-sem-mbco-mlr-combine-test.R` plants six defects.
+4. **Not done:** no rerun of the one failing cell with fresh seeds, and no gate of
+   the `lavaan.mi` harmonic-mean variant. A future MLR spec starts from this section.
+
+Verification of the refusal (branch `feature/mbco-mlr`): suite 0 failures, 1587
+passing (dev baseline 1548), unchanged skips (8) and warnings (20); gate harness
+smoke OK.

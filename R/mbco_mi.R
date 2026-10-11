@@ -360,11 +360,14 @@
   }
 
   stats_d4 <- .mm_d4_from_stats(d_k, d_S, k = k)
-  # MLR (T7): the provider also returns each null's SB (2001) scaling correction.
-  # D4 pooled the NAIVE statistics; the scaled statistic divides by the mean
-  # correction of the winning branch (the lavaan.mi `pool.robust = FALSE`
-  # construction). "fixed" tests every imputation on the stacked branch, "own"
-  # on each imputation's own.
+  # Internal, gate-only (SPEC-sem-mbco-2026-10-08.md, section 12): the provider
+  # also returns each null's SB (2001) scaling correction. D4 pooled the NAIVE
+  # statistics; this divides D4 by the arithmetic mean over imputations of the
+  # difference correction of the winning branch and refers it to F. That is NOT
+  # lavaan.mi's procedure, which takes the harmonic mean (harm = TRUE) of each
+  # model's scaling factor before differencing and refers to chi-square.
+  # "fixed" tests every imputation on the stacked branch, "own" on each
+  # imputation's own.
   scaling <- NA_real_
   if (!is.null(names(lls[[1L]])) && "cd_a" %in% names(lls[[1L]])) {
     cd_k <- if (ariv == "own") {

@@ -27,10 +27,10 @@
 #' @param branch_mix Logical; `TRUE` when the imputations disagree on their own
 #'   winning branch.
 #' @param p_branch_a Share of imputations whose own winning branch is `a = 0`.
-#' @param scaling `NA` for a maximum-likelihood fit. Under `estimator = "MLR"`
-#'   (experimental), the mean Satorra-Bentler (2001) scaling correction of the
-#'   winning branch, by which `D4` has been divided; `d_S` stays the naive
-#'   (unscaled) stacked statistic.
+#' @param scaling `NA` for every public result. Internal: the mean scaling
+#'   correction by which `D4` was divided, set only when the MLR gate harness
+#'   enables the (publicly refused) MLR path; `d_S` stays the unscaled stacked
+#'   statistic.
 #' @return An `MbcoMIResult` S7 object.
 #' @seealso [infer()], [mbco_d4()]
 #' @examples

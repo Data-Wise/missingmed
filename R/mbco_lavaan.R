@@ -55,8 +55,12 @@
 }
 
 # Refuse before any fit the `fit_args` the lavaan MBCO does not support (S4).
-# MLR is accepted but experimental (T7): D4 of the naive LRTs divided by the mean
-# scaling correction is a construction the T8b simulation gate has to validate.
+# MLR is refused (SPEC-sem-mbco-2026-10-08.md, section 12): the T8b gate failed,
+# and the scaled statistic was no better calibrated than the naive D4. The
+# provider and the pooling still carry the scaled-difference code (.mm_lav_cd(),
+# `scaling` in .mm_d4_pool()) so the gate harness (dev/sim-sem-mbco-mlr-*.R) can
+# be rerun; options(missingmed.internal_mlr = TRUE) lifts the refusal for that
+# harness and for tests only. It is not a public interface.
 .mm_lav_is_mlr <- function(fa) {
   est <- .lav_arg(fa, "estimator")
   !is.null(est) && identical(toupper(as.character(est)), "MLR")
@@ -64,19 +68,17 @@
 
 .mm_lav_check_args <- function(fa) {
   est <- .lav_arg(fa, "estimator")
-  if (!is.null(est) && !identical(toupper(as.character(est)), "ML") && !.mm_lav_is_mlr(fa)) {
-    stop("MBCO for engine = \"lavaan\" supports estimator = \"ML\" or \"MLR\" only; the ",
-      "`fit_args` estimator is \"", est, "\". Other robust tests (MLM) and ",
+  internal_mlr <- isTRUE(getOption("missingmed.internal_mlr")) && .mm_lav_is_mlr(fa)
+  if (!is.null(est) && !identical(toupper(as.character(est)), "ML") && !internal_mlr) {
+    stop("MBCO for engine = \"lavaan\" supports estimator = \"ML\" only; the ",
+      "`fit_args` estimator is \"", est, "\". Robust tests (MLR, MLM) and ",
       "limited-information estimators (WLSMV, ...) are not supported: D4 pooling ",
-      "of a scaled statistic is unvalidated (SPEC-sem-mbco-2026-10-08.md, S4).",
-      call. = FALSE
-    )
-  }
-  if (.mm_lav_is_mlr(fa)) {
-    warning("MBCO under estimator = \"MLR\" is experimental: it pools the naive ",
-      "likelihood-ratio statistics with D4 and divides by the mean Satorra-Bentler ",
-      "(2001) scaling correction, a construction that is not yet validated by ",
-      "simulation (SPEC-sem-mbco-2026-10-08.md, T8b).",
+      "of a scaled statistic is unvalidated (SPEC-sem-mbco-2026-10-08.md, S4). ",
+      if (.mm_lav_is_mlr(fa)) {
+        paste0("MLR was simulated and fails the size gate, with no gain over the ",
+          "unscaled test (SPEC-sem-mbco-2026-10-08.md, section 12). ")
+      },
+      "Use estimator = \"ML\", or type = \"mc\".",
       call. = FALSE
     )
   }
