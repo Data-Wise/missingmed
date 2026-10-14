@@ -194,3 +194,39 @@ test_that("MBCO is unchanged on the same X:M fit", {
   expect_s3_class(r, "missingmed::MbcoMIResult")
   expect_true(is.finite(r[["p"]]))
 })
+
+test_that("the printed indirect effects equal the hand formula (#89)", {
+  # .indirect_line() now reads medfit::nie() and the pie slot; the numbers must
+  # be the ones a*b and a*(b + theta3) give.
+  p <- xm_res@pooled
+  a <- p@a_path
+  b <- p@b_path
+  t3 <- p@interaction
+  expect_equal(p@pie, a * b, tolerance = 1e-12)
+  expect_equal(as.numeric(medfit::nie(p)), a * (b + t3), tolerance = 1e-12)
+  line <- missingmed:::.indirect_line(p)
+  expect_match(line, paste0("= ", round(a * b, 4), " at x = 0"), fixed = TRUE)
+  expect_match(line, paste0(round(a * (b + t3), 4), " at x = 1"), fixed = TRUE)
+  ab <- vapply(xm_fit@per_imputation, function(d) d@a_path * d@b_path, numeric(1))
+  expect_output(print(xm_fit), paste("mean =", round(mean(ab), 4)), fixed = TRUE)
+})
+
+test_that("the printed a*b equals the hand formula without X:M (#89)", {
+  set.seed(7)
+  n <- 200
+  d <- data.frame(X = rbinom(n, 1, 0.5), C = rnorm(n))
+  d$M <- 0.4 * d$X + rnorm(n)
+  d$Y <- 0.3 * d$M + 0.2 * d$X + rnorm(n)
+  d$M[sample(n, 30)] <- NA
+  imp <- mice::mice(d, m = 3, method = "norm", printFlag = FALSE, seed = 2)
+  f <- run(set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+    treatment = "X", mediator = "M"
+  ))
+  p <- missingmed::pool(f)@pooled
+  expect_identical(
+    missingmed:::.indirect_line(p),
+    paste("indirect effect a*b =", round(p@a_path * p@b_path, 4))
+  )
+  ab <- vapply(f@per_imputation, function(d) d@a_path * d@b_path, numeric(1))
+  expect_output(print(f), paste("mean =", round(mean(ab), 4)), fixed = TRUE)
+})

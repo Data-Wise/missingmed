@@ -34,15 +34,16 @@ S7::method(print, MDMediationData) <- function(x, ...) {
 # indirect effect a * (b + theta3 * x) depends on the treatment level, so show
 # it at x = 0 and x = 1 (the pure and total natural indirect effects for a 0/1
 # treatment) instead of a single a*b.
+# The values come from medfit, not hand arithmetic: nie() is a*b, and for an
+# InteractionMediationData it is int_med + pie = a*(b + theta3), the x = 1
+# value. nie() takes no x, so x = 0 is the pie slot (= a*b). pool() rebuilds
+# both slots from the pooled paths, so the identities hold exactly.
 .indirect_line <- function(pooled) {
-  a <- pooled@a_path
-  b <- pooled@b_path
   if (!.has_xm(pooled)) {
-    return(paste("indirect effect a*b =", round(a * b, 4)))
+    return(paste("indirect effect a*b =", round(as.numeric(medfit::nie(pooled)), 4)))
   }
-  t3 <- pooled@interaction
-  paste0("indirect effect a*(b + theta3*x) = ", round(a * b, 4), " at x = 0, ",
-    round(a * (b + t3), 4), " at x = 1")
+  paste0("indirect effect a*(b + theta3*x) = ", round(pooled@pie, 4), " at x = 0, ",
+    round(as.numeric(medfit::nie(pooled)), 4), " at x = 1")
 }
 
 # print(<MDMediationFit>)
@@ -50,7 +51,10 @@ S7::method(print, MDMediationFit) <- function(x, ...) {
   cat("<MDMediationFit>\n")
   cat("  per-imputation fits:", x@m, "named medfit::MediationData\n")
   cat("  engine:", x@engine, "\n")
-  ab <- vapply(x@per_imputation, function(d) d@a_path * d@b_path, numeric(1))
+  # a*b per imputation; with an X:M term that is pie, the x = 0 value.
+  ab <- vapply(x@per_imputation, function(d) {
+    if (.has_xm(d)) d@pie else as.numeric(medfit::nie(d))
+  }, numeric(1))
   lab <- if (.has_xm(x@per_imputation[[1]])) "a*b (at X = 0)" else "a*b"
   cat("  per-imputation", paste0(lab, ":"), "mean =", round(mean(ab), 4),
     "(range", round(min(ab), 4), "to", round(max(ab), 4), ")\n")

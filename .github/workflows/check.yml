@@ -1,6 +1,6 @@
-# Standard r-lib/actions R-CMD-check. Installs current deps via pak (honors
-# DESCRIPTION Additional_repositories -> the Data-Wise r-universe for the
-# non-CRAN deps medfit/RMediation).
+# Standard r-lib/actions R-CMD-check. Installs current deps via pak, all from
+# CRAN (medfit and RMediation are on CRAN; DESCRIPTION has no Remotes: or
+# Additional_repositories:).
 name: R-CMD-check
 
 on:

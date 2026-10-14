@@ -56,7 +56,8 @@ not compute a tipping point for it.}
 (\code{"fixed"}, the default, or \code{"own"}; see \code{\link[=mbco_d4]{mbco_d4()}}). Ignored, with a
 warning, for \code{type = "mc"}.}
 
-\item{on_error}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} What to do when fitting or inference fails at a rung (a refit
+\item{on_error}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} What to do when fitting
+or inference fails at a rung (a refit
 that did not converge, a non-finite likelihood). \code{"stop"} (default) aborts
 the sweep and the error names the rung and its delta. \code{"continue"} keeps
 the rungs that succeeded, records the message of each failed rung in

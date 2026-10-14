@@ -98,21 +98,43 @@ Status: CONFIRMED.
 
 ## Parked (post-v0.3.0; open as issues, do not fix here)
 
-- `R/mbco_mi.R:17` — **SPEC WRITTEN 2026-08-30**: `SPEC-mbco-constrained-models-2026-08-30.md`.
+**Status check 2026-10-10, against dev `51d504b` (v0.9.0.9000).** Each item below is tagged
+**[RESOLVED]**, **[OPEN]** or **[UNVERIFIED]**. None of the open items had been filed as an
+issue (`gh issue list` was empty) until 2026-10-10, when the four open items became #86 to #89;
+each is tagged below. The original text is kept beneath each tag.
+
+- **[RESOLVED]** `R/mbco_mi.R:17` — **SPEC WRITTEN 2026-08-30**: `SPEC-mbco-constrained-models-2026-08-30.md`
+  (now CLOSED; `tests/testthat/test-mbco-constrained.R` covers `poly(M, 2)`; the `X:M` question
+  was ruled as reading (i): nulling a path drops every term carrying it).
   Confirmed and worse than reported: `Y ~ poly(M, 2) + X` leaves the constrained model
   *identical* to the full model, so T = 0 and the test can never reject. Direction is
   **conservative** (power loss), not anti-conservative as the review said. Parity with
   the research prototype does NOT need re-deriving — old and new agree to the digit on
-  the no-interaction case (79.7323). One open question for the author: what the null
-  means when an `X:M` interaction is present.
-- `R/infer.R:27` — `level = 0.95` ignores `object@conf_level`.
-- `R/pool.R:52` — no `p_value`/df/fmi in the tidy table; pooled object carries
-  imputation-1 `data`/`sigma_m`/`sigma_y`.
-- `R/methods-output.R:91` — tipping point in grid order, not |delta|; never found
-  for `mbco`.
-- `.github/workflows/pkgdown.yaml` — deploys from `dev`; gate on `main`.
-- Runtime warning for link-scale `a*b` under binomial families (docs already cover it).
-- Cosmetic: lintr step removed with no replacement; `classes_methods.qmd` teaches
-  the deprecated S4 API; dead `fits` prop / `mechanism` arg / `original_data`;
-  `n_imputations()` duplicates `n_imp()`; `a*b` hand-computed where `medfit::nie()`
-  exists; estimator gating string-compared at five sites.
+  the no-interaction case (79.7323). One open question for the author (since answered, see
+  above): what the null means when an `X:M` interaction is present.
+- **[RESOLVED]** `R/infer.R:27` — `level = 0.95` ignores `object@conf_level`.
+  (`level <- level %||% object@conf_level` at `infer.R:89` and `:139`.)
+- **[RESOLVED]** `R/pool.R:52` — no `p_value`/df/fmi in the tidy table; pooled object carries
+  imputation-1 `data`/`sigma_m`/`sigma_y`. (The tidy table has `statistic`, `df`, `riv`, `fmi`,
+  `p_value`; `pooled@data`, `@sigma_m` and `@sigma_y` are set to `NULL`, `pool.R:132-134`.)
+- **[RESOLVED]** `R/methods-output.R:91` — tipping point in grid order, not |delta|; never found
+  for `mbco`. (`.mnar_tipping` takes the smallest distance from the MAR row and is type-aware.)
+- **[RESOLVED 2026-10-10]** `.github/workflows/pkgdown.yaml` — deploys from `dev`; gate on `main`.
+  (PR #85, `7242700`: the deploy step now runs only on `refs/heads/main` or a published
+  release. Not yet exercised on `main`; the next push there is the live test.)
+- **[OPEN, #86]** Runtime warning for link-scale `a*b` under binomial families (docs already cover it).
+  (No such warning exists in `R/`.)
+- Cosmetic:
+  - **[OPEN, #87]** lintr step removed with no replacement. (No `.lintr` file and no lint workflow.)
+  - **[RESOLVED]** `classes_methods.qmd` teaches the deprecated S4 API. (It now says the S4 API
+    was removed in 0.6.0.)
+  - **[OPEN, #88]** dead `fits` prop. (`MDMediationFit@fits` is always built as `list()`, at
+    `run.R:82` and `ipw_run.R:252`, and never read.)
+  - **[RESOLVED]** `mechanism` arg. (Deprecated via lifecycle; the pipeline always estimates
+    under MAR.)
+  - **[RESOLVED]** `original_data`. (Not dead: used in `run.R` and `infer.R` to expand `Y ~ .`.)
+  - **[RESOLVED]** `n_imputations()` duplicates `n_imp()`. (`n_imp` no longer exists.)
+  - **[OPEN, minor, #89]** `a*b` hand-computed where `medfit::nie()` exists. (The print method does it
+    at `methods-output.R:41`, `:44` and `:54`.)
+  - **[UNVERIFIED]** estimator gating string-compared at five sites. (A crude grep for
+    `method`/`estimator` comparisons gives about 19 hits; not audited, so the "five" is unconfirmed.)

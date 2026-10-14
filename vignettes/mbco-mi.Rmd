@@ -132,8 +132,12 @@ How to read it:
 - `r4` is the relative increase in variance due to the missing data, the
   between-imputation inflation that deflates `D4`. It is floored at 0.
 - `nu` is the denominator degrees of freedom, \(k(K-1)(1 + 1/r_4)^2\) (Chan &
-  Meng, 2022, eq. 2.15 of arXiv:1711.08822, the same as `mitml::testModels(method = "D4")`). It is
-  `Inf` when `r4` is 0.
+  Meng, 2022, eq. 2.15 of arXiv:1711.08822, the same as
+  `mitml::testModels(method = "D4", ariv = "positive")`). It is `Inf` when `r4`
+  is 0. Chan and Meng derive this df for the own-branch statistic at a regular
+  null. For the fixed-branch default, and at the nonregular null \(a = b = 0\),
+  it is a working reference distribution whose calibration rests on simulation
+  (see *Operating characteristics*).
 - `d_S` is the likelihood-ratio statistic of the stacked data, divided by
   \(K\).
 

@@ -121,7 +121,7 @@ S7::method(pool, MDMediationFit) <- function(object, ...) {
   }
   S7::props(pooled) <- new_props
   # Everything not overwritten above is still imputation 1's. Carrying one
-  # imputation's completed data and residual SDs on an object labelled "pooled"
+  # imputation's completed data and residual SDs on an object labeled "pooled"
   # invites them to be read as pooled quantities, which they are not: with m = 3
   # here, sigma_m differed by 2% across imputations. There is no single completed
   # dataset for a pooled fit, and this package does not claim to pool nuisance

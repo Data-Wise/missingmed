@@ -12,7 +12,7 @@
 
 # Drop EVERY term whose variables include `var`, not just the main effect.
 #
-# stats::update(f, . ~ . - M) removes only the term labelled exactly "M", so
+# stats::update(f, . ~ . - M) removes only the term labeled exactly "M", so
 # `Y ~ X * M + C` keeps X:M and `Y ~ poly(M, 2) + X` is left completely
 # unchanged -- in the latter case the "constrained" model equals the full model,
 # T = 0, and the test can never reject. Filtering on all.vars() of each term
@@ -169,9 +169,12 @@
   if (gap <= 1e-10 * max(1, abs(dbar), abs(d_S))) gap <- 0
   r4 <- max(0, (K + 1) / (k * (K - 1)) * gap)
   D4 <- d_S / (k * (1 + r4))
-  # Chan & Meng (2022; arXiv:1711.08822) eq. 2.15, the reference df of their Algorithm 2 and of
-  # mitml::testModels(method = "D4"): k (K - 1) (1 + 1 / r4)^2. Not the Li et
-  # al. (1991) df (their eq. 1.6), which they show approximates this test worse.
+  # Chan & Meng (2022; arXiv:1711.08822) eq. 2.15, the reference df of their
+  # Algorithm 2 and of mitml's D4 test with ariv "positive": nu equals k (K - 1) (1 + 1 / r4)^2.
+  # Not the Li et al. (1991) df (their eq. 1.6), which they show approximates
+  # their own-branch test worse. Chan & Meng derive eq. 2.15 for the own-branch
+  # r4 at a regular null; for the fixed-branch r4, and at the nonregular null
+  # a = b = 0, it is a working reference distribution calibrated by simulation.
   # Equals Inf when r4 is 0.
   nu <- k * (K - 1) * (1 + 1 / r4)^2
   c(D4 = D4, p = stats::pf(D4, k, nu, lower.tail = FALSE), r4 = r4, nu = nu, d_S = d_S)
@@ -352,9 +355,41 @@
     k <- as.numeric(k_S)
   }
 
+  stats_d4 <- .mm_d4_from_stats(d_k, d_S, k = k)
+  # Internal, gate-only (SPEC-sem-mbco-2026-10-08.md, section 12): the provider
+  # also returns each null's SB (2001) scaling correction. D4 pooled the NAIVE
+  # statistics; this divides D4 by the arithmetic mean over imputations of the
+  # difference correction of the winning branch and refers it to F. That is NOT
+  # lavaan.mi's procedure, which takes the harmonic mean (harm = TRUE) of each
+  # model's scaling factor before differencing and refers to chi-square.
+  # "fixed" tests every imputation on the stacked branch, "own" on each
+  # imputation's own.
+  scaling <- NA_real_
+  if (!is.null(names(lls[[1L]])) && "cd_a" %in% names(lls[[1L]])) {
+    key_k <- if (ariv == "own") {
+      vapply(lls, function(l) if (l[["a"]] >= l[["b"]]) "a" else "b", "")
+    } else {
+      rep(if (stacked_a) "a" else "b", K)
+    }
+    cd_k <- vapply(seq_len(K), function(i) lls[[i]][[paste0("cd_", key_k[i])]], numeric(1))
+    # Only the corrections that enter the statistic must be usable: not the other
+    # branch's, and not the stacked fit's (which are never used).
+    for (i in seq_len(K)) {
+      tryCatch(.mm_check_cd(cd_k[i], paste0(key_k[i], " = 0")), error = function(e) {
+        stop("Fitting the MBCO models failed in imputation ", i, ": ",
+          conditionMessage(e),
+          call. = FALSE
+        )
+      })
+    }
+    scaling <- mean(cd_k)
+    stats_d4[["D4"]] <- stats_d4[["D4"]] / scaling
+    stats_d4[["p"]] <- stats::pf(stats_d4[["D4"]], k, stats_d4[["nu"]], lower.tail = FALSE)
+  }
+
   MbcoMIResult(
-    .mm_d4_from_stats(d_k, d_S, k = k),
-    ariv = ariv, k = k, m = K,
+    stats_d4,
+    ariv = ariv, k = k, m = K, scaling = scaling,
     stacked_branch = if (stacked_a) "a" else "b",
     branch_mix = length(unique(a_wins)) > 1L,
     p_branch_a = mean(a_wins)
@@ -448,7 +483,12 @@
 #' \eqn{r_4} is the relative increase in variance estimated from the
 #' per-imputation statistics, and \eqn{\nu = k (K - 1) (1 + 1 / r_4)^2}
 #' (Chan and Meng 2022, eq. 2.15 of arXiv:1711.08822; the same reference distribution as
-#' `mitml::testModels(method = "D4")`). `ariv` chooses how those statistics are formed:
+#' `mitml::testModels(method = "D4", ariv = "positive")`, since \eqn{r_4} is
+#' floored at 0). Chan and Meng derive this df for the own-branch statistic at
+#' a regular null. For the fixed-branch default, and at the nonregular null
+#' \eqn{a = b = 0}, it is a working reference distribution whose calibration
+#' rests on simulation (see `vignette("mbco-mi")`, *Operating characteristics*).
+#' `ariv` chooses how those statistics are formed:
 #'
 #' * `"fixed"` (default, calibrated): each imputation's statistic is computed on the branch
 #'   (`a = 0` or `b = 0`) that the **stacked** constrained fit selected.

@@ -38,7 +38,7 @@ new_md <- function(...) {
 }
 new_fit <- function(...) {
   args <- list(
-    per_imputation = edge_fit@per_imputation, fits = edge_fit@fits, m = 2,
+    per_imputation = edge_fit@per_imputation, m = 2,
     source = edge_md
   )
   args[names(list(...))] <- list(...)
@@ -74,6 +74,11 @@ new_sens <- function(...) {
 }
 
 # MDMediationData --------------------------------------------------------------
+test_that("MDMediationFit has no fits property (#88)", {
+  expect_false("fits" %in% names(S7::props(edge_fit)))
+  expect_error(new_fit(fits = list()))
+})
+
 test_that("MDMediationData validator rejects bad estimator and data pairings", {
   expect_s7_class(new_md(), MDMediationData)
   expect_error(new_md(method = "foo"), "@method must be a single string", fixed = TRUE)

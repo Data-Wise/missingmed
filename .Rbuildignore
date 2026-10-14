@@ -33,3 +33,4 @@
 ^CLAUDE\.md$
 ^README\.dev\.md$
 ^tasks$
+^\.lintr$

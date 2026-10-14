@@ -46,7 +46,10 @@ jobs:
         shell: Rscript {0}
 
       - name: Deploy to GitHub pages 🚀
-        if: github.event_name != 'pull_request'
+        # Publish only from main (push) or a published release. Pushes to dev
+        # and manual runs from other branches still build the site, so a broken
+        # build is caught, but they no longer overwrite the public site.
+        if: github.ref == 'refs/heads/main' || github.event_name == 'release'
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
           clean: false

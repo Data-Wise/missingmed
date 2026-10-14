@@ -264,7 +264,10 @@ test_that("E2E binary outcome: pooled log-odds b matches mice::pool() over glm f
   a <- e2e_row(res, "a")
   expect_lt(abs(a$estimate - 0.8), 3 * a$std_error)
   set.seed(1303)
-  ci <- infer(res, type = "mc", n.mc = 5e3)
+  # A logit outcome: infer() warns that a*b is on the link scale (#86).
+  rlang::local_options(rlib_warning_verbosity = "verbose")
+  expect_warning(ci <- infer(res, type = "mc", n.mc = 5e3),
+    class = "missingmed_link_scale_warning")
   expect_gt(ci$CI[[1]], 0)
 })
 
