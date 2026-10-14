@@ -53,7 +53,10 @@ mi_ci <- function(gen, family_m = stats::gaussian(), family_y = stats::gaussian(
     treatment = "X", mediator = "M",
     family_m = family_m, family_y = family_y
   )
-  infer(pool(run(md)), type = "mc", n.mc = 5e3)
+  # The link-scale warning (#86) is tested in test-link-scale-warning.R; only
+  # that class is absorbed here, so any other warning still surfaces.
+  suppressWarnings(infer(pool(run(md)), type = "mc", n.mc = 5e3),
+    classes = "missingmed_link_scale_warning")
 }
 
 expect_sane_ci <- function(ci) {
