@@ -249,7 +249,6 @@
 
   MDMediationFit(
     per_imputation = list(med),
-    fits = list(),
     m = 1,
     engine = object@engine,
     conf_int = object@conf_int,

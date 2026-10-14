@@ -1,5 +1,12 @@
 # missingmed (development version)
 
+## Breaking changes
+
+* `MDMediationFit` no longer has a `fits` property (#88). It was always an empty
+  list and nothing read it; the per-imputation fits are in `@per_imputation`
+  (see `per_imputation_list()`). Code that passed `fits =` to
+  `MDMediationFit()` or read `@fits` must drop it.
+
 ## Documentation
 
 * `?mbco_d4` and `vignette("mbco-mi")` now state the scope of the D4 reference
