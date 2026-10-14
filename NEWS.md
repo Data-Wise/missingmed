@@ -1,5 +1,13 @@
 # missingmed (development version)
 
+## New features
+
+* `infer(type = "mc")` warns, once per session, when `family_m` or `family_y`
+  has a non-identity link (binomial, poisson, ...): the indirect effect and its
+  interval are then on the link scale, not a difference in probabilities or
+  means (#86). The warning has class `missingmed_link_scale_warning`. The MBCO
+  test does not warn, since its null `a*b = 0` does not depend on the scale.
+
 ## Breaking changes
 
 * `MDMediationFit` no longer has a `fits` property (#88). It was always an empty

@@ -50,6 +50,9 @@ is \eqn{a (b + \theta_3 x)}, which depends on the treatment level \eqn{x};
 set \code{treatment_level} to choose it. The interval then comes from
 \code{\link[RMediation:ci]{RMediation::ci()}} on the pooled estimates and pooled covariance of
 \eqn{(a, b, \theta_3)}.
+With a non-identity link (\code{family_m} or \code{family_y} binomial, poisson, ...)
+the interval is on that link scale, and a warning of class
+\code{missingmed_link_scale_warning} says so once per session.
 \item \code{type = "mbco"} — \strong{D4-stacked MBCO} likelihood-ratio test of
 \eqn{H_0: a b = 0}, computed from the per-imputation datasets (MBCO does not
 commute with Rubin's rules; see \code{\link[=per_imputation_list]{per_imputation_list()}}). The engine is

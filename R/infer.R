@@ -11,6 +11,9 @@
 #'   set `treatment_level` to choose it. The interval then comes from
 #'   [RMediation::ci()] on the pooled estimates and pooled covariance of
 #'   \eqn{(a, b, \theta_3)}.
+#'   With a non-identity link (`family_m` or `family_y` binomial, poisson, ...)
+#'   the interval is on that link scale, and a warning of class
+#'   `missingmed_link_scale_warning` says so once per session.
 #' * `type = "mbco"` — **D4-stacked MBCO** likelihood-ratio test of
 #'   \eqn{H_0: a b = 0}, computed from the per-imputation datasets (MBCO does not
 #'   commute with Rubin's rules; see [per_imputation_list()]). The engine is
@@ -192,6 +195,35 @@ S7::method(infer, MDMediationResult) <- function(object, type = c("mc", "mbco"),
 # The draws come from the pooled estimates and the pooled (Rubin total)
 # covariance of (a, b, theta3); its a-by-b block is not zero, because the
 # between-imputation part couples the two models.
+# With a non-identity link (binomial, poisson, ...) a and b are link-scale
+# coefficients, so a*b and its Monte Carlo interval are on that scale too, not
+# a difference in probabilities or counts (#86). The docs say so; this makes it
+# visible once per session. The MBCO test is not flagged: its null a*b = 0
+# does not depend on the scale. A lavaan fit carries no family, and medfit's
+# InteractionMediationData (an X:M model) has no family slots, so both are
+# skipped rather than guessed.
+.warn_link_scale <- function(pooled) {
+  link_of <- function(slot) {
+    if (!S7::prop_exists(pooled, slot)) return("identity")
+    f <- S7::prop(pooled, slot)
+    if (inherits(f, "family")) f$link else "identity"
+  }
+  links <- c(mediator = link_of("family_m"), outcome = link_of("family_y"))
+  off <- links[links != "identity"]
+  if (!length(off)) return(invisible(NULL))
+  rlang::warn(
+    c(
+      paste0("The indirect effect is on the link scale: ",
+        paste0(names(off), " model link = \"", off, "\"", collapse = ", "), "."),
+      i = "a*b and its interval are products of link-scale coefficients, not a difference in probabilities or means.",
+      i = "See the FAQ, \"Binary mediator or outcome?\", and section 5A of vignette(\"technical\")."
+    ),
+    class = "missingmed_link_scale_warning",
+    .frequency = "once",
+    .frequency_id = "missingmed_link_scale"
+  )
+}
+
 .mc_interval <- function(pooled, level, n.mc, treatment_level) {
   # RMediation accepts level 0 and 1 (a zero-width interval, and the range of
   # the draws) and fails obscurely on n.mc = 1, so both are checked here.
@@ -203,6 +235,7 @@ S7::method(infer, MDMediationResult) <- function(object, type = c("mc", "mbco"),
     n.mc < 2 || n.mc != round(n.mc)) {
     stop("`n.mc` must be a single whole number of at least 2.", call. = FALSE)
   }
+  .warn_link_scale(pooled)
   is_int <- .has_xm(pooled)
   # An aliased path coefficient (its predictor collinear with others, or
   # constant, in some imputation) pools to NA, and RMediation then fails
