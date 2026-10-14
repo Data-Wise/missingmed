@@ -1,4 +1,11 @@
-# missingmed (development version)
+# missingmed 0.10.0
+
+## Breaking changes
+
+* `MDMediationFit` no longer has a `fits` property (#88). It was always an empty
+  list and nothing read it; the per-imputation fits are in `@per_imputation`
+  (see `per_imputation_list()`). Code that passed `fits =` to
+  `MDMediationFit()` or read `@fits` must drop it.
 
 ## New features
 
@@ -7,13 +14,6 @@
   interval are then on the link scale, not a difference in probabilities or
   means (#86). The warning has class `missingmed_link_scale_warning`. The MBCO
   test does not warn, since its null `a*b = 0` does not depend on the scale.
-
-## Breaking changes
-
-* `MDMediationFit` no longer has a `fits` property (#88). It was always an empty
-  list and nothing read it; the per-imputation fits are in `@per_imputation`
-  (see `per_imputation_list()`). Code that passed `fits =` to
-  `MDMediationFit()` or read `@fits` must drop it.
 
 ## Internal
 
