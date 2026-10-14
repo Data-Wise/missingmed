@@ -57,7 +57,9 @@ S7::method(run, MDMediationData) <- function(object, ...) {
       call. = FALSE
     )
   }
-  extra <- if (identical(object@engine, "lavaan")) list() else {
+  extra <- if (identical(object@engine, "lavaan")) {
+    list()
+  } else {
     .md_extra_args(object, list(...))
   }
   per_imp <- vector("list", m)

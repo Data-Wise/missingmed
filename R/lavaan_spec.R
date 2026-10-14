@@ -63,7 +63,8 @@
 
 # medfit names the three structural paths `a`, `b` and `c_prime` in the pooled
 # estimates and covariance. A model label equal to one of those names on any
-# other parameter (a loading, a covariance, a `:=`) pairs that path's variance with the wrong estimate in older medfit,
+# other parameter (a loading, a covariance, a `:=`) pairs that path's variance
+# with the wrong estimate in older medfit,
 # and is refused by newer medfit only at run(). A label on its own role path is
 # fine, and so is `cp`, which medfit does not use as a name.
 .check_lavaan_alias_labels <- function(pt, treatment, mediator, outcome) {
