@@ -47,20 +47,50 @@ local_glm_stub <- function(spoil, how = c("converged", "aic"), env = parent.fram
   testthat::local_mocked_bindings(glm = stub, .package = "stats", .env = env)
 }
 
+# These tests build separated or steep data on purpose, so glm() warns. Run
+# `expr`, capture every warning, and fail on any that is not one of glm's two
+# expected messages; `require` additionally demands one matching warning. An
+# error from `expr` is re-signalled after the check, so expect_error() wraps it.
+quiet_glm <- function(expr, require = NULL) {
+  ws <- character()
+  val <- withCallingHandlers(
+    tryCatch(expr, error = function(e) e),
+    warning = function(w) {
+      ws <<- c(ws, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+  expected <- "^glm\\.fit: (algorithm did not converge|fitted probabilities numerically 0 or 1 occurred)$"
+  bad <- ws[!grepl(expected, ws)]
+  problems <- c(
+    if (length(bad)) paste("unexpected warning(s):", paste(bad, collapse = "; ")),
+    if (!is.null(require) && !any(grepl(require, ws))) {
+      paste0("no warning matching '", require, "'")
+    }
+  )
+  # One expectation per call, so expect_failure() can test the helper itself.
+  testthat::expect(length(problems) == 0, paste(problems, collapse = "; "))
+  if (inherits(val, "error")) stop(val)
+  val
+}
+
 f_chr <- function(f) paste(deparse(f), collapse = "")
 tag_of <- function(data) unique(data$tag)
 
 test_that("a separated outcome in one imputation refuses, naming it", {
   imps <- make_imps(separate = 2L)
   # Real glm: imputation 2 separates, the others do not.
-  expect_error(run_d4(imps), "imputation 2")
-  expect_error(run_d4(imps), "full outcome model did not converge")
+  expect_error(quiet_glm(run_d4(imps)), "imputation 2")
+  expect_error(quiet_glm(run_d4(imps)), "full outcome model did not converge")
 })
 
 test_that("a converged steep fit is not refused", {
   imps <- make_imps(slope = 8)
-  for (k in 1:3) expect_true(stats::glm(Y ~ M + X, data = imps[[k]], family = stats::binomial())$converged)
-  r <- run_d4(imps)
+  for (k in 1:3) {
+    g <- quiet_glm(stats::glm(Y ~ M + X, data = imps[[k]], family = stats::binomial()))
+    expect_true(g$converged)
+  }
+  r <- quiet_glm(run_d4(imps))
   expect_true(is.finite(r["p"]))
 })
 
@@ -118,14 +148,14 @@ test_that("a converged fit carrying glm's 0/1 warning is not refused (C6)", {
     g <- suppressWarnings(stats::glm(Y ~ M + X, data = d, family = stats::binomial()))
     expect_true(g$converged)
   }
-  expect_warning(r <- run_d4(imps), "numerically 0 or 1")
+  r <- quiet_glm(run_d4(imps), require = "numerically 0 or 1")
   expect_true(is.finite(r["p"]))
 })
 
 test_that("both ariv settings refuse", {
   imps <- make_imps(separate = 1L)
-  expect_error(run_d4(imps, "own"), "did not converge")
-  expect_error(run_d4(imps, "fixed"), "did not converge")
+  expect_error(quiet_glm(run_d4(imps, "own")), "did not converge")
+  expect_error(quiet_glm(run_d4(imps, "fixed")), "did not converge")
 })
 
 test_that("converged fits are unchanged (frozen from 0.7.0)", {
@@ -156,4 +186,61 @@ test_that("infer(type = 'mbco') and sensitivity_mnar() surface the refusal", {
     sensitivity_mnar(md, target = "M", delta = c(0, 0.5), type = "mbco"),
     "rung 1 of 2.*M = 0.*b = 0 outcome model did not converge"
   )
+})
+
+# --- quiet_glm() itself: it must fail on anything but glm's two messages ----
+
+test_that("quiet_glm() fails on a warning glm does not give", {
+  expect_failure(quiet_glm({
+    warning("something else")
+    1
+  }), "unexpected warning")
+})
+
+test_that("quiet_glm() fails when the required warning is absent", {
+  expect_failure(quiet_glm(1, require = "numerically 0 or 1"), "no warning matching")
+})
+
+test_that("quiet_glm() checks warnings raised before an error, then re-raises it", {
+  expect_failure(tryCatch(quiet_glm({
+    warning("odd")
+    stop("boom")
+  }), simpleError = function(e) NULL), "unexpected warning")
+  # simpleError, not error: testthat's failure is an error condition too, and
+  # catching it here would hide it from expect_failure().
+  expect_error(quiet_glm(stop("boom")), "boom")
+})
+
+test_that("quiet_glm() passes glm's own messages and returns the value", {
+  expect_identical(quiet_glm({
+    warning("glm.fit: algorithm did not converge")
+    warning("glm.fit: fitted probabilities numerically 0 or 1 occurred")
+    7L
+  }), 7L)
+})
+
+# --- which imputation the refusal names ------------------------------------
+
+test_that("separation in every imputation names the first", {
+  expect_error(quiet_glm(run_d4(make_imps(separate = 1:3))),
+    "failed in imputation 1: the full outcome model did not converge")
+})
+
+test_that("separation in several imputations names the first failing one", {
+  expect_error(quiet_glm(run_d4(make_imps(separate = 2:3))), "failed in imputation 2:")
+})
+
+test_that("separation in the last of five imputations is found and named", {
+  expect_error(quiet_glm(run_d4(make_imps(K = 5, separate = 5))), "failed in imputation 5:")
+})
+
+test_that("the minimum K = 2 refuses under both ariv settings", {
+  imps <- make_imps(K = 2, separate = 1)
+  expect_error(quiet_glm(run_d4(imps, "own")), "failed in imputation 1:")
+  expect_error(quiet_glm(run_d4(imps, "fixed")), "failed in imputation 1:")
+})
+
+test_that("K = 2 with no separation returns a finite test", {
+  r <- quiet_glm(run_d4(make_imps(K = 2)))
+  expect_true(all(is.finite(r[c("D4", "p", "r4")])))
 })
