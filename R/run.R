@@ -79,7 +79,6 @@ S7::method(run, MDMediationData) <- function(object, ...) {
 
   MDMediationFit(
     per_imputation = per_imp,
-    fits = list(),
     m = length(per_imp),
     engine = object@engine,
     conf_int = object@conf_int,

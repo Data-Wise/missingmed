@@ -6,7 +6,6 @@
 \usage{
 MDMediationFit(
   per_imputation = list(),
-  fits = list(),
   m = integer(0),
   engine = "glm",
   conf_int = FALSE,
@@ -17,8 +16,6 @@ MDMediationFit(
 }
 \arguments{
 \item{per_imputation}{A list of named \link[medfit:MediationData]{medfit::MediationData} objects (length \code{m}).}
-
-\item{fits}{A list of the raw backend fits (\code{lavaan}), one per imputation.}
 
 \item{m}{Integer number of imputations.}
 

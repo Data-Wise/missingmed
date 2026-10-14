@@ -9,7 +9,6 @@
 #' It is the S7 successor of the removed S4 `SemResults` class.
 #'
 #' @param per_imputation A list of named [medfit::MediationData] objects (length `m`).
-#' @param fits A list of the raw backend fits (`lavaan`), one per imputation.
 #' @param m Integer number of imputations.
 #' @param engine medfit fitting engine used (e.g. `"glm"`).
 #' @param conf_int Logical; whether output carries confidence intervals.
@@ -28,7 +27,6 @@ MDMediationFit <- S7::new_class(
   package = "missingmed",
   properties = list(
     per_imputation = S7::class_list,
-    fits = S7::class_list,
     m = S7::class_numeric,
     engine = S7::new_property(S7::class_character, default = "glm"),
     conf_int = S7::new_property(S7::class_logical, default = FALSE),
