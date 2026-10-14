@@ -175,6 +175,10 @@ mdb <- set_md_mediation(impb, Y ~ X + M + C, M ~ X + C,
   family_m = binomial()
 )
 infer(pool(run(mdb)), type = "mc")
+#> Warning: The indirect effect is on the link scale: mediator model link = "logit".
+#> ℹ a*b and its interval are products of link-scale coefficients, not a difference in probabilities or means.
+#> ℹ See the FAQ, "Binary mediator or outcome?", and section 5A of vignette("technical").
+#> This warning is displayed once per session.
 #> $CI
 #> [1] 0.3040328 1.5766371
 #> 

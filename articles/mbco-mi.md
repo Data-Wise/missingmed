@@ -150,7 +150,12 @@ How to read it:
   between-imputation inflation that deflates `D4`. It is floored at 0.
 - `nu` is the denominator degrees of freedom, $`k(K-1)(1 + 1/r_4)^2`$
   (Chan & Meng, 2022, eq. 2.15 of arXiv:1711.08822, the same as
-  `mitml::testModels(method = "D4")`). It is `Inf` when `r4` is 0.
+  `mitml::testModels(method = "D4", ariv = "positive")`). It is `Inf`
+  when `r4` is 0. Chan and Meng derive this df for the own-branch
+  statistic at a regular null. For the fixed-branch default, and at the
+  nonregular null $`a = b = 0`$, it is a working reference distribution
+  whose calibration rests on simulation (see *Operating
+  characteristics*).
 - `d_S` is the likelihood-ratio statistic of the stacked data, divided
   by $`K`$.
 
@@ -339,33 +344,33 @@ effect:
 
 infer(fit2, type = "mc", treatment_level = 1)
 #> $CI
-#>     2.5 %    97.5 % 
-#> 0.0342172 0.2572664 
+#>      2.5 %     97.5 % 
+#> 0.03448457 0.25713999 
 #> 
 #> $Estimate
-#> [1] 0.1365794
+#> [1] 0.1365269
 #> 
 #> $SE
-#> [1] 0.05684491
+#> [1] 0.05690246
 #> 
 #> $MC.Error
-#> [1] 5.684491e-07
+#> [1] 5.690246e-07
 #> 
 #> $Estimand
 #> [1] "a * (b + theta3 * 1)"
 infer(fit2, type = "mc", treatment_level = 0)
 #> $CI
-#>     2.5 %    97.5 % 
-#> 0.0873093 0.3175738 
+#>      2.5 %     97.5 % 
+#> 0.08705547 0.31659329 
 #> 
 #> $Estimate
-#> [1] 0.1905933
+#> [1] 0.1906082
 #> 
 #> $SE
-#> [1] 0.0590961
+#> [1] 0.05881474
 #> 
 #> $MC.Error
-#> [1] 5.90961e-07
+#> [1] 5.881474e-07
 #> 
 #> $Estimand
 #> [1] "a * (b + theta3 * 0)"

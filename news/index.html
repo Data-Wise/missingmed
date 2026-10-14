@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.10.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,9 +36,32 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/Data-Wise/missingmed/blob/v0.9.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/Data-Wise/missingmed/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.10.0" id="missingmed-0100">missingmed 0.10.0<a class="anchor" aria-label="anchor" href="#missingmed-0100"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-0-10-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-10-0"></a></h3>
+<ul><li>
+<code>MDMediationFit</code> no longer has a <code>fits</code> property (<a href="https://github.com/Data-Wise/missingmed/issues/88" class="external-link">#88</a>). It was always an empty list and nothing read it; the per-imputation fits are in <code>@per_imputation</code> (see <code><a href="../reference/per_imputation_list.html">per_imputation_list()</a></code>). Code that passed <code>fits =</code> to <code><a href="../reference/MDMediationFit.html">MDMediationFit()</a></code> or read <code>@fits</code> must drop it.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-0-10-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-10-0"></a></h3>
+<ul><li>
+<code>infer(type = "mc")</code> warns, once per session, when <code>family_m</code> or <code>family_y</code> has a non-identity link (binomial, poisson, …): the indirect effect and its interval are then on the link scale, not a difference in probabilities or means (<a href="https://github.com/Data-Wise/missingmed/issues/86" class="external-link">#86</a>). The warning has class <code>missingmed_link_scale_warning</code>. The MBCO test does not warn, since its null <code>a*b = 0</code> does not depend on the scale.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="internal-0-10-0">Internal<a class="anchor" aria-label="anchor" href="#internal-0-10-0"></a></h3>
+<ul><li><p>CI lints <code>R/</code> again (<a href="https://github.com/Data-Wise/missingmed/issues/87" class="external-link">#87</a>): a <code>.lintr</code> (line length 110; the object-name and indentation linters off to match the house style) and a <code>lint</code> workflow that fails on any lint. The seven existing lints in <code>R/</code> are fixed.</p></li>
+<li><p><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> of <code>MDMediationFit</code> and <code>MDMediationResult</code> now reads the indirect effect from <code><a href="https://data-wise.github.io/medfit/reference/nie.html" class="external-link">medfit::nie()</a></code> (and the <code>pie</code> slot for the <code>x = 0</code> value of an <code>X:M</code> model) instead of computing <code>a * b</code> by hand (<a href="https://github.com/Data-Wise/missingmed/issues/89" class="external-link">#89</a>). Printed values are unchanged.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-10-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-10-0"></a></h3>
+<ul><li>
+<code><a href="../reference/mbco_d4.html">?mbco_d4</a></code> and <code><a href="../articles/mbco-mi.html">vignette("mbco-mi")</a></code> now state the scope of the D4 reference df adopted in 0.9.0. Chan and Meng (2022) derive eq. 2.15 for the own-branch statistic (<code>ariv = "own"</code>) at a regular null. For the fixed-branch default and at the nonregular null <code>a = b = 0</code> it is a working reference distribution whose calibration rests on simulation. The 0.9.0 entry’s “relative to the published procedure” overstated this. The docs also name the matching mitml option, <code>ariv = "positive"</code>, since <code>r4</code> is floored at 0.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9.0" id="missingmed-090">missingmed 0.9.0<a class="anchor" aria-label="anchor" href="#missingmed-090"></a></h2>
 <div class="section level3">
@@ -241,7 +264,7 @@
 <div class="section level3">
 <h3 id="bug-fixes-0-3-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-1"></a></h3>
 <ul><li>
-<p><strong>MBCO’s constrained models did not null the whole path.</strong> The constraint was imposed with <code>update(. ~ . - M)</code>, which removes only the term labelled exactly <code>M</code>; every other term carrying the mediator survived. <code>Y ~ X * M + C</code> kept <code>X:M</code>, and <code>Y ~ poly(M, 2) + X</code> was left <strong>completely unchanged</strong> – so the “constrained” model equalled the full model, the statistic was exactly 0, and the test could never reject, at any sample size, with no error or warning. The constraint now drops every term whose variables include the target, which covers <code>poly(M, 2)</code>, <code>I(M^2)</code>, <code>log(M)</code>, splines and interactions alike.</p>
+<p><strong>MBCO’s constrained models did not null the whole path.</strong> The constraint was imposed with <code>update(. ~ . - M)</code>, which removes only the term labeled exactly <code>M</code>; every other term carrying the mediator survived. <code>Y ~ X * M + C</code> kept <code>X:M</code>, and <code>Y ~ poly(M, 2) + X</code> was left <strong>completely unchanged</strong> – so the “constrained” model equaled the full model, the statistic was exactly 0, and the test could never reject, at any sample size, with no error or warning. The constraint now drops every term whose variables include the target, which covers <code>poly(M, 2)</code>, <code>I(M^2)</code>, <code>log(M)</code>, splines and interactions alike.</p>
 <p>The effect was <strong>conservative</strong> – an inflated constrained log-likelihood makes the statistic too small, so the test lost power. It did not produce false positives.</p>
 <p>Results for the plain <code>Y ~ X + M + C</code> / <code>M ~ X + C</code> specification are <strong>unchanged to the digit</strong>, so no previously reported analysis of that shape is affected.</p>
 </li>

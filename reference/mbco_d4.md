@@ -86,8 +86,14 @@ statistic on the stacked data divided by \\K\\ and \\r_4\\ is the
 relative increase in variance estimated from the per-imputation
 statistics, and \\\nu = k (K - 1) (1 + 1 / r_4)^2\\ (Chan and Meng 2022,
 eq. 2.15 of arXiv:1711.08822; the same reference distribution as
-`mitml::testModels(method = "D4")`). `ariv` chooses how those statistics
-are formed:
+`mitml::testModels(method = "D4", ariv = "positive")`, since \\r_4\\ is
+floored at 0). Chan and Meng derive this df for the own-branch statistic
+at a regular null. For the fixed-branch default, and at the nonregular
+null \\a = b = 0\\, it is a working reference distribution whose
+calibration rests on simulation (see
+[`vignette("mbco-mi")`](https://data-wise.github.io/missingmed/articles/mbco-mi.md),
+*Operating characteristics*). `ariv` chooses how those statistics are
+formed:
 
 - `"fixed"` (default, calibrated): each imputation's statistic is
   computed on the branch (`a = 0` or `b = 0`) that the **stacked**

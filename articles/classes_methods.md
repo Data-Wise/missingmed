@@ -38,9 +38,9 @@ class objects when this page is built.
 | class | parent | properties |
 |:---|:---|:---|
 | MDMediationData | S7_object | `data`, `formula_y`, `formula_m`, `treatment`, `mediator`, `engine`, `family_y`, `family_m`, `method`, `mechanism`, `weight_formula`, `weight_stabilize`, `weight_trim`, `se_type`, `conf_int`, `conf_level`, `n_imputations`, `model`, `outcome`, `fit_args`, `original_data` |
-| MDMediationFit | S7_object | `per_imputation`, `fits`, `m`, `engine`, `conf_int`, `conf_level`, `weights`, `source` |
+| MDMediationFit | S7_object | `per_imputation`, `m`, `engine`, `conf_int`, `conf_level`, `weights`, `source` |
 | MDMediationResult | S7_object | `pooled`, `tidy_table`, `cov_total`, `cov_between`, `cov_within`, `m`, `engine`, `conf_int`, `conf_level` |
-| MbcoMIResult | class_double | `ariv`, `k`, `m`, `stacked_branch`, `branch_mix`, `p_branch_a` |
+| MbcoMIResult | class_double | `ariv`, `k`, `m`, `stacked_branch`, `branch_mix`, `p_branch_a`, `scaling` |
 | MDSensitivityResult | S7_object | `rungs`, `failed`, `grid`, `msp`, `target`, `type`, `level`, `seed`, `seed_source`, `method_target`, `mechanism_used`, `scale`, `source` |
 
 - **`MDMediationData`**, built by

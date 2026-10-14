@@ -64,6 +64,9 @@ the named numeric `c(D4, p, r4, nu, d_S)` (index it with `r["p"]` or
   choose it. The interval then comes from
   [`RMediation::ci()`](https://data-wise.github.io/rmediation/reference/ci.html)
   on the pooled estimates and pooled covariance of \\(a, b, \theta_3)\\.
+  With a non-identity link (`family_m` or `family_y` binomial, poisson,
+  ...) the interval is on that link scale, and a warning of class
+  `missingmed_link_scale_warning` says so once per session.
 
 - `type = "mbco"` — **D4-stacked MBCO** likelihood-ratio test of \\H_0:
   a b = 0\\, computed from the per-imputation datasets (MBCO does not

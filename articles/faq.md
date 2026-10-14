@@ -82,7 +82,10 @@ Set `family_m = binomial()` or `family_y = binomial()`. The indirect
 effect is then a product of coefficients on the link scale, not a
 difference in probabilities; section 5A of
 [`vignette("technical")`](https://data-wise.github.io/missingmed/articles/technical.md)
-explains the caveat.
+explains the caveat. `infer(type = "mc")` warns about this once per
+session (any non-identity link, including poisson). To silence it, wrap
+the call in
+`suppressWarnings(..., classes = "missingmed_link_scale_warning")`.
 
 ### MI or IPW?
 

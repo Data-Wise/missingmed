@@ -9,7 +9,7 @@ missingmed pipeline, dispatching to one of two engines:"><meta property="og:imag
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.10.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@ missingmed pipeline, dispatching to one of two engines:"><meta property="og:imag
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Inference on the indirect effect under multiple imputation</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/v0.9.0/R/infer.R" class="external-link"><code>R/infer.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/main/R/infer.R" class="external-link"><code>R/infer.R</code></a></small>
       <div class="d-none name"><code>infer.Rd</code></div>
     </div>
 
@@ -100,7 +100,10 @@ treatment-by-mediator interaction (<code>Y ~ X * M + ...</code>), the indirect e
 is \(a (b + \theta_3 x)\), which depends on the treatment level \(x\);
 set <code>treatment_level</code> to choose it. The interval then comes from
 <code><a href="https://data-wise.github.io/rmediation/reference/ci.html" class="external-link">RMediation::ci()</a></code> on the pooled estimates and pooled covariance of
-\((a, b, \theta_3)\).</p></li>
+\((a, b, \theta_3)\).
+With a non-identity link (<code>family_m</code> or <code>family_y</code> binomial, poisson, ...)
+the interval is on that link scale, and a warning of class
+<code>missingmed_link_scale_warning</code> says so once per session.</p></li>
 <li><p><code>type = "mbco"</code> — <strong>D4-stacked MBCO</strong> likelihood-ratio test of
 \(H_0: a b = 0\), computed from the per-imputation datasets (MBCO does not
 commute with Rubin's rules; see <code><a href="per_imputation_list.html">per_imputation_list()</a></code>). The engine is

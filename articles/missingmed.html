@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.10.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Getting started with missingmed</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/v0.9.0/vignettes/missingmed.Rmd" class="external-link"><code>vignettes/missingmed.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/main/vignettes/missingmed.Rmd" class="external-link"><code>vignettes/missingmed.Rmd</code></a></small>
       <div class="d-none name"><code>missingmed.Rmd</code></div>
     </div>
 
@@ -221,6 +221,10 @@ mediator:</p>
 <span>  family_m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">mdb</span><span class="op">)</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"mc"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: The indirect effect is on the link scale: mediator model link = "logit".</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> a*b and its interval are products of link-scale coefficients, not a difference in probabilities or means.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See the FAQ, "Binary mediator or outcome?", and section 5A of vignette("technical").</span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once per session.</span></span></span>
 <span><span class="co">#&gt; $CI</span></span>
 <span><span class="co">#&gt; [1] 0.3040328 1.5766371</span></span>
 <span><span class="co">#&gt; </span></span>

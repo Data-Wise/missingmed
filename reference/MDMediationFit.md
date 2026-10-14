@@ -13,7 +13,6 @@ MBCO needs the per-imputation fits, not the pooled estimate).
 ``` r
 MDMediationFit(
   per_imputation = list(),
-  fits = list(),
   m = integer(0),
   engine = "glm",
   conf_int = FALSE,
@@ -30,10 +29,6 @@ MDMediationFit(
   A list of named
   [medfit::MediationData](https://data-wise.github.io/medfit/reference/MediationData.html)
   objects (length `m`).
-
-- fits:
-
-  A list of the raw backend fits (`lavaan`), one per imputation.
 
 - m:
 

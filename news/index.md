@@ -1,5 +1,58 @@
 # Changelog
 
+## missingmed 0.10.0
+
+### Breaking changes
+
+- `MDMediationFit` no longer has a `fits` property
+  ([\#88](https://github.com/Data-Wise/missingmed/issues/88)). It was
+  always an empty list and nothing read it; the per-imputation fits are
+  in `@per_imputation` (see
+  [`per_imputation_list()`](https://data-wise.github.io/missingmed/reference/per_imputation_list.md)).
+  Code that passed `fits =` to
+  [`MDMediationFit()`](https://data-wise.github.io/missingmed/reference/MDMediationFit.md)
+  or read `@fits` must drop it.
+
+### New features
+
+- `infer(type = "mc")` warns, once per session, when `family_m` or
+  `family_y` has a non-identity link (binomial, poisson, …): the
+  indirect effect and its interval are then on the link scale, not a
+  difference in probabilities or means
+  ([\#86](https://github.com/Data-Wise/missingmed/issues/86)). The
+  warning has class `missingmed_link_scale_warning`. The MBCO test does
+  not warn, since its null `a*b = 0` does not depend on the scale.
+
+### Internal
+
+- CI lints `R/` again
+  ([\#87](https://github.com/Data-Wise/missingmed/issues/87)): a
+  `.lintr` (line length 110; the object-name and indentation linters off
+  to match the house style) and a `lint` workflow that fails on any
+  lint. The seven existing lints in `R/` are fixed.
+
+- [`print()`](https://rdrr.io/r/base/print.html) of `MDMediationFit` and
+  `MDMediationResult` now reads the indirect effect from
+  [`medfit::nie()`](https://data-wise.github.io/medfit/reference/nie.html)
+  (and the `pie` slot for the `x = 0` value of an `X:M` model) instead
+  of computing `a * b` by hand
+  ([\#89](https://github.com/Data-Wise/missingmed/issues/89)). Printed
+  values are unchanged.
+
+### Documentation
+
+- [`?mbco_d4`](https://data-wise.github.io/missingmed/reference/mbco_d4.md)
+  and
+  [`vignette("mbco-mi")`](https://data-wise.github.io/missingmed/articles/mbco-mi.md)
+  now state the scope of the D4 reference df adopted in 0.9.0. Chan and
+  Meng (2022) derive eq. 2.15 for the own-branch statistic
+  (`ariv = "own"`) at a regular null. For the fixed-branch default and
+  at the nonregular null `a = b = 0` it is a working reference
+  distribution whose calibration rests on simulation. The 0.9.0 entry’s
+  “relative to the published procedure” overstated this. The docs also
+  name the matching mitml option, `ariv = "positive"`, since `r4` is
+  floored at 0.
+
 ## missingmed 0.9.0
 
 ### New features
@@ -701,10 +754,10 @@
 
 - **MBCO’s constrained models did not null the whole path.** The
   constraint was imposed with `update(. ~ . - M)`, which removes only
-  the term labelled exactly `M`; every other term carrying the mediator
+  the term labeled exactly `M`; every other term carrying the mediator
   survived. `Y ~ X * M + C` kept `X:M`, and `Y ~ poly(M, 2) + X` was
-  left **completely unchanged** – so the “constrained” model equalled
-  the full model, the statistic was exactly 0, and the test could never
+  left **completely unchanged** – so the “constrained” model equaled the
+  full model, the statistic was exactly 0, and the test could never
   reject, at any sample size, with no error or warning. The constraint
   now drops every term whose variables include the target, which covers
   `poly(M, 2)`, `I(M^2)`, `log(M)`, splines and interactions alike.

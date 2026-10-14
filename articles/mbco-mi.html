@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">missingmed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.10.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Testing an indirect effect with incomplete data</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/v0.9.0/vignettes/mbco-mi.Rmd" class="external-link"><code>vignettes/mbco-mi.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Data-Wise/missingmed/blob/main/vignettes/mbco-mi.Rmd" class="external-link"><code>vignettes/mbco-mi.Rmd</code></a></small>
       <div class="d-none name"><code>mbco-mi.Rmd</code></div>
     </div>
 
@@ -255,8 +255,13 @@ missing data, the between-imputation inflation that deflates
 <code>nu</code> is the denominator degrees of freedom,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mn>1</mn><mi>/</mi><msub><mi>r</mi><mn>4</mn></msub><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">k(K-1)(1 + 1/r_4)^2</annotation></semantics></math>
 (Chan &amp; Meng, 2022, eq. 2.15 of arXiv:1711.08822, the same as
-<code>mitml::testModels(method = "D4")</code>). It is <code>Inf</code>
-when <code>r4</code> is 0.</li>
+<code>mitml::testModels(method = "D4", ariv = "positive")</code>). It is
+<code>Inf</code> when <code>r4</code> is 0. Chan and Meng derive this df
+for the own-branch statistic at a regular null. For the fixed-branch
+default, and at the nonregular null
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>b</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">a = b = 0</annotation></semantics></math>,
+it is a working reference distribution whose calibration rests on
+simulation (see <em>Operating characteristics</em>).</li>
 <li>
 <code>d_S</code> is the likelihood-ratio statistic of the stacked
 data, divided by
@@ -465,33 +470,33 @@ indirect effect:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit2</span>, type <span class="op">=</span> <span class="st">"mc"</span>, treatment_level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $CI</span></span>
-<span><span class="co">#&gt;     2.5 %    97.5 % </span></span>
-<span><span class="co">#&gt; 0.0342172 0.2572664 </span></span>
+<span><span class="co">#&gt;      2.5 %     97.5 % </span></span>
+<span><span class="co">#&gt; 0.03448457 0.25713999 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimate</span></span>
-<span><span class="co">#&gt; [1] 0.1365794</span></span>
+<span><span class="co">#&gt; [1] 0.1365269</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $SE</span></span>
-<span><span class="co">#&gt; [1] 0.05684491</span></span>
+<span><span class="co">#&gt; [1] 0.05690246</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $MC.Error</span></span>
-<span><span class="co">#&gt; [1] 5.684491e-07</span></span>
+<span><span class="co">#&gt; [1] 5.690246e-07</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimand</span></span>
 <span><span class="co">#&gt; [1] "a * (b + theta3 * 1)"</span></span>
 <span><span class="fu"><a href="../reference/infer.html">infer</a></span><span class="op">(</span><span class="va">fit2</span>, type <span class="op">=</span> <span class="st">"mc"</span>, treatment_level <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $CI</span></span>
-<span><span class="co">#&gt;     2.5 %    97.5 % </span></span>
-<span><span class="co">#&gt; 0.0873093 0.3175738 </span></span>
+<span><span class="co">#&gt;      2.5 %     97.5 % </span></span>
+<span><span class="co">#&gt; 0.08705547 0.31659329 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimate</span></span>
-<span><span class="co">#&gt; [1] 0.1905933</span></span>
+<span><span class="co">#&gt; [1] 0.1906082</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $SE</span></span>
-<span><span class="co">#&gt; [1] 0.0590961</span></span>
+<span><span class="co">#&gt; [1] 0.05881474</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $MC.Error</span></span>
-<span><span class="co">#&gt; [1] 5.90961e-07</span></span>
+<span><span class="co">#&gt; [1] 5.881474e-07</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Estimand</span></span>
 <span><span class="co">#&gt; [1] "a * (b + theta3 * 0)"</span></span></code></pre></div>

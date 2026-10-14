@@ -17,7 +17,8 @@ MbcoMIResult(
   m = integer(0),
   stacked_branch = character(0),
   branch_mix = logical(0),
-  p_branch_a = integer(0)
+  p_branch_a = integer(0),
+  scaling = NA_real_
 )
 ```
 
@@ -53,6 +54,13 @@ MbcoMIResult(
 - p_branch_a:
 
   Share of imputations whose own winning branch is `a = 0`.
+
+- scaling:
+
+  `NA` for every public result. Internal: the mean scaling correction by
+  which `D4` was divided, set only when the MLR gate harness enables the
+  (publicly refused) MLR path; `d_S` stays the unscaled stacked
+  statistic.
 
 ## Value
 
