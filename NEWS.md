@@ -7,6 +7,13 @@
   (see `per_imputation_list()`). Code that passed `fits =` to
   `MDMediationFit()` or read `@fits` must drop it.
 
+## Internal
+
+* `print()` of `MDMediationFit` and `MDMediationResult` now reads the indirect
+  effect from `medfit::nie()` (and the `pie` slot for the `x = 0` value of an
+  `X:M` model) instead of computing `a * b` by hand (#89). Printed values are
+  unchanged.
+
 ## Documentation
 
 * `?mbco_d4` and `vignette("mbco-mi")` now state the scope of the D4 reference
