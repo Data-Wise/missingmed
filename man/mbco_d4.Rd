@@ -65,7 +65,12 @@ and \code{X:M} from \code{Y ~ X * M}). The D4 statistic is
 \eqn{r_4} is the relative increase in variance estimated from the
 per-imputation statistics, and \eqn{\nu = k (K - 1) (1 + 1 / r_4)^2}
 (Chan and Meng 2022, eq. 2.15 of arXiv:1711.08822; the same reference distribution as
-\code{mitml::testModels(method = "D4")}). \code{ariv} chooses how those statistics are formed:
+\code{mitml::testModels(method = "D4", ariv = "positive")}, since \eqn{r_4} is
+floored at 0). Chan and Meng derive this df for the own-branch statistic at
+a regular null. For the fixed-branch default, and at the nonregular null
+\eqn{a = b = 0}, it is a working reference distribution whose calibration
+rests on simulation (see \code{vignette("mbco-mi")}, \emph{Operating characteristics}).
+\code{ariv} chooses how those statistics are formed:
 \itemize{
 \item \code{"fixed"} (default, calibrated): each imputation's statistic is computed on the branch
 (\code{a = 0} or \code{b = 0}) that the \strong{stacked} constrained fit selected.
