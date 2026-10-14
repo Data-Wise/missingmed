@@ -1,5 +1,15 @@
 # missingmed (development version)
 
+## Documentation
+
+* `?mbco_d4` and `vignette("mbco-mi")` now state the scope of the D4 reference
+  df adopted in 0.9.0. Chan and Meng (2022) derive eq. 2.15 for the own-branch
+  statistic (`ariv = "own"`) at a regular null. For the fixed-branch default and
+  at the nonregular null `a = b = 0` it is a working reference distribution whose
+  calibration rests on simulation. The 0.9.0 entry's "relative to the published
+  procedure" overstated this. The docs also name the matching mitml option,
+  `ariv = "positive"`, since `r4` is floored at 0.
+
 # missingmed 0.9.0
 
 ## New features

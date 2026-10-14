@@ -170,8 +170,11 @@
   r4 <- max(0, (K + 1) / (k * (K - 1)) * gap)
   D4 <- d_S / (k * (1 + r4))
   # Chan & Meng (2022; arXiv:1711.08822) eq. 2.15, the reference df of their Algorithm 2 and of
-  # mitml::testModels(method = "D4"): k (K - 1) (1 + 1 / r4)^2. Not the Li et
-  # al. (1991) df (their eq. 1.6), which they show approximates this test worse.
+  # mitml::testModels(method = "D4", ariv = "positive"): k (K - 1) (1 + 1 / r4)^2.
+  # Not the Li et al. (1991) df (their eq. 1.6), which they show approximates
+  # their own-branch test worse. Chan & Meng derive eq. 2.15 for the own-branch
+  # r4 at a regular null; for the fixed-branch r4, and at the nonregular null
+  # a = b = 0, it is a working reference distribution calibrated by simulation.
   # Equals Inf when r4 is 0.
   nu <- k * (K - 1) * (1 + 1 / r4)^2
   c(D4 = D4, p = stats::pf(D4, k, nu, lower.tail = FALSE), r4 = r4, nu = nu, d_S = d_S)
@@ -480,7 +483,12 @@
 #' \eqn{r_4} is the relative increase in variance estimated from the
 #' per-imputation statistics, and \eqn{\nu = k (K - 1) (1 + 1 / r_4)^2}
 #' (Chan and Meng 2022, eq. 2.15 of arXiv:1711.08822; the same reference distribution as
-#' `mitml::testModels(method = "D4")`). `ariv` chooses how those statistics are formed:
+#' `mitml::testModels(method = "D4", ariv = "positive")`, since \eqn{r_4} is
+#' floored at 0). Chan and Meng derive this df for the own-branch statistic at
+#' a regular null. For the fixed-branch default, and at the nonregular null
+#' \eqn{a = b = 0}, it is a working reference distribution whose calibration
+#' rests on simulation (see `vignette("mbco-mi")`, *Operating characteristics*).
+#' `ariv` chooses how those statistics are formed:
 #'
 #' * `"fixed"` (default, calibrated): each imputation's statistic is computed on the branch
 #'   (`a = 0` or `b = 0`) that the **stacked** constrained fit selected.
