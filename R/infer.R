@@ -201,7 +201,9 @@ S7::method(infer, MDMediationResult) <- function(object, type = c("mc", "mbco"),
 # visible once per session. The MBCO test is not flagged: its null a*b = 0
 # does not depend on the scale. A lavaan fit carries no family, and medfit's
 # InteractionMediationData (an X:M model) has no family slots, so both are
-# skipped rather than guessed.
+# skipped. Skipping X:M misses nothing: run() refuses an X:M term unless both
+# models are Gaussian with an identity link, and medfit's four-way
+# decomposition requires the same.
 .warn_link_scale <- function(pooled) {
   link_of <- function(slot) {
     if (!S7::prop_exists(pooled, slot)) return("identity")
@@ -215,7 +217,8 @@ S7::method(infer, MDMediationResult) <- function(object, type = c("mc", "mbco"),
     c(
       paste0("The indirect effect is on the link scale: ",
         paste0(names(off), " model link = \"", off, "\"", collapse = ", "), "."),
-      i = "a*b and its interval are products of link-scale coefficients, not a difference in probabilities or means.",
+      i = paste("a*b and its interval are products of link-scale coefficients,",
+        "not a difference in probabilities or means."),
       i = "See the FAQ, \"Binary mediator or outcome?\", and section 5A of vignette(\"technical\")."
     ),
     class = "missingmed_link_scale_warning",

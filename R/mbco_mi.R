@@ -169,8 +169,8 @@
   if (gap <= 1e-10 * max(1, abs(dbar), abs(d_S))) gap <- 0
   r4 <- max(0, (K + 1) / (k * (K - 1)) * gap)
   D4 <- d_S / (k * (1 + r4))
-  # Chan & Meng (2022; arXiv:1711.08822) eq. 2.15, the reference df of their Algorithm 2 and of
-  # mitml::testModels(method = "D4", ariv = "positive"): k (K - 1) (1 + 1 / r4)^2.
+  # Chan & Meng (2022; arXiv:1711.08822) eq. 2.15, the reference df of their
+  # Algorithm 2 and of mitml's D4 test with ariv "positive": nu equals k (K - 1) (1 + 1 / r4)^2.
   # Not the Li et al. (1991) df (their eq. 1.6), which they show approximates
   # their own-branch test worse. Chan & Meng derive eq. 2.15 for the own-branch
   # r4 at a regular null; for the fixed-branch r4, and at the nonregular null

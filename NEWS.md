@@ -17,6 +17,10 @@
 
 ## Internal
 
+* CI lints `R/` again (#87): a `.lintr` (line length 110; the object-name and
+  indentation linters off to match the house style) and a `lint` workflow that
+  fails on any lint. The seven existing lints in `R/` are fixed.
+
 * `print()` of `MDMediationFit` and `MDMediationResult` now reads the indirect
   effect from `medfit::nie()` (and the `pie` slot for the `x = 0` value of an
   `X:M` model) instead of computing `a * b` by hand (#89). Printed values are

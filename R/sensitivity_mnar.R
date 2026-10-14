@@ -75,7 +75,8 @@
 #' @param ariv For `type = "mbco"`: passed to [infer()] for every rung
 #'   (`"fixed"`, the default, or `"own"`; see [mbco_d4()]). Ignored, with a
 #'   warning, for `type = "mc"`.
-#' @param on_error `r lifecycle::badge("experimental")` What to do when fitting or inference fails at a rung (a refit
+#' @param on_error `r lifecycle::badge("experimental")` What to do when fitting
+#'   or inference fails at a rung (a refit
 #'   that did not converge, a non-finite likelihood). `"stop"` (default) aborts
 #'   the sweep and the error names the rung and its delta. `"continue"` keeps
 #'   the rungs that succeeded, records the message of each failed rung in
@@ -658,7 +659,8 @@ sensitivity_mnar <- function(object, delta, target = NULL,
   invisible(NULL)
 }
 
-# engine = "lavaan": a latent mediator has no data column, so the default `target` (the mediator) must be named
+# engine = "lavaan": a latent mediator has no data column, so the default
+# `target` (the mediator) must be named
 # explicitly (G4). Checked before any re-imputation. A data-frame `delta` names
 # its own target columns, so only a vector `delta` or `ums` needs `target`.
 .check_lavaan_sensitivity <- function(object, target, type, delta, ums, mids) {
