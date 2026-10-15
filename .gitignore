@@ -15,3 +15,6 @@ tests/testthat/testthat-problems.rds
 
 # Local planning artifacts (tasks/plan.md, tasks/todo.md)
 tasks/
+
+# Codex regenerates this from CLAUDE.md on each run; CLAUDE.md is the source.
+AGENTS.md
