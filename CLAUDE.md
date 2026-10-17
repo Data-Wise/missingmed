@@ -38,7 +38,7 @@ The **S4 API was removed in 0.6.0**: `set_sem`/`run_sem`/`pool_sem`/`fit_model`/
 ```r
 devtools::load_all(); devtools::document(); devtools::test(); devtools::check()
 ```
-Needs medfit ≥ 0.3.1 + RMediation ≥ 1.5.0 installed (both from CRAN). CI uses standard r-lib actions. **No renv** (removed 2026-09-23): the lockfile predated S7, medfit and sandwich and pinned RMediation 1.2.2, below the `>= 1.5.0` floor, so dependencies live in the normal R library, locally and in CI. pkgdown builds to **`pkgdown-site/`** (not `docs/`, which holds design specs) and deploys via the `gh-pages` branch. `_pkgdown.yml` carries an **explicit `reference:` index** — every new export must be added there or the pkgdown CI job fails; `R CMD check` does not read pkgdown config and will not catch it.
+Needs medfit ≥ 0.3.1 + RMediation ≥ 1.5.0 installed (both from CRAN). **PRs are gated locally**: run `make ci` (`dev/local-ci.sh`: `R CMD check --as-cran`, lintr, `pkgdown::check_pkgdown()`) and quote the counts in the PR body; GitHub workflows run on push to `main`/`dev` only, not on pull requests. CI uses standard r-lib actions. **No renv** (removed 2026-09-23): the lockfile predated S7, medfit and sandwich and pinned RMediation 1.2.2, below the `>= 1.5.0` floor, so dependencies live in the normal R library, locally and in CI. pkgdown builds to **`pkgdown-site/`** (not `docs/`, which holds design specs) and deploys via the `gh-pages` branch. `_pkgdown.yml` carries an **explicit `reference:` index** — every new export must be added there or the pkgdown CI job fails; `R CMD check` does not read pkgdown config and will not catch it.
 
 ## Ecosystem & manuscript
 
