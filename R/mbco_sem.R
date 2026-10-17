@@ -91,13 +91,13 @@
   row_b <- .mm_sem_tested_row(pt, outcome, mediator, "b")
   labels <- .mm_pt_col(pt, "label")
   used <- unlist(strsplit(labels[nzchar(labels)], ";", fixed = TRUE))
-  fresh <- function(base) {
-    while (base %in% used) base <- paste0(base, "_")
-    used <<- c(used, base)
+  fresh <- function(base, taken) {
+    while (base %in% taken) base <- paste0(base, "_")
     base
   }
-  lab_a <- if (nzchar(labels[row_a])) labels[row_a] else fresh("mm_a")
-  lab_b <- if (nzchar(labels[row_b])) labels[row_b] else fresh("mm_b")
+  lab_a <- if (nzchar(labels[row_a])) labels[row_a] else fresh("mm_a", used)
+  used <- c(used, lab_a)
+  lab_b <- if (nzchar(labels[row_b])) labels[row_b] else fresh("mm_b", used)
   if (identical(lab_a, lab_b)) {
     stop("The a and b paths have the same label (`", lab_a, "`): they would be one ",
       "parameter, so there is no separate path to test.",
