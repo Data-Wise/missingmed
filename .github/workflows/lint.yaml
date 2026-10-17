@@ -7,8 +7,6 @@ name: lint
 on:
   push:
     branches: [main, dev]
-  pull_request:
-    branches: [main, dev]
 
 permissions: read-all
 

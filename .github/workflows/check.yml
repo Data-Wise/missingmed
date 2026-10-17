@@ -3,10 +3,9 @@
 # Additional_repositories:).
 name: R-CMD-check
 
+# No pull_request trigger: PRs are gated by dev/local-ci.sh (run locally).
 on:
   push:
-    branches: [main, dev]
-  pull_request:
     branches: [main, dev]
 
 permissions: read-all
