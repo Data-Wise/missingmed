@@ -14,10 +14,10 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
   and quote the counts in every PR body.
   Full history through 2026-10-15: docs/archive/STATUS-next-history-2026-10-16.md.
   OPEN, in order:
-  (1) RESOLVED 2026-10-16: lavaan MBCO does NOT delegate to medfit's mbco_sem (author accepted
-      docs/specs/NOTE-lavaan-mbco-delegation-2026-10-16.md). Revisit only on its section 5 triggers
-      (CRAN medfit with mbco_sem, a passing diff_ll parity check, a use case lavaan cannot serve).
-      medsim#62 task 2 (optional delegation to mbco_d4()) is not blocked by this.
+  (1) lavaan MBCO -> medfit mbco_sem: REVERSED 2026-10-16, author chose to delegate and REPLACE the
+      lavaan provider. Parity verified (diff_ll vs lavaan, max 6.5e-12). SPEC DRAFT, awaiting
+      3 rulings (section 6): docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md, branch
+      feature/lavaan-mbco-medfit. Hard medfit >= 0.10.0 blocks CRAN until medfit 0.10 is on CRAN.
   (2) CRAN: blocked on RMediation >= 1.7.1 on CRAN (latest release 1.6.1; 1.7.1 fixes the R-devel S7
       load error) and on the medfit floor. Re-check why the CRAN plan (docs/specs/PLAN-cran-1.0.0-
       2026-10-09.md) names medfit 0.7.0 now that medfit is at 0.10.0 on GitHub (CRAN medfit 0.3.2).
