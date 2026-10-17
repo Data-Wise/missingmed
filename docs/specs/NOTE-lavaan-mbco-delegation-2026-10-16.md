@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | PROPOSED, awaiting the author's ruling |
+| **Status** | ACCEPTED 2026-10-16 (author): do not delegate; revisit on the section 5 triggers |
 | **Date** | 2026-10-16 |
 | **Answers** | `.STATUS` open item (1); medsim#62 task 3 |
 | **Basis** | Read-only: medfit `origin/main` (0.10.0, 157a1db) `R/sem-mbco.R`, `R/fit-sem.R`, NEWS, the RMediation handoff in `planning/specs/`; missingmed `R/mbco_lavaan.R`, `R/run.R`, `SPEC-sem-mbco-2026-10-08.md`. **No parity run was made**: medfit 0.10.0 is not installed here (CRAN has 0.3.2), and installing it is out of scope for a read-only look. |
