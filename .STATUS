@@ -7,6 +7,11 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
   merge ed28304, tag v0.10.0); dev is 0.10.0.9000. #99 MERGED 2026-10-15 (3dbffc3): frozen-vector
   cross-check loosened 1e-12 -> 1e-10 (CRAN macOS arm64 R differs from Homebrew R by ~3e-12); fixes the
   r-universe macOS check failure of 0.10.0 (binaries were served throughout). No open issues or PRs.
+  #100 MERGED 2026-10-16 (f30f2b6): PRs are gated locally, not by GitHub CI. `make ci`
+  (dev/local-ci.sh) runs R CMD check --as-cran, lintr and pkgdown::check_pkgdown(); check, lint and
+  pkgdown workflows run on push to main/dev only. The required R-CMD-check status was removed from
+  main protection (by the author, 2026-10-16), so dev->main PRs no longer wait on it. Run `make ci`
+  and quote the counts in every PR body.
   Full history through 2026-10-15: docs/archive/STATUS-next-history-2026-10-16.md.
   OPEN, in order:
   (1) Cross-package coordination (review 2026-10-16): decision note on whether engine = "lavaan" MBCO
