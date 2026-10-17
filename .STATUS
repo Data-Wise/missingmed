@@ -14,8 +14,9 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
   and quote the counts in every PR body.
   Full history through 2026-10-15: docs/archive/STATUS-next-history-2026-10-16.md.
   OPEN, in order:
-  (1) Cross-package coordination (review 2026-10-16): decision note on whether engine = "lavaan" MBCO
-      should delegate to medfit's mbco_sem / native SEM engine (medfit v0.10.0, 2026-10-14, has shipped
+  (1) Cross-package coordination (review 2026-10-16): decision note WRITTEN, awaiting the author's
+      ruling: docs/specs/NOTE-lavaan-mbco-delegation-2026-10-16.md (recommends NOT delegating; medsim#62
+      task 2 not blocked). Question was: should engine = "lavaan" MBCO delegate to medfit's mbco_sem / native SEM engine (medfit v0.10.0, 2026-10-14, has shipped
       both; the "planned native engine" entries in the history are superseded). Medsim plan:
       Data-Wise/medsim#62 (medsim flips its defaults to ariv = "fixed", df = "chan_meng" to match
       missingmed; optional P2 delegation to mbco_d4() waits on this note).
