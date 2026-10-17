@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | DRAFT for approval, revised 2026-10-16 with an Opus research pass (section 7). No code written. |
+| **Status** | APPROVED 2026-10-16 (author: all four section 6 rulings as recommended); revised with an Opus research pass (section 7). Implementing on `feature/lavaan-mbco-medfit`, T1 first. |
 | **Date** | 2026-10-16 |
 | **Supersedes** | `NOTE-lavaan-mbco-delegation-2026-10-16.md` (which recommended not delegating; the author reversed it the same day and chose **replace**, not opt-in) |
 | **Affects** | `R/mbco_lavaan.R` (replaced), `R/infer.R`, `R/mbco_mi.R`, `DESCRIPTION`, 5 test files, `dev/sim-sem-mbco-mlr-*.R`, vignettes, NEWS |
