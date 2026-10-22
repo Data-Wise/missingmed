@@ -24,7 +24,10 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       provider tests: 25 pass; T1: 31 pass; changed R files lint clean. Existing scratch medfit
       0.11.1 at /private/tmp/claude-501/medfit-lib2 used for stored iris and Holzinger branch
       parity (<1e-7); RemoteSha absent. Warning aggregation added. No dependencies installed.
-      T2 remains partial: full acceptance/mutation controls and tolerance justification pending.
+      T2 provider controls complete under conservative nonlinear-route refusal: 77 provider
+      assertions + 31 T1 assertions; three in-memory mutations killed. Absolute raw-LR 1e-7
+      justified against stored observed/latent/interior-null oracle errors <=5.543e-10.
+      Receipt: docs/specs/NOTE-T2-provider-verification-2026-10-22.md. Full CI unrun (RNG suite).
       Default medfit is 0.7.0. Public wiring remains T4.
       Hard medfit >= 0.10.0 blocks CRAN until
       medfit 0.10 is on CRAN.

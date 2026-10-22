@@ -50,6 +50,10 @@ test_that("stored observed and latent data agree with the lavaan branch oracle",
     list(d = lavaan::HolzingerSwineford1939,
       model = "M =~ x4 + x5 + x6; M ~ x1; x9 ~ M + x1")
   )
+  null <- cases[[1L]]
+  null$d$Y <- residuals(stats::lm(Y ~ M + X + C, data = null$d)) +
+    0.2 * null$d$X + 0.3 * null$d$C
+  cases <- c(cases, list(null))
   for (case in cases) {
     x <- if ("X" %in% names(case$d)) "X" else "x1"
     y <- if ("Y" %in% names(case$d)) "Y" else "x9"
@@ -78,4 +82,99 @@ test_that("stack violations and escaping refit failures name their dataset", {
     expect_error(missingmed:::.mm_d4_pool(list(iris, iris), p, mode),
       "stacked data.*negative LR.*mm_b")
   }
+})
+
+test_that("raw LR roundoff policy has a fixed inclusive boundary", {
+  lr <- missingmed:::.mm_sem_lr
+  expect_warning(expect_equal(lr(-1e-7, "a"), 0), "Roundoff-sized")
+  expect_warning(expect_equal(lr(-1e-7 + 1e-12, "b"), 0), "Roundoff-sized")
+  expect_error(lr(-1e-7 - 1e-12, "b"), "negative LR.*b")
+  expect_equal(lr(0, "a"), 0)
+  expect_equal(lr(1e12, "a"), 1e12)
+  for (x in c(Inf, -Inf, NaN, NA_real_)) expect_error(lr(x, "a"), "Non-finite")
+})
+
+test_that("completeness cannot be inferred from survivor or failure messages", {
+  state <- new.env(parent = emptyenv())
+  state$tab <- NULL
+  state$error <- NULL
+  state$drop <- 0L
+  local_mocked_bindings(.mm_sem_fit = function(model, d) {
+    list(fit = NULL, n_obs = nrow(d) - state$drop, improper = FALSE)
+  }, .mm_sem_mbco = function(fit, a, b) {
+    if (!is.null(state$error)) stop(state$error)
+    list(tests = state$tab)
+  })
+  p <- missingmed:::.mm_sem_provider("M ~ X; Y ~ M + X", "X", "M", "Y")
+  d <- data.frame(X = 1:3)
+  good <- data.frame(constraint = c("mm_a == 0", "mm_b == 0"),
+    f = c(1, 2), diff_ll = c(1, 9), converged = TRUE)
+  for (mode in c("own", "fixed")) {
+    for (i in 1:2) {
+      state$tab <- good[i, , drop = FALSE]
+      expect_error(missingmed:::.mm_d4_pool(list(d, d), p, mode), "imputation 1.*incomplete")
+      state$tab <- good
+      state$tab$converged[i] <- FALSE
+      expect_error(missingmed:::.mm_d4_pool(list(d, d), p, mode), "imputation 1.*incomplete")
+    }
+    for (msg in c("a = 0 optimizer failure", "b = 0 covariance failure", "all starts failed")) {
+      state$error <- msg
+      expect_error(missingmed:::.mm_d4_pool(list(d, d), p, mode), paste0("imputation 1.*", msg))
+    }
+    state$error <- NULL
+    state$tab <- good
+    state$tab$converged[] <- FALSE
+    expect_error(missingmed:::.mm_d4_pool(list(d, d), p, mode), "incomplete")
+    state$tab <- good[c(1, 1), ]
+    expect_error(missingmed:::.mm_d4_pool(list(d, d), p, mode), "incomplete")
+    state$tab <- good
+    result <- missingmed:::.mm_d4_pool(list(d, d), p, mode)
+    expect_s3_class(result, "S7_object")
+    expect_equal(as.numeric(result["d_S"]), 0.5)
+    expect_identical(result@stacked_branch, "a")
+  }
+  state$drop <- 1L
+  expect_error(p(d), "dropped observations")
+})
+
+test_that("generic products and aliases are rejected before dependency enumeration", {
+  calls <- new.env(parent = emptyenv())
+  calls$n <- 0L
+  local_mocked_bindings(.mm_sem_fit = function(...) { calls$n <- calls$n + 1L })
+  for (con in c("a*b == 0", "0 == a*b", "a*b == 0; a*b == 0",
+    "ab := a*b; ab == 0", "a*b*c*d*e*f*g == 0")) {
+    expect_error(missingmed:::.mm_sem_provider(paste("M ~ a*X; Y ~ b*M;", con),
+      "X", "M", "Y"), "completeness")
+  }
+  expect_equal(calls$n, 0L)
+})
+
+test_that("pooled warnings are emitted once with all dataset names", {
+  local_mocked_bindings(.mm_sem_fit = function(model, d) {
+    warning("first start was not accepted", call. = FALSE)
+    list(fit = NULL, n_obs = nrow(d), improper = FALSE)
+  }, .mm_sem_mbco = function(fit, a, b) {
+    warning("mixture of chi-squares", call. = FALSE)
+    list(tests = data.frame(constraint = paste(c(a, b), "== 0"),
+      f = c(1, 2), diff_ll = c(4, 9), converged = TRUE))
+  })
+  p <- missingmed:::.mm_sem_provider("M ~ X; Y ~ M + X", "X", "M", "Y")
+  messages <- character()
+  withCallingHandlers(missingmed:::.mm_d4_pool(list(iris, iris), p), warning = function(w) {
+    messages <<- c(messages, conditionMessage(w))
+    invokeRestart("muffleWarning")
+  })
+  expect_length(messages, 1L)
+  for (s in c("imputation 1", "imputation 2", "stacked data", "first start", "mixture")) {
+    expect_match(messages, s)
+  }
+})
+
+test_that("unimplemented options and full-fit errors never silently fall through", {
+  expect_error(missingmed:::.mm_sem_provider("M ~ X; Y ~ M", "X", "M", "Y",
+    list(auto.cov.y = FALSE)), "fit_args")
+  local_mocked_bindings(.mm_sem_fit = function(...) stop("full optimizer failed"))
+  p <- missingmed:::.mm_sem_provider("M ~ X; Y ~ M", "X", "M", "Y")
+  expect_error(missingmed:::.mm_d4_pool(list(iris, iris), p),
+    "imputation 1.*full model.*full optimizer failed")
 })

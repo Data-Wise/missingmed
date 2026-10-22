@@ -1,5 +1,11 @@
 # missingmed (development version)
 
+## Internal
+
+* Add the guarded SEM MBCO provider and deterministic acceptance controls for
+  the planned medfit migration (#101, #102). Public inference still uses the
+  existing lavaan provider pending migration wiring.
+
 # missingmed 0.10.0
 
 ## Breaking changes

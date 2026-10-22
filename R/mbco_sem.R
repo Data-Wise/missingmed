@@ -130,13 +130,16 @@
 
 .mm_sem_complete_syntax <- function(model) {
   pt <- lavaan::lavParseModelString(model, as.data.frame. = TRUE, warn = FALSE)
+  constraints <- attr(pt, "constraints") %||% list()
+  defined <- vapply(Filter(function(z) z$op == ":=", constraints), function(z) z$lhs, "")
   if (any(nzchar(.mm_pt_col(pt, "lower"))) || any(nzchar(.mm_pt_col(pt, "upper")))) {
     stop("Unresolved branch completeness: bounded parameters are unsupported.", call. = FALSE)
   }
-  for (z in attr(pt, "constraints") %||% list()) {
+  for (z in constraints) {
     if (z$op == ":=") next
     sides <- lapply(c(z$lhs, z$rhs), function(s) str2lang(s))
-    if (z$op != "==" || !all(vapply(sides, .mm_sem_affine, NA))) {
+    aliases <- intersect(unlist(lapply(sides, all.vars)), defined)
+    if (z$op != "==" || length(aliases) || !all(vapply(sides, .mm_sem_affine, NA))) {
       stop("Unresolved branch completeness: nonlinear or inequality constraints ",
         "are unsupported without a dependency branch ledger.", call. = FALSE)
     }
@@ -157,8 +160,9 @@
 
 # Raw LR tolerance, before stack/K scaling. Absolute rather than likelihood-
 # relative: large likelihood offsets must never excuse a material violation.
-# 1e-7 is the approved deterministic parity resolution. Negatives within that
-# resolution are explicitly reported and rounded to zero, never silently floored.
+# The fixed 1e-7 resolution is checked against stored-data oracle differences in
+# test-mbco-sem-provider.R; it is not a global-optimality certificate. Negatives
+# within that resolution are reported and rounded to zero, never silently floored.
 .mm_sem_lr <- function(x, branch) {
   if (length(x) != 1L || !is.finite(x)) {
     stop("Non-finite LR summary for ", branch, ".", call. = FALSE)
@@ -195,9 +199,9 @@
     mb <- .mm_sem_mbco(full$fit, lab$a, lab$b)
     tab <- mb$tests
     expected <- paste(c(lab$a, lab$b), "== 0")
-    if (nrow(tab) != 2L || !identical(as.character(tab$constraint), expected) ||
+    if (!is.data.frame(tab) || nrow(tab) != 2L || !identical(as.character(tab$constraint), expected) ||
         !all(tab$converged %in% TRUE) || length(tab$converged) != 2L ||
-        length(tab$f) != 2L || any(!is.finite(tab$f))) {
+        length(tab$f) != 2L || any(!is.finite(tab$f)) || length(tab$diff_ll) != 2L) {
       stop("Unresolved or incomplete a = 0 / b = 0 refits.", call. = FALSE)
     }
     lr <- vapply(seq_len(2L), function(i) .mm_sem_lr(tab$diff_ll[i], expected[i]), 0.0)
