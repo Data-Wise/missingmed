@@ -161,3 +161,79 @@ Targeted lint passes with `devtools::load_all()` before linting; without loading
 the standalone `R/infer.R` linter falsely reports the package-internal provider
 as undefined. Approved spec and saved fixtures remain unchanged. No installs,
 simulations, push, or merge. Local implementation does not imply T5 acceptance.
+
+## Existing-fixture search and rerun — 2026-10-22
+
+At starting head `068f075`, no qualifying stored improper-null fixture was found
+in the bounded searches below. This is a search result, not proof that no such
+artifact exists elsewhere. No data generator or simulation was run, and no
+saved input/result was changed or replaced with a newly manufactured case.
+
+- missingmed: all four discovered RDS files; the checked-in MBCO fixture supplies
+  observed mediation inputs, while the other three are IPW cells/truth files.
+- Active medfit and `/private/tmp/claude-501/medfit-dev`: four checked-in stored
+  data/fixture files per checkout. Inspected `sem-v080-frozen.rds`: observed,
+  weighted-sandwich and constrained observed models, not a latent improper-null
+  fixture. `memory_exp.rds` contains a 369-row observed mediation dataset;
+  `lavaan-simple-before-aliases.rds` contains estimates/vcov, not raw null data.
+  The existing Heywood test calls `sem_sim(..., 50, 10)`; it was not executed.
+- Scratch: filename/content discovery under `/private/tmp`, relevant medfit
+  directories and macOS temporary directories; metadata/library trees excluded
+  in narrowed searches. Broad searches hitting result caps were narrowed, not
+  treated as exhaustive. Existing M5 latent-input candidates contain a 50-row,
+  three-variable observed dataset and numerical-profile outputs, not an
+  identified improper-null SEM case. Those inputs/outputs were read only.
+- No named heywood/improper artifact found under `.codex` excluding plugin and
+  module trees. Companion research stored-file discovery showed scenario truths
+  and comparator outputs, not an identified improper-null fixture; no manuscript
+  content or outputs were edited.
+
+Rerun on the unchanged implementation with existing medfit 0.11.1: 776 assertions
+pass (39 + 124 + 52 + 31 + 530), zero failures/errors/warnings/skips. Full random
+suite, `make ci`, simulations, dependency installs and rendering remain unrun.
+The approved spec permits the exported-fit diagnostic alternative, and injected
+tests verify a/b identity plus fail-closed mismatches, but this does not establish
+the missing real improper-null acceptance evidence.
+
+Read-only candidate SHA256 identifiers:
+
+- missingmed `mbco-d4-medsim-0.5.1.rds`:
+  `b88d9e26e462f6f387ea711766511507f8c638939f18d95ddab67c640964e4e8`
+- active medfit `sem-v080-frozen.rds`:
+  `434101e10791012e8c527713e8d6ea91210d384094baa846191a250a05729b1e`
+- active medfit `memory_exp.rds`:
+  `ec778dc6503cb6ad0351b0dd8ce47b03c3e16ad0f67212512b263aa1f2acdccd`
+
+### Follow-up review result
+
+Claude job `8828d157-4d59-40c6-985c-7a3bcb055a68` returned **needs-attention**,
+medium uncertainty. It read approved spec lines 1–258 and attribution test
+bodies, and judged the fail-closed separate-refit design conforming to section
+3's permitted alternative. It did not execute tests this time or independently
+search fixtures. It omitted full provider/3b–3d body review, helper, mutation
+harness, NEWS, public help/vignette and .STATUS; no broad approval is claimed.
+
+- High evidence gap: no real stored improper null; confirmed and still open.
+- Medium coverage gap: no tests triggering the fixed-x/factor-state guards;
+  confirmed. Success-path parity is not guard-trigger coverage. No unrelated
+  implementation expansion was undertaken in this fixture-search pass.
+- Low speculative model-string seed mismatch: installed `mbco_sem()` appends
+  `paste0(fit@model, "\n", con)`; the diagnostic helper uses
+  `paste(fit@model, con, sep = "\n")`, identical for these scalar model/constraint
+  strings. This is not a demonstrated mismatch. The unvalidated future
+  nonempty `mb$improper` field is a dependency-contract risk; inspected medfit
+  0.11.1 returns no such field. No universal optimum guarantee follows.
+
+The section map verifies C5/3 attribution only with injected diagnostics and
+proper stored refit parity. 3a's new fixed-x guard is success-path-only tested.
+3b/4.7, 3c/4.8, 3d/4.9 and 4.10 were mapped by the existing note, not independently
+re-read in full by Claude. No automatic retry, resume or budget expansion.
+Requested/effective model sonnet / claude-sonnet-5-5, standard/medium; usage
+232788 tokens, 7829 output, 10 turns, 53139 ms (API 52451 ms), $0.2234364.
+No Evidence Lease; evidence-lease/cost-budget/turn-limit exhaustion all false.
+Session `5c852e16-f9b9-4333-b1f3-c7249b60121b`; resume hint:
+`claude --resume 5c852e16-f9b9-4333-b1f3-c7249b60121b`.
+Recommended follow-up remains a real stored improper-null input plus guard
+controls and full provider/spec-test body review. **T5 remains unaccepted.**
+Candidate hashes above were identical before and after verification. This pass
+changes only the verification note and .STATUS, not implementation or saved data.

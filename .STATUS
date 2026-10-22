@@ -49,7 +49,11 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       targeted lint clean. T5 NOT fully accepted: real improper-null stored-data
       evidence remains absent. Claude read relevant spec, ran acceptance tests,
       returned needs-attention; broader 3c/3d test coverage map incomplete.
-      Empty-diagnostic bypass fixed afterward, tested but not re-reviewed.
+      Empty-diagnostic bypass fixed and re-reviewed. Follow-up bounded search
+      found no existing stored improper-null fixture; no generators were run.
+      776 assertions rerun green. Claude confirms permitted fallback design but
+      withholds approval: real case absent, guard-trigger tests missing, broader
+      spec/test body review still partial. No implementation changes in this pass.
       Receipt NOTE-T5-acceptance-verification-2026-10-22.md.
       NEXT resolve evidence/review scope, then T6 dependency
       floor/package checks. No full RNG suite or vignette render.
