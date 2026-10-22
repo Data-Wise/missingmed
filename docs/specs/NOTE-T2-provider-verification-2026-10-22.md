@@ -120,3 +120,30 @@ and latent/residual variance domains. Requested Sonnet, effective
 claude-sonnet-5-5, standard/medium: 7 turns, 34.688 seconds, 150543 tokens,
 $0.127495. No evidence lease or cost/turn exhaustion. Session/resume:
 `claude --resume 098271b2-d506-4f58-9fd7-610a00d6225c`.
+
+## Indirect equality verification (2026-10-22)
+
+The exact `M ~ a*X; X ~~ v*X; Y ~ b*M + X; a == v` stored-iris
+probe already fails closed with installed medfit 0.11.1: its a refit reports
+stationarity 0.00787 exceeding 0.001. No accepted bad LR was reproduced.
+Nevertheless its null algebra forces v=0. Per spec 3b's variance-domain gate,
+the provider now detects fixed variance coordinates in each null's affine
+row space, including transitive and scaled equalities, and refuses values
+<=1e-10 (absolute parameter units, conservatively treating numerically zero
+positive values as unsupported). This is not the separate raw-LR tolerance.
+Positive forced variances and still-free variances remain supported.
+
+Tests: 38 label + 110 provider assertions pass, no failures/warnings/skips;
+lint clean; mutation detections 15/14/3. Approved spec unchanged.
+Claude job 009bc0a9-e57d-4656-8bfd-a6131c105fd8 independently reproduced
+these checks and read the relevant spec, code, test files and mutation harness.
+Only unrelated plan skipped. Verdict needs-attention, uncertainty medium:
+single-coordinate guard is correct but does not prove joint positive-variance
+feasibility (e.g. a==v1+v2), nor consistency of redundant equalities. Both
+follow-up findings are inferred, not reproduced accepted-LR failures. General
+joint feasibility remains unresolved; T2 is not fully accepted. Suggested next
+check: stored-data joint-variance probe before choosing a broader solver/policy.
+Requested Sonnet/effective claude-sonnet-5-5, standard/medium: 10 turns,
+48.708 seconds, 179589 tokens, $0.1317963. No evidence lease, cost exhaustion
+or turn exhaustion. Manual resume:
+`claude --resume 52023dc3-03ec-4b6e-b74f-1a320077def9`.

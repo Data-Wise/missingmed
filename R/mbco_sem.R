@@ -194,10 +194,15 @@
 .mm_sem_dimensions <- function(model, a, b) {
   pt <- lavaan::lavParseModelString(model, as.data.frame. = TRUE, warn = FALSE)
   cons <- Filter(function(z) z$op == "==", attr(pt, "constraints") %||% list())
-  vars <- unique(c(a, b, unlist(lapply(cons, function(z) {
+  labels <- .mm_pt_col(pt, "label")
+  variances <- unique(labels[pt$op == "~~" & pt$lhs == pt$rhs & nzchar(labels)])
+  vars <- unique(c(a, b, variances, unlist(lapply(cons, function(z) {
     c(all.vars(str2lang(z$lhs)), all.vars(str2lang(z$rhs)))
   }))))
   zero <- as.list(setNames(rep(0, length(vars)), vars))
+  constants <- vapply(cons, function(z) {
+    eval(str2lang(z$rhs), zero, baseenv()) - eval(str2lang(z$lhs), zero, baseenv())
+  }, 0.0)
   rows <- lapply(cons, function(z) {
     expr <- str2lang(paste0("(", z$lhs, ")-(", z$rhs, ")"))
     origin <- eval(expr, zero, baseenv())
@@ -214,6 +219,22 @@
     if (rank(rbind(mat, unit)) - rank(mat) != 1L) {
       stop("The ", v, " = 0 null removes no additional dimension; MBCO requires k = 1.",
         call. = FALSE)
+    }
+    null <- rbind(mat, unit)
+    rhs <- c(constants, 0)
+    # Independent rows span the affine closure, including transitive equalities.
+    basis <- qr(t(null), tol = 1e-10)
+    keep <- basis$pivot[seq_len(basis$rank)]
+    for (variance in variances) {
+      coordinate <- as.numeric(vars == variance)
+      if (rank(rbind(null, coordinate)) == rank(null)) {
+        weights <- qr.solve(t(null[keep, , drop = FALSE]), coordinate, tol = 1e-10)
+        value <- sum(weights * rhs[keep])
+        if (!is.finite(value) || value <= 1e-10) {
+          stop("The ", v, " = 0 null forces variance `", variance,
+            "` nonpositive (or numerically zero); unsupported variance domain.", call. = FALSE)
+        }
+      }
     }
   }
   invisible(TRUE)

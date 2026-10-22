@@ -229,3 +229,16 @@ test_that("shared regression and intercept labels remain one-dimensional", {
     }
   }
 })
+
+test_that("affine closure refuses nonpositive variance nulls but preserves positive ones", {
+  base <- "M ~ a*X + w*C; X ~~ v*X; Y ~ b*M + X"
+  for (constraint in c("a == v", "v == a", "a == 2*v", "a == 2*v + 1",
+    "a == w; w == v", "b == v")) {
+    expect_error(missingmed:::.mm_sem_provider(paste(base, constraint, sep = ";"),
+      "X", "M", "Y"), "null forces variance.*nonpositive")
+  }
+  expect_silent(missingmed:::.mm_sem_provider(paste(base, "v == a + 1", sep = ";"),
+    "X", "M", "Y"))
+  expect_silent(missingmed:::.mm_sem_provider(paste(base, "v == a + w", sep = ";"),
+    "X", "M", "Y"))
+})
