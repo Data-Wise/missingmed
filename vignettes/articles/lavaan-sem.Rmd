@@ -218,7 +218,8 @@ tidy(s)
 ## The MBCO test with a lavaan fit
 
 `infer(type = "mbco")` runs the same D4-stacked likelihood-ratio test of
-H0: a·b = 0 as the glm engine, with lavaan doing the refits. Each imputation is
+H0: a·b = 0 as the glm engine, with medfit (>= 0.10.0) doing the refits.
+`run()` still fits with lavaan; MBCO uses medfit's optimizer. Each imputation is
 fit once in full and once with the `a` path (`Mlat ~ X`) fixed to 0 and once with
 the `b` path (`Y ~ Mlat`) fixed to 0; the stacked data are fit the same three
 ways. With a latent mediator, only the **structural** path is fixed: the loadings,
@@ -267,3 +268,23 @@ validated pooling exists yet. Use `type = "mc"` for those fits.
 
 A refit that does not converge stops the test, naming the imputation (or the
 stacked data) and which fit; an improper solution warns once and goes on.
+
+For MBCO, the allowed `fit_args` are `estimator = "ML"`, `std.lv`, `std.ov`,
+`fixed.x`, `conditional.x`, `meanstructure`, `information`, `missing`, `se` and
+`test`. These statistic-invariant options are ignored; medfit always receives
+`fixed_x = FALSE`. Every other option is refused by name, including `auto.*`,
+`orthogonal*`, `int.*.free`, `control` and `likelihood = "wishart"`. Thus the
+iteration-limit advice for `run()` above does not apply to MBCO.
+Use `fit_args = list()` for defaults; `NULL` remains invalid.
+
+MBCO syntax is narrower than lavaan syntax. Fixed tested paths, multigroup
+modifiers, nonlinear/product equalities, inequalities and bounded parameters
+are refused. Nulls forcing unsupported variance domains are refused before
+fitting; numerically unresolved affine checks also stop inference. No absence
+of warnings or successful surviving branch is a completeness certificate.
+Other unsupported medfit syntax fails explicitly rather than falling back to
+lavaan. Non-finite or materially negative raw likelihood-ratio summaries on
+either branch stop inference; roundoff-sized negatives within `1e-7` are
+reported and rounded to zero before pooling. SEM notices are collected into
+one dataset-labeled warning; null improper notices currently lack reliable
+branch-specific attribution.

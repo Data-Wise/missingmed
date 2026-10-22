@@ -36,12 +36,19 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       T3 DONE internally: approved fit_args allow-list, normalized duplicate refusal,
       ML-only estimator; options ignored, fixed_x=FALSE retained. 214 total SEM assertions
       pass; five mutations detected; lint clean; Claude T3 approval with reproduced checks.
-      Receipt NOTE-T3-fit-args-verification-2026-10-22.md. NEXT T4 public wiring/docs,
-      including NULL fit_args compatibility; no public behavior changed in T3.
+      Receipt NOTE-T3-fit-args-verification-2026-10-22.md.
+      T4 implemented locally: both public APIs use medfit; legacy provider and MLR
+      source harness retired; help, tutorials and contributor pointers updated.
+      NULL fit_args remains refused; list() accepted. Deterministic SEM checks:
+      246 assertions, zero failures/errors/warnings/skips; five mutations detected;
+      lint clean. Claude scoped static approval (no test execution), one stale
+      contributor pointer repaired afterward. Receipt NOTE-T4-public-wiring-
+      verification-2026-10-22.md. NEXT T5 remaining acceptance/diagnostic coverage,
+      then T6 dependency floor/package checks. No full RNG suite or vignette render.
       Absolute raw-LR 1e-7
       justified against stored observed/latent/interior-null oracle errors <=5.543e-10.
       Receipt: docs/specs/NOTE-T2-provider-verification-2026-10-22.md. Full CI unrun (RNG suite).
-      Default medfit is 0.7.0. Public wiring remains T4.
+      Default medfit is 0.7.0; focused checks use the existing 0.11.1 library above.
       Hard medfit >= 0.10.0 blocks CRAN until
       medfit 0.10 is on CRAN.
   (2) CRAN: blocked on RMediation >= 1.7.1 on CRAN (latest release 1.6.1; 1.7.1 fixes the R-devel S7

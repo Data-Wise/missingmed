@@ -61,9 +61,22 @@ test_that("stored observed and latent data agree with the lavaan branch oracle",
     x <- if ("X" %in% names(case$d)) "X" else "x1"
     y <- if ("Y" %in% names(case$d)) "Y" else "x9"
     sem <- missingmed:::.mm_sem_provider(case$model, x, "M", y)
-    lav <- missingmed:::.mm_lav_provider(case$model, x, "M", y)
     got <- sem(case$d)
-    ref <- lav(case$d)
+    # Independent test-only oracle: fit original syntax, then zero the tested
+    # regression in the fitted parameter table; no retired production provider.
+    full <- lavaan::sem(case$model, data = case$d, fixed.x = FALSE)
+    null_ll <- function(lhs, rhs) {
+      pt <- lavaan::parTable(full)
+      hit <- which(pt$op == "~" & pt$lhs == lhs & pt$rhs == rhs)
+      pt$free[hit] <- 0L
+      pt$ustart[hit] <- 0
+      pt[c("est", "se", "start")] <- NULL
+      pt$free[pt$free > 0] <- seq_len(sum(pt$free > 0))
+      as.numeric(lavaan::fitMeasures(lavaan::lavaan(pt, data = case$d,
+        se = "none", fixed.x = FALSE), "logl"))
+    }
+    ref <- c(full = lavaan::fitMeasures(full, "logl")[[1]],
+      a = null_ll("M", x), b = null_ll(y, "M"))
     for (branch in c("a", "b")) {
       expect_lt(abs(-2 * got[[branch]] - 2 * (ref[["full"]] - ref[[branch]])), 1e-7)
     }

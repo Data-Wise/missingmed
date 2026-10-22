@@ -43,7 +43,10 @@ variable name, and a named list of lavaan options (as in
 family arguments. The tested paths are the regressions \code{mediator ~ treatment} (a) and \code{outcome ~ mediator} (b); a latent mediator uses its
 structural rows, and its measurement model and any direct effects of its
 indicators on the outcome stay free. Only \code{estimator = "ML"} (the default)
-is supported, with no \code{group}, \code{ordered} or \code{sampling.weights}.}
+is supported, with no \code{group}, \code{ordered} or \code{sampling.weights}.
+Refitting uses medfit >= 0.10.0, not lavaan's optimizer. The ignored
+options and syntax restrictions are described in \code{\link[=infer]{infer()}}. \code{fit_args}
+must be a list: use \code{list()}, not \code{NULL}.}
 }
 \value{
 An \link{MbcoMIResult}: the named numeric \code{c(D4, p, r4, nu, d_S)} with

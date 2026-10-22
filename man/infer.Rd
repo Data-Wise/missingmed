@@ -61,11 +61,17 @@ Every imputation is refit with an unweighted \code{\link[stats:glm]{stats::glm()
 \code{offset}, \code{subset} and \code{na.action} in \code{fit_args} are an error here; use
 \code{type = "mc"} for such fits.
 At least two imputations are required. It also works for
-\code{engine = "lavaan"} fits (including a latent mediator), with lavaan doing
+\code{engine = "lavaan"} fits (including a latent mediator), with medfit doing
 the refits: the tested paths are the structural regressions \code{mediator ~ treatment} and \code{outcome ~ mediator}. Only \code{estimator = "ML"} (the default)
 is supported; \code{MLR}, \code{MLM}, \code{WLSMV}, \code{group}, \code{ordered}, \code{sampling.weights}
 and \code{method = "ipw"} are refused, naming the option. A refit that did not
 converge stops the test, naming the dataset, the branch and the model.
+SEM MBCO requires medfit >= 0.10.0; \code{\link[=run]{run()}} still uses lavaan. MBCO ignores
+\code{std.lv}, \code{std.ov}, \code{fixed.x}, \code{conditional.x}, \code{meanstructure},
+\code{information}, \code{missing}, \code{se} and \code{test}, and always uses \code{fixed_x = FALSE}.
+All other options (including \code{control}, \verb{auto.*} and \code{likelihood}) are
+refused. Nonlinear/bounded constraints and singular variance nulls are
+unsupported; warning notices name the affected datasets.
 }
 }
 \examples{

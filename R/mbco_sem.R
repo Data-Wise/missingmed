@@ -80,6 +80,9 @@
 .mm_sem_label_model <- function(model, treatment, mediator, outcome) {
   model <- paste(model, collapse = "\n")
   pt <- lavaan::lavParseModelString(model, as.data.frame. = TRUE, warn = FALSE)
+  if (any(nzchar(.mm_pt_col(pt, "efa")))) {
+    stop("The efa() modifier is unsupported by MBCO.", call. = FALSE)
+  }
   for (field in c("fixed", "label", "start", "lower", "upper", "prior")) {
     if (any(grepl(";", .mm_pt_col(pt, field), fixed = TRUE))) {
       stop("The multi-group c() modifier is unsupported by MBCO.", call. = FALSE)

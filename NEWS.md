@@ -2,9 +2,10 @@
 
 ## Internal
 
-* Add the guarded SEM MBCO provider and deterministic acceptance controls for
-  the planned medfit migration (#101, #102). Public inference still uses the
-  existing lavaan provider pending migration wiring.
+* Route SEM MBCO in `infer()` and `mbco_d4(model = )` through the guarded medfit
+  provider (#101, #102); `run()` still uses lavaan. Retire the old lavaan MBCO
+  provider and internal MLR scaling code/harness; robust MBCO remains refused.
+  SEM MBCO requires medfit >= 0.10.0 at runtime. `fit_args = NULL` remains invalid.
 * Add the approved internal SEM `fit_args` allow-list: listed statistic-invariant
   options are ignored, only ML is accepted, and all other options are refused
   by name. The medfit adapter continues to force `fixed_x = FALSE`.

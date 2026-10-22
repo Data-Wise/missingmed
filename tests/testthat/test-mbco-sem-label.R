@@ -94,6 +94,7 @@ test_that("both tested paths sharing one label is refused (they would be one par
 })
 
 test_that("unsupported untested modifiers are refused without malformed rewriting", {
+  expect_error(lab('efa("block")*M =~ x1+x2+x3; M ~ X; Y ~ M'), "efa")
   expect_error(lab("M ~ X; Y ~ M + c(1,2)*X"), "multi-group c")
   expect_error(lab('M ~ X; Y ~ M; M ~~ equal("Y~~Y")*M'), "equal")
 })

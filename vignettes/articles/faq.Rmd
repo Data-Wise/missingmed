@@ -98,6 +98,10 @@ lavaan fits (MBCO with maximum likelihood only; it is refused for `MLR`, `MLM`,
 `WLSMV`, `group`, `ordered` and `sampling.weights`). See the *Structural equation
 models* article and the *Migrating from the S4 API* article.
 
+`run()` uses lavaan, but SEM MBCO refits use medfit >= 0.10.0. MBCO has a
+strict option allow-list and narrower syntax; see the SEM article. `fit_args`
+must be a list (`list()` for defaults), not `NULL`.
+
 ### Why does `run()` or `sensitivity_mnar()` warn that passing arguments is deprecated?
 
 Since 0.7.0, fitting options belong in `set_md_mediation()`, where they are stored
