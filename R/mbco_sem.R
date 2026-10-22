@@ -149,6 +149,7 @@
     stop("The SEM provider requires medfit >= 0.10.0.", call. = FALSE)
   }
   fit <- medfit::fit_sem(model, d, fixed_x = FALSE)
+  if (!is.finite(fit@f)) stop("Non-finite full-fit discrepancy.", call. = FALSE)
   list(fit = fit, n_obs = fit@n_obs, improper = fit@diagnostics$improper)
 }
 
@@ -178,6 +179,13 @@
   .mm_sem_complete_syntax(model)
   lab <- .mm_sem_label_model(model, treatment, mediator, outcome)
   function(d) {
+    notices <- new.env(parent = emptyenv())
+    notices$messages <- character()
+    collect <- function(w) {
+      notices$messages <- c(notices$messages, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+    out <- withCallingHandlers({
     full <- tryCatch(.mm_sem_fit(lab$model, d), error = function(e) {
       stop("The full model did not converge or is unresolved: ", conditionMessage(e), call. = FALSE)
     })
@@ -195,6 +203,9 @@
     lr <- vapply(seq_len(2L), function(i) .mm_sem_lr(tab$diff_ll[i], expected[i]), 0.0)
     out <- c(full = 0, a = -lr[1L] / 2, b = -lr[2L] / 2, k_a = 1, k_b = 1)
     attr(out, "improper") <- if (isTRUE(full$improper)) "full" else character()
+    out
+    }, warning = collect)
+    attr(out, "sem_warnings") <- unique(notices$messages)
     out
   }
 }

@@ -302,6 +302,16 @@
   lls <- lapply(seq_len(K), function(i) lls_of(implist[[i]], paste("imputation", i)))
   stacked <- do.call(rbind, implist)
   lls_S <- lls_of(stacked, "the stacked data")
+  sem_notices <- c(lls, list(lls_S))
+  where <- c(paste("imputation", seq_len(K)), "the stacked data")
+  has_notice <- vapply(sem_notices, function(x) length(attr(x, "sem_warnings")) > 0L, NA)
+  if (any(has_notice)) {
+    detail <- vapply(sem_notices[has_notice], function(x) {
+      paste(attr(x, "sem_warnings"), collapse = "; ")
+    }, "")
+    warning("SEM MBCO warnings: ",
+      paste(paste0(where[has_notice], ": ", detail), collapse = "; "), call. = FALSE)
+  }
   .mm_warn_improper(c(lls, list(lls_S)), c(paste("imputation", seq_len(K)), "the stacked data"))
   a_wins <- vapply(lls, function(l) l[["a"]] >= l[["b"]], logical(1))
   stacked_a <- lls_S[["a"]] >= lls_S[["b"]]

@@ -21,9 +21,11 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       T1 DONE (.mm_sem_label_model, R/mbco_sem.R, 31 tests). NEXT: T2 .mm_sem_provider + parity oracle
       (1e-7) + planted defects, then T3-T7. T2 PARTIAL: internal provider validates both raw LRs,
       refuses unledgered nonlinear/bounded routes and incomplete refit summaries. Deterministic
-      injected-provider tests: 19 pass; T1: 31 pass; R/mbco_sem.R lint clean. Real-fit parity,
-      tolerance justification, warning aggregation and full acceptance controls remain pending.
-      Installed medfit is 0.7.0; no installation authorized. Public wiring remains T4.
+      provider tests: 25 pass; T1: 31 pass; changed R files lint clean. Existing scratch medfit
+      0.11.1 at /private/tmp/claude-501/medfit-lib2 used for stored iris and Holzinger branch
+      parity (<1e-7); RemoteSha absent. Warning aggregation added. No dependencies installed.
+      T2 remains partial: full acceptance/mutation controls and tolerance justification pending.
+      Default medfit is 0.7.0. Public wiring remains T4.
       Hard medfit >= 0.10.0 blocks CRAN until
       medfit 0.10 is on CRAN.
   (2) CRAN: blocked on RMediation >= 1.7.1 on CRAN (latest release 1.6.1; 1.7.1 fixes the R-devel S7

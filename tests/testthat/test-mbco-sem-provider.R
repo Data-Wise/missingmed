@@ -17,7 +17,8 @@ test_that("SEM provider validates both branches before pooling in either ARIV mo
     }
   }
   values <- c(-5e-8, 9)
-  expect_warning(out <- provider(d), "Roundoff-sized")
+  out <- provider(d)
+  expect_match(attr(out, "sem_warnings"), "Roundoff-sized")
   expect_equal(out[["a"]], 0)
   values <- c(-2e-7, 9)
   expect_error(provider(d), "negative LR")
@@ -39,4 +40,42 @@ test_that("missing or failed refits cannot produce an accepted provider result",
     constraint = paste(a, "== 0"), f = 1, diff_ll = 4, converged = TRUE)))
   provider <- missingmed:::.mm_sem_provider("M ~ X; Y ~ M + X", "X", "M", "Y")
   expect_error(provider(data.frame(X = 1)), "incomplete")
+})
+
+test_that("stored observed and latent data agree with the lavaan branch oracle", {
+  skip_if_not_installed("medfit", "0.10.0")
+  cases <- list(
+    list(d = setNames(iris[1:4], c("X", "M", "Y", "C")),
+      model = "M ~ X + C; Y ~ M + X + C"),
+    list(d = lavaan::HolzingerSwineford1939,
+      model = "M =~ x4 + x5 + x6; M ~ x1; x9 ~ M + x1")
+  )
+  for (case in cases) {
+    x <- if ("X" %in% names(case$d)) "X" else "x1"
+    y <- if ("Y" %in% names(case$d)) "Y" else "x9"
+    sem <- missingmed:::.mm_sem_provider(case$model, x, "M", y)
+    lav <- missingmed:::.mm_lav_provider(case$model, x, "M", y)
+    got <- sem(case$d)
+    ref <- lav(case$d)
+    for (branch in c("a", "b")) {
+      expect_lt(abs(-2 * got[[branch]] - 2 * (ref[["full"]] - ref[[branch]])), 1e-7)
+    }
+  }
+})
+
+test_that("stack violations and escaping refit failures name their dataset", {
+  n <- 0L
+  local_mocked_bindings(.mm_sem_fit = function(model, d) {
+    list(fit = NULL, n_obs = nrow(d), improper = FALSE)
+  }, .mm_sem_mbco = function(fit, a, b) {
+    n <<- n + 1L
+    list(tests = data.frame(constraint = paste(c(a, b), "== 0"),
+      f = c(1, 2), diff_ll = c(4, if (n == 3L) -1 else 9), converged = TRUE))
+  })
+  p <- missingmed:::.mm_sem_provider("M ~ X; Y ~ M + X", "X", "M", "Y")
+  for (mode in c("own", "fixed")) {
+    n <- 0L
+    expect_error(missingmed:::.mm_d4_pool(list(iris, iris), p, mode),
+      "stacked data.*negative LR.*mm_b")
+  }
 })
