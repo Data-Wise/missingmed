@@ -112,3 +112,89 @@
   }, "")
   list(model = paste(c(rows, cons), collapse = "\n"), a = lab_a, b = lab_b)
 }
+
+# No installed medfit completeness ledger is assumed. Restrict equalities to
+# affine expressions: nonlinear/product input constraints can enumerate hidden
+# union branches, including inside the two mbco_sem refits.
+.mm_sem_affine <- function(x) {
+  if (is.numeric(x) || is.name(x)) return(TRUE)
+  if (!is.call(x)) return(FALSE)
+  op <- as.character(x[[1L]])
+  args <- as.list(x)[-1L]
+  if (op %in% c("(", "+", "-")) return(all(vapply(args, .mm_sem_affine, NA)))
+  if (op == "*" && length(args) == 2L) {
+    return(any(vapply(args, is.numeric, NA)) && all(vapply(args, .mm_sem_affine, NA)))
+  }
+  FALSE
+}
+
+.mm_sem_complete_syntax <- function(model) {
+  pt <- lavaan::lavParseModelString(model, as.data.frame. = TRUE, warn = FALSE)
+  if (any(nzchar(.mm_pt_col(pt, "lower"))) || any(nzchar(.mm_pt_col(pt, "upper")))) {
+    stop("Unresolved branch completeness: bounded parameters are unsupported.", call. = FALSE)
+  }
+  for (z in attr(pt, "constraints") %||% list()) {
+    if (z$op == ":=") next
+    sides <- lapply(c(z$lhs, z$rhs), function(s) str2lang(s))
+    if (z$op != "==" || !all(vapply(sides, .mm_sem_affine, NA))) {
+      stop("Unresolved branch completeness: nonlinear or inequality constraints ",
+        "are unsupported without a dependency branch ledger.", call. = FALSE)
+    }
+  }
+  invisible(TRUE)
+}
+
+.mm_sem_fit <- function(model, d) {
+  if (utils::packageVersion("medfit") < "0.10.0") {
+    stop("The SEM provider requires medfit >= 0.10.0.", call. = FALSE)
+  }
+  fit <- medfit::fit_sem(model, d, fixed_x = FALSE)
+  list(fit = fit, n_obs = fit@n_obs, improper = fit@diagnostics$improper)
+}
+
+.mm_sem_mbco <- function(fit, a, b) medfit::mbco_sem(fit, a, b)
+
+# Raw LR tolerance, before stack/K scaling. Absolute rather than likelihood-
+# relative: large likelihood offsets must never excuse a material violation.
+# 1e-7 is the approved deterministic parity resolution. Negatives within that
+# resolution are explicitly reported and rounded to zero, never silently floored.
+.mm_sem_lr <- function(x, branch) {
+  if (length(x) != 1L || !is.finite(x)) {
+    stop("Non-finite LR summary for ", branch, ".", call. = FALSE)
+  }
+  if (x < -1e-7) {
+    stop("Unresolved negative LR for ", branch, " (", x, " raw LR units).", call. = FALSE)
+  }
+  if (x < 0) {
+    warning("Roundoff-sized negative LR for ", branch, " rounded to zero.", call. = FALSE)
+    x <- 0
+  }
+  x
+}
+
+.mm_sem_provider <- function(model, treatment, mediator, outcome, fit_args = list()) {
+  # T3 owns option translation. Until then, never silently discard an option.
+  if (length(fit_args)) stop("SEM provider fit_args support awaits T3.", call. = FALSE)
+  .mm_sem_complete_syntax(model)
+  lab <- .mm_sem_label_model(model, treatment, mediator, outcome)
+  function(d) {
+    full <- tryCatch(.mm_sem_fit(lab$model, d), error = function(e) {
+      stop("The full model did not converge or is unresolved: ", conditionMessage(e), call. = FALSE)
+    })
+    if (!identical(as.numeric(full$n_obs), as.numeric(nrow(d)))) {
+      stop("The full model dropped observations.", call. = FALSE)
+    }
+    mb <- .mm_sem_mbco(full$fit, lab$a, lab$b)
+    tab <- mb$tests
+    expected <- paste(c(lab$a, lab$b), "== 0")
+    if (nrow(tab) != 2L || !identical(as.character(tab$constraint), expected) ||
+        !all(tab$converged %in% TRUE) || length(tab$converged) != 2L ||
+        length(tab$f) != 2L || any(!is.finite(tab$f))) {
+      stop("Unresolved or incomplete a = 0 / b = 0 refits.", call. = FALSE)
+    }
+    lr <- vapply(seq_len(2L), function(i) .mm_sem_lr(tab$diff_ll[i], expected[i]), 0.0)
+    out <- c(full = 0, a = -lr[1L] / 2, b = -lr[2L] / 2, k_a = 1, k_b = 1)
+    attr(out, "improper") <- if (isTRUE(full$improper)) "full" else character()
+    out
+  }
+}

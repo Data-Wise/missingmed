@@ -2,7 +2,7 @@ status: active
 priority: --
 progress: 100
 kind: package
-updated: 2026-10-16
+updated: 2026-10-22
 next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe (release PR #97,
   merge ed28304, tag v0.10.0); dev is 0.10.0.9000. #99 MERGED 2026-10-15 (3dbffc3): frozen-vector
   cross-check loosened 1e-12 -> 1e-10 (CRAN macOS arm64 R differs from Homebrew R by ~3e-12); fixes the
@@ -17,10 +17,14 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
   (1) lavaan MBCO -> medfit mbco_sem: author chose to delegate and REPLACE the lavaan provider
       (2026-10-16). SPEC APPROVED, all four rulings as recommended (docs/specs/SPEC-lavaan-mbco-on-
       mbco-sem-2026-10-16.md; strict fit_args allow-list, narrower syntax, merge to dev now, delete MLR
-      internals, refuse likelihood = "wishart"). Branch feature/lavaan-mbco-medfit (pushed, no PR):
+      internals, refuse likelihood = "wishart"). Branch feature/lavaan-mbco-medfit (draft PR #102):
       T1 DONE (.mm_sem_label_model, R/mbco_sem.R, 31 tests). NEXT: T2 .mm_sem_provider + parity oracle
-      (1e-7) + planted defects, then T3-T7. medfit 0.10.0 scratch install is NOT persistent: reinstall
-      from `git archive origin/main` into a scratch lib. Hard medfit >= 0.10.0 blocks CRAN until
+      (1e-7) + planted defects, then T3-T7. T2 PARTIAL: internal provider validates both raw LRs,
+      refuses unledgered nonlinear/bounded routes and incomplete refit summaries. Deterministic
+      injected-provider tests: 19 pass; T1: 31 pass; R/mbco_sem.R lint clean. Real-fit parity,
+      tolerance justification, warning aggregation and full acceptance controls remain pending.
+      Installed medfit is 0.7.0; no installation authorized. Public wiring remains T4.
+      Hard medfit >= 0.10.0 blocks CRAN until
       medfit 0.10 is on CRAN.
   (2) CRAN: blocked on RMediation >= 1.7.1 on CRAN (latest release 1.6.1; 1.7.1 fixes the R-devel S7
       load error) and on the medfit floor. Re-check why the CRAN plan (docs/specs/PLAN-cran-1.0.0-
