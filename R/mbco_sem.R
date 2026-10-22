@@ -80,6 +80,19 @@
 .mm_sem_label_model <- function(model, treatment, mediator, outcome) {
   model <- paste(model, collapse = "\n")
   pt <- lavaan::lavParseModelString(model, as.data.frame. = TRUE, warn = FALSE)
+  for (field in c("fixed", "label", "start", "lower", "upper", "prior")) {
+    if (any(grepl(";", .mm_pt_col(pt, field), fixed = TRUE))) {
+      stop("The multi-group c() modifier is unsupported by MBCO.", call. = FALSE)
+    }
+  }
+  fixed <- .mm_pt_col(pt, "fixed")
+  parsed_labels <- .mm_pt_col(pt, "label")
+  if (any(nzchar(parsed_labels) & !grepl("^[[:alpha:].][[:alnum:]_.]*$", parsed_labels))) {
+    stop("Unsupported equal() or non-identifier label modifier in MBCO.", call. = FALSE)
+  }
+  if (any(nzchar(fixed) & is.na(suppressWarnings(as.numeric(fixed))) & fixed != "NA")) {
+    stop("Unsupported equal() or nonnumeric fixed modifier in MBCO.", call. = FALSE)
+  }
   if (any(.mm_pt_col(pt, "fixed") == "NA")) {
     stop("The `NA*` (free first loading) modifier is not supported by MBCO: ",
       "medfit's fit_sem() refuses it. Fix the loading with `1*` or use ",
@@ -91,6 +104,10 @@
   row_b <- .mm_sem_tested_row(pt, outcome, mediator, "b")
   labels <- .mm_pt_col(pt, "label")
   used <- unlist(strsplit(labels[nzchar(labels)], ";", fixed = TRUE))
+  constraints <- attr(pt, "constraints") %||% list()
+  used <- c(used, unlist(lapply(constraints, function(z) {
+    c(all.vars(str2lang(z$lhs)), all.vars(str2lang(z$rhs)))
+  })))
   fresh <- function(base, taken) {
     while (base %in% taken) base <- paste0(base, "_")
     base
@@ -139,6 +156,11 @@
     if (z$op == ":=") next
     sides <- lapply(c(z$lhs, z$rhs), function(s) str2lang(s))
     aliases <- intersect(unlist(lapply(sides, all.vars)), defined)
+    unknown <- setdiff(unlist(lapply(sides, all.vars)), .mm_pt_col(pt, "label"))
+    if (length(unknown)) {
+      stop("Unresolved branch completeness: constraint symbols must be model parameter labels.",
+        call. = FALSE)
+    }
     if (z$op != "==" || length(aliases) || !all(vapply(sides, .mm_sem_affine, NA))) {
       stop("Unresolved branch completeness: nonlinear or inequality constraints ",
         "are unsupported without a dependency branch ledger.", call. = FALSE)
@@ -157,6 +179,36 @@
 }
 
 .mm_sem_mbco <- function(fit, a, b) medfit::mbco_sem(fit, a, b)
+
+# Check that each tested equality removes a dimension beyond existing affine
+# equalities. Otherwise mbco_sem's fixed df=1 is not the comparison requested.
+.mm_sem_dimensions <- function(model, a, b) {
+  pt <- lavaan::lavParseModelString(model, as.data.frame. = TRUE, warn = FALSE)
+  cons <- Filter(function(z) z$op == "==", attr(pt, "constraints") %||% list())
+  vars <- unique(c(a, b, unlist(lapply(cons, function(z) {
+    c(all.vars(str2lang(z$lhs)), all.vars(str2lang(z$rhs)))
+  }))))
+  zero <- as.list(setNames(rep(0, length(vars)), vars))
+  rows <- lapply(cons, function(z) {
+    expr <- str2lang(paste0("(", z$lhs, ")-(", z$rhs, ")"))
+    origin <- eval(expr, zero, baseenv())
+    vapply(vars, function(v) {
+      unit <- zero
+      unit[[v]] <- 1
+      eval(expr, unit, baseenv()) - origin
+    }, 0.0)
+  })
+  mat <- if (length(rows)) do.call(rbind, rows) else matrix(0, 0, length(vars))
+  rank <- function(x) if (!nrow(x)) 0L else qr(t(x), tol = 1e-10)$rank
+  for (v in c(a, b)) {
+    unit <- as.numeric(vars == v)
+    if (rank(rbind(mat, unit)) - rank(mat) != 1L) {
+      stop("The ", v, " = 0 null removes no additional dimension; MBCO requires k = 1.",
+        call. = FALSE)
+    }
+  }
+  invisible(TRUE)
+}
 
 # Raw LR tolerance, before stack/K scaling. Absolute rather than likelihood-
 # relative: large likelihood offsets must never excuse a material violation.
@@ -182,6 +234,7 @@
   if (length(fit_args)) stop("SEM provider fit_args support awaits T3.", call. = FALSE)
   .mm_sem_complete_syntax(model)
   lab <- .mm_sem_label_model(model, treatment, mediator, outcome)
+  .mm_sem_dimensions(lab$model, lab$a, lab$b)
   function(d) {
     notices <- new.env(parent = emptyenv())
     notices$messages <- character()
@@ -189,7 +242,7 @@
       notices$messages <- c(notices$messages, conditionMessage(w))
       invokeRestart("muffleWarning")
     }
-    out <- withCallingHandlers({
+    out <- tryCatch(withCallingHandlers({
     full <- tryCatch(.mm_sem_fit(lab$model, d), error = function(e) {
       stop("The full model did not converge or is unresolved: ", conditionMessage(e), call. = FALSE)
     })
@@ -208,7 +261,14 @@
     out <- c(full = 0, a = -lr[1L] / 2, b = -lr[2L] / 2, k_a = 1, k_b = 1)
     attr(out, "improper") <- if (isTRUE(full$improper)) "full" else character()
     out
-    }, warning = collect)
+    }, warning = collect), error = function(e) {
+      detail <- if (length(notices$messages)) {
+        paste0(" Collected warnings: ", paste(unique(notices$messages), collapse = "; "))
+      } else {
+        ""
+      }
+      stop(conditionMessage(e), detail, call. = FALSE)
+    })
     attr(out, "sem_warnings") <- unique(notices$messages)
     out
   }

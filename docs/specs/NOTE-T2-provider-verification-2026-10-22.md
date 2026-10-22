@@ -57,3 +57,41 @@ medfit a/b arguments gave 1 error. No mutated binding persisted.
 
 Full package CI was not run because its suite generates random data. These
 focused checks are not calibration or package-wide acceptance evidence.
+
+## Adversarial-review repairs
+
+Claude's fixed-string syntax counterexamples were independently reproduced.
+Multi-group modifiers on untested terms and non-identifier equal() labels are
+now refused before rewriting; generated labels reserve constraint/defined names.
+Stored iris fits with a == b and a == 2*b + 1 match lavaan branch LRs within
+1e-7 and independently show one additional null df. Affine rank checks now
+refuse preconstrained tested paths (including a == 0, a == 1, and indirect
+a == b; b == 0 constraints). Hard-coded k=1 is therefore checked against the
+supported affine constraint geometry rather than inferred from convergence.
+This does not establish identification for every singular SEM.
+
+Collected warnings survive later refit failures. Refit improper warnings are
+still surfaced as generic SEM notices; branch-specific improper attribution
+remains an integration acceptance gap. T1/T2 focused tests: 35/94 passing,
+zero failures/warnings/skips; provider lint clean. Unknown constraint symbols
+(including pi, T and F unless actual model labels) are refused before fitting.
+Reproduce mutations with the existing library (no install):
+
+```sh
+R_LIBS=/private/tmp/claude-501/medfit-lib2 Rscript dev/check-sem-provider-mutations.R
+```
+
+Current killed-mutation failures/errors: LR 15, completeness 14, labels 2.
+
+Claude follow-up job 47e15ca0-7b80-4651-838c-9bb08ad58a2c found no T1/T2
+blockers, but returned needs-attention for a low-confidence named-constant
+counterexample. The symbol guard and five refusal assertions were added after
+that review and verified locally, not re-reviewed. Review coverage was static:
+code diff, receipt and spec sections 1-4; tests/harness only partially read,
+T1 tests and spec sections 5 onward skipped. No R execution by Claude.
+Uncertainty: medium. Suggested follow-up: full test reading and shared-label
+coverage during later integration gates. Requested Sonnet, effective
+claude-sonnet-5-5, medium effort, standard profile: 8 turns, 63.911 seconds,
+152821 tokens, $0.2089233. No evidence lease, cost or turn exhaustion.
+Session: ac9d67a6-cd4e-4c8b-968a-deb78eb37a9d; manual resume hint:
+`claude --resume ac9d67a6-cd4e-4c8b-968a-deb78eb37a9d`.

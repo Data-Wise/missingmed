@@ -92,3 +92,14 @@ test_that("a multi-group label on a tested path is refused", {
 test_that("both tested paths sharing one label is refused (they would be one parameter)", {
   expect_error(lab("M ~ p*X\nY ~ p*M + X"), "same label")
 })
+
+test_that("unsupported untested modifiers are refused without malformed rewriting", {
+  expect_error(lab("M ~ X; Y ~ M + c(1,2)*X"), "multi-group c")
+  expect_error(lab('M ~ X; Y ~ M; M ~~ equal("Y~~Y")*M'), "equal")
+})
+
+test_that("generated labels avoid defined and constraint names", {
+  r <- lab("M ~ X; Y ~ M; mm_a := 1*2; mm_b := 3")
+  expect_equal(c(r$a, r$b), c("mm_a_", "mm_b_"))
+  expect_silent(lavaan::lavaanify(r$model))
+})

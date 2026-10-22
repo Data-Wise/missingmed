@@ -18,14 +18,13 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       (2026-10-16). SPEC APPROVED, all four rulings as recommended (docs/specs/SPEC-lavaan-mbco-on-
       mbco-sem-2026-10-16.md; strict fit_args allow-list, narrower syntax, merge to dev now, delete MLR
       internals, refuse likelihood = "wishart"). Branch feature/lavaan-mbco-medfit (draft PR #102):
-      T1 DONE (.mm_sem_label_model, R/mbco_sem.R, 31 tests). NEXT: T2 .mm_sem_provider + parity oracle
-      (1e-7) + planted defects, then T3-T7. T2 PARTIAL: internal provider validates both raw LRs,
-      refuses unledgered nonlinear/bounded routes and incomplete refit summaries. Deterministic
-      provider tests: 25 pass; T1: 31 pass; changed R files lint clean. Existing scratch medfit
-      0.11.1 at /private/tmp/claude-501/medfit-lib2 used for stored iris and Holzinger branch
-      parity (<1e-7); RemoteSha absent. Warning aggregation added. No dependencies installed.
-      T2 provider controls complete under conservative nonlinear-route refusal: 77 provider
-      assertions + 31 T1 assertions; three in-memory mutations killed. Absolute raw-LR 1e-7
+      T1/T2 adversarial repairs verified: 35 label + 94 provider assertions pass; lint clean.
+      Malformed modifiers, defined-name collisions, preconstrained null dimensions and unknown
+      constraint symbols guarded; warnings retained on failure. Three in-memory mutations killed.
+      Existing medfit 0.11.1 at /private/tmp/claude-501/medfit-lib2; no installs; RemoteSha absent.
+      Claude rerun: no blockers, static/partial coverage; final named-symbol guard tested afterward.
+      Branch-specific null improper attribution remains an integration acceptance gap.
+      Absolute raw-LR 1e-7
       justified against stored observed/latent/interior-null oracle errors <=5.543e-10.
       Receipt: docs/specs/NOTE-T2-provider-verification-2026-10-22.md. Full CI unrun (RNG suite).
       Default medfit is 0.7.0. Public wiring remains T4.

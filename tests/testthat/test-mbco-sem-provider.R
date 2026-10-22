@@ -28,6 +28,9 @@ test_that("unledgered union routes are refused before any fitting", {
   check <- missingmed:::.mm_sem_complete_syntax
   expect_silent(check("M ~ a*X; Y ~ b*M; a == b"))
   expect_silent(check("M ~ a*X; Y ~ b*M; a == 2*b + 1"))
+  for (rhs in c("pi", "T", "F", "unknown", "b + pi")) {
+    expect_error(check(paste("M ~ a*X; Y ~ b*M; a ==", rhs)), "completeness")
+  }
   for (constraint in c("a*b == 0", "0 == a*b", "a^2 == b", "a > 0")) {
     expect_error(check(paste("M ~ a*X; Y ~ b*M;", constraint)), "completeness")
   }
@@ -177,4 +180,35 @@ test_that("unimplemented options and full-fit errors never silently fall through
   p <- missingmed:::.mm_sem_provider("M ~ X; Y ~ M", "X", "M", "Y")
   expect_error(missingmed:::.mm_d4_pool(list(iris, iris), p),
     "imputation 1.*full model.*full optimizer failed")
+})
+
+test_that("real affine equality nulls retain one dimension and match the oracle", {
+  skip_if_not_installed("medfit", "0.10.0")
+  d <- setNames(iris[1:4], c("X", "M", "Y", "C"))
+  for (con in c("a == b", "a == 2*b + 1")) {
+    model <- paste("M ~ a*X + C; Y ~ b*M + X + C;", con)
+    got <- missingmed:::.mm_sem_provider(model, "X", "M", "Y")(d)
+    full <- lavaan::sem(model, data = d, fixed.x = FALSE)
+    for (branch in c("a", "b")) {
+      null <- lavaan::sem(paste(model, paste0(branch, " == 0"), sep = "\n"),
+        data = d, fixed.x = FALSE)
+      expect_equal(lavaan::fitMeasures(null, "df") - lavaan::fitMeasures(full, "df"),
+        c(df = 1), ignore_attr = TRUE)
+      expected <- 2 * (lavaan::fitMeasures(full, "logl") - lavaan::fitMeasures(null, "logl"))
+      expect_lt(abs(-2 * got[[branch]] - expected), 1e-7)
+    }
+  }
+  for (con in c("a == 0", "a == 1", "a == b; b == 0")) {
+    expect_error(missingmed:::.mm_sem_provider(
+      paste("M ~ a*X; Y ~ b*M;", con), "X", "M", "Y"), "no additional dimension")
+  }
+})
+
+test_that("diagnostic notices survive a later refit failure", {
+  local_mocked_bindings(.mm_sem_fit = function(model, d) {
+    warning("starts disagree", call. = FALSE)
+    list(fit = NULL, n_obs = nrow(d), improper = FALSE)
+  }, .mm_sem_mbco = function(...) stop("b = 0 covariance failure"))
+  p <- missingmed:::.mm_sem_provider("M ~ X; Y ~ M", "X", "M", "Y")
+  expect_error(p(iris), "b = 0 covariance failure.*Collected warnings: starts disagree")
 })
