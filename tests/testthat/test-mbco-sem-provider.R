@@ -212,3 +212,20 @@ test_that("diagnostic notices survive a later refit failure", {
   p <- missingmed:::.mm_sem_provider("M ~ X; Y ~ M", "X", "M", "Y")
   expect_error(p(iris), "b = 0 covariance failure.*Collected warnings: starts disagree")
 })
+
+test_that("shared regression and intercept labels remain one-dimensional", {
+  skip_if_not_installed("medfit", "0.10.0")
+  d <- setNames(iris[1:4], c("X", "M", "Y", "C"))
+  for (model in c("M ~ a*X + C; Y ~ b*M + a*X + C",
+    "M ~ a*X + C; Y ~ b*M + X + C; Y ~ a*1")) {
+    got <- missingmed:::.mm_sem_provider(model, "X", "M", "Y")(d)
+    full <- lavaan::sem(model, data = d, fixed.x = FALSE)
+    for (branch in c("a", "b")) {
+      null <- lavaan::sem(paste(model, paste(branch, "== 0"), sep = ";"),
+        data = d, fixed.x = FALSE)
+      expect_equal(unname(lavaan::fitMeasures(null, "df") - lavaan::fitMeasures(full, "df")), 1)
+      lr <- 2 * (lavaan::fitMeasures(full, "logl") - lavaan::fitMeasures(null, "logl"))
+      expect_lt(abs(-2 * got[[branch]] - lr), 1e-7)
+    }
+  }
+})

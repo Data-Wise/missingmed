@@ -121,6 +121,15 @@
       call. = FALSE
     )
   }
+  # Repeated labels remain one parameter, but a zero variance is outside the
+  # nonsingular Gaussian likelihood domain required by the branch comparison.
+  variance <- pt$op == "~~" & pt$lhs == pt$rhs
+  for (tested in c(lab_a, lab_b)) {
+    if (any(variance & labels == tested)) {
+      stop("Tested label `", tested, "` also labels a variance: its zero null ",
+        "has a singular variance domain and is unsupported by MBCO.", call. = FALSE)
+    }
+  }
   rows <- vapply(seq_len(nrow(pt)), function(i) {
     .mm_pt_row_syntax(pt, i, label = if (i == row_a) lab_a else if (i == row_b) lab_b)
   }, "")

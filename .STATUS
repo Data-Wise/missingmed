@@ -24,6 +24,10 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       Existing medfit 0.11.1 at /private/tmp/claude-501/medfit-lib2; no installs; RemoteSha absent.
       Claude rerun: no blockers, static/partial coverage; final named-symbol guard tested afterward.
       Branch-specific null improper attribution remains an integration acceptance gap.
+      Shared-label follow-up: direct tested-label/variance sharing refused; valid regression
+      and intercept sharing retained (one df, oracle parity). 38 label + 102 provider assertions
+      pass; mutations 15/14/3. Claude flags inferred indirect equality-to-variance bypass;
+      unresolved, T2 NOT fully accepted. Review skipped spec and execution; see receipt.
       Absolute raw-LR 1e-7
       justified against stored observed/latent/interior-null oracle errors <=5.543e-10.
       Receipt: docs/specs/NOTE-T2-provider-verification-2026-10-22.md. Full CI unrun (RNG suite).

@@ -95,3 +95,28 @@ claude-sonnet-5-5, medium effort, standard profile: 8 turns, 63.911 seconds,
 152821 tokens, $0.2089233. No evidence lease, cost or turn exhaustion.
 Session: ac9d67a6-cd4e-4c8b-968a-deb78eb37a9d; manual resume hint:
 `claude --resume ac9d67a6-cd4e-4c8b-968a-deb78eb37a9d`.
+
+## Shared-label verification (2026-10-22)
+
+The blanket shared-label df finding is not confirmed: stored iris with
+`M ~ a*X + C; Y ~ b*M + a*X + C` has a one-df increment for both nulls
+and matching provider/lavaan LRs (103.1167 and 53.93841). Regression and
+intercept sharing are now covered by deterministic df and LR parity tests.
+Spec C1/C3 and section 7 support preserving those equalities.
+
+The variance case is confirmed: `M ~ a*X; X ~~ a*X; Y ~ b*M + X`
+returned an accepted provider a LR about 1.0244742e10, while the lavaan
+null failed convergence. Its zero-variance null is singular. Tested labels
+shared directly with diagonal variances are now refused before fitting.
+Focused tests: 38 label + 102 provider assertions, no failures/warnings/skips;
+lint clean. Mutation detections: 15 LR, 14 completeness, 3 labels.
+
+Claude follow-up 62c322ed-1f9e-4d75-b316-aa453deddc53 accepted the narrow
+fix but flagged an indirect-equality bypass (`a == v`, with v a variance).
+This is inferred, not reproduced or fixed; T2 is NOT fully accepted.
+Review read code and both test files but skipped spec, mutation harness and
+all execution. Uncertainty medium; next check is indirect/transitive equalities
+and latent/residual variance domains. Requested Sonnet, effective
+claude-sonnet-5-5, standard/medium: 7 turns, 34.688 seconds, 150543 tokens,
+$0.127495. No evidence lease or cost/turn exhaustion. Session/resume:
+`claude --resume 098271b2-d506-4f58-9fd7-610a00d6225c`.

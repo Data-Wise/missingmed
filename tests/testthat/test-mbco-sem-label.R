@@ -103,3 +103,9 @@ test_that("generated labels avoid defined and constraint names", {
   expect_equal(c(r$a, r$b), c("mm_a_", "mm_b_"))
   expect_silent(lavaan::lavaanify(r$model))
 })
+
+test_that("tested labels shared with variances refuse singular zero nulls", {
+  expect_error(lab("M ~ p*X; X ~~ p*X; Y ~ q*M + X"), "p.*variance.*singular")
+  expect_error(lab("M ~ p*X; Y ~ q*M + X; Y ~~ q*Y"), "q.*variance.*singular")
+  expect_equal(lab("M ~ p*X; Y ~ q*M + p*X")$a, "p")
+})
