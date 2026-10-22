@@ -189,6 +189,36 @@
 
 .mm_sem_mbco <- function(fit, a, b) medfit::mbco_sem(fit, a, b)
 
+# Fourier-Motzkin elimination for A x >= rhs, with unrestricted coordinates.
+# A finite work cap refuses unresolved cases rather than assuming feasibility.
+.mm_sem_feasible <- function(mat, rhs, variance_columns) {
+  positive <- diag(ncol(mat))[variance_columns, , drop = FALSE]
+  rows <- rbind(cbind(mat, rhs), cbind(-mat, -rhs),
+    cbind(positive, rep(1e-10, nrow(positive))))
+  for (column in seq_len(ncol(mat))) {
+    scale <- apply(abs(rows), 1L, max)
+    rows <- rows / pmax(scale, 1e-300)
+    coefficient <- rows[, 1L]
+    if (any(coefficient != 0 & abs(coefficient) <= 1e-12)) {
+      stop("Unresolved joint variance feasibility: ill-scaled elimination coefficient.", call. = FALSE)
+    }
+    plus <- which(coefficient > 1e-12)
+    minus <- which(coefficient < -1e-12)
+    flat <- rows[abs(coefficient) <= 1e-12, -1L, drop = FALSE]
+    if (length(plus) * length(minus) + nrow(flat) > 4096L) {
+      stop("Unresolved joint variance feasibility: elimination limit exceeded.", call. = FALSE)
+    }
+    pairs <- lapply(plus, function(i) {
+      if (!length(minus)) return(NULL)
+      sweep(rows[minus, -1L, drop = FALSE], 1L, -coefficient[minus], "/") +
+        matrix(rows[i, -1L] / coefficient[i], length(minus), ncol(rows) - 1L, byrow = TRUE)
+    })
+    rows <- do.call(rbind, c(list(flat), pairs))
+    if (!nrow(rows)) return(TRUE)
+  }
+  all(rows[, 1L] <= 1e-12)
+}
+
 # Check that each tested equality removes a dimension beyond existing affine
 # equalities. Otherwise mbco_sem's fixed df=1 is not the comparison requested.
 .mm_sem_dimensions <- function(model, a, b) {
@@ -213,6 +243,12 @@
     }, 0.0)
   })
   mat <- if (length(rows)) do.call(rbind, rows) else matrix(0, 0, length(vars))
+  if (any(!is.finite(mat)) || any(!is.finite(constants))) {
+    stop("Non-finite affine constraint geometry.", call. = FALSE)
+  }
+  if (!.mm_sem_feasible(mat, constants, match(variances, vars))) {
+    stop("Inconsistent equalities or infeasible full-model variance domain.", call. = FALSE)
+  }
   rank <- function(x) if (!nrow(x)) 0L else qr(t(x), tol = 1e-10)$rank
   for (v in c(a, b)) {
     unit <- as.numeric(vars == v)
@@ -222,6 +258,10 @@
     }
     null <- rbind(mat, unit)
     rhs <- c(constants, 0)
+    if (!.mm_sem_feasible(null, rhs, match(variances, vars))) {
+      stop("The ", v, " = 0 null has inconsistent equalities or an infeasible joint variance domain.",
+        call. = FALSE)
+    }
     # Independent rows span the affine closure, including transitive equalities.
     basis <- qr(t(null), tol = 1e-10)
     keep <- basis$pivot[seq_len(basis$rank)]

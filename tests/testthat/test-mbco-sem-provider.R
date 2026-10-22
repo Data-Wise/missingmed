@@ -235,10 +235,34 @@ test_that("affine closure refuses nonpositive variance nulls but preserves posit
   for (constraint in c("a == v", "v == a", "a == 2*v", "a == 2*v + 1",
     "a == w; w == v", "b == v")) {
     expect_error(missingmed:::.mm_sem_provider(paste(base, constraint, sep = ";"),
-      "X", "M", "Y"), "null forces variance.*nonpositive")
+      "X", "M", "Y"), "null.*(nonpositive|infeasible joint variance)")
   }
   expect_silent(missingmed:::.mm_sem_provider(paste(base, "v == a + 1", sep = ";"),
     "X", "M", "Y"))
   expect_silent(missingmed:::.mm_sem_provider(paste(base, "v == a + w", sep = ";"),
     "X", "M", "Y"))
+})
+
+test_that("joint variance feasibility and redundant equality consistency fail closed", {
+  base <- "M ~ a*X + w*C; Y ~ b*M + X; X ~~ v1*X; M ~~ v2*M"
+  for (con in c("a == v1 + v2", "a == 2*v1 + v2", "a == w; w == v1 + v2")) {
+    expect_error(missingmed:::.mm_sem_provider(paste(base, con, sep = ";"),
+      "X", "M", "Y"), "a = 0 null.*infeasible joint variance")
+  }
+  expect_error(missingmed:::.mm_sem_provider(paste(base,
+    "v1 == v2; v1 == v2 + 1", sep = ";"), "X", "M", "Y"), "Inconsistent equalities")
+  for (con in c("a == v1 - v2", "a == v1 + v2 - 1", "v1 == v2; 2*v1 == 2*v2")) {
+    expect_silent(missingmed:::.mm_sem_provider(paste(base, con, sep = ";"), "X", "M", "Y"))
+  }
+})
+
+test_that("affine feasibility controls cover scaling, contradictions and work limits", {
+  feasible <- missingmed:::.mm_sem_feasible
+  expect_true(feasible(matrix(c(1, -1), 1), 0, 1:2))
+  expect_false(feasible(matrix(c(1, 1), 1), 0, 1:2))
+  expect_true(feasible(matrix(c(1, 1), 1), 1, 1:2))
+  expect_false(feasible(matrix(c(1, 1), 2), c(0, 1), integer()))
+  expect_false(feasible(matrix(c(1e4, 1e4), 1), 0, 1:2))
+  expect_error(feasible(matrix(1, 65, 1), rep(1, 65), integer()), "limit exceeded")
+  expect_error(feasible(matrix(c(1e-14, 1), 1), 0, 1:2), "ill-scaled")
 })

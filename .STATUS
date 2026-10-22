@@ -29,8 +29,10 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       pass; mutations 15/14/3. Claude flags inferred indirect equality-to-variance bypass;
       Exact indirect example failed closed in medfit; affine row-space guard now refuses
       null-fixed nonpositive variances before fitting. 38+110 assertions pass, lint clean,
-      mutations 15/14/3. Claude read spec and reproduced checks; flags inferred joint-variance
-      feasibility and equality consistency gaps. T2 NOT fully accepted; see receipt.
+      Joint feasibility/consistency now checked by capped dependency-free affine elimination.
+      38+124 assertions pass, lint clean, mutations 15/14/3/9. Claude approved this patch,
+      independently read spec and reproduced checks; only unverified extreme-scaling caveat.
+      Later integration/diagnostic acceptance gates remain; see receipt.
       Absolute raw-LR 1e-7
       justified against stored observed/latent/interior-null oracle errors <=5.543e-10.
       Receipt: docs/specs/NOTE-T2-provider-verification-2026-10-22.md. Full CI unrun (RNG suite).

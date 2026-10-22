@@ -147,3 +147,33 @@ Requested Sonnet/effective claude-sonnet-5-5, standard/medium: 10 turns,
 48.708 seconds, 179589 tokens, $0.1317963. No evidence lease, cost exhaustion
 or turn exhaustion. Manual resume:
 `claude --resume 52023dc3-03ec-4b6e-b74f-1a320077def9`.
+
+## Joint feasibility and consistency (2026-10-22)
+
+Both stored-iris probes already fail closed in medfit 0.11.1: a==v1+v2
+fails the a refit with a nearly singular Hessian; v1==v2;v1==v2+1 fails
+the full fit with a violated constraint. No accepted invalid LR reproduced.
+The early validation gaps are confirmed algebraically against spec 3b's
+variance-domain requirement. A dependency-free Fourier-Motzkin check now
+tests full and null affine systems jointly, with labeled variances >=1e-10.
+Equalities become opposing inequalities; contradictory zero rows are retained.
+Mixed-sign/positive joint constraints and consistent redundant rows remain
+accepted. Work exceeding 4096 intermediate rows or nonzero normalized
+coefficients <=1e-12 is explicitly unresolved, never presumed feasible.
+The final normalized feasibility resolution is 1e-12; this is not exact
+arithmetic or a universal numerical certificate, and the variance floor is
+an absolute parameter-unit support restriction, separate from raw LR tolerance.
+
+38 label + 124 provider assertions pass, zero failures/errors/warnings/skips;
+lint clean. Four mutation detections: LR15, completeness14, labels3,
+feasibility9. No installs, simulations or saved-result changes; spec unchanged.
+Claude job 0b51dd00-fd34-41ab-96a0-2fa167673449: approve, no concrete
+blockers, low uncertainty. Independently read spec/code/full tests/harness and
+executed both test files and all mutations; only unrelated plan skipped.
+Low-confidence residual caveat: extreme scaling might shrink an infeasibility
+margin below normalized tolerance; no failing input or invalid LR demonstrated.
+No further review recommended; numerical hardening remains optional.
+Requested Sonnet/effective claude-sonnet-5-5, standard/medium: 7 turns,
+41.825 seconds, 122869 tokens, $0.1276941. No evidence lease or cost/turn
+exhaustion. Manual resume:
+`claude --resume 2a6c634c-81ef-45e3-91f3-a8d1f70ed713`.

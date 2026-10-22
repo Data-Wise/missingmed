@@ -2,7 +2,7 @@
 devtools::load_all()
 original <- missingmed:::.mm_sem_mbco
 target <- "tests/testthat/test-mbco-sem-provider.R"
-for (mutation in c("lr", "completeness", "labels")) {
+for (mutation in c("lr", "completeness", "labels", "feasibility")) {
   result <- switch(mutation,
     lr = testthat::with_mocked_bindings(
       testthat::test_file(target, reporter = "silent"),
@@ -10,6 +10,9 @@ for (mutation in c("lr", "completeness", "labels")) {
     completeness = testthat::with_mocked_bindings(
       testthat::test_file(target, reporter = "silent"),
       .mm_sem_complete_syntax = function(model) invisible(TRUE), .package = "missingmed"),
+    feasibility = testthat::with_mocked_bindings(
+      testthat::test_file(target, reporter = "silent"),
+      .mm_sem_feasible = function(...) TRUE, .package = "missingmed"),
     labels = testthat::with_mocked_bindings(
       testthat::test_file(target, reporter = "silent"),
       .mm_sem_mbco = function(fit, a, b) original(fit, b, a), .package = "missingmed")
