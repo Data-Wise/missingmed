@@ -515,6 +515,15 @@
 #' likelihood is finite and the warning reaches you unchanged), but the
 #' chi-square-type reference may be poor for such near-separated data.
 #'
+#' For SEM, a dependency error (including a post-fit covariance/diagnostic error
+#' returning no usable likelihood) stops inference rather than selecting a
+#' surviving branch. A returned finite likelihood is retained despite diagnostic
+#' warnings, subject to every LR and completeness gate. This is not recovery of
+#' a likelihood hidden inside a dependency error or a global-optimality guarantee.
+#' Improper-null warnings additionally require resolved branch attribution:
+#' diagnostic refit errors, sample/LR mismatches or unreproduced flags stop
+#' inference even when the reported likelihoods are finite.
+#'
 #' At least two imputations are required. For a single complete dataset, use a
 #' complete-data MBCO test such as [RMediation::mbco()].
 #'

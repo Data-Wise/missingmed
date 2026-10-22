@@ -404,3 +404,98 @@ independent review and real improper-null integration **BLOCKED**. P2's bounded
 audit is complete with findings/omissions recorded; its acceptance-review gate
 is not satisfied. **T5 remains UNACCEPTED.** No installs, simulations, saved-result
 changes, push or merge; further fixes/review require authorization.
+
+## Targeted T5 evidence-gap follow-up — 2026-10-22
+
+Authorized after P2; baseline `f66e582`. The approved spec is unchanged.
+Both mutation harnesses now require a failed assertion in a named intended test
+and zero execution errors across the entire mutated file. Five new acceptance
+mutations cover concealed survivor completion, removed converged/finiteness
+guards, an empty improper payload bypass and a diagnostic n_obs bypass. The
+row-count check is redundant with exact two-label/length checks; the concealed
+survivor mutation instead fabricates a complete table from the surviving branch,
+which must fail public refusal assertions, including the existing 1-versus-9 case.
+
+The stricter harness rejected old evidence before repair: the broad factor
+mutation changed valid binary coding and caused a diagnostic state error; the
+abs-LR mutation let nonfinite input reach unrelated pooling errors; the label
+swap stopped at the table-label gate rather than its numerical oracle. Narrowed
+mutations respectively change only >2-level factors, preserve nonfinite LR
+checks, and conceal the label swap while retaining swapped numerical summaries.
+The encoding mutation is pinned to the stored numerical compatibility test, not
+the LR-refusal test (which correctly does not detect a positive scale change).
+These are repairs to the evidence harness, not changes to inference behavior.
+
+New injected controls preserve returned finite likelihoods despite diagnostic
+notices, aggregate notices once, and refuse escaping post-fit covariance errors
+that return no likelihood, in both public APIs/modes. infer/mbco_d4 help and the
+SEM tutorial now state that policy; no hidden likelihood recovery is claimed.
+Documentation regeneration changed only the two intended Rd files; it also
+reported pre-existing unresolved internal IPW links (.ipw_weights and
+.ipw_weights_info), which this SEM-only task does not alter. No vignette was run.
+
+Five deterministic files with existing medfit 0.11.1: label 39, provider 124,
+args 52, public lavaan 31, acceptance 612: **858 assertions**, zero failures,
+errors, warnings or skips. Targeted lint of changed R source/tests/harnesses
+passes. Fixture and installed dependency hashes match the P2 receipt above.
+Full RNG suite/make ci unrun under the continuing restrictions.
+
+The prior completeness interpretations remain BLOCKED, not silently waived:
+generic-product refusal is not a 64-branch enumeration-limit control, and
+geometric model refusal is not proved-infeasible exclusion-and-continue.
+Post-fit dependency errors expose no usable likelihood to preserve; injected
+returned-likelihood controls do not prove actual boundary optimizer recovery.
+Generic pool k validation and possible future structured improper-payload
+validation remain scoped hardening questions, not demonstrated current SEM
+defects (this provider emits k=1; installed medfit lacks that payload).
+**T5 remains UNACCEPTED pending real-case evidence and unresolved requirements.**
+
+Final complete harness runs pass all **24** mutants with zero execution errors
+per mutated test file. Intended-test assertion failures, acceptance script order:
+4/5/3/6/2/1/2/26/3/8/2/10/10/10/48/36/12/14/1 (19 controls);
+provider script order: 7/9/6/4/33 (5 controls). Counts differ from P2 because they
+now report only the named test, not every failure/error in the file.
+### Bounded Claude rerun and dispositions
+
+Job `65ce8987-705d-41ee-a208-34df0928fc3b`, baseline `f66e582` plus working
+tree, returned **needs-attention**, static review with read-only R source/fixture
+inspection, no test/mutation execution, medium uncertainty. Requested sonnet,
+effective `claude-sonnet-5-5`, standard/high; 32 turns, 245409 ms (API 242193),
+$0.9230076, cumulative same. Usage: input 38, cache creation 116130, cache read
+1525316, output 30588 (thinking 21770), total 1672072. Limits 32/finalize30
+turns, $3, 300000 ms; evidence-lease, cost and turn-limit exhaustion flags false;
+budget_exhausted false. Session `d1e31391-8892-49fe-8516-1b68e7242263`;
+resume hint `claude --resume d1e31391-8892-49fe-8516-1b68e7242263`.
+Recommended quick execution follow-up was already satisfied by the maintainer's
+complete default harness runs above; no automatic Claude follow-up was launched.
+
+Coverage: full approved spec and NOTE-T2; acceptance/provider/args tests, both
+harnesses, provider lines 150–470, pooling 160–384, infer 95–145, lavaan spec
+validator, changed public docs/NEWS/plan and relevant SEM vignette excerpt;
+denominator note 28–51; frozen fixture metadata. Installed medfit source inspected:
+mbco_sem, fit_sem, .sem_fit_syntax, .sem_fit_branches, .sem_optimize and
+.mbco_warn_boundary. Omitted: result class, legacy helper, label/lavaan test
+bodies, full plan/help/vignette (diff/excerpts only), remainder of denominator
+note and its probe, dependency .sem_vcov/.sem_gate/.sem_as_semfit and all mutation
+execution outputs. Unrelated untracked plan intentionally skipped. Thus complete
+independent review remains BLOCKED; no broad approval is claimed.
+
+| Rerun finding | Disposition |
+|---|---|
+| Encoding mapping aborts full script (high) | Valid for an intermediate snapshot, not final source. Mapping was repaired while review ran: stored fixture compatibility test now yields 26 intended failures, zero errors; the complete default run reaches null_nobs. Final mapping not independently re-reviewed. |
+| Usable-likelihood clause unmet in actual dependency (medium) | Retained BLOCKED. Codex also inspected installed .sem_fit_syntax: .sem_optimize precedes .sem_vcov, with no exported partial likelihood on an escaping covariance error. No author ruling or dependency modification is inferred. NEWS/test title clarified to identify injected returned-likelihood retention, not recovery. |
+| Diagnostic-warning documentation overclaim (medium) | Qualified after review: unresolved improper attribution, diagnostic errors, sample/LR mismatches or unreproduced flags stop inference even with finite LRs. Existing injected mismatch controls test these refusals. This final wording/title-only repair is not Claude re-reviewed. |
+| Real improper case / exclusion / 64-limit absent (medium) | Confirmed open evidence gaps. Reviewer labels the missing real case FAIL; approved checklist uses BLOCKED for absent evidence, reserving FAIL for demonstrated incorrect behavior. T5 remains UNACCEPTED either way. No new data construction permitted. |
+| More provider-guard mutations suggested (low) | Additional dropped-row/label/length bypass controls not implemented in this bounded repair. Existing refusal tests remain; single redundant row/length-check deletion may be equivalent, not evidence of a missing semantic guard. Completeness of mutation coverage is not claimed. |
+
+Claude now confirms the literal unresolved a=1 versus survivor b=9 test,
+injected survivor-completeness controls, empty-improper/sample bypasses, scoped
+LR tolerance, independent df answers, stored/injected encoding and warning
+aggregation. This closes the prior incorrect absent-counterfactual finding, not
+the dependency's hidden-ledger or global-optimality questions.
+
+Final policy: the 24 intended-assertion mutation controls and deterministic suite
+are verified locally; real improper-null integration, exclusion/64-limit/post-fit
+interpretations and remaining independent-review omissions are still open.
+**T5 remains UNACCEPTED.** No installs, simulations, saved-result changes, push
+or merge. The unrelated untracked research-workflow plan is preserved.

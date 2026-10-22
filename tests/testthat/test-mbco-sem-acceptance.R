@@ -83,6 +83,7 @@ test_that("public incomplete refits never become a successful survivor", {
     if (fit == target) {
       tab <- switch(state, only_a = tab[1, ], only_b = tab[2, ],
         duplicate = tab[c(1, 1), ], none = tab[FALSE, ],
+        # Explicit spec 3c counterfactual: unresolved a=1 could beat survivor b=9.
         failed_a = transform(tab, converged = c(FALSE, TRUE)),
         failed_b = transform(tab, converged = c(TRUE, FALSE)),
         all_failed = transform(tab, converged = FALSE),
@@ -109,6 +110,33 @@ test_that("public incomplete refits never become a successful survivor", {
   expect_equal(r[["d_S"]], 0.5)
   expect_identical(r@stacked_branch, "a")
   expect_identical(r@p_branch_a, 1)
+})
+
+test_that("injected returned likelihoods survive notices but not escaping errors", {
+  fit <- t5_fit()
+  fail <- FALSE
+  local_mocked_bindings(.mm_sem_fit = function(model, d) {
+    list(fit = NULL, n_obs = nrow(d), improper = FALSE)
+  }, .mm_sem_mbco = function(fit, a, b) {
+    if (fail) stop("b = 0 post-fit covariance failure; no likelihood returned")
+    warning("b = 0 covariance diagnostic unavailable; likelihood retained", call. = FALSE)
+    list(tests = data.frame(constraint = paste(c(a, b), "== 0"),
+      f = c(1, 2), diff_ll = c(1, 9), converged = TRUE))
+  })
+  for (mode in c("own", "fixed")) {
+    for (invoke in list(function() t5_direct(ariv = mode),
+      function() infer(fit, type = "mbco", ariv = mode))) {
+      fail <- FALSE
+      notices <- capture_warnings(result <- invoke())
+      expect_length(notices, 1L)
+      expect_match(notices, "imputation 1.*imputation 2.*stacked data")
+      expect_match(notices, "covariance diagnostic unavailable; likelihood retained")
+      expect_equal(result[["d_S"]], 0.5)
+      expect_identical(result@stacked_branch, "a")
+      fail <- TRUE
+      expect_error(invoke(), "imputation 1.*b = 0 post-fit covariance failure")
+    }
+  }
 })
 
 test_that("encoding, own/fixed selection, ties and labeled diagnostics are independent", {
@@ -151,7 +179,8 @@ test_that("generic union controls fail closed before full or nested null fitting
   calls <- 0L
   local_mocked_bindings(.mm_sem_fit = function(...) { calls <<- calls + 1L })
   base <- "M ~ a*X + u*C; Y ~ b*M + v*X + w*C; C ~~ z*C; X ~~ q*X"
-  # 2^6 and 2^7 potential combinations; neither is delegated without a ledger.
+  # Product inputs at nominal 2^6/2^7 combinations are refused before counting.
+  # These are unsupported-route controls, NOT evidence of a 64-branch limit.
   six <- "a*u == 0; b*v == 0; w*z == 0; a*v == 0; b*w == 0; u*q == 0"
   for (con in c("a*b == 0", "a*b == 0; a*b == 0", six,
     paste(six, "z*q == 0", sep = ";"), "ab := a*b; ab == 0")) {

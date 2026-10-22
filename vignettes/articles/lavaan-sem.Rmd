@@ -268,6 +268,14 @@ validated pooling exists yet. Use `type = "mc"` for those fits.
 
 A refit that does not converge stops the test, naming the imputation (or the
 stacked data) and which fit; an improper solution warns once and goes on.
+An escaping dependency error, including a post-fit covariance/diagnostic error
+that returns no usable likelihood, also stops inference; no successful survivor
+is substituted. Diagnostic warnings do not discard a returned finite likelihood,
+but every LR/completeness gate must still pass. This does not recover a likelihood
+hidden inside an error or certify a global optimum.
+Improper-null warnings additionally require resolved branch attribution:
+diagnostic refit errors, sample/LR mismatches or unreproduced improper flags
+stop inference even when the reported likelihoods are finite.
 
 For MBCO, the allowed `fit_args` are `estimator = "ML"`, `std.lv`, `std.ov`,
 `fixed.x`, `conditional.x`, `meanstructure`, `information`, `missing`, `se` and

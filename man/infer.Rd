@@ -66,6 +66,12 @@ the refits: the tested paths are the structural regressions \code{mediator ~ tre
 is supported; \code{MLR}, \code{MLM}, \code{WLSMV}, \code{group}, \code{ordered}, \code{sampling.weights}
 and \code{method = "ipw"} are refused, naming the option. A refit that did not
 converge stops the test, naming the dataset, the branch and the model.
+SEM dependency errors, including post-fit covariance/diagnostic errors that
+return no usable likelihood, also stop inference; no surviving branch is
+substituted. A diagnostic warning with a returned finite likelihood does
+not by itself discard that likelihood; all LR/completeness gates still apply.
+An improper-null warning additionally requires resolved branch attribution;
+failed or mismatched diagnostic refits stop inference even with finite LRs.
 SEM MBCO requires medfit >= 0.10.0; \code{\link[=run]{run()}} still uses lavaan. MBCO ignores
 \code{std.lv}, \code{std.ov}, \code{fixed.x}, \code{conditional.x}, \code{meanstructure},
 \code{information}, \code{missing}, \code{se} and \code{test}, and always uses \code{fixed_x = FALSE}.

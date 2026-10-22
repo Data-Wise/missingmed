@@ -63,8 +63,14 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       as an audit, NOT acceptance. 834 assertions rerun green; 19 mutations
       detected, but most harness gates allow incidental errors. Claude needs-
       attention: completeness interpretations and review omissions remain open.
-      NEXT tasks/plan.md: authorize evidence-gap follow-up; author-supplied
-      stored improper-null input still required. No implementation edits this pass.
+      Targeted follow-up: both mutation harnesses require intended assertions and
+      zero execution errors; five added bypasses, explicit post-fit policy/control.
+      858 deterministic assertions pass; 24 intended-assertion mutations each
+      have zero execution errors; targeted lint clean. Bounded Claude rerun:
+      needs-attention, coverage omissions retained; intermediate encoding-map
+      finding resolved by final full run. Warning-policy wording qualified after
+      review. Exclusion/64-limit/post-fit rulings and author-supplied stored
+      improper-null input remain required; T5 stays unaccepted.
       T5 stays unaccepted; recommended path closes independent gaps first.
       After T5 acceptance: T6 dependency
       floor/package checks. No full RNG suite or vignette render.

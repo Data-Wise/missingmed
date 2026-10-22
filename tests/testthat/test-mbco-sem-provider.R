@@ -18,7 +18,7 @@ test_that("SEM provider validates both branches before pooling in either ARIV mo
   }
   values <- c(-5e-8, 9)
   out <- provider(d)
-  expect_match(attr(out, "sem_warnings"), "Roundoff-sized")
+  expect_true(any(grepl("Roundoff-sized", attr(out, "sem_warnings"))))
   expect_equal(out[["a"]], 0)
   values <- c(-2e-7, 9)
   expect_error(provider(d), "negative LR")

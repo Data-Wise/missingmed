@@ -2,6 +2,13 @@
 
 ## Internal
 
+* Tighten deterministic SEM mutation checks to require intended assertion
+  failures with no execution errors; cover concealed survivor completion,
+  convergence/discrepancy guards and empty-diagnostic/sample-match bypasses.
+  Document the post-fit error policy and test injected returned-likelihood
+  retention with diagnostic notices, not recovery from dependency errors.
+  Real improper-null evidence remains
+  required before T5 acceptance.
 * Attribute improper SEM null warnings using separate diagnostic refits when
   medfit omits branch identity. Require matching samples and both raw likelihood
   ratios; unresolved attribution stops inference instead of guessing by order.

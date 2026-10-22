@@ -28,6 +28,12 @@
 #'   is supported; `MLR`, `MLM`, `WLSMV`, `group`, `ordered`, `sampling.weights`
 #'   and `method = "ipw"` are refused, naming the option. A refit that did not
 #'   converge stops the test, naming the dataset, the branch and the model.
+#'   SEM dependency errors, including post-fit covariance/diagnostic errors that
+#'   return no usable likelihood, also stop inference; no surviving branch is
+#'   substituted. A diagnostic warning with a returned finite likelihood does
+#'   not by itself discard that likelihood; all LR/completeness gates still apply.
+#'   An improper-null warning additionally requires resolved branch attribution;
+#'   failed or mismatched diagnostic refits stop inference even with finite LRs.
 #'   SEM MBCO requires medfit >= 0.10.0; [run()] still uses lavaan. MBCO ignores
 #'   `std.lv`, `std.ov`, `fixed.x`, `conditional.x`, `meanstructure`,
 #'   `information`, `missing`, `se` and `test`, and always uses `fixed_x = FALSE`.

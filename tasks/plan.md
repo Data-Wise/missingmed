@@ -9,7 +9,16 @@ branch-message suggestion was implemented and tested after review, not re-review
 P2's clause matrix and one bounded Claude review are recorded in the receipt.
 Claude returned needs-attention; completeness interpretations, mutation strength
 and omitted review material remain open. T5 remains unaccepted, including the
-required real-case gate. No implementation fixes were authorized in this pass.
+required real-case gate. Targeted follow-up is now authorized: strengthen all
+mutation evidence, add missing bypass controls, document/test the returned-
+likelihood versus escaping post-fit-error policy, then rerun tests and Claude.
+No author ruling is inferred for exclusion versus refusal or the 64-branch limit.
+Follow-up implemented locally: 858 deterministic assertions and all 24 mutations
+pass the intended-assertion/zero-error gates. Claude rerun needs-attention;
+its intermediate encoding-map finding is refuted by the final complete run.
+Final warning-policy qualifications were made afterward (not re-reviewed).
+Real-case evidence, exclusion/64-limit/post-fit rulings and recorded independent-
+review omissions remain open; see the receipt for exact scope and dispositions.
 
 ## Contract and current evidence
 
@@ -110,8 +119,8 @@ does not authorize push, merge, install, simulation, or external submission.
 
 ## Boundaries and invalidators
 
-This pass records criteria and performs deterministic verification/read-only review;
-implementation fixes require a subsequent instruction. No
+The author authorized targeted evidence-gap fixes and a fresh bounded review;
+no broader branch-enumerator design or spec amendment is inferred. No
 dependency installs, simulations, saved-result changes, or merge. Preserve the
 unrelated untracked research-workflow plan. Recheck this plan if the approved
 spec, medfit version, provider helper, fixture provenance or user constraints
