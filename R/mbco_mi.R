@@ -306,13 +306,21 @@
   where <- c(paste("imputation", seq_len(K)), "the stacked data")
   has_notice <- vapply(sem_notices, function(x) length(attr(x, "sem_warnings")) > 0L, NA)
   if (any(has_notice)) {
+    # Include improper flags in the same collected warning, even when medfit
+    # supplies a diagnostic without emitting its own warning.
+    flagged <- vapply(sem_notices, function(x) length(attr(x, "improper")) > 0L, NA)
+    has_notice <- has_notice | flagged
     detail <- vapply(sem_notices[has_notice], function(x) {
-      paste(attr(x, "sem_warnings"), collapse = "; ")
+      improper <- attr(x, "improper")
+      paste(c(attr(x, "sem_warnings"), if (length(improper)) {
+        paste0("improper solution (", paste(improper, collapse = ", "), ")")
+      }), collapse = "; ")
     }, "")
     warning("SEM MBCO warnings: ",
       paste(paste0(where[has_notice], ": ", detail), collapse = "; "), call. = FALSE)
+  } else {
+    .mm_warn_improper(sem_notices, where)
   }
-  .mm_warn_improper(c(lls, list(lls_S)), c(paste("imputation", seq_len(K)), "the stacked data"))
   a_wins <- vapply(lls, function(l) l[["a"]] >= l[["b"]], logical(1))
   stacked_a <- lls_S[["a"]] >= lls_S[["b"]]
 

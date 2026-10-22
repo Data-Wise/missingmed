@@ -33,7 +33,10 @@
 #'   `information`, `missing`, `se` and `test`, and always uses `fixed_x = FALSE`.
 #'   All other options (including `control`, `auto.*` and `likelihood`) are
 #'   refused. Nonlinear/bounded constraints and singular variance nulls are
-#'   unsupported; warning notices name the affected datasets.
+#'   unsupported. Model columns must be numeric or two-level factors; the
+#'   treatment must be numeric. The `c()` and `label()` modifiers and multi-lhs
+#'   regressions are refused. Warning notices name the affected datasets;
+#'   improper null-refit notices may lack a branch identifier.
 #'
 #' @param object An [MDMediationFit] (supports both `"mc"` and `"mbco"`) or an
 #'   [MDMediationResult] (supports `"mc"`).

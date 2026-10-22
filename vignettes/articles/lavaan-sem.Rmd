@@ -279,7 +279,8 @@ Use `fit_args = list()` for defaults; `NULL` remains invalid.
 
 MBCO syntax is narrower than lavaan syntax. Fixed tested paths, multigroup
 modifiers, nonlinear/product equalities, inequalities and bounded parameters
-are refused. Nulls forcing unsupported variance domains are refused before
+are refused, as are `c()`/`label()` modifiers and multi-lhs regressions.
+Nulls forcing unsupported variance domains are refused before
 fitting; numerically unresolved affine checks also stop inference. No absence
 of warnings or successful surviving branch is a completeness certificate.
 Other unsupported medfit syntax fails explicitly rather than falling back to
@@ -288,3 +289,8 @@ either branch stop inference; roundoff-sized negatives within `1e-7` are
 reported and rounded to zero before pooling. SEM notices are collected into
 one dataset-labeled warning; null improper notices currently lack reliable
 branch-specific attribution.
+
+MBCO model columns must be numeric or two-level factors; factors with more
+levels are refused even if a newer medfit can expand them. Binary factor
+covariates use the factor-level order for 0/1 coding. The treatment must still
+be numeric under the public data specification.

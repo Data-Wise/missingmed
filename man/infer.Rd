@@ -71,7 +71,10 @@ SEM MBCO requires medfit >= 0.10.0; \code{\link[=run]{run()}} still uses lavaan.
 \code{information}, \code{missing}, \code{se} and \code{test}, and always uses \code{fixed_x = FALSE}.
 All other options (including \code{control}, \verb{auto.*} and \code{likelihood}) are
 refused. Nonlinear/bounded constraints and singular variance nulls are
-unsupported; warning notices name the affected datasets.
+unsupported. Model columns must be numeric or two-level factors; the
+treatment must be numeric. The \code{c()} and \code{label()} modifiers and multi-lhs
+regressions are refused. Warning notices name the affected datasets;
+improper null-refit notices may lack a branch identifier.
 }
 }
 \examples{

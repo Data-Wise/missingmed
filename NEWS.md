@@ -2,6 +2,12 @@
 
 ## Internal
 
+* Add deterministic SEM acceptance controls for independent denominator df,
+  public per-branch failures, encoding and branch diagnostics. Enforce the
+  approved two-level factor limit even with newer medfit, retain character-valued
+  full-fit improper diagnostics, and combine them with other SEM notices once.
+  Refuse `c()`/`label()` modifiers and multi-lhs regressions before lavaan's
+  parser normalization can erase the excluded constructs.
 * Route SEM MBCO in `infer()` and `mbco_d4(model = )` through the guarded medfit
   provider (#101, #102); `run()` still uses lavaan. Retire the old lavaan MBCO
   provider and internal MLR scaling code/harness; robust MBCO remains refused.

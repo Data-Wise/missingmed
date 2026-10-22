@@ -80,6 +80,28 @@
 .mm_sem_label_model <- function(model, treatment, mediator, outcome) {
   model <- paste(model, collapse = "\n")
   pt <- lavaan::lavParseModelString(model, as.data.frame. = TRUE, warn = FALSE)
+  # lavaan normalizes c(a)*, label("a")* and multi-lhs rows, losing the
+  # original construct. Inspect expression structure before rewriting; never
+  # use text substitution to inject labels or guess regression boundaries.
+  expressions <- tryCatch(parse(text = model), error = function(e) {
+    stop("Unsupported MBCO syntax while validating modifiers: ", conditionMessage(e), call. = FALSE)
+  })
+  check <- function(x) {
+    if (!is.call(x)) return(invisible(NULL))
+    op <- as.character(x[[1L]])
+    if (op == "*" && is.call(x[[2L]]) &&
+        (as.character(x[[2L]][[1L]]) == "label" ||
+          (as.character(x[[2L]][[1L]]) == "c" && length(x[[2L]]) == 2L))) {
+      stop("The ", as.character(x[[2L]][[1L]]),
+        "() modifier is unsupported by MBCO.", call. = FALSE)
+    }
+    if (op == "~" && length(x) == 3L && is.call(x[[2L]]) &&
+        as.character(x[[2L]][[1L]]) == "+") {
+      stop("The multi-lhs regression is unsupported by MBCO.", call. = FALSE)
+    }
+    invisible(lapply(as.list(x)[-1L], check))
+  }
+  invisible(lapply(as.list(expressions), check))
   if (any(nzchar(.mm_pt_col(pt, "efa")))) {
     stop("The efa() modifier is unsupported by MBCO.", call. = FALSE)
   }
@@ -184,6 +206,18 @@
 .mm_sem_fit <- function(model, d) {
   if (utils::packageVersion("medfit") < "0.10.0") {
     stop("The SEM provider requires medfit >= 0.10.0.", call. = FALSE)
+  }
+  observed <- lavaan::lavNames(lavaan::lavaanify(model), "ov")
+  for (name in intersect(observed, names(d))) {
+    x <- d[[name]]
+    if (is.factor(x) && nlevels(x) != 2L) {
+      stop("SEM MBCO requires a 2-level factor: `", name, "` has ",
+        nlevels(x), " levels.", call. = FALSE)
+    }
+    if (!is.numeric(x) && !is.factor(x)) {
+      stop("SEM MBCO model variable `", name, "` must be numeric or a 2-level factor.",
+        call. = FALSE)
+    }
   }
   fit <- medfit::fit_sem(model, d, fixed_x = FALSE)
   if (!is.finite(fit@f)) stop("Non-finite full-fit discrepancy.", call. = FALSE)
@@ -362,7 +396,11 @@
     }
     lr <- vapply(seq_len(2L), function(i) .mm_sem_lr(tab$diff_ll[i], expected[i]), 0.0)
     out <- c(full = 0, a = -lr[1L] / 2, b = -lr[2L] / 2, k_a = 1, k_b = 1)
-    attr(out, "improper") <- if (isTRUE(full$improper)) "full" else character()
+    # medfit diagnostics$improper is a character vector of diagnostic details,
+    # not a logical flag; keep support for the logical adapter test double.
+    improper <- isTRUE(full$improper) ||
+      (is.character(full$improper) && length(full$improper) > 0L)
+    attr(out, "improper") <- if (improper) "full" else character()
     out
     }, warning = collect), error = function(e) {
       detail <- if (length(notices$messages)) {
