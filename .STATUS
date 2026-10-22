@@ -23,7 +23,7 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       constraint symbols guarded; warnings retained on failure. Three in-memory mutations killed.
       Existing medfit 0.11.1 at /private/tmp/claude-501/medfit-lib2; no installs; RemoteSha absent.
       Claude rerun: no blockers, static/partial coverage; final named-symbol guard tested afterward.
-      Branch-specific null improper attribution remains an integration acceptance gap.
+      Historical T2 gap: branch-specific null improper attribution (T5 follow-up below).
       Shared-label follow-up: direct tested-label/variance sharing refused; valid regression
       and intercept sharing retained (one df, oracle parity). 38 label + 102 provider assertions
       pass; mutations 15/14/3. Claude flags inferred indirect equality-to-variance bypass;
@@ -43,12 +43,15 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       246 assertions, zero failures/errors/warnings/skips; five mutations detected;
       lint clean. Claude scoped static approval (no test execution), one stale
       contributor pointer repaired afterward. Receipt NOTE-T4-public-wiring-
-      verification-2026-10-22.md. T5 deterministic coverage expanded: 689 assertions
-      pass; 14 in-memory mutation controls detected. T5 NOT fully accepted:
-      per-null improper-warning attribution remains unavailable from medfit.
-      Claude needs-attention review skipped the approved spec; subsequent repairs
-      are locally tested, not re-reviewed. Receipt NOTE-T5-acceptance-verification-
-      2026-10-22.md. NEXT resolve diagnostic gate/review scope, then T6 dependency
+      verification-2026-10-22.md. T5 attribution fallback implemented with exported
+      diagnostic refits: matching sample, factor/fixed-x state and both raw LRs
+      required; unresolved attribution refuses inference. 776 assertions pass;
+      targeted lint clean. T5 NOT fully accepted: real improper-null stored-data
+      evidence remains absent. Claude read relevant spec, ran acceptance tests,
+      returned needs-attention; broader 3c/3d test coverage map incomplete.
+      Empty-diagnostic bypass fixed afterward, tested but not re-reviewed.
+      Receipt NOTE-T5-acceptance-verification-2026-10-22.md.
+      NEXT resolve evidence/review scope, then T6 dependency
       floor/package checks. No full RNG suite or vignette render.
       Absolute raw-LR 1e-7
       justified against stored observed/latent/interior-null oracle errors <=5.543e-10.

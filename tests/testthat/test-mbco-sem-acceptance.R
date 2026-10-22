@@ -291,20 +291,102 @@ test_that("parallel mediator and direct indicator paths retain separate null ora
   }
 })
 
-test_that("unattributed refit warnings are retained without inventing a branch", {
+test_that("resolved null improper labels propagate once through public inference", {
   local_mocked_bindings(.mm_sem_fit = function(model, d) {
     list(fit = NULL, n_obs = nrow(d), improper = character())
   }, .mm_sem_mbco = function(fit, a, b) {
-    # This dependency warning contains no branch identifier. Warning order
-    # cannot identify a lone b warning when a was proper: retain, never guess.
     warning("improper solution: null variance", call. = FALSE)
-    list(tests = data.frame(constraint = paste(c(a, b), "== 0"),
+    list(improper = "b", tests = data.frame(constraint = paste(c(a, b), "== 0"),
       f = c(1, 2), diff_ll = c(1, 9), converged = TRUE))
   })
   w <- capture_warnings(r <- t5_direct())
   expect_length(w, 1L)
   expect_match(w, "imputation 1.*imputation 2.*stacked data.*null variance")
+  expect_match(w, "improper solution \\(b\\)")
   expect_true(is.finite(r[["p"]]))
+})
+
+test_that("unidentified null warnings require matching branch diagnostic refits", {
+  full <- missingmed:::.mm_sem_fit("M ~ a*X+C; Y ~ b*M+X+C", t5_data)$fit
+  original <- medfit::mbco_sem
+  tab <- original(full, "a", "b")$tests
+  target <- "b"
+  bad <- NULL
+  attribute_nulls <- function() missingmed:::.mm_sem_attribute_nulls(
+    full, "a", "b", list(tests = tab), t5_data)
+  local_mocked_bindings(.mm_sem_refit_diagnostics = function(fit, label, d) {
+    i <- match(label, c("a", "b"))
+    if (identical(bad, paste0("error", label))) stop("post-fit covariance failure")
+    list(f = tab$f[i] + if (identical(bad, label)) 1 else 0,
+      n_obs = fit@n_obs - if (identical(bad, "rows")) 1 else 0,
+      improper = if (label %in% target) "null variance" else character())
+  })
+  for (target in list("a", "b", c("a", "b"))) {
+    got <- attribute_nulls()
+    expect_identical(got$improper, target)
+    expect_equal(got$tests, tab)
+  }
+  target <- character()
+  expect_error(attribute_nulls(),
+    "[Uu]nresolved.*attribution")
+  target <- "b"
+  for (bad in c("a", "b", "rows", "errora", "errorb")) {
+    expect_error(attribute_nulls(),
+      "diagnostic refit|attribution")
+  }
+})
+
+test_that("exported diagnostic refits match medfit nulls on stored inputs", {
+  for (means in c("", "; M ~ 1; Y ~ 1")) {
+    d <- t5_data
+    for (factor_covariate in c(FALSE, TRUE)) {
+      if (factor_covariate) d$C <- factor(iris$Species == "setosa")
+      full <- missingmed:::.mm_sem_fit(paste0("M ~ a*X+C; Y ~ b*M+X+C", means), d)$fit
+      tab <- medfit::mbco_sem(full, "a", "b")$tests
+      for (i in 1:2) {
+        refit <- missingmed:::.mm_sem_refit_diagnostics(full, c("a", "b")[i], d)
+        expect_equal(refit$n_obs, full@n_obs)
+        expect_lt(abs(full@n_obs * (refit$f - full@f) - tab$diff_ll[i]), 1e-7)
+        expect_length(refit$improper, 0)
+      }
+    }
+  }
+})
+
+test_that("null attribution uses refit identity rather than warning count in both APIs", {
+  fit <- t5_fit()
+  original_mbco <- missingmed:::.mm_sem_mbco
+  original_refit <- missingmed:::.mm_sem_refit_diagnostics
+  target <- "b"
+  local_mocked_bindings(.mm_sem_mbco = function(fit, a, b) {
+    result <- original_mbco(fit, a, b)
+    result$improper <- character() # An empty future diagnostic field is not attribution.
+    # Exactly one warning, even when both nulls are flagged.
+    warning("improper solution: null variance", call. = FALSE)
+    result
+  }, .mm_sem_refit_diagnostics = function(fit, label, d) {
+    result <- original_refit(fit, label, d)
+    branch <- if (label == "mm_a") "a" else "b"
+    result$improper <- if (branch %in% target) "null variance" else character()
+    result
+  })
+  for (target in list("a", "b", c("a", "b"))) {
+    for (mode in c("own", "fixed")) {
+      for (api in c("direct", "infer")) {
+        w <- capture_warnings(r <- if (api == "direct") t5_direct(ariv = mode) else
+          infer(fit, type = "mbco", ariv = mode))
+        expect_length(w, 1L)
+        expected <- paste0("improper solution (", paste(target, collapse = ", "), ")")
+        expect_true(grepl(expected, w, fixed = TRUE))
+        expect_match(w, "imputation 1.*imputation 2.*stacked data")
+        expect_true(is.finite(r[["p"]]))
+      }
+    }
+  }
+  target <- character()
+  expect_error(t5_direct(), "imputation 1.*[Uu]nresolved null-warning attribution")
+  expect_error(infer(fit, type = "mbco"),
+    "imputation 1.*[Uu]nresolved null-warning attribution")
 })
 
 test_that("parser normalization cannot admit explicitly excluded syntax", {

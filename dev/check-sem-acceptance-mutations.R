@@ -7,6 +7,7 @@ df_original <- missingmed:::.mm_d4_from_stats
 provider_original <- missingmed:::.mm_sem_provider
 fit_original <- missingmed:::.mm_sem_fit
 label_original <- missingmed:::.mm_sem_label_model
+attribution_original <- missingmed:::.mm_sem_attribute_nulls
 mutate_body <- function(fun, old, new) {
   text <- paste(deparse(body(fun)), collapse = "\n")
   stopifnot(grepl(old, text, fixed = TRUE))
@@ -15,7 +16,8 @@ mutate_body <- function(fun, old, new) {
 }
 run_test <- function() testthat::test_file(target, reporter = "silent")
 for (mutation in c("li_df", "stack_divisor", "tie", "diagnostic_labels",
-  "dimensions", "factor_limit", "improper_payload", "encoding", "syntax")) {
+  "dimensions", "factor_limit", "improper_payload", "encoding", "syntax",
+  "null_identity", "null_lr_match")) {
   result <- switch(mutation,
     li_df = testthat::with_mocked_bindings(run_test(),
       .mm_d4_from_stats = function(d_k, d_S, k = 1) {
@@ -58,7 +60,16 @@ for (mutation in c("li_df", "stack_divisor", "tie", "diagnostic_labels",
       }, .package = "missingmed"),
     syntax = testthat::with_mocked_bindings(run_test(),
       .mm_sem_label_model = mutate_body(label_original,
-        "invisible(lapply(as.list(expressions), check))", "NULL"), .package = "missingmed")
+        "invisible(lapply(as.list(expressions), check))", "NULL"), .package = "missingmed"),
+    null_identity = testthat::with_mocked_bindings(run_test(),
+      .mm_sem_attribute_nulls = function(...) {
+        mb <- attribution_original(...)
+        mb$improper <- "a"
+        mb
+      }, .package = "missingmed"),
+    null_lr_match = testthat::with_mocked_bindings(run_test(),
+      .mm_sem_attribute_nulls = mutate_body(attribution_original,
+        "abs(lr - tab$diff_ll[i]) > 1e-07", "FALSE"), .package = "missingmed")
   )
   result <- as.data.frame(result)
   failures <- sum(result$failed) + sum(result$error)

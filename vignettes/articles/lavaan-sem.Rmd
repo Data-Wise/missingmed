@@ -287,8 +287,11 @@ Other unsupported medfit syntax fails explicitly rather than falling back to
 lavaan. Non-finite or materially negative raw likelihood-ratio summaries on
 either branch stop inference; roundoff-sized negatives within `1e-7` are
 reported and rounded to zero before pooling. SEM notices are collected into
-one dataset-labeled warning; null improper notices currently lack reliable
-branch-specific attribution.
+one dataset-labeled warning. Unattributed improper null notices trigger separate
+diagnostic refits through `fit_sem()`, using the original data and matching fitting
+options. Both reported likelihood ratios must match within `1e-7` raw LR units
+before assigning a/b labels; unresolved attribution stops inference. Warning
+order alone is never used to guess the affected branch.
 
 MBCO model columns must be numeric or two-level factors; factors with more
 levels are refused even if a newer medfit can expand them. Binary factor

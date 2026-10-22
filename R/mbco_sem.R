@@ -224,7 +224,54 @@
   list(fit = fit, n_obs = fit@n_obs, improper = fit@diagnostics$improper)
 }
 
+# Exported-fit fallback permitted by spec section 3. It is diagnostic only:
+# mbco_sem remains the source of LR values and both discrepancies must match.
+.mm_sem_refit_diagnostics <- function(fit, label, d) {
+  if (length(fit@internals$fixed_x)) {
+    stop("Diagnostic refit requires the approved fixed_x = FALSE state.", call. = FALSE)
+  }
+  null <- medfit::fit_sem(paste(fit@model, paste(label, "== 0"), sep = "\n"),
+    d, information = fit@information,
+    n_starts = fit@internals$n_starts, control = fit@internals$control,
+    meanstructure = if (isTRUE(fit@internals$ram$has_mean)) TRUE else NULL,
+    fixed_x = FALSE)
+  if (!identical(null@internals$factors, fit@internals$factors) ||
+      !identical(null@internals$fixed_x, fit@internals$fixed_x)) {
+    stop("Diagnostic refit factor/fixed-x state does not match the full fit.", call. = FALSE)
+  }
+  list(f = null@f, n_obs = null@n_obs, improper = null@diagnostics$improper)
+}
+
 .mm_sem_mbco <- function(fit, a, b) medfit::mbco_sem(fit, a, b)
+
+.mm_sem_attribute_nulls <- function(fit, a, b, mb, d) {
+  labels <- c(a, b)
+  tab <- mb$tests
+  if (!is.data.frame(tab) || nrow(tab) != 2L ||
+      !identical(as.character(tab$constraint), paste(labels, "== 0"))) {
+    stop("Unresolved null-warning attribution: incomplete branch table.", call. = FALSE)
+  }
+  improper <- vapply(seq_along(labels), function(i) {
+    null <- tryCatch(.mm_sem_refit_diagnostics(fit, labels[i], d), error = function(e) {
+      stop("The ", c("a", "b")[i], " = 0 diagnostic refit failed: ",
+        conditionMessage(e), call. = FALSE)
+    })
+    lr <- fit@n_obs * (null$f - fit@f)
+    if (!identical(as.numeric(null$n_obs), as.numeric(fit@n_obs)) ||
+        length(lr) != 1L || !is.finite(lr) ||
+        !is.finite(tab$diff_ll[i]) || abs(lr - tab$diff_ll[i]) > 1e-7) {
+      stop("Unresolved null-warning attribution: ", c("a", "b")[i],
+        " = 0 diagnostic refit does not match the reported LR/sample.", call. = FALSE)
+    }
+    isTRUE(null$improper) || (is.character(null$improper) && length(null$improper) > 0L)
+  }, NA)
+  if (!any(improper)) {
+    stop("Unresolved null-warning attribution: diagnostic refits did not reproduce it.",
+      call. = FALSE)
+  }
+  mb$improper <- c("a", "b")[improper]
+  mb
+}
 
 # Fourier-Motzkin elimination for A x >= rhs, with unrestricted coordinates.
 # A finite work cap refuses unresolved cases rather than assuming feasibility.
@@ -386,7 +433,13 @@
     if (!identical(as.numeric(full$n_obs), as.numeric(nrow(d)))) {
       stop("The full model dropped observations.", call. = FALSE)
     }
+    before <- length(notices$messages)
     mb <- .mm_sem_mbco(full$fit, lab$a, lab$b)
+    null_notices <- notices$messages[seq_along(notices$messages) > before]
+    if (any(grepl("^improper solution:", null_notices, ignore.case = TRUE)) &&
+        length(mb$improper) == 0L) {
+      mb <- .mm_sem_attribute_nulls(full$fit, lab$a, lab$b, mb, d)
+    }
     tab <- mb$tests
     expected <- paste(c(lab$a, lab$b), "== 0")
     if (!is.data.frame(tab) || nrow(tab) != 2L || !identical(as.character(tab$constraint), expected) ||
@@ -400,7 +453,7 @@
     # not a logical flag; keep support for the logical adapter test double.
     improper <- isTRUE(full$improper) ||
       (is.character(full$improper) && length(full$improper) > 0L)
-    attr(out, "improper") <- if (improper) "full" else character()
+    attr(out, "improper") <- c(if (improper) "full" else character(), mb$improper)
     out
     }, warning = collect), error = function(e) {
       detail <- if (length(notices$messages)) {

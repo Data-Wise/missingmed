@@ -1,6 +1,6 @@
 # T5 deterministic acceptance coverage — 2026-10-22
 
-Status: partial; **T5 is not fully accepted**. Approved spec unchanged.
+Initial status at `25912b2`: partial; T5 was not fully accepted. Approved spec unchanged.
 PR #102, local branch `feature/lavaan-mbco-medfit`, starting head `566b894`.
 
 ## Coverage and confirmed repairs
@@ -77,3 +77,87 @@ provider strategy. Real random-data Heywood reproduction and multistart/global
 optimality are not established by these deterministic controls. A postfit error
 that prevents medfit returning a likelihood remains a closed failure, not a
 recoverable best-survivor result.
+
+## Null-warning attribution follow-up
+
+The section 3 separate-exported-fit alternative resolves the attribution gap
+without treating warning order as branch evidence. `mbco_sem()` remains the LR
+source. Only an improper warning emitted during its null refits triggers two
+additional `fit_sem()` diagnostic fits. These use the full model's information,
+start count, control and meanstructure handling, always `fixed_x = FALSE`, and
+the original dataset. Full-fit warnings do not trigger this fallback.
+
+Both null samples and raw LR values must match the original comparison within
+the existing absolute 1e-7 tolerance. Branch labels come from each fit's improper
+diagnostics, not the number or order of warnings. A mismatch, diagnostic error,
+or failure to reproduce any improper null stops inference; no new LR is selected.
+No medfit private function or namespace mutation is used in production.
+
+Red test evidence: before implementation, the public warning lacked `(b)` and
+the diagnostic-refit seam did not exist. A subsequent stored binary-factor test
+failed because `SEMFit@data` contains expanded columns whereas model syntax
+still names the original factor. Passing the original dataset corrected this;
+do not reconstruct these fits using expanded data without medfit's factor map.
+
+Deterministic results: acceptance file 530 assertions, label 39, provider 124,
+arguments 52, public lavaan 31: **776 passing assertions**, no failures, errors,
+warnings, or skips. Separate-null discrepancy checks cover numeric/binary
+covariates with implicit/explicit means on stored iris data. Injected diagnostics
+cover a-only, b-only and both improper states with a single warning through both
+public APIs and both ARIV modes. Sample/LR mismatches, missing reproduction and
+diagnostic errors refuse inference. This is not a new real-Heywood fixture or
+global-optimality proof. Documentation generation retains the pre-existing IPW
+link warnings noted above. Full random-data/package suites remain unrun.
+
+Follow-up Claude job `1747f2d2-b341-479f-a358-69109bffbbc9` explicitly read the
+approved spec lines 1–255 (including every relevant section), compared installed
+`medfit::mbco_sem` source, and ran the acceptance file green. Verdict:
+needs-attention, uncertainty medium; no full spec-compliance approval. It did not
+inspect the full 3c/3d or 4.7–10 test bodies beyond the diff, help or vignette.
+The remaining spec lines 256–263 are tracking-issue links, not fitting policy.
+
+Findings and disposition:
+
+- Real improper-null stored-data proof absent: confirmed evidence gap. Existing
+  medfit Heywood tests generate data and were not run. Two stored-data model
+  probes did not yield diagnostic improper flags; neither proves the desired
+  behavior. Keep T5 acceptance pending and label injected evidence explicitly.
+- Factor/fixed-x option parity concern: original data are necessary for the
+  exported API, which cannot accept the private factor map. Added exact equality
+  checks for rebuilt factor and fixed-x state; require the approved no-fixed-x
+  state before refitting. Numeric/binary and meanstructure LR oracles pass.
+  Installed `.sem_optimize` emits the improper warning from the same `improper`
+  vector it returns; `.sem_as_semfit` transfers that vector into diagnostics.
+  This is control-flow support, not a real improper-fit acceptance case.
+- Empty non-NULL `mb$improper` bypass: confirmed. Regression control produced 14
+  failures before changing the gate from `is.null` to zero length. Final tests
+  pass. These guards and the empty-vector repair followed Claude review and were
+  not automatically re-reviewed; no retry/resume or budget expansion occurred.
+
+Requested/effective model: sonnet / claude-sonnet-5-5, standard/medium. Usage:
+270791 total tokens, 5960 output, 12 turns, 60263 ms (API 51528 ms), $0.206959.
+No Evidence Lease; evidence-lease, cost-budget and turn-limit exhaustion flags
+all false. Session `ed091cc8-1916-4cbb-b4e5-ccd789bf4c43`; resume hint:
+`claude --resume ed091cc8-1916-4cbb-b4e5-ccd789bf4c43`.
+Recommended focused follow-up: real improper-null stored input and the remaining
+section-to-test review map. This review did not establish global optimality.
+
+Local coverage map (not a substitute for Claude's omitted body inspection):
+
+| Spec | Deterministic controls |
+|---|---|
+| C5 / section 3 | Acceptance tests beginning lines 294, 309, 339, 356: branch labels, LR/sample matching, exported refit parity, both public APIs/modes; real improper-null case remains open |
+| 3b / 4.7 | Provider tests at lines 1, 86, 103; acceptance line 44: every dataset/branch, nonfinite/negative summaries and roundoff boundary |
+| 3c / 4.8 | Provider lines 113, 156, 246, 259, 272; acceptance lines 72, 149, 418: partial failures, generic-union refusal, affine feasibility, full-fit propagation; no generic union ledger/global certificate |
+| 3d / 4.9 | Acceptance lines 17, 33, 173: independent K=20 Chan–Meng/Li rational answers, zero ARIV/gap threshold, frozen fixture provenance |
+| 4.10 | Acceptance line 114 plus mutation harness: encoding, stack/K, own/fixed, ties, labeled diagnostics and dimensions |
+
+All 16 mutation controls detect defects: the original five provider controls
+plus eleven acceptance controls. The two added controls force warning-order-like
+identity (10 failures) and remove LR matching (2 failures); final acceptance
+mutation counts are 4/39/3/20/2/2/17/32/3/10/2 in script order.
+
+Targeted lint passes with `devtools::load_all()` before linting; without loading,
+the standalone `R/infer.R` linter falsely reports the package-internal provider
+as undefined. Approved spec and saved fixtures remain unchanged. No installs,
+simulations, push, or merge. Local implementation does not imply T5 acceptance.

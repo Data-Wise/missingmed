@@ -36,7 +36,9 @@
 #'   unsupported. Model columns must be numeric or two-level factors; the
 #'   treatment must be numeric. The `c()` and `label()` modifiers and multi-lhs
 #'   regressions are refused. Warning notices name the affected datasets;
-#'   improper null-refit notices may lack a branch identifier.
+#'   unattributed improper null notices trigger separate diagnostic refits, which
+#'   must match both reported likelihood ratios before assigning branch labels.
+#'   Unresolved attribution stops inference rather than guessing warning order.
 #'
 #' @param object An [MDMediationFit] (supports both `"mc"` and `"mbco"`) or an
 #'   [MDMediationResult] (supports `"mc"`).

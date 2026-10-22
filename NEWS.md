@@ -2,6 +2,11 @@
 
 ## Internal
 
+* Attribute improper SEM null warnings using separate diagnostic refits when
+  medfit omits branch identity. Require matching samples and both raw likelihood
+  ratios; unresolved attribution stops inference instead of guessing by order.
+  Branch attribution is covered by injected diagnostics; a real improper-null
+  stored-data acceptance case remains unverified.
 * Add deterministic SEM acceptance controls for independent denominator df,
   public per-branch failures, encoding and branch diagnostics. Enforce the
   approved two-level factor limit even with newer medfit, retain character-valued
