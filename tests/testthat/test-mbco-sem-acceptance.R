@@ -353,6 +353,75 @@ test_that("exported diagnostic refits match medfit nulls on stored inputs", {
   }
 })
 
+test_that("diagnostic state guards reject mismatches before public pooling", {
+  full <- missingmed:::.mm_sem_fit(
+    "M ~ mm_a*X+C; Y ~ mm_b*M+X+C", t5_data)$fit
+  tab <- medfit::mbco_sem(full, "mm_a", "mm_b")$tests
+  nulls <- lapply(c("mm_a", "mm_b"), function(label) {
+    medfit::fit_sem(paste(full@model, paste(label, "== 0"), sep = "\n"),
+      t5_data, fixed_x = FALSE)
+  })
+  fit <- t5_fit()
+  state <- "matched"
+  branch <- "mm_a"
+  candidate <- full
+  local_mocked_bindings(fit_sem = function(model, ...) {
+    i <- if (grepl("mm_a == 0", model, fixed = TRUE)) 1L else 2L
+    out <- nulls[[i]]
+    internal <- out@internals
+    # Matching the unexpected full state isolates the pre-refit guard.
+    if (state == "full_fixed_x") internal$fixed_x <- candidate@internals$fixed_x
+    if (c("mm_a", "mm_b")[i] == branch) {
+      if (state == "factors") internal$factors <- list(changed = "encoding")
+      if (state == "null_fixed_x") internal$fixed_x <- "X"
+    }
+    out@internals <- internal
+    diagnostic <- out@diagnostics
+    diagnostic$improper <- "injected null diagnostic"
+    out@diagnostics <- diagnostic
+    out
+  }, .package = "medfit")
+  local_mocked_bindings(.mm_sem_fit = function(model, d) {
+    list(fit = candidate, n_obs = nrow(d), improper = character())
+  }, .mm_sem_mbco = function(...) {
+    warning("improper solution: injected null diagnostic", call. = FALSE)
+    list(tests = tab)
+  }, .mm_d4_from_stats = function(...) stop("pooling must not be reached"))
+  for (branch in c("mm_a", "mm_b")) {
+    state <- "matched"
+    got <- missingmed:::.mm_sem_refit_diagnostics(candidate, branch, t5_data)
+    i <- match(branch, c("mm_a", "mm_b"))
+    expect_equal(got$f, tab$f[i], tolerance = 1e-7)
+    expect_identical(got$improper, "injected null diagnostic")
+    for (state in c("full_fixed_x", "factors", "null_fixed_x")) {
+      candidate <- full
+      if (state == "full_fixed_x") {
+        internal <- candidate@internals
+        internal$fixed_x <- "X"
+        candidate@internals <- internal
+      }
+      message <- if (state == "full_fixed_x") "approved fixed_x = FALSE state" else
+        "factor/fixed-x state does not match"
+      failed_branch <- if (state == "full_fixed_x" || branch == "mm_a") "a" else "b"
+      expect_error(missingmed:::.mm_sem_refit_diagnostics(candidate, branch, t5_data),
+        message, fixed = TRUE)
+      for (mode in c("own", "fixed")) {
+        for (invoke in list(function() t5_direct(ariv = mode),
+          function() infer(fit, type = "mbco", ariv = mode))) {
+          error <- tryCatch(suppressWarnings(invoke()), error = identity)
+          expect_s3_class(error, "error")
+          if (inherits(error, "error")) {
+            expect_match(conditionMessage(error),
+              paste0("imputation 1.*The ", failed_branch, " = 0 diagnostic refit failed: .*",
+                if (state == "full_fixed_x") "approved fixed_x" else "factor/fixed-x state"))
+          }
+        }
+      }
+    }
+    candidate <- full
+  }
+})
+
 test_that("null attribution uses refit identity rather than warning count in both APIs", {
   fit <- t5_fit()
   original_mbco <- missingmed:::.mm_sem_mbco

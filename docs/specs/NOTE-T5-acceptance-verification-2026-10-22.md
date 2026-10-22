@@ -237,3 +237,64 @@ Recommended follow-up remains a real stored improper-null input plus guard
 controls and full provider/spec-test body review. **T5 remains unaccepted.**
 Candidate hashes above were identical before and after verification. This pass
 changes only the verification note and .STATUS, not implementation or saved data.
+
+## P1 diagnostic state guard controls — 2026-10-22
+
+Starting head `8fbe88e`. Production code and approved spec unchanged. New test
+`diagnostic state guards reject mismatches before public pooling` exercises the
+real `.mm_sem_refit_diagnostics()` with injected exported-fit return state:
+
+- Nonempty full fixed-x state, with identical null state to isolate the first guard.
+- Null factor-map mismatch alone, and null fixed-x mismatch alone.
+- Both target branches, matched helper success controls, and both public APIs
+  under both ARIV modes. Exact branch errors are pinned: a full-state rejection
+  always occurs at the first (a) diagnostic refit; null-state rejection names
+  the selected a/b branch. Mode loops verify propagation, not independent math.
+- A pooling sentinel cannot satisfy the expected diagnostic-refit error. Full
+  and MBCO boundary summaries are injected; this is not a real improper-null fit.
+
+Five deterministic files: label 39, provider 124, args 52, public lavaan 31,
+acceptance 588: **834 passing assertions**, zero failures/errors/warnings/skips.
+Existing `R_LIBS=/private/tmp/claude-501/medfit-lib2`, medfit 0.11.1. After the
+final branch-message tightening, acceptance and targeted lint were rerun; the
+other four files were unchanged. Both edited R files have no lints.
+
+The existing acceptance mutation harness now accepts optional mutation names.
+`full_fixed_x`, `null_factors`, `null_fixed_x` each bypass just one guard term in
+memory and each produce 10 failed assertions in the new guard test, zero execution
+errors. The harness requires failures in that specific test, not arbitrary errors
+elsewhere. Initial bypass verification instead encountered aggregated warnings
+after the missing rejection; public assertions now capture that path explicitly
+and compare the actual error. No source-file mutation or saved-result rewrite.
+The eleven existing acceptance and five provider mutations were not rerun here.
+
+### Claude P1 review receipt and scope
+
+Job `e3d5579a-906d-4942-8931-ad3259f96d93`, standard/medium, requested sonnet,
+effective claude-sonnet-5-5: **approve**, static P1 scope only, medium uncertainty.
+Read acceptance tests, mutation harness, helper/provider lines 215–304 and grep
+excerpts from spec/plan/run. Did not execute tests/mutations (reported plan-mode
+restriction), read full spec clauses 3a–3d/4.7–10, public pooling body, helper
+definitions or legacy helper. No complete spec-compliance approval is claimed.
+
+Low coverage finding: error regex did not pin a/b. Confirmed; tightened after
+review and tested locally. Also hardened mutation assertions and warning/error
+capture during this review cycle; final test/harness edits were not re-reviewed.
+No automatic retry, resume, model chaining or budget expansion.
+
+Clause evidence: C5/3 and 3a gain injected state-guard and exact public-error
+controls; 3b/4.7 LR, 3c/4.8 completeness, 3d/4.9 df and 4.10 diagnostic/encoding
+controls reran in the five files, but Claude did not independently read their
+complete clause/body mapping. The pre-existing matrix remains partial, not a
+substitute for independent review. P2 review checklist therefore stays open.
+
+Usage: 216293 tokens, 6191 output, 9 turns, 45225 ms (API 44515 ms), $0.1632088.
+No Evidence Lease; evidence-lease/cost-budget/turn-limit exhaustion all false.
+Session `c2a5e160-3199-4d3b-8edb-67a3fe549574`; resume hint
+`claude --resume c2a5e160-3199-4d3b-8edb-67a3fe549574`. Recommended next step:
+complete remaining spec-body review and obtain a qualifying pre-existing input.
+
+Frozen MBCO fixture SHA256 unchanged:
+`b88d9e26e462f6f387ea711766511507f8c638939f18d95ddab67c640964e4e8`.
+No installs, simulations, saved-result changes, full random-data suite, package
+check, push or merge. **T5 remains unaccepted pending real-case evidence.**

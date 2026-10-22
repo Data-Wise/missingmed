@@ -8,6 +8,7 @@ provider_original <- missingmed:::.mm_sem_provider
 fit_original <- missingmed:::.mm_sem_fit
 label_original <- missingmed:::.mm_sem_label_model
 attribution_original <- missingmed:::.mm_sem_attribute_nulls
+refit_original <- missingmed:::.mm_sem_refit_diagnostics
 mutate_body <- function(fun, old, new) {
   text <- paste(deparse(body(fun)), collapse = "\n")
   stopifnot(grepl(old, text, fixed = TRUE))
@@ -15,9 +16,15 @@ mutate_body <- function(fun, old, new) {
   fun
 }
 run_test <- function() testthat::test_file(target, reporter = "silent")
-for (mutation in c("li_df", "stack_divisor", "tie", "diagnostic_labels",
+mutations <- c("li_df", "stack_divisor", "tie", "diagnostic_labels",
   "dimensions", "factor_limit", "improper_payload", "encoding", "syntax",
-  "null_identity", "null_lr_match")) {
+  "null_identity", "null_lr_match", "full_fixed_x", "null_factors", "null_fixed_x")
+selected <- commandArgs(trailingOnly = TRUE)
+if (length(selected)) {
+  stopifnot(all(selected %in% mutations))
+  mutations <- selected
+}
+for (mutation in mutations) {
   result <- switch(mutation,
     li_df = testthat::with_mocked_bindings(run_test(),
       .mm_d4_from_stats = function(d_k, d_S, k = 1) {
@@ -67,6 +74,17 @@ for (mutation in c("li_df", "stack_divisor", "tie", "diagnostic_labels",
         mb$improper <- "a"
         mb
       }, .package = "missingmed"),
+    full_fixed_x = testthat::with_mocked_bindings(run_test(),
+      .mm_sem_refit_diagnostics = mutate_body(refit_original,
+        "length(fit@internals$fixed_x)", "FALSE"), .package = "missingmed"),
+    null_factors = testthat::with_mocked_bindings(run_test(),
+      .mm_sem_refit_diagnostics = mutate_body(refit_original,
+        "!identical(null@internals$factors, fit@internals$factors)", "FALSE"),
+      .package = "missingmed"),
+    null_fixed_x = testthat::with_mocked_bindings(run_test(),
+      .mm_sem_refit_diagnostics = mutate_body(refit_original,
+        "!identical(null@internals$fixed_x, fit@internals$fixed_x)", "FALSE"),
+      .package = "missingmed"),
     null_lr_match = testthat::with_mocked_bindings(run_test(),
       .mm_sem_attribute_nulls = mutate_body(attribution_original,
         "abs(lr - tab$diff_ll[i]) > 1e-07", "FALSE"), .package = "missingmed")
@@ -75,4 +93,8 @@ for (mutation in c("li_df", "stack_divisor", "tie", "diagnostic_labels",
   failures <- sum(result$failed) + sum(result$error)
   cat(mutation, "detected failures/errors:", failures, "\n")
   stopifnot(failures > 0)
+  if (mutation %in% c("full_fixed_x", "null_factors", "null_fixed_x")) {
+    guard <- result$test == "diagnostic state guards reject mismatches before public pooling"
+    stopifnot(any(guard), sum(result$failed[guard]) > 0, !any(result$error))
+  }
 }

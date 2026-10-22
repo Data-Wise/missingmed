@@ -2,6 +2,12 @@
 
 Updated 2026-10-22. Execution checklist: [todo.md](todo.md).
 
+P1 implemented: guard-trigger controls and three isolated in-memory mutations;
+834 deterministic assertions pass. Claude gave scoped static P1 approval but
+read only spec excerpts, leaving P2's full clause/body review open. Its exact
+branch-message suggestion was implemented and tested after review, not re-reviewed.
+T5 remains unaccepted pending real-case evidence and remaining review coverage.
+
 ## Contract and current evidence
 
 The approved authority remains
