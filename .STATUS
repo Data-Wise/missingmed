@@ -33,6 +33,11 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       38+124 assertions pass, lint clean, mutations 15/14/3/9. Claude approved this patch,
       independently read spec and reproduced checks; only unverified extreme-scaling caveat.
       Later integration/diagnostic acceptance gates remain; see receipt.
+      T3 DONE internally: approved fit_args allow-list, normalized duplicate refusal,
+      ML-only estimator; options ignored, fixed_x=FALSE retained. 214 total SEM assertions
+      pass; five mutations detected; lint clean; Claude T3 approval with reproduced checks.
+      Receipt NOTE-T3-fit-args-verification-2026-10-22.md. NEXT T4 public wiring/docs,
+      including NULL fit_args compatibility; no public behavior changed in T3.
       Absolute raw-LR 1e-7
       justified against stored observed/latent/interior-null oracle errors <=5.543e-10.
       Receipt: docs/specs/NOTE-T2-provider-verification-2026-10-22.md. Full CI unrun (RNG suite).

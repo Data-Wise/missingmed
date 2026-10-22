@@ -299,9 +299,39 @@
   x
 }
 
+# Approved spec 3a: these lavaan options do not change the supported statistic.
+# They are deliberately ignored, not forwarded or translated to medfit.
+.mm_sem_check_args <- function(fit_args) {
+  if (!is.list(fit_args) || is.data.frame(fit_args)) {
+    stop("`fit_args` must be a named list.", call. = FALSE)
+  }
+  if (!length(fit_args)) return(invisible(TRUE))
+  nm <- names(fit_args)
+  if (is.null(nm) || anyNA(nm) || any(!nzchar(nm))) {
+    stop("Every `fit_args` option must have a nonempty name.", call. = FALSE)
+  }
+  keys <- .lav_key(nm)
+  if (anyDuplicated(keys)) {
+    stop("Duplicate `fit_args` option: `", nm[duplicated(keys)][1L], "`.", call. = FALSE)
+  }
+  allowed <- c("estimator", "std_lv", "std_ov", "fixed_x", "conditional_x",
+    "meanstructure", "information", "missing", "se", "test")
+  bad <- nm[!keys %in% allowed]
+  if (length(bad)) {
+    stop("Unsupported SEM MBCO `fit_args` option: `", bad[1L], "`.", call. = FALSE)
+  }
+  if ("estimator" %in% keys) {
+    estimator <- fit_args[[which(keys == "estimator")]]
+    if (!is.character(estimator) || length(estimator) != 1L || is.na(estimator) ||
+      toupper(estimator) != "ML") {
+      stop("SEM MBCO `fit_args` `estimator` must be \"ML\".", call. = FALSE)
+    }
+  }
+  invisible(TRUE)
+}
+
 .mm_sem_provider <- function(model, treatment, mediator, outcome, fit_args = list()) {
-  # T3 owns option translation. Until then, never silently discard an option.
-  if (length(fit_args)) stop("SEM provider fit_args support awaits T3.", call. = FALSE)
+  .mm_sem_check_args(fit_args)
   .mm_sem_complete_syntax(model)
   lab <- .mm_sem_label_model(model, treatment, mediator, outcome)
   .mm_sem_dimensions(lab$model, lab$a, lab$b)

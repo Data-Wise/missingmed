@@ -5,6 +5,9 @@
 * Add the guarded SEM MBCO provider and deterministic acceptance controls for
   the planned medfit migration (#101, #102). Public inference still uses the
   existing lavaan provider pending migration wiring.
+* Add the approved internal SEM `fit_args` allow-list: listed statistic-invariant
+  options are ignored, only ML is accepted, and all other options are refused
+  by name. The medfit adapter continues to force `fixed_x = FALSE`.
 
 # missingmed 0.10.0
 

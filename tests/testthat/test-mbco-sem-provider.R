@@ -173,7 +173,7 @@ test_that("pooled warnings are emitted once with all dataset names", {
   }
 })
 
-test_that("unimplemented options and full-fit errors never silently fall through", {
+test_that("unsupported options and full-fit errors never silently fall through", {
   expect_error(missingmed:::.mm_sem_provider("M ~ X; Y ~ M", "X", "M", "Y",
     list(auto.cov.y = FALSE)), "fit_args")
   local_mocked_bindings(.mm_sem_fit = function(...) stop("full optimizer failed"))
