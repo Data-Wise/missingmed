@@ -6,7 +6,10 @@ P1 implemented: guard-trigger controls and three isolated in-memory mutations;
 834 deterministic assertions pass. Claude gave scoped static P1 approval but
 read only spec excerpts, leaving P2's full clause/body review open. Its exact
 branch-message suggestion was implemented and tested after review, not re-reviewed.
-T5 remains unaccepted pending real-case evidence and remaining review coverage.
+P2's clause matrix and one bounded Claude review are recorded in the receipt.
+Claude returned needs-attention; completeness interpretations, mutation strength
+and omitted review material remain open. T5 remains unaccepted, including the
+required real-case gate. No implementation fixes were authorized in this pass.
 
 ## Contract and current evidence
 
@@ -19,7 +22,36 @@ bounded search found no qualifying stored improper-null input, guard-trigger
 coverage is missing, and Claude's broader spec/test-body review is incomplete.
 Passing injected diagnostics cannot establish real optimizer warning behavior.
 
-## Options and recommendation
+## Author-approved T5 acceptance criteria — 2026-10-22
+
+Approved in chat after the explicit criteria proposal. This operational checklist
+clarifies acceptance without editing the approved spec. PASS requires evidence
+for every required row; demonstrated incorrect behavior is FAIL; missing or
+insufficient evidence is BLOCKED. A passing test count alone is not acceptance.
+
+| Required gate | PASS evidence | FAIL or BLOCKED condition |
+|---|---|---|
+| Likelihood validity (§3b, §4.7) | Both nulls in every imputation/stack and both ARIV modes validate finite raw LR, documented tolerance/roundoff, matching comparison contracts and positive consistent dimensions; invalid losing branches refuse with dataset/branch; bypasses are detected. | Material negatives accepted/floored, nonfinite summaries pass, or missing tolerance/matching-contract evidence. |
+| Branch completeness (§3c, §4.8) | Each listed scenario maps to executable evidence: both partial-failure orderings, potentially better unresolved branch (1 versus survivor 9), optimizer/postfit distinction, success minimum, all-failure, reasoned infeasibility, duplicates, 64-limit, immediate/nested and public propagation. Supported separate nulls fail closed; unsupported generic-product routes refuse before delegation, including aliases/nesting. | Convergence/silence proves completeness, survivor produces valid inference, exclusions depend on error text, or a listed scenario lacks adequate evidence. Refusal is not a claim to implement dependency branch enumeration. |
+| Independent df/compatibility (§3d, §4.9–10) | Independent K=20 positive-ARIV Chan–Meng/Li answers, zero/threshold controls, encoding, stack/K, own/fixed, ties, labeled diagnostics, dimensions and numeric indexing pass; planted defects detected; frozen provenance retained. | Expected answers reuse tested helper, only D4/p checked where labels matter, or frozen outputs change. |
+| Diagnostic attribution (C5/§3) | Injected a-only/b-only/both identity and once-per-dataset warning aggregation; diagnostic mismatch/error refuses; full fixed-x and separate null factor/fixed-x guards have isolated rejection and matched success controls. | Identity rests solely on warning order/count; mismatched refits accepted; guard bypass survives. |
+| Real dependency integration (author-added gate) | At least one qualifying pre-existing stored input/model, without injected diagnostics, reproduces an improper null. Independently inspected full/a/b diagnostics establish identity; fallback samples/settings and both raw LRs match; provider/public attribution is correct; saved artifacts unchanged. | No qualifying/reproducible case, mismatch, or wrong attribution. One case does not establish all asymmetric/both scenarios. This requirement is the author's hold, not an unambiguous original-spec fixture requirement. |
+| Reproducible verification | Final deterministic files and relevant mutation controls pass using pinned existing medfit identity; exact counts and zero unexpected failures/errors/warnings/skips recorded; fixture hashes unchanged; mutants fail intended assertions rather than unrelated execution errors. | Stale receipts, unidentified dependency, skipped required case, incidental mutation errors. |
+| Complete review evidence | Clause-to-test-body matrix identifies evidence type; Claude reads full relevant clauses, final implementation/tests and harnesses; findings dispositioned and omissions explicit. | Excerpt-only review, unreviewed final edits, or approval label overstating actual inspection. |
+
+Remaining gaps close through: qualifying real stored input (not more injected
+tests), complete final clause/body review, and review of P1's final assertion
+hardening. No automatic retry or review expansion. New findings remain open
+unless evidenced/dispositioned; recording a review is not proof of acceptance.
+
+Optional T5 confidence checks: more stored improper cases, more models/versions,
+performance checks and stronger optimizer exploration. Universal global-optimum
+proof is not promised. Simulations/calibration remain prohibited. Dependency
+floor/NEWS/vignette and full package gates remain T6/T7 obligations, not optional
+overall and not silently part of T5. Do not invoke prohibited generators via a
+test/check wrapper. No installs, simulations, saved-result changes or merge.
+
+## Options considered (recommended option approved)
 
 1. **Recommended: close independently actionable gaps first.** Add deterministic
    guard-trigger controls, then commission one explicitly scoped Claude review
@@ -78,7 +110,8 @@ does not authorize push, merge, install, simulation, or external submission.
 
 ## Boundaries and invalidators
 
-Planning only in this session; implementation/review are future steps. No
+This pass records criteria and performs deterministic verification/read-only review;
+implementation fixes require a subsequent instruction. No
 dependency installs, simulations, saved-result changes, or merge. Preserve the
 unrelated untracked research-workflow plan. Recheck this plan if the approved
 spec, medfit version, provider helper, fixture provenance or user constraints

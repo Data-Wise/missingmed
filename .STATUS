@@ -59,8 +59,12 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       three isolated guard bypasses each detected by 10 assertion failures;
       targeted lint clean. Claude scoped static P1 approval, spec excerpts only;
       exact failing-branch assertions tightened afterward, tested not re-reviewed.
-      NEXT tasks/plan.md: complete clause-to-test Claude review, then
-      author-supplied stored improper-null input gate.
+      P2 criteria recorded; clause/body matrix and bounded Claude review complete
+      as an audit, NOT acceptance. 834 assertions rerun green; 19 mutations
+      detected, but most harness gates allow incidental errors. Claude needs-
+      attention: completeness interpretations and review omissions remain open.
+      NEXT tasks/plan.md: authorize evidence-gap follow-up; author-supplied
+      stored improper-null input still required. No implementation edits this pass.
       T5 stays unaccepted; recommended path closes independent gaps first.
       After T5 acceptance: T6 dependency
       floor/package checks. No full RNG suite or vignette render.
