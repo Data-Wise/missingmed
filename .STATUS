@@ -55,7 +55,10 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       withholds approval: real case absent, guard-trigger tests missing, broader
       spec/test body review still partial. No implementation changes in this pass.
       Receipt NOTE-T5-acceptance-verification-2026-10-22.md.
-      NEXT resolve evidence/review scope, then T6 dependency
+      NEXT tasks/plan.md: deterministic guard controls, complete clause-to-test
+      Claude review, then author-supplied stored improper-null input gate.
+      T5 stays unaccepted; recommended path closes independent gaps first.
+      After T5 acceptance: T6 dependency
       floor/package checks. No full RNG suite or vignette render.
       Absolute raw-LR 1e-7
       justified against stored observed/latent/interior-null oracle errors <=5.543e-10.
