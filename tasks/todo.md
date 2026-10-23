@@ -14,7 +14,8 @@ See [plan.md](plan.md) for rationale, ownership and constraints.
 - [x] Codex: inventory remaining medfit evidence gaps and propose bounded D1–D5 dependency/consumer changes; read-only source and installed-library inspection, no fitting/tests.
 - [x] Author: approve the bounded dependency design and authorize D1 medfit outcome ledger/public propagation only.
 - [x] D1 — Codex: implement in isolated medfit worktree from 505e8ed; 259 deterministic assertions, lint/Rd checks, stored fixture and existing-library hashes unchanged. No D2-D5 implementation.
-- [ ] D1 — Author/Codex: authorize/complete focused Claude spec/test/post-review-diff coverage. First review partial; notice-summary/context-hardening fixes tested but unreviewed. Receipt in isolated medfit planning/specs/NOTE-D1-outcome-ledger-2026-10-22.md. Restricted check created an isolated temporary project install (disclosed deviation); no dependencies/existing libraries changed. T5 unaccepted.
+- [x] D1 — Codex/Claude: run authorized focused review of all D1 test bodies and prior fixes; no blocker, three low findings dispositioned, confirmed child-objective inconsistency repaired and notice coverage added; 273 deterministic assertions pass. No installs in this follow-up.
+- [ ] D1 — Independent final coverage: focused review omitted PROPOSAL-T5/direct approved clauses; final objective-guard/help/test edits tested but not Claude-reviewed. No automatic retry; receipt in isolated medfit planning/specs/NOTE-D1-outcome-ledger-2026-10-22.md. Prior restricted-check temporary install remains a disclosed historical deviation. T5 unaccepted.
 - [ ] P3 — Author: identify a qualifying pre-existing stored improper-null input/model with provenance.
 - [ ] P3 — Codex, after input: verify actual branch diagnostics, LR/settings agreement and public warning aggregation without changing saved artifacts.
 - [ ] Checkpoint — Codex: verify every T5 requirement has adequate evidence; leave T5 unaccepted otherwise.

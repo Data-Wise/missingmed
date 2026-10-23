@@ -92,7 +92,11 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       259 deterministic assertions pass, no changed-file lint/Rd findings.
       Claude standard review partial (tests/spec omitted); notice-visibility
       finding fixed, context/child-drop hardening added and tested afterward,
-      not re-reviewed. D1 final independent coverage remains open; D2-D5 untouched.
+      not re-reviewed at that checkpoint. Authorized focused review then read all
+      11 D1 test bodies/prior fixes: no blocker, three low findings dispositioned.
+      Child-objective consistency fixed; MBCO notice tests/help added; 273
+      deterministic assertions pass. Final follow-up not Claude-reviewed; direct
+      approved-spec/proposal review omissions remain. D2-D5 untouched, T5 unaccepted.
       Restricted check made a temporary project install (disclosed no-installs
       deviation); no dependencies/existing libraries changed. Check has one
       existing undeclared-rlang warning. No simulations, saved-result edits or merge.

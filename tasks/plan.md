@@ -16,12 +16,21 @@ Inventory and bounded D1–D5 changes:
 Codex has completed the inventory, including source/installed version comparison.
 D1 is implemented in `/private/tmp/medfit-d1.3jrA2K/medfit`, isolated branch
 `codex/medfit-d1-outcome-ledger` from local medfit origin/dev `505e8ed` (0.12.0).
-Scoped local medfit commit: `06b2ca9`; not pushed or merged.
-259 deterministic assertions pass; original stored values and fixture/library
-hashes are unchanged. Claude standard review was partial: no blocking production
-finding, but tests/spec receipt were skipped; one notice-visibility finding and
-additional context hardening were fixed and tested afterward, not re-reviewed.
-D1 final independent review coverage remains open; no automatic review retry.
+Scoped local medfit commits: initial D1 `06b2ca9`, post-review follow-up `9abca87`
+(fixes after the review, not independently re-reviewed); neither pushed nor merged.
+273 deterministic assertions now pass after the authorized focused review and
+follow-up; original stored values are unchanged. Focused Claude standard review
+of `06b2ca9` read all 11 D1 test bodies and prior post-review fixes: no D1 blocker,
+but PROPOSAL-T5 and direct C5/3, 4.8/4.10 reading were omitted (3d coverage
+inconsistent, not credited). Three low findings dispositioned: document notices
+on attributed children rather than aggregate root; test MBCO error summaries;
+defer unmeasured sample-storage redesign, but fix confirmed parent/child objective
+inconsistency. Both malformed-objective controls failed before the fix; final
+124 focused + 45 selected existing + 104 expression assertions pass. Final
+follow-up changes are tested, NOT Claude-reviewed; independent coverage remains
+open. No automatic retry. Review job `6b6a1736-0258-4d21-8f85-6cd23b8644cd`,
+sonnet / claude-sonnet-5-5, 224145 tokens, 8 turns, 72481 ms, $0.2615716;
+no lease/cost/turn exhaustion. Full dispositions/coverage/usage in receipt below.
 Receipt: `/private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D1-outcome-ledger-2026-10-22.md`.
 Scope deviation disclosed: a restricted R CMD check created its usual temporary
 medfit installation inside the isolated check folder. No dependencies or existing
