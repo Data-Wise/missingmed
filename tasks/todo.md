@@ -2,6 +2,12 @@
 
 See [plan.md](plan.md) for rationale, ownership and constraints.
 
+- [x] D4 local implementation and deterministic checks — typed covariance-stage snapshot, internal null-only retention, public full-fit throw; 1470 assertions pass. Receipt linked in plan.
+- [x] D4 one authorized Claude review — scoped approve, one low attribution concern; omissions and post-review documentation recorded.
+- [ ] D4 independent closure — original C5/3c/3d/4.8–10 and omitted full test/helper bodies; explicit nonwinning covariance-failure attribution evidence. Do not infer closure from scoped approval.
+- [x] D3 final source/spec omissions — Clauded7e0983c approved after reading original clauses/conversion/rebase/full tests; historical open descriptions below superseded.
+- [ ] D5 integration and qualifying real-case evidence; T5 remains UNACCEPTED.
+
 - [x] D3 public/format follow-up — public/nested mapping and tamper coverage; non-scientific, approximate/overflow count wording. 1386 deterministic assertions/lint pass. Claude0a653f34 approves, no confirmed bugs; optional tests deferred. Latest spec/conversion-source omissions recorded, no full closure claim. T5 UNACCEPTED.
 
 - [x] D3 implementation/checks — overflow-safe raw cap, duplicate mapping without deduplicated execution; 1300 deterministic assertions and changed-file lint pass. Claude b0735071 needs-attention; four concerns addressed/retested, not independently re-reviewed. T5 UNACCEPTED; D4/D5/real cases remain open.

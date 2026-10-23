@@ -273,6 +273,13 @@ that returns no usable likelihood, also stops inference; no successful survivor
 is substituted. Diagnostic warnings do not discard a returned finite likelihood,
 but every LR/completeness gate must still pass. This does not recover a likelihood
 hidden inside an error or certify a global optimum.
+
+The local D4 dependency work adds a typed covariance-stage failure with a
+versioned partial likelihood, not a successful `SEMFit`. Its internal null-only
+retention does not authorize full-fit recovery through missingmed. T5 remains
+unaccepted pending D5 integration and qualifying real-case evidence; injected
+covariance failures are deterministic controls, not naturally observed cases.
+This is a development checkpoint, not a released capability claim.
 Improper-null warnings additionally require resolved branch attribution:
 diagnostic refit errors, sample/LR mismatches or unreproduced improper flags
 stop inference even when the reported likelihoods are finite.

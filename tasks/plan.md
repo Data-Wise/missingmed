@@ -2,7 +2,28 @@
 
 Updated 2026-10-22. Execution checklist: [todo.md](todo.md).
 
-## Current authorization — D3 duplicate maps and raw cap
+## Current checkpoint — D4 post-fit evidence and wrap-up
+
+D4 is implemented/tested locally on medfit branch `codex/medfit-d4-post-fit-evidence`
+from pinned D3 `cba4c1a`, not integrated. See
+[D4 receipt](../docs/specs/NOTE-D4-post-fit-evidence-2026-10-22.md) for the contract,
+clause-to-test tracing, exact checks and review limits; `.STATUS` owns current state.
+654 dependency +816 consumer =1470 deterministic assertions pass. Claude approves
+the scoped code review with one low union-attribution concern, but omitted original
+spec clauses and new test lines 1–99/full helper bodies. Post-review wording/harness
+formatting is not independently reviewed. D4 is **not independently closed**.
+
+Next bounded step: review omitted clauses/test bodies and close union-attribution
+evidence, then separately authorize D5. **T5 remains UNACCEPTED** pending D5 and
+qualifying real-case evidence. No installs/simulations/saved-result changes/push/merge.
+User requested wrap-up: planning/status/agent docs, website source and memory sync.
+
+Prior D3 omissions were closed by Clauded7e0983c: original clauses/proposal and
+conversion/rebase/full tests read; scoped approval, no findings. Raw receipt
+`docs/specs/D3-spec-conversion-claude-review-2026-10-22.json`. The descriptions below
+are historical; they do not supersede this checkpoint.
+
+## Historical D3 duplicate maps and raw cap
 
 Latest public/format follow-up `cba4c1a` on `08e2dc2`: real stored-data `fit_sem` exact map
 oracle, full/both-null nested maps and child IDs/minima, public per-field/child
