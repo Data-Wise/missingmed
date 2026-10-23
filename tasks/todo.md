@@ -2,6 +2,9 @@
 
 See [plan.md](plan.md) for rationale, ownership and constraints.
 
+- [x] D4 owner clause tracing and explicit nonwinning-child controls — both product orders/both nulls; 1584 deterministic assertions, new-file lint clean; two attribution/notice mutants discriminate.
+- [ ] D4 independent closure — Claude5ad08ae8 failed structured-output finalization; unread required bodies and unvalidated classification/two-failure/root-validation concerns remain. No automatic retry. Author requested wrap-up; T5 UNACCEPTED.
+
 - [x] D4 local implementation and deterministic checks — typed covariance-stage snapshot, internal null-only retention, public full-fit throw; 1470 assertions pass. Receipt linked in plan.
 - [x] D4 one authorized Claude review — scoped approve, one low attribution concern; omissions and post-review documentation recorded.
 - [ ] D4 independent closure — original C5/3c/3d/4.8–10 and omitted full test/helper bodies; explicit nonwinning covariance-failure attribution evidence. Do not infer closure from scoped approval.

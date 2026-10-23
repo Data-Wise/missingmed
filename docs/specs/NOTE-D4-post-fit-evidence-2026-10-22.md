@@ -1,5 +1,12 @@
 # D4 post-fit evidence — local wrap-up checkpoint
 
+Latest follow-up: `D4-closure-matrix-2026-10-22.md` and
+`D4-closure-claude-review-2026-10-22.json`. Explicit nonwinning-child tests pass
+in both product orders and both nulls; 1584 deterministic assertions pass with
+new test lint clean. Claude5ad08ae8 failed structured-output finalization, leaving
+unread bodies and unvalidated draft concerns. No independent D4 closure or T5
+acceptance. Author requested wrap-up; no automatic review retry or D5 work.
+
 Local checkpoints: medfit `f31e12e`; rforge website source `7c4ec3e`.
 Rforge validation: 920 Python tests passed, four skipped; 46/47 wrapper checks
 passed, with only eight pre-existing generated-reference drift pages failing.

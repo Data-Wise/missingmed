@@ -4,6 +4,17 @@ Updated 2026-10-22. Execution checklist: [todo.md](todo.md).
 
 ## Current checkpoint — D4 post-fit evidence and wrap-up
 
+Latest follow-up: [closure matrix](../docs/specs/D4-closure-matrix-2026-10-22.md).
+Nonwinning-child controls now explicitly cover both product orders and both nulls,
+healthy winner/other-null state, exact child IDs, retained identification/failure
+notices and unchanged LR/statistic/p. 1584 deterministic assertions pass; new test
+lint clean; attribution/notice mutations fail the intended assertions. No production
+logic changed. Claude5ad08ae8 failed structured-output finalization; no valid verdict,
+required unread bodies and three unvalidated draft concerns remain. **D4 is not
+independently closed; T5 remains UNACCEPTED.** Author requested wrap-up; next action
+is author authorization for a fresh focused review, not D5 implementation. Historical
+counts and open-gap descriptions below are superseded by this follow-up.
+
 D4 is implemented/tested locally on medfit branch `codex/medfit-d4-post-fit-evidence`
 from pinned D3 `cba4c1a`, not integrated. See
 [D4 receipt](../docs/specs/NOTE-D4-post-fit-evidence-2026-10-22.md) for the contract,
