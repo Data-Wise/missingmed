@@ -2,7 +2,39 @@
 
 Updated 2026-10-22. Execution checklist: [todo.md](todo.md).
 
-## Current authorization — D2 literal certificates on pinned D1
+## Current authorization — D3 duplicate maps and raw cap
+
+D3 is implemented locally on D2 `a11c63b` in isolated medfit branch
+`codex/medfit-d3-branch-map`, local commit `08e2dc2`. Parser-factor cardinality is overflow checked before
+grid allocation; admission remains at most 64 RAW combinations. Admitted ledger
+nodes expose raw/factor counts, structural restriction-set IDs, unique count and
+raw mapping without deduplicating execution, reordering fits or pruning subsets.
+Over-cap/overflow errors retain counts and `not_enumerated`, no partial grid.
+
+484 dependency +816 consumer =1300 deterministic assertions pass, zero warnings
+or errors; changed code/tests and consumer tests lint clean. Stored fixture hash
+unchanged. Source-loaded existing dependencies; no installs or simulations.
+Claude b0735071 returned needs-attention, no ship-blocking code defect. Four
+concerns addressed/retested: factor/raw-row permutations and per-field tamper,
+multi-factor/finite-large counts and exact refusal metadata, non-first duplicate
+ties/full forwarding, and a confirmed error-ledger regression from map parsing.
+The latter failed before repair; unavailable map now retains its own condition
+without replacing the original typed fitting error. Post-review fixes have NOT
+been independently re-reviewed; no automatic retry.
+Claude read D3/full initial new tests/changed source/docs/parser helpers, but
+omitted original C5/3c/3d/items8-10, full existing tests, fixture and mbco_sem.
+Codex reread these original clauses: guarded error/notice compatibility (C5),
+raw duplicate/cap controls and existing public/nested outcomes (3c/item8), and
+unchanged 3d/items9-10 with 816 consumer regressions. Owner tracing is not Claude
+closure or D4/D5 acceptance. Receipt in dependency
+`planning/specs/NOTE-D3-branch-map-2026-10-22.md`; raw complete review retained at
+`docs/specs/D3-claude-review-2026-10-22.json` (Sonnet5.5, medium, 8 turns,
+263112 tokens, $0.2535686). Next bounded step: focused Claude closure of the
+post-review fixes and omitted original clauses, before dependency integration.
+T5 remains UNACCEPTED; D4/D5 and real-case evidence remain open. No saved-result
+changes, push or merge. Earlier D2 review notes below are historical.
+
+## Previous authorization — D2 literal certificates on pinned D1
 
 Latest explicit null-attribution follow-up (local medfit `a11c63b`): 85 D2/394 dependency +816 consumer
 =1210 deterministic assertions pass, zero warnings/errors; changed test/consumer
