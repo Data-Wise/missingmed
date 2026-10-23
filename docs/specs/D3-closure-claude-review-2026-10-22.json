@@ -1,0 +1,168 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "claude_job_result: completed"
+    }
+  ],
+  "structuredContent": {
+    "ok": true,
+    "operation": "review",
+    "review_kind": "adversarial",
+    "subject_kind": "changes",
+    "subject_label": "a11c63b23d8e24cd435abae9bc1e8345f11ee0ed..HEAD plus working tree",
+    "subject_fingerprint": "011eb483b899aa6cbf238308a92639aff7044fcbc33b20279242902f7cf37534",
+    "usage_summary": "Usage: tokens=226519 output=9954 turns=14 duration_ms=73892 api_ms=73409 cost_usd=0.27477409999999997",
+    "total_tokens": 226519,
+    "total_cost_usd": 0.27477409999999997,
+    "cumulative_chain_cost_usd": 0.27477409999999997,
+    "parent_job_id": null,
+    "num_turns": 14,
+    "duration_ms": 73892,
+    "duration_api_ms": 73409,
+    "task_profile": null,
+    "review_profile": "standard",
+    "requested_model": "sonnet",
+    "effective_models": [
+      "claude-sonnet-5-5"
+    ],
+    "effort": "medium",
+    "budget": {
+      "max_turns": 22,
+      "finalize_at_turn": 19,
+      "soft_budget_usd": 1,
+      "max_budget_usd": 1,
+      "timeout_ms": 240000
+    },
+    "evidence_lease": null,
+    "evidence_lease_exhausted": false,
+    "cost_budget_exhausted": false,
+    "turn_limit_reached": false,
+    "result": "{\"verdict\":\"approve\",\"summary\":\"I found no confirmed ship-blocking defect in the D3 slice (08e2dc2 vs a11c63b). I read the code and tests below and did not run anything. The four post-review repairs are present and consistent with the approved D3 contract (PROPOSAL-T5 lines 108-130).\\n\\n1. Raw-row factor reversal, per-field tamper and collision controls. Reversal is tested at test-sem-branch-map.R:109-114, digit-bearing labels at :116-119, and overlap at :120-121. Tamper of every top-level branch_map field is tested at :40-44. The IDs are length-prefixed and radix-sorted (sem-outcomes.R:28,38). `.sem_valid_outcome` recomputes the map (:213), so forged IDs fail closed.\\n2. Multifactor boundaries and large-count metadata. `.sem_raw_count` is overflow-safe (sem-outcomes.R:2-12). Tests pin 63/64/65/72, 2^40 and Inf (test-sem-branch-map.R:2-10). Over-cap refusals pin raw_count, enumeration$required and the message for 128, 2^40 and 2000 factors (:77-92). A `.sem_branch_grid` trap plus a zero-fit-call assertion shows nothing is allocated or fitted.\\n3. Non-first duplicate ties and forwarded args. The tie test (:55-75) has f = 4,1,1,2. Rows 2 and 3 share a canonical ID, and the winner `branch` is pinned to row 2 (`b1 == 0`, `a1 == 0`), so a last-wins or reordered tie would fail. The forwarded args and rhs are asserted in full (:58-59,64).\\n4. Guarded malformed-map path. `.sem_outcome` wraps the map in tryCatch (sem-outcomes.R:152-154). Test :124-134 shows the original error is retained, the map is \\\"unavailable\\\", the validator rejects it, and the typed condition is preserved.\\n\\nPropagation, from the code read. `mbco_sem` gates on `.sem_require_outcome` for the full fit (sem-mbco.R:157) and for each refit (:181). It rebases the nested ledgers (:171,203), so branch_map flows through nodes that `.sem_outcome` builds. `.sem_fit_branches` (sem-fit.R:272-357) keeps the raw cap check before the grid, the first-minimum `which.min`, and the existing completeness rule.\\n\\nOriginal-obligation map:\\n- C5 (notices and errors): changed only by the guarded map, which no longer masks the original error. Retained notices in `.sem_abort_outcome` are unchanged.\\n- 3c: D3 changes the duplicate and 64-branch controls only. Partial-failure ordering, infeasibility exclusion and nested/public propagation are D1/D2 behaviour that D3 left unchanged. I read only the slice of test-sem-outcomes.R at lines 120-180; the fit_sem 64-branch fit (:152-161) does not assert branch_map.\\n- 3d and items 9-10: unchanged by D3, no D3 evidence. They remain D4/D5 or consumer scope.\\n- Items 8 and 10: not closed by D3. T5 stays UNACCEPTED.\\n\\nThe owner's 1300 assertions are not independently verified.\",\"findings\":[{\"severity\":\"low\",\"title\":\"branch_map not asserted through public fit_sem / mbco_sem paths\",\"body\":\"All D3 tests call `.sem_fit_branches`, `.sem_branch_map` or `.sem_outcome` directly. The one public 64-raw test (test-sem-outcomes.R:152-161) asserts no branch_map field. Nothing pins `fit@diagnostics$outcome$branch_map` on a `fit_sem` result. Nothing tampers `branch_map` on a SEMFit and expects `mbco_sem` to refuse it, and nothing covers the nested mbco refit nodes. The validator does recompute the map (sem-outcomes.R:213), so this is inferred protection, not a demonstrated failure. Also, the tamper loop (test-sem-branch-map.R:40-44) covers only top-level map fields, not child-node maps.\",\"file\":\"tests/testthat/test-sem-branch-map.R\",\"line_start\":40,\"line_end\":44,\"confidence\":0.6,\"recommendation\":\"Add one public fit_sem case asserting branch_map counts and mapping, and a mbco_sem refusal case with a forged `bad@diagnostics$outcome$branch_map`. Optionally add a child-node map tamper.\"},{\"severity\":\"low\",\"title\":\"Large finite raw counts are formatted with %s and may lose precision or switch to scientific notation\",\"body\":\"`.sem_raw_count` returns a double above integer.max, and sem-fit.R:276 formats it with sprintf('%s'). The pinned message is exact only for 2^40. Values around 1e15 or more will print in scientific notation, and values above 2^53 are inexact. The cap decision is unaffected, because anything above 64 refuses, so this is cosmetic or observability only.\",\"file\":\"R/sem-fit.R\",\"line_start\":276,\"line_end\":276,\"confidence\":0.5,\"recommendation\":\"Use format(count, scientific = FALSE, big.mark = '') for finite doubles, or document the approximate formatting.\"}],\"next_steps\":[\"Optionally add public-path branch_map assertions and a forged-map mbco_sem refusal test.\",\"Run the owner's 1300-assertion suite independently before accepting D3; this review did not execute tests.\",\"Keep T5 UNACCEPTED: D4/D5, 3c nested/public status propagation, 3d and items 8-10 integration, and the real-case evidence remain open.\"],\"coverage\":{\"files_examined\":[\"docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md (lines 30-204)\",\"docs/specs/PROPOSAL-T5-medfit-evidence-contract-2026-10-22.md (lines 105-133)\",\"R/sem-outcomes.R (full)\",\"tests/testthat/test-sem-branch-map.R (full, 134 lines)\",\"R/sem-fit.R (.sem_fit_branches, lines 272-357)\",\"planning/specs/NOTE-D3-branch-map-2026-10-22.md (full)\",\"R/sem-constraints.R (.sem_zero_product_rows)\",\"R/sem-mbco.R (lines 145-204)\",\"tests/testthat/test-sem-outcomes.R (lines 120-180)\",\"grep of R/fit-sem.R and NEWS.md for the cap and branch_map text\"],\"files_skipped\":[\"D3-claude-review-2026-10-22.json (prior review raw)\",\"tests/testthat/test-sem-literal-certificates.R (bodies not read)\",\"the rest of test-sem-outcomes.R\",\"the rest of R/sem-mbco.R, including the pooled-statistic code after line 204\",\"helper `.sem_product_factors` and the parser\",\"fixtures\",\"man/fit_sem.Rd and vignettes/articles/computation-algorithms.qmd (not read in full)\",\"the .STATUS diff\",\"the review-diff adapter (never invoked; I used Read and Grep)\"],\"areas\":[\"raw-count overflow and cap ordering\",\"structural ID encoding and collisions\",\"validator reconstruction and tamper\",\"tie and first-minimum selection\",\"guarded error retention\",\"mbco_sem nested propagation\",\"map of the original C5/3c/3d/items 8-10 obligations to D3\"]},\"uncertainty\":\"medium\",\"budget_exhausted\":false,\"recommended_followup\":{\"profile\":\"none\",\"focus\":[],\"reason\":\"No D3 blocker found. Public/nested propagation and the remaining T5 obligations belong to the D4/D5 review, not a deeper D3 pass.\"}}",
+    "structured_output": {
+      "verdict": "approve",
+      "summary": "I found no confirmed ship-blocking defect in the D3 slice (08e2dc2 vs a11c63b). I read the code and tests below and did not run anything. The four post-review repairs are present and consistent with the approved D3 contract (PROPOSAL-T5 lines 108-130).\n\n1. Raw-row factor reversal, per-field tamper and collision controls. Reversal is tested at test-sem-branch-map.R:109-114, digit-bearing labels at :116-119, and overlap at :120-121. Tamper of every top-level branch_map field is tested at :40-44. The IDs are length-prefixed and radix-sorted (sem-outcomes.R:28,38). `.sem_valid_outcome` recomputes the map (:213), so forged IDs fail closed.\n2. Multifactor boundaries and large-count metadata. `.sem_raw_count` is overflow-safe (sem-outcomes.R:2-12). Tests pin 63/64/65/72, 2^40 and Inf (test-sem-branch-map.R:2-10). Over-cap refusals pin raw_count, enumeration$required and the message for 128, 2^40 and 2000 factors (:77-92). A `.sem_branch_grid` trap plus a zero-fit-call assertion shows nothing is allocated or fitted.\n3. Non-first duplicate ties and forwarded args. The tie test (:55-75) has f = 4,1,1,2. Rows 2 and 3 share a canonical ID, and the winner `branch` is pinned to row 2 (`b1 == 0`, `a1 == 0`), so a last-wins or reordered tie would fail. The forwarded args and rhs are asserted in full (:58-59,64).\n4. Guarded malformed-map path. `.sem_outcome` wraps the map in tryCatch (sem-outcomes.R:152-154). Test :124-134 shows the original error is retained, the map is \"unavailable\", the validator rejects it, and the typed condition is preserved.\n\nPropagation, from the code read. `mbco_sem` gates on `.sem_require_outcome` for the full fit (sem-mbco.R:157) and for each refit (:181). It rebases the nested ledgers (:171,203), so branch_map flows through nodes that `.sem_outcome` builds. `.sem_fit_branches` (sem-fit.R:272-357) keeps the raw cap check before the grid, the first-minimum `which.min`, and the existing completeness rule.\n\nOriginal-obligation map:\n- C5 (notices and errors): changed only by the guarded map, which no longer masks the original error. Retained notices in `.sem_abort_outcome` are unchanged.\n- 3c: D3 changes the duplicate and 64-branch controls only. Partial-failure ordering, infeasibility exclusion and nested/public propagation are D1/D2 behaviour that D3 left unchanged. I read only the slice of test-sem-outcomes.R at lines 120-180; the fit_sem 64-branch fit (:152-161) does not assert branch_map.\n- 3d and items 9-10: unchanged by D3, no D3 evidence. They remain D4/D5 or consumer scope.\n- Items 8 and 10: not closed by D3. T5 stays UNACCEPTED.\n\nThe owner's 1300 assertions are not independently verified.",
+      "findings": [
+        {
+          "severity": "low",
+          "title": "branch_map not asserted through public fit_sem / mbco_sem paths",
+          "body": "All D3 tests call `.sem_fit_branches`, `.sem_branch_map` or `.sem_outcome` directly. The one public 64-raw test (test-sem-outcomes.R:152-161) asserts no branch_map field. Nothing pins `fit@diagnostics$outcome$branch_map` on a `fit_sem` result. Nothing tampers `branch_map` on a SEMFit and expects `mbco_sem` to refuse it, and nothing covers the nested mbco refit nodes. The validator does recompute the map (sem-outcomes.R:213), so this is inferred protection, not a demonstrated failure. Also, the tamper loop (test-sem-branch-map.R:40-44) covers only top-level map fields, not child-node maps.",
+          "file": "tests/testthat/test-sem-branch-map.R",
+          "line_start": 40,
+          "line_end": 44,
+          "confidence": 0.6,
+          "recommendation": "Add one public fit_sem case asserting branch_map counts and mapping, and a mbco_sem refusal case with a forged `bad@diagnostics$outcome$branch_map`. Optionally add a child-node map tamper."
+        },
+        {
+          "severity": "low",
+          "title": "Large finite raw counts are formatted with %s and may lose precision or switch to scientific notation",
+          "body": "`.sem_raw_count` returns a double above integer.max, and sem-fit.R:276 formats it with sprintf('%s'). The pinned message is exact only for 2^40. Values around 1e15 or more will print in scientific notation, and values above 2^53 are inexact. The cap decision is unaffected, because anything above 64 refuses, so this is cosmetic or observability only.",
+          "file": "R/sem-fit.R",
+          "line_start": 276,
+          "line_end": 276,
+          "confidence": 0.5,
+          "recommendation": "Use format(count, scientific = FALSE, big.mark = '') for finite doubles, or document the approximate formatting."
+        }
+      ],
+      "next_steps": [
+        "Optionally add public-path branch_map assertions and a forged-map mbco_sem refusal test.",
+        "Run the owner's 1300-assertion suite independently before accepting D3; this review did not execute tests.",
+        "Keep T5 UNACCEPTED: D4/D5, 3c nested/public status propagation, 3d and items 8-10 integration, and the real-case evidence remain open."
+      ],
+      "coverage": {
+        "files_examined": [
+          "docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md (lines 30-204)",
+          "docs/specs/PROPOSAL-T5-medfit-evidence-contract-2026-10-22.md (lines 105-133)",
+          "R/sem-outcomes.R (full)",
+          "tests/testthat/test-sem-branch-map.R (full, 134 lines)",
+          "R/sem-fit.R (.sem_fit_branches, lines 272-357)",
+          "planning/specs/NOTE-D3-branch-map-2026-10-22.md (full)",
+          "R/sem-constraints.R (.sem_zero_product_rows)",
+          "R/sem-mbco.R (lines 145-204)",
+          "tests/testthat/test-sem-outcomes.R (lines 120-180)",
+          "grep of R/fit-sem.R and NEWS.md for the cap and branch_map text"
+        ],
+        "files_skipped": [
+          "D3-claude-review-2026-10-22.json (prior review raw)",
+          "tests/testthat/test-sem-literal-certificates.R (bodies not read)",
+          "the rest of test-sem-outcomes.R",
+          "the rest of R/sem-mbco.R, including the pooled-statistic code after line 204",
+          "helper `.sem_product_factors` and the parser",
+          "fixtures",
+          "man/fit_sem.Rd and vignettes/articles/computation-algorithms.qmd (not read in full)",
+          "the .STATUS diff",
+          "the review-diff adapter (never invoked; I used Read and Grep)"
+        ],
+        "areas": [
+          "raw-count overflow and cap ordering",
+          "structural ID encoding and collisions",
+          "validator reconstruction and tamper",
+          "tie and first-minimum selection",
+          "guarded error retention",
+          "mbco_sem nested propagation",
+          "map of the original C5/3c/3d/items 8-10 obligations to D3"
+        ]
+      },
+      "uncertainty": "medium",
+      "budget_exhausted": false,
+      "recommended_followup": {
+        "profile": "none",
+        "focus": [],
+        "reason": "No D3 blocker found. Public/nested propagation and the remaining T5 obligations belong to the D4/D5 review, not a deeper D3 pass."
+      }
+    },
+    "session_id": "b95acc14-40e6-4cdb-8d4f-85d31bdcad0f",
+    "resume_hint": "claude --resume b95acc14-40e6-4cdb-8d4f-85d31bdcad0f",
+    "disclosure": null,
+    "usage": {
+      "input_tokens": 10,
+      "cache_creation_input_tokens": 39374,
+      "cache_read_input_tokens": 177181,
+      "output_tokens": 9954,
+      "output_tokens_details": {
+        "thinking_tokens": 5414
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 39374,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 5917,
+          "cache_read_input_tokens": 49634,
+          "cache_creation_input_tokens": 4860,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 4860
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "model_usage": {
+      "claude-sonnet-5-5": {
+        "inputTokens": 10,
+        "outputTokens": 9954,
+        "cacheReadInputTokens": 177181,
+        "cacheCreationInputTokens": 39374,
+        "webSearchRequests": 0,
+        "costUSD": 0.27477409999999997,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 5414,
+        "canonicalModel": "claude-sonnet-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    }
+  }
+}

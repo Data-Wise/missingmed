@@ -1,0 +1,170 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "claude_job_result: completed"
+    }
+  ],
+  "structuredContent": {
+    "ok": true,
+    "operation": "review",
+    "review_kind": "adversarial",
+    "subject_kind": "changes",
+    "subject_label": "08e2dc217c4a9eedbb41dd2cea5db761d9ab77d4..HEAD plus working tree",
+    "subject_fingerprint": "264f430b130a32c6e7d0c1e71d27f5f28e9a581b781981664a3274fe9523574f",
+    "usage_summary": "Usage: tokens=279865 output=8339 turns=13 duration_ms=62399 api_ms=61580 cost_usd=0.21473029999999999",
+    "total_tokens": 279865,
+    "total_cost_usd": 0.21473029999999999,
+    "cumulative_chain_cost_usd": 0.21473029999999999,
+    "parent_job_id": null,
+    "num_turns": 13,
+    "duration_ms": 62399,
+    "duration_api_ms": 61580,
+    "task_profile": null,
+    "review_profile": "standard",
+    "requested_model": "sonnet",
+    "effective_models": [
+      "claude-sonnet-5-5"
+    ],
+    "effort": "medium",
+    "budget": {
+      "max_turns": 22,
+      "finalize_at_turn": 19,
+      "soft_budget_usd": 1,
+      "max_budget_usd": 1,
+      "timeout_ms": 240000
+    },
+    "evidence_lease": null,
+    "evidence_lease_exhausted": false,
+    "cost_budget_exhausted": false,
+    "turn_limit_reached": false,
+    "result": "{\"verdict\":\"approve\",\"summary\":\"No confirmed bugs or ship blockers in the D3 optional-hardening diff against 08e2dc2. I found only optional test-coverage gaps. This is a source-trace review; I executed nothing. D3 coverage says nothing about T5 acceptance, and D4, D5 and the real-case work remain open. The message change in R/sem-fit.R:276-282 touches only the refusal text. The `raw_count > 64L` gate and the numeric ledger fields are unchanged. Inferred oracles: 2^40 formats as \\\"1099511627776\\\", 2^60 as \\\"approximately 1152921504606846976\\\", and Inf as \\\"overflow (Inf)\\\".\",\"findings\":[{\"severity\":\"low\",\"title\":\"Nested-map refusal is tested for one field and one node only\",\"body\":\"Per-field public tamper (test lines ~134-137) mutates only the stored fit's root `branch_map`. Nested refusal is exercised only through the mocked `.sem_fit_syntax` altering `unique_count` of null:1 (lines ~141-153). Nothing tampers a retained mbco/full or mbco/null node's `branch_map` per field. Nothing tampers a nested child's `branch_map` either. `.sem_valid_outcome` (sem-outcomes.R:213) does enforce the check recursively (sem-outcomes.R:239), so I infer it works, but no test pins it. A regression that skipped map validation on nested nodes would pass this suite.\",\"file\":\"tests/testthat/test-sem-branch-map.R\",\"line_start\":141,\"line_end\":153,\"confidence\":0.6,\"recommendation\":\"Add a loop over `names(map)` through the mocked `.sem_fit_syntax` (one field per iteration, `out$outcome$branch_map[[field]] <- \\\"forged\\\"`). Also inject a map into a nested branch child. In both cases assert `medfit_sem_unresolved` and `rejected_evidence`.\"},{\"severity\":\"low\",\"title\":\"Message-format oracles skip the 2^53 boundary and non-power-of-two counts\",\"body\":\"The R/sem-fit.R:276-282 message path is pinned only at 128L, 2^40, 2^60 and Inf. The exact `2^53` boundary (not labeled approximate) is unpinned, as are counts just above it. So are non-power-of-two products such as 3^k, where `digits = 22` formatting of a double that cannot be written exactly could differ by platform. The 2^60 oracle depends on `format()` printing the full exact decimal expansion, which is inferred, not executed.\",\"file\":\"R/sem-fit.R\",\"line_start\":276,\"line_end\":282,\"confidence\":0.4,\"recommendation\":\"Optionally add a pure unit test of the count formatter at 2^53, 2^53+2 and a large non-power-of-two count, and consider extracting the formatter into a helper.\"},{\"severity\":\"low\",\"title\":\"Public fit test depends on a single-start optimizer\",\"body\":\"The new public-fit test uses `n_starts = 1L` through `fit_sem` and `mbco_sem`, and asserts `is.finite(result$p.value)` and f-minimum equality across branches. It also assumes the null node count (`expect_length(nodes, 3L)`) and the ordering `mbco/null:i` follow `paths` order. The owner already flagged the n_starts=1 and random-retry trap in the dependency suites. Convergence of every refit is not a map or propagation property, so the assertions can fail for unrelated optimizer reasons.\",\"file\":\"tests/testthat/test-sem-branch-map.R\",\"line_start\":104,\"line_end\":110,\"confidence\":0.3,\"recommendation\":\"Seed the test or use a fixture that is known to converge, and keep the p-value assertion separate from the map-propagation assertions.\"}],\"next_steps\":[\"Clause-to-test mapping (test line numbers approximate). Stored-data public map exact oracle: lines ~104-115. Full and null nested maps, IDs mbco/full and mbco/null:i: lines ~121-125. Parent minimum and .sem_valid_outcome: lines ~127-128. Child IDs, parent_id and NULL child map: lines ~131-134.\",\"More mapping. Public tamper per field: lines ~136-139. Child map injection: lines ~141-142. Injected nested-map refusal: lines ~143-154. Finite 2^40, approximate 2^60 and overflow message oracles, unchanged numeric counts and the >64-RAW policy: lines ~87-98.\",\"The forwarded-mock `!is.null(model)` guard (line 144) is scoped to that one mock inside this test_that block through `local_mocked_bindings`. It cannot leak. The over-cap refusal builds its context with a NULL model in `.sem_fit_branches`, not in `.sem_fit_syntax`, so the guard is harmless.\",\"Read: the diff of all five changed files, R/sem-outcomes.R lines 14-64, 135-165 and 190-271, and R/sem-mbco.R lines 120-229. Omitted: the SPEC and PROPOSAL-T5 documents, the D3 closure JSON, the full test file beyond the diff, `.sem_as_semfit`, `.sem_rebase_outcome`, and the dependency and consumer suites. Spec-clause conformance is therefore unreviewed.\"],\"coverage\":{\"files_examined\":[\"R/sem-fit.R\",\"R/fit-sem.R\",\"man/fit_sem.Rd\",\"NEWS.md\",\"tests/testthat/test-sem-branch-map.R\",\"R/sem-outcomes.R\",\"R/sem-mbco.R\"],\"files_skipped\":[\"docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md\",\"docs/specs/PROPOSAL-T5-medfit-evidence-contract-2026-10-22.md\",\"docs/specs/D3-closure-claude-review-2026-10-22.json\",\"R/sem-outcomes.R .sem_rebase_outcome body\",\".sem_as_semfit body\"],\"areas\":[\"raw-count refusal message formatting\",\"public and nested branch_map propagation and rejection\",\"MBCO nested refit evidence validation\",\"test oracles for finite, approximate and overflow counts\",\"mocked-binding scope\"]},\"uncertainty\":\"medium\",\"budget_exhausted\":false,\"recommended_followup\":{\"profile\":\"none\",\"focus\":[],\"reason\":\"Only optional hardening remains. If the owner wants spec-clause assurance, check SPEC clauses C5, 3c, 3d and items 8-10 against the test mapping, which I did not read.\"}}",
+    "structured_output": {
+      "verdict": "approve",
+      "summary": "No confirmed bugs or ship blockers in the D3 optional-hardening diff against 08e2dc2. I found only optional test-coverage gaps. This is a source-trace review; I executed nothing. D3 coverage says nothing about T5 acceptance, and D4, D5 and the real-case work remain open. The message change in R/sem-fit.R:276-282 touches only the refusal text. The `raw_count > 64L` gate and the numeric ledger fields are unchanged. Inferred oracles: 2^40 formats as \"1099511627776\", 2^60 as \"approximately 1152921504606846976\", and Inf as \"overflow (Inf)\".",
+      "findings": [
+        {
+          "severity": "low",
+          "title": "Nested-map refusal is tested for one field and one node only",
+          "body": "Per-field public tamper (test lines ~134-137) mutates only the stored fit's root `branch_map`. Nested refusal is exercised only through the mocked `.sem_fit_syntax` altering `unique_count` of null:1 (lines ~141-153). Nothing tampers a retained mbco/full or mbco/null node's `branch_map` per field. Nothing tampers a nested child's `branch_map` either. `.sem_valid_outcome` (sem-outcomes.R:213) does enforce the check recursively (sem-outcomes.R:239), so I infer it works, but no test pins it. A regression that skipped map validation on nested nodes would pass this suite.",
+          "file": "tests/testthat/test-sem-branch-map.R",
+          "line_start": 141,
+          "line_end": 153,
+          "confidence": 0.6,
+          "recommendation": "Add a loop over `names(map)` through the mocked `.sem_fit_syntax` (one field per iteration, `out$outcome$branch_map[[field]] <- \"forged\"`). Also inject a map into a nested branch child. In both cases assert `medfit_sem_unresolved` and `rejected_evidence`."
+        },
+        {
+          "severity": "low",
+          "title": "Message-format oracles skip the 2^53 boundary and non-power-of-two counts",
+          "body": "The R/sem-fit.R:276-282 message path is pinned only at 128L, 2^40, 2^60 and Inf. The exact `2^53` boundary (not labeled approximate) is unpinned, as are counts just above it. So are non-power-of-two products such as 3^k, where `digits = 22` formatting of a double that cannot be written exactly could differ by platform. The 2^60 oracle depends on `format()` printing the full exact decimal expansion, which is inferred, not executed.",
+          "file": "R/sem-fit.R",
+          "line_start": 276,
+          "line_end": 282,
+          "confidence": 0.4,
+          "recommendation": "Optionally add a pure unit test of the count formatter at 2^53, 2^53+2 and a large non-power-of-two count, and consider extracting the formatter into a helper."
+        },
+        {
+          "severity": "low",
+          "title": "Public fit test depends on a single-start optimizer",
+          "body": "The new public-fit test uses `n_starts = 1L` through `fit_sem` and `mbco_sem`, and asserts `is.finite(result$p.value)` and f-minimum equality across branches. It also assumes the null node count (`expect_length(nodes, 3L)`) and the ordering `mbco/null:i` follow `paths` order. The owner already flagged the n_starts=1 and random-retry trap in the dependency suites. Convergence of every refit is not a map or propagation property, so the assertions can fail for unrelated optimizer reasons.",
+          "file": "tests/testthat/test-sem-branch-map.R",
+          "line_start": 104,
+          "line_end": 110,
+          "confidence": 0.3,
+          "recommendation": "Seed the test or use a fixture that is known to converge, and keep the p-value assertion separate from the map-propagation assertions."
+        }
+      ],
+      "next_steps": [
+        "Clause-to-test mapping (test line numbers approximate). Stored-data public map exact oracle: lines ~104-115. Full and null nested maps, IDs mbco/full and mbco/null:i: lines ~121-125. Parent minimum and .sem_valid_outcome: lines ~127-128. Child IDs, parent_id and NULL child map: lines ~131-134.",
+        "More mapping. Public tamper per field: lines ~136-139. Child map injection: lines ~141-142. Injected nested-map refusal: lines ~143-154. Finite 2^40, approximate 2^60 and overflow message oracles, unchanged numeric counts and the >64-RAW policy: lines ~87-98.",
+        "The forwarded-mock `!is.null(model)` guard (line 144) is scoped to that one mock inside this test_that block through `local_mocked_bindings`. It cannot leak. The over-cap refusal builds its context with a NULL model in `.sem_fit_branches`, not in `.sem_fit_syntax`, so the guard is harmless.",
+        "Read: the diff of all five changed files, R/sem-outcomes.R lines 14-64, 135-165 and 190-271, and R/sem-mbco.R lines 120-229. Omitted: the SPEC and PROPOSAL-T5 documents, the D3 closure JSON, the full test file beyond the diff, `.sem_as_semfit`, `.sem_rebase_outcome`, and the dependency and consumer suites. Spec-clause conformance is therefore unreviewed."
+      ],
+      "coverage": {
+        "files_examined": [
+          "R/sem-fit.R",
+          "R/fit-sem.R",
+          "man/fit_sem.Rd",
+          "NEWS.md",
+          "tests/testthat/test-sem-branch-map.R",
+          "R/sem-outcomes.R",
+          "R/sem-mbco.R"
+        ],
+        "files_skipped": [
+          "docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md",
+          "docs/specs/PROPOSAL-T5-medfit-evidence-contract-2026-10-22.md",
+          "docs/specs/D3-closure-claude-review-2026-10-22.json",
+          "R/sem-outcomes.R .sem_rebase_outcome body",
+          ".sem_as_semfit body"
+        ],
+        "areas": [
+          "raw-count refusal message formatting",
+          "public and nested branch_map propagation and rejection",
+          "MBCO nested refit evidence validation",
+          "test oracles for finite, approximate and overflow counts",
+          "mocked-binding scope"
+        ]
+      },
+      "uncertainty": "medium",
+      "budget_exhausted": false,
+      "recommended_followup": {
+        "profile": "none",
+        "focus": [],
+        "reason": "Only optional hardening remains. If the owner wants spec-clause assurance, check SPEC clauses C5, 3c, 3d and items 8-10 against the test mapping, which I did not read."
+      }
+    },
+    "session_id": "cc3a28c8-e3bb-4acc-a26d-0be80caf9b03",
+    "resume_hint": "claude --resume cc3a28c8-e3bb-4acc-a26d-0be80caf9b03",
+    "disclosure": null,
+    "usage": {
+      "input_tokens": 16,
+      "cache_creation_input_tokens": 26707,
+      "cache_read_input_tokens": 244803,
+      "output_tokens": 8339,
+      "output_tokens_details": {
+        "thinking_tokens": 1791
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 26707,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 2418,
+          "cache_read_input_tokens": 38582,
+          "cache_creation_input_tokens": 3245,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 3245
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "model_usage": {
+      "claude-sonnet-5-5": {
+        "inputTokens": 16,
+        "outputTokens": 8339,
+        "cacheReadInputTokens": 244803,
+        "cacheCreationInputTokens": 26707,
+        "webSearchRequests": 0,
+        "costUSD": 0.21473029999999999,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 1791,
+        "canonicalModel": "claude-sonnet-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    }
+  }
+}

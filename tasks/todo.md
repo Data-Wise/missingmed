@@ -2,8 +2,10 @@
 
 See [plan.md](plan.md) for rationale, ownership and constraints.
 
+- [x] D3 public/format follow-up — public/nested mapping and tamper coverage; non-scientific, approximate/overflow count wording. 1386 deterministic assertions/lint pass. Claude0a653f34 approves, no confirmed bugs; optional tests deferred. Latest spec/conversion-source omissions recorded, no full closure claim. T5 UNACCEPTED.
+
 - [x] D3 implementation/checks — overflow-safe raw cap, duplicate mapping without deduplicated execution; 1300 deterministic assertions and changed-file lint pass. Claude b0735071 needs-attention; four concerns addressed/retested, not independently re-reviewed. T5 UNACCEPTED; D4/D5/real cases remain open.
-- [ ] D3 focused closure — Claude: review post-review permutation/tamper, finite-large/tie/forwarding tests and guarded error-ledger fix; explicitly read omitted approved C5/3c/3d/items8-10. No automatic retry or T5 acceptance.
+- [x] D3 base focused closure — Claudeb6e11cec approved 08e2dc2 fixes after reading C5/3c/3d/items8-10. Public/format optional concerns addressed above; latest follow-up spec/conversion-source omissions remain recorded, not full T5 closure.
 
 - [x] D2 — literal equality contradiction certificates on pinned D1 8d7d6c1; retained exclusions, matched resolved sibling, unknown refusal, all-empty/nested/public failure and forgery controls. 1185 deterministic assertions pass; one Claude review completed, four concerns addressed locally.
 - [x] D2 — explicit null:1 all-empty-union and nested certificate identity/proof assertions, with intended-assertion mutations; 1210 deterministic assertions/lint pass. Claude424e4da7 approves after directly reading approved D2/C5/3c/3d/items8-10. Scope/omissions in plan and raw review; no full consumer verification or T5 acceptance. D3-D5/real-case open.

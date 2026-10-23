@@ -4,6 +4,26 @@ Updated 2026-10-22. Execution checklist: [todo.md](todo.md).
 
 ## Current authorization — D3 duplicate maps and raw cap
 
+Latest public/format follow-up `cba4c1a` on `08e2dc2`: real stored-data `fit_sem` exact map
+oracle, full/both-null nested maps and child IDs/minima, public per-field/child
+tamper refusal, and injected nested-null map refusal with rejected evidence.
+Count refusal text is non-scientific, approximate above 2^53, explicit overflow;
+numeric metadata and the 64-RAW gate are unchanged. 570 dependency +816 consumer
+=1386 deterministic assertions pass, zero warnings/errors, changed-file lint
+clean; fixture unchanged. No installs/simulations/saved-result changes/push/merge.
+
+Claude0a653f34 approves, no confirmed bugs; optional exhaustive nested tamper and
+2^53/non-power count-format cases deferred. Seeding recommendation not adopted:
+the public test already uses known-convergent stored inputs and deterministic
+single starts/random-retry trap. Review read changed diffs/validator/MBCO but
+omitted spec/proposal, full test beyond diff, `.sem_as_semfit` and rebase bodies.
+Latest spec closure is therefore incomplete despite scoped code approval;
+prior b6e11cec approved base D3 after reading C5/3c/3d/items8-10. Raw latest review
+docs/specs/D3-public-format-claude-review-2026-10-22.json; prior closure
+docs/specs/D3-closure-claude-review-2026-10-22.json. No automatic repeat.
+T5 remains UNACCEPTED; D4/D5 and real-case evidence remain open. Earlier counts
+and outstanding-review descriptions below are historical snapshots.
+
 D3 is implemented locally on D2 `a11c63b` in isolated medfit branch
 `codex/medfit-d3-branch-map`, local commit `08e2dc2`. Parser-factor cardinality is overflow checked before
 grid allocation; admission remains at most 64 RAW combinations. Admitted ledger
