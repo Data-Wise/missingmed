@@ -71,6 +71,32 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       finding resolved by final full run. Warning-policy wording qualified after
       review. Exclusion/64-limit/post-fit rulings and author-supplied stored
       improper-null input remain required; T5 stays unaccepted.
+      Research-grounded T5 proposal revised in tasks/plan.md: reasoned exclusion
+      is not refusal; 64 is an engineering cap with distinct counting contracts;
+      escaping covariance failure is not preserved likelihood. No spec amendment
+      or implementation authorized. Claude plan review needs-attention (snapshot
+      only): rulings consistent with quoted spec; final frozen
+      implementation review and real-case hold remain open. Installed medfit
+      0.11.1 covariance-before-return flow inspected read-only, not a reproduced
+      failure. Review usage/dispositions in plan; final clarifications unreviewed.
+      Author approved the three recommended rulings afterward (2026-10-22).
+      Read-only medfit inventory and bounded D1-D5 design recorded in
+      PROPOSAL-T5-medfit-evidence-contract-2026-10-22.md: outcome ledger,
+      reasoned exclusion, raw-64 cap/duplicate evidence, typed post-fit payloads,
+      then separately authorized consumer integration. Existing singular-info
+      warning returns NA covariance; escaping errors are a distinct gap.
+      Inventory pass was read-only. Author later approved dependency design and
+      D1 only: isolated /private/tmp/medfit-d1.3jrA2K/medfit from 505e8ed,
+      codex/medfit-d1-outcome-ledger; versioned outcomes/public propagation,
+      local commit 06b2ca9 (not pushed/merged),
+      259 deterministic assertions pass, no changed-file lint/Rd findings.
+      Claude standard review partial (tests/spec omitted); notice-visibility
+      finding fixed, context/child-drop hardening added and tested afterward,
+      not re-reviewed. D1 final independent coverage remains open; D2-D5 untouched.
+      Restricted check made a temporary project install (disclosed no-installs
+      deviation); no dependencies/existing libraries changed. Check has one
+      existing undeclared-rlang warning. No simulations, saved-result edits or merge.
+      T5 remains unaccepted; real stored improper-null and final review still open.
       T5 stays unaccepted; recommended path closes independent gaps first.
       After T5 acceptance: T6 dependency
       floor/package checks. No full RNG suite or vignette render.
