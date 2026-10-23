@@ -19,6 +19,8 @@ See [plan.md](plan.md) for rationale, ownership and constraints.
 - [ ] P3 — Author: identify a qualifying pre-existing stored improper-null input/model with provenance.
 - [x] D1 findings follow-up: retain outer notices, verify LR=9 mutant, measure raw sample serialization; 281 deterministic assertions pass; one Claude rerun completed.
 - [ ] D1 remaining review: proposal and full C5/4.8/4.10 test tracing plus latest notice-summary/doc fixes; direct spec source omissions closed, no acceptance inferred.
+- [x] D1 notice repair: confirmed typed MBCO-boundary warning/message loss fixed; union replay and nonduplicate attribution tested; 295 deterministic assertions pass. Codex clause tracing completed.
+- [ ] D1 independent matrix sign-off: review60d5389c approves repair but explicitly omits specs, acceptance matrix and test tail. No automatic rerun; D5 and real-case evidence remain open, T5 unaccepted.
 - [ ] P3 — Codex, after input: verify actual branch diagnostics, LR/settings agreement and public warning aggregation without changing saved artifacts.
 - [ ] Checkpoint — Codex: verify every T5 requirement has adequate evidence; leave T5 unaccepted otherwise.
 - [ ] After T5 acceptance — Codex: resume T6; scope-check T7 commands against the continuing prohibitions before execution.

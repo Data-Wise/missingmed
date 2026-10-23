@@ -4,12 +4,14 @@ Updated 2026-10-22. Execution checklist: [todo.md](todo.md).
 
 ## Current authorization — dependency design approved, D1 only
 
-Latest D1 follow-up: 281 deterministic assertions pass; outer typed-failure
-notices retained, repeated notice summary fixed and LR=9 mutant evidence explicit.
-Claude job 324c1829-6ba6-4a7a-9938-283361fa7523 read the whole approved spec,
-but skipped proposal/full clause-to-test tracing: C5/4.8/4.10 independent closure
-remains open. Latest small post-review fixes tested, not re-reviewed. T5 UNACCEPTED.
-Detailed dispositions and measured sample-storage cost are in the receipt below.
+Latest D1 follow-up: 295 deterministic assertions pass. Confirmed MBCO typed-error
+boundary notice loss repaired; inner records retained; successful union replay and
+non-duplicated root/child attribution tested. Codex completed C5/4.8/4.10 tracing,
+including public converter, final sample/factor/fixed-x body and existing consumer
+assertions. Claude job 60d5389c-6a0f-49f6-b82f-5e63491b4fa5 approves the fix with
+one low speculative future-invariant concern, but omitted specs/test matrix.
+Independent matrix sign-off remains open; existing consumer evidence mapped,
+not rerun as D5 integration. T5 UNACCEPTED. Full receipt below.
 
 2026-10-22: the author approved the three recommended rulings below. They now
 govern the evidence review; the approved spec is unchanged and no requirement
