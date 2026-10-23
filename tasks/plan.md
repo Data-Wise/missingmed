@@ -2,7 +2,24 @@
 
 Updated 2026-10-22. Execution checklist: [todo.md](todo.md).
 
-## Current authorization — dependency design approved, D1 only
+## Current authorization — D2 literal certificates on pinned D1
+
+D2 implemented locally in `/private/tmp/medfit-d1.3jrA2K/medfit`, branch
+`codex/medfit-d2-literal-certificates`, local commit `d9ace70`, pinned D1 base
+`8d7d6c14e038b8f41d9e1bbe37a4e74bf54b404f`. Proof scope is explicit literal
+zero/nonzero equalities only; fixed table values, bounds and affine inference
+are not proof premises. Resolved siblings may determine a union minimum only
+when every other branch resolves or has a reconstructed exact certificate.
+All-empty unions and infeasible top-level nulls remain explicit failures.
+369 dependency +816 consumer assertions pass (1185 total), no warnings/errors;
+source-loaded dependency, no installation. One Claude review returned
+needs-attention: consistent fixed-table forgery/unreachable premise, weak null
+assertions and empty-min warning addressed and retested. Post-review fixes not
+independently re-reviewed; Claude omitted cross-root approved spec/proposal.
+Receipt: `/private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D2-literal-certificates-2026-10-22.md`.
+T5 UNACCEPTED. D3-D5 and real-case evidence remain open; no missingmed runtime
+integration, installs, simulations, saved-result changes, push or merge.
+Earlier authorization/status paragraphs below are historical snapshots.
 
 Item10 optional closure: author-authorized k>1, fixed-mode mutations and shared
 state isolation completed, tests only. Winning k=2 dimension oracle and six targeted

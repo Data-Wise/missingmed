@@ -3,6 +3,7 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-10-22
+d2_literal_certificates: 2026-10-22 - Local medfit codex/medfit-d2-literal-certificates from pinned D1 8d7d6c1; exact explicit zero/nonzero equality certificates only. 369 dependency +816 consumer assertions pass, no warnings/errors. Claude ca1aef5c needs-attention; four concerns repaired/retested, not independently re-reviewed; cross-root spec/proposal omitted. Receipt /private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D2-literal-certificates-2026-10-22.md. T5 UNACCEPTED, D3-D5/real-case open. No installs/simulations/saved-result changes/push/merge.
 next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe (release PR #97,
   merge ed28304, tag v0.10.0); dev is 0.10.0.9000. #99 MERGED 2026-10-15 (3dbffc3): frozen-vector
   cross-check loosened 1e-12 -> 1e-10 (CRAN macOS arm64 R differs from Homebrew R by ~3e-12); fixes the

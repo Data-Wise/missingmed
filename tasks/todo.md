@@ -2,6 +2,9 @@
 
 See [plan.md](plan.md) for rationale, ownership and constraints.
 
+- [x] D2 — literal equality contradiction certificates on pinned D1 8d7d6c1; retained exclusions, matched resolved sibling, unknown refusal, all-empty/nested/public failure and forgery controls. 1185 deterministic assertions pass; one Claude review completed, four concerns addressed locally.
+- [ ] D2 — independent closure review of post-review repairs and directly opened approved D2/spec clauses; no automatic retry. T5 UNACCEPTED; D3-D5 and real-case evidence remain open.
+
 - [x] Item10 optional closure: positive winning k=2 oracle, fixed-mode scaling/stack-k mutations, four isolated k-factor mutations and separate tie/mismatch fixtures. 816 deterministic consumer assertions and lint pass; Claude64bcc7d9 approves with no findings. T5 remains unaccepted.
 
 - [x] Item 10: resolve three prior hardening concerns with injected-only independent file, K=3 positive ARIV, stack-only mismatch and paired-label controls; 776 deterministic consumer assertions and lint pass. Claude03f86a8b approves scoped mapping. Optional follow-ups recorded in NOTE-ITEM10-hardening-2026-10-22.md, not T5 acceptance.
