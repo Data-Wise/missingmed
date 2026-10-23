@@ -18,6 +18,9 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       (2026-10-16). SPEC APPROVED, all four rulings as recommended (docs/specs/SPEC-lavaan-mbco-on-
       mbco-sem-2026-10-16.md; strict fit_args allow-list, narrower syntax, merge to dev now, delete MLR
       internals, refuse likelihood = "wishart"). Branch feature/lavaan-mbco-medfit (draft PR #102):
+      Item10 optional closure: k=2 oracle, fixed-mode mutations and fixture isolation;
+      816 consumer assertions/lint pass. Claude64bcc7d9 approves with no findings.
+      Tests only, T5 UNACCEPTED; real-case/D5 evidence still open. No push/merge.
       Item10 hardening: injected tests outside medfit-specific skip; positive K=3 ARIV,
       stack-only k mismatch and paired swaps; 776 consumer assertions/lint pass.
       Claude03f86a8b approves scoped item10 review; optional hardening recorded in

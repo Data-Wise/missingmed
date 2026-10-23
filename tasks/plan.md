@@ -4,12 +4,18 @@ Updated 2026-10-22. Execution checklist: [todo.md](todo.md).
 
 ## Current authorization — dependency design approved, D1 only
 
+Item10 optional closure: author-authorized k>1, fixed-mode mutations and shared
+state isolation completed, tests only. Winning k=2 dimension oracle and six targeted
+mutation types added; 816 consumer assertions/lint pass. Claude64bcc7d9 approves
+with no findings, scoped static item10 review. Detailed execution/omissions in
+docs/specs/NOTE-ITEM10-hardening-2026-10-22.md. T5 UNACCEPTED; real-case/D5 open.
+
 Item 10 hardening follow-up: three confirmed coverage gaps repaired, no
 production changes. Injected tests moved outside the SEM medfit-specific skip;
 K=3 positive ARIV, stack-only k mismatch, losing-k and paired swaps added.
 776 consumer assertions pass; three files lint clean. Claude03f86a8b approves
 exact item-10 mapping; optional k>1, fixed mutants and legacy shared-state
-cleanup remain nonblocking. Review's swapped-k description corrected in
+cleanup were nonblocking and are now closed above. Review's swapped-k description corrected in
 docs/specs/NOTE-ITEM10-hardening-2026-10-22.md. T5 UNACCEPTED; real-case/D5 open.
 
 Assertion/tolerance follow-up: 1055 deterministic assertions pass (160 D1,

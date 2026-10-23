@@ -54,3 +54,36 @@ T5 remains **UNACCEPTED** pending qualifying real-case improper-null evidence;
 D5 integration and other deferred dependency evidence remain open. Approved
 spec unchanged. No installs, simulations, saved-result changes, push or merge.
 Unrelated untracked research-workflow plan preserved.
+
+## Optional-hardening closure — 21:40 MDT
+
+Author authorized the three optional controls. Tests only; spec and production
+unchanged. Winning k=2 now pins r4=5, D4=1/4, nu=144/25 and F(2,144/25) p
+for K=3, mean LR=8 and d_S=3, with paired branch/k swaps in both modes.
+Four private-helper mutants omit k independently from ARIV, D4, denominator
+df and F numerator df. Each runs in both modes, returns MbcoMIResult and
+fails the corresponding literal assertion. Fixed-mode /K and stack-k comparison
+mutants likewise return valid results before the intended assertion fails.
+Tie and imputation-only k mismatch now have separate self-contained providers;
+there is no shared mutable rows setup between them.
+
+Initial new-test run exposed late helper definition and an ambiguous mutation
+target matching twice. Helpers moved before use; ARIV mutation targets the full
+max expression, uniquely. These were harness errors, not fitter failures.
+Final existing-library runner above: encoding95 + provider126 + acceptance595
+= **816 passing assertions**, zero failures/errors/warnings, all three lint
+files clean. No code edits after this run or Claude review; no full stochastic
+suite, install or saved-result write. No production API changes needing help
+or version updates.
+
+Claude job 64bcc7d9-de05-48e4-b81e-cad4988d3a12: approve, findings empty,
+low uncertainty. Standard/medium Sonnet, effective claude-sonnet-5-5; seven
+turns, 150026 tokens, $0.191845, 46049 ms; no cost/turn exhaustion.
+Read entire encoding file, pooling/stat helpers and exact approved item10.
+Did not read the S7 class definition, LR helper definition, deterministic runner
+or other dependency phases; did not execute tests. Codex execution above
+already meets its suggested runner follow-up; no redundant rerun needed.
+Full coverage, omissions, usage and resume metadata:
+`/private/tmp/medfit-d1.3jrA2K/ITEM10-optional-claude-review-2026-10-22.json`.
+All three optional findings above now addressed; no further review requested.
+T5 remains **UNACCEPTED** pending real-case/D5 evidence. No push or merge.

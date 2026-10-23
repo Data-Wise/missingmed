@@ -2,6 +2,8 @@
 
 See [plan.md](plan.md) for rationale, ownership and constraints.
 
+- [x] Item10 optional closure: positive winning k=2 oracle, fixed-mode scaling/stack-k mutations, four isolated k-factor mutations and separate tie/mismatch fixtures. 816 deterministic consumer assertions and lint pass; Claude64bcc7d9 approves with no findings. T5 remains unaccepted.
+
 - [x] Item 10: resolve three prior hardening concerns with injected-only independent file, K=3 positive ARIV, stack-only mismatch and paired-label controls; 776 deterministic consumer assertions and lint pass. Claude03f86a8b approves scoped mapping. Optional follow-ups recorded in NOTE-ITEM10-hardening-2026-10-22.md, not T5 acceptance.
 
 - [x] Assertion/tolerance verification: header false-positive repaired; fixture loops guarded; df derivation and tenfold empirical LR margin pinned. 1055 deterministic assertions pass; one Claude review completed, two low concerns dispositioned. Explicit null tag retested after review. No production changes.
