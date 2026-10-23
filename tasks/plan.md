@@ -4,6 +4,14 @@ Updated 2026-10-22. Execution checklist: [todo.md](todo.md).
 
 ## Current authorization — dependency design approved, D1 only
 
+Item 10 hardening follow-up: three confirmed coverage gaps repaired, no
+production changes. Injected tests moved outside the SEM medfit-specific skip;
+K=3 positive ARIV, stack-only k mismatch, losing-k and paired swaps added.
+776 consumer assertions pass; three files lint clean. Claude03f86a8b approves
+exact item-10 mapping; optional k>1, fixed mutants and legacy shared-state
+cleanup remain nonblocking. Review's swapped-k description corrected in
+docs/specs/NOTE-ITEM10-hardening-2026-10-22.md. T5 UNACCEPTED; real-case/D5 open.
+
 Assertion/tolerance follow-up: 1055 deterministic assertions pass (160 D1,
 45 stored branches/MBCO,104 expressions,126 provider,620 acceptance). Confirmed
 absent-header false positive repaired with zero/one/two-match controls; fixture

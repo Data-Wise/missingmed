@@ -18,6 +18,10 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       (2026-10-16). SPEC APPROVED, all four rulings as recommended (docs/specs/SPEC-lavaan-mbco-on-
       mbco-sem-2026-10-16.md; strict fit_args allow-list, narrower syntax, merge to dev now, delete MLR
       internals, refuse likelihood = "wishart"). Branch feature/lavaan-mbco-medfit (draft PR #102):
+      Item10 hardening: injected tests outside medfit-specific skip; positive K=3 ARIV,
+      stack-only k mismatch and paired swaps; 776 consumer assertions/lint pass.
+      Claude03f86a8b approves scoped item10 review; optional hardening recorded in
+      docs/specs/NOTE-ITEM10-hardening-2026-10-22.md. T5 UNACCEPTED; real-case/D5 open.
       T1/T2 adversarial repairs verified: 35 label + 94 provider assertions pass; lint clean.
       Malformed modifiers, defined-name collisions, preconstrained null dimensions and unknown
       constraint symbols guarded; warnings retained on failure. Three in-memory mutations killed.

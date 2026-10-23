@@ -2,6 +2,8 @@
 
 See [plan.md](plan.md) for rationale, ownership and constraints.
 
+- [x] Item 10: resolve three prior hardening concerns with injected-only independent file, K=3 positive ARIV, stack-only mismatch and paired-label controls; 776 deterministic consumer assertions and lint pass. Claude03f86a8b approves scoped mapping. Optional follow-ups recorded in NOTE-ITEM10-hardening-2026-10-22.md, not T5 acceptance.
+
 - [x] Assertion/tolerance verification: header false-positive repaired; fixture loops guarded; df derivation and tenfold empirical LR margin pinned. 1055 deterministic assertions pass; one Claude review completed, two low concerns dispositioned. Explicit null tag retested after review. No production changes.
 - [ ] Independent review of latest cross-root D1 header controls/dispositions and approved clauses omitted by Claude78641aac; post-review null tag not independently reviewed. D5/real-case gaps remain; T5 unaccepted. No automatic retry.
 

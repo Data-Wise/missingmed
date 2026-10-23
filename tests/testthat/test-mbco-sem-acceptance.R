@@ -140,40 +140,6 @@ test_that("injected returned likelihoods survive notices but not escaping errors
   }
 })
 
-test_that("encoding, own/fixed selection, ties and labeled diagnostics are independent", {
-  imps <- list(data.frame(id = 1), data.frame(id = 2))
-  # Raw branch LRs: (1,9), (9,3), stack (8,12). Own mean=2; fixed mean=5.
-  rows <- rbind(c(1, 9), c(9, 3), c(8, 12))
-  provider <- function(d) {
-    i <- if (nrow(d) == 2L) 3L else d$id
-    c(full = 0, a = -rows[i, 1] / 2, b = -rows[i, 2] / 2, k_a = 1, k_b = 1)
-  }
-  for (mode in c("own", "fixed")) {
-    r <- missingmed:::.mm_d4_pool(imps, provider, mode)
-    riv <- if (mode == "own") 0 else 3
-    expect_equal(r[["d_S"]], 4)
-    expect_equal(r[["r4"]], riv)
-    expect_equal(r[["D4"]], 4 / (1 + riv))
-    expect_identical(r@stacked_branch, "a")
-    expect_true(r@branch_mix)
-    expect_equal(r@p_branch_a, 0.5)
-    expect_equal(r["p"], c(p = r[["p"]]))
-    expect_error(r$p)
-    swapped <- function(d) { z <- provider(d); z[c("a", "b")] <- z[c("b", "a")]; z }
-    s <- missingmed:::.mm_d4_pool(imps, swapped, mode)
-    expect_equal(as.vector(r), as.vector(s))
-    expect_identical(s@stacked_branch, "b")
-  }
-  rows[,] <- 4
-  tie <- missingmed:::.mm_d4_pool(imps, provider)
-  expect_identical(tie@stacked_branch, "a")
-  expect_false(tie@branch_mix)
-  expect_equal(tie@p_branch_a, 1)
-  for (mode in c("fixed", "own")) {
-    bad <- function(d) { z <- provider(d); if (nrow(d) == 1L && d$id == 2) z["k_a"] <- 2; z }
-    expect_error(missingmed:::.mm_d4_pool(imps, bad, mode), "(single k|different number)")
-  }
-})
 
 test_that("generic union controls fail closed before full or nested null fitting", {
   fit <- t5_fit()
