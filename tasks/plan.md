@@ -4,6 +4,13 @@ Updated 2026-10-22. Execution checklist: [todo.md](todo.md).
 
 ## Current authorization — dependency design approved, D1 only
 
+Latest D1 follow-up: 281 deterministic assertions pass; outer typed-failure
+notices retained, repeated notice summary fixed and LR=9 mutant evidence explicit.
+Claude job 324c1829-6ba6-4a7a-9938-283361fa7523 read the whole approved spec,
+but skipped proposal/full clause-to-test tracing: C5/4.8/4.10 independent closure
+remains open. Latest small post-review fixes tested, not re-reviewed. T5 UNACCEPTED.
+Detailed dispositions and measured sample-storage cost are in the receipt below.
+
 2026-10-22: the author approved the three recommended rulings below. They now
 govern the evidence review; the approved spec is unchanged and no requirement
 has been waived. The author subsequently approved the dependency design and

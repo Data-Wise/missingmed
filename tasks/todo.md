@@ -17,6 +17,8 @@ See [plan.md](plan.md) for rationale, ownership and constraints.
 - [x] D1 — Codex/Claude: run authorized focused review of all D1 test bodies and prior fixes; no blocker, three low findings dispositioned, confirmed child-objective inconsistency repaired and notice coverage added; 273 deterministic assertions pass. No installs in this follow-up.
 - [ ] D1 — Independent final coverage: focused review omitted PROPOSAL-T5/direct approved clauses; final objective-guard/help/test edits tested but not Claude-reviewed. No automatic retry; receipt in isolated medfit planning/specs/NOTE-D1-outcome-ledger-2026-10-22.md. Prior restricted-check temporary install remains a disclosed historical deviation. T5 unaccepted.
 - [ ] P3 — Author: identify a qualifying pre-existing stored improper-null input/model with provenance.
+- [x] D1 findings follow-up: retain outer notices, verify LR=9 mutant, measure raw sample serialization; 281 deterministic assertions pass; one Claude rerun completed.
+- [ ] D1 remaining review: proposal and full C5/4.8/4.10 test tracing plus latest notice-summary/doc fixes; direct spec source omissions closed, no acceptance inferred.
 - [ ] P3 — Codex, after input: verify actual branch diagnostics, LR/settings agreement and public warning aggregation without changing saved artifacts.
 - [ ] Checkpoint — Codex: verify every T5 requirement has adequate evidence; leave T5 unaccepted otherwise.
 - [ ] After T5 acceptance — Codex: resume T6; scope-check T7 commands against the continuing prohibitions before execution.

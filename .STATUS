@@ -94,6 +94,9 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       finding fixed, context/child-drop hardening added and tested afterward,
       not re-reviewed at that checkpoint. Authorized focused review then read all
       11 D1 test bodies/prior fixes: no blocker, three low findings dispositioned.
+      Latest follow-up: 281 deterministic assertions; outer notice retention and
+      duplicate summary fixed. Claude read whole spec; proposal/test tracing
+      and latest post-review fixes remain unreviewed. T5 remains unaccepted.
       Child-objective consistency fixed; MBCO notice tests/help added; 273
       deterministic assertions pass. Final follow-up not Claude-reviewed; direct
       approved-spec/proposal review omissions remain. D2-D5 untouched, T5 unaccepted.
