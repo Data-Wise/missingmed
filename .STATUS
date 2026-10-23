@@ -94,9 +94,11 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       finding fixed, context/child-drop hardening added and tested afterward,
       not re-reviewed at that checkpoint. Authorized focused review then read all
       11 D1 test bodies/prior fixes: no blocker, three low findings dispositioned.
-      Latest follow-up: 295 deterministic assertions. Typed MBCO boundary notice
-      loss repaired; union replay and no root duplication verified. Codex clause
-      tracing complete; Claude approves repair but omits independent spec matrix.
+      Latest follow-up: 329 deterministic assertions (306 medfit + 23 consumer).
+      Exactly-64 and duplicate/arbitrary-ID controls added; no fitter defect.
+      Affine gate blocks claimed generic-union bypass; version/ledger work is D5.
+      Internal pooling trust seam reproduced outside D1; SEM LR guards pass.
+      Claude21ecbeba approves, no findings; consumer/proposal omissions bounded.
       Consumer integration and real-case evidence remain open. T5 unaccepted.
       Child-objective consistency fixed; MBCO notice tests/help added; 273
       deterministic assertions pass. Final follow-up not Claude-reviewed; direct

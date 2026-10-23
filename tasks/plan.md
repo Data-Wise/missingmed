@@ -4,14 +4,18 @@ Updated 2026-10-22. Execution checklist: [todo.md](todo.md).
 
 ## Current authorization — dependency design approved, D1 only
 
-Latest D1 follow-up: 295 deterministic assertions pass. Confirmed MBCO typed-error
-boundary notice loss repaired; inner records retained; successful union replay and
-non-duplicated root/child attribution tested. Codex completed C5/4.8/4.10 tracing,
-including public converter, final sample/factor/fixed-x body and existing consumer
-assertions. Claude job 60d5389c-6a0f-49f6-b82f-5e63491b4fa5 approves the fix with
-one low speculative future-invariant concern, but omitted specs/test matrix.
-Independent matrix sign-off remains open; existing consumer evidence mapped,
-not rerun as D5 integration. T5 UNACCEPTED. Full receipt below.
+Latest D1 follow-up: 329 deterministic assertions pass (306 medfit + 23 consumer).
+Exactly-64 raw-branch admission and duplicate/arbitrary positional-ID rejection
+now have explicit controls, including an ID-validator mutation check; no fitter
+defect or production change was needed. The reported generic-union bypass is not
+reachable through the admitted affine-only SEM route. Version-floor/ledger
+integration remains D5; the reproduced internal pooling trust seam is outside D1,
+and public SEM negative-LR guards pass. Claude job
+21ecbeba-ec93-4623-8473-cab0347c5f77 approves with no findings, but omitted the
+consumer pooling/provider bodies and proposal in this run; those dispositions
+are Codex-verified, not independent full-spec sign-off. D3 does not authorize
+deduplicated execution. D2-D5 and real-case evidence remain open; T5 UNACCEPTED.
+Full receipt: `/private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D1-outcome-ledger-2026-10-22.md`.
 
 2026-10-22: the author approved the three recommended rulings below. They now
 govern the evidence review; the approved spec is unchanged and no requirement
