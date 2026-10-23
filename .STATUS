@@ -94,7 +94,11 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
       finding fixed, context/child-drop hardening added and tested afterward,
       not re-reviewed at that checkpoint. Authorized focused review then read all
       11 D1 test bodies/prior fixes: no blocker, three low findings dispositioned.
-      Latest follow-up: 329 deterministic assertions (306 medfit + 23 consumer).
+      Latest assertion follow-up: 1055 deterministic assertions; header/fixture
+      guards and df derivation strengthened, tenfold empirical LR margin passes.
+      Claude78641aac approves consumer fixes; cross-root D1/spec reading omitted.
+      Null-case tag retested post-review, not re-reviewed; T5 unaccepted.
+      Prior follow-up: 329 deterministic assertions (306 medfit + 23 consumer).
       Exactly-64 and duplicate/arbitrary-ID controls added; no fitter defect.
       Affine gate blocks claimed generic-union bypass; version/ledger work is D5.
       Internal pooling trust seam reproduced outside D1; SEM LR guards pass.

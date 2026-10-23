@@ -56,8 +56,10 @@ test_that("stored observed and latent data agree with the lavaan branch oracle",
   null <- cases[[1L]]
   null$d$Y <- residuals(stats::lm(Y ~ M + X + C, data = null$d)) +
     0.2 * null$d$X + 0.3 * null$d$C
+  null$is_null <- TRUE
   cases <- c(cases, list(null))
-  for (case in cases) {
+  for (i in seq_along(cases)) {
+    case <- cases[[i]]
     x <- if ("X" %in% names(case$d)) "X" else "x1"
     y <- if ("Y" %in% names(case$d)) "Y" else "x9"
     sem <- missingmed:::.mm_sem_provider(case$model, x, "M", y)
@@ -77,8 +79,16 @@ test_that("stored observed and latent data agree with the lavaan branch oracle",
     }
     ref <- c(full = lavaan::fitMeasures(full, "logl")[[1]],
       a = null_ll("M", x), b = null_ll(y, "M"))
+    # Empirical raw-LR resolution, not a universal optimizer error bound.
+    # NOTE-T2-provider-verification-2026-10-22.md records the original evidence.
+    # Require a tenfold margin, not merely agreement at the policy boundary.
     for (branch in c("a", "b")) {
-      expect_lt(abs(-2 * got[[branch]] - 2 * (ref[["full"]] - ref[[branch]])), 1e-7)
+      delta <- abs(-2 * got[[branch]] - 2 * (ref[["full"]] - ref[[branch]]))
+      expect_lt(delta, 1e-8)
+    }
+    if (isTRUE(case$is_null)) {
+      expect_lt(abs(2 * (ref[["full"]] - ref[["b"]])), 1e-8)
+      expect_lt(abs(-2 * got[["b"]]), 1e-8)
     }
   }
 })

@@ -2,6 +2,9 @@
 
 See [plan.md](plan.md) for rationale, ownership and constraints.
 
+- [x] Assertion/tolerance verification: header false-positive repaired; fixture loops guarded; df derivation and tenfold empirical LR margin pinned. 1055 deterministic assertions pass; one Claude review completed, two low concerns dispositioned. Explicit null tag retested after review. No production changes.
+- [ ] Independent review of latest cross-root D1 header controls/dispositions and approved clauses omitted by Claude78641aac; post-review null tag not independently reviewed. D5/real-case gaps remain; T5 unaccepted. No automatic retry.
+
 - [x] Proposal revision — Codex: record primary-source findings, conditional survivor-bound limitation, distinct cap counts and post-fit recovery boundary; preserve approved spec and T5 hold.
 - [x] Proposal review — Claude: one read-only standard plan review against the embedded approved-spec clauses; needs-attention, snapshot only. Findings/usage and post-review clarifications recorded in plan.md; not implementation approval and no automatic rerun.
 

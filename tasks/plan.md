@@ -4,7 +4,20 @@ Updated 2026-10-22. Execution checklist: [todo.md](todo.md).
 
 ## Current authorization — dependency design approved, D1 only
 
-Latest D1 follow-up: 329 deterministic assertions pass (306 medfit + 23 consumer).
+Assertion/tolerance follow-up: 1055 deterministic assertions pass (160 D1,
+45 stored branches/MBCO,104 expressions,126 provider,620 acceptance). Confirmed
+absent-header false positive repaired with zero/one/two-match controls; fixture
+loops guarded and Chan-Meng df independently derived. Existing medfit passes
+<1e-8 branch-oracle/null-b checks, giving tenfold empirical margin below the
+unchanged 1e-7 raw-LR policy, not a universal error bound. Claude78641aac approves
+consumer changes but skips cross-root D1 and spec/proposal clauses. Two low
+concerns dispositioned: platform drift triggers remeasurement, and null case is
+now explicitly tagged (post-review edit retested, not independently re-reviewed).
+Class-only refusals/suppressed notices retain their narrower purpose; D5 adapter
+and real-case evidence remain open. No automatic review retry. T5 UNACCEPTED.
+Receipt: `/private/tmp/medfit-d1.3jrA2K/D1-assertion-tolerance-review-2026-10-22.json`.
+
+Prior D1 follow-up: 329 deterministic assertions passed (306 medfit + 23 consumer).
 Exactly-64 raw-branch admission and duplicate/arbitrary positional-ID rejection
 now have explicit controls, including an ID-validator mutation check; no fitter
 defect or production change was needed. The reported generic-union bypass is not

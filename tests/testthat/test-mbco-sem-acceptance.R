@@ -28,6 +28,7 @@ test_that("independent K=20 answers distinguish Chan-Meng from historical Li df"
   # row. Derive Li's exact value from its equation rather than copying a row;
   # docs/ is excluded from built packages, so there is no runtime docs read.
   expect_equal(li, 4 + (19 - 4) * (1 + (1 - 2 / 19))^2)
+  expect_equal(expected[["nu"]], (20 - 1) * (1 + 1 / expected[["r4"]])^2)
 })
 
 test_that("zero ARIV and both sides of the rounding-gap threshold are pinned", {
@@ -201,7 +202,9 @@ test_that("generic union controls fail closed before full or nested null fitting
 
 test_that("stored fixture cross-check retains separate legacy and df provenance", {
   fx <- readRDS(test_path("fixtures", "mbco-d4-medsim-0.5.1.rds"))
+  expect_gt(length(fx$cases), 0L)
   for (case in fx$cases) for (mode in c("fixed", "own")) {
+    expect_setequal(names(case$expected[[mode]]), c("D4", "p", "r4", "nu"))
     model <- paste("M ~", paste(attr(terms(case$formula_m), "term.labels"), collapse = " + "),
       "; Y ~", paste(attr(terms(case$formula_y), "term.labels"), collapse = " + "))
     sem <- t5_direct(case$implist, model = model, ariv = mode)

@@ -34,6 +34,20 @@ was zero under both fitters. Tests bracket -1e-7 by 1e-12 and cover non-finite
 values. This is scoped empirical justification, not a universal error bound;
 revalidate on dependency/optimizer changes or larger observed numerical errors.
 
+### D1 assertion follow-up (2026-10-22)
+
+The stored observed/latent/residualized-null oracle test now requires every
+branch disagreement below 1e-8 (at least tenfold margin below the unchanged
+1e-7 raw-LR refusal policy). It also explicitly requires both fitters' null-b
+LR magnitudes below 1e-8. These controls passed with the existing installed
+medfit library, deterministic one-start override and random-retry stop.
+This revalidates a bounded empirical margin, not convergence-derived error
+bounds or a universal relative tolerance. Zero LR is the null target, not
+the negative refusal boundary; do not conflate the two. Original measurements
+above remain historical evidence rather than newly measured exact errors.
+An error above 1e-8 triggers dependency/platform-specific remeasurement and
+investigation, not automatic loosening of the test or the production policy.
+
 ## Completeness policy and coverage
 
 Without a dependency ledger, nonlinear equalities, inequalities, bounds, and
