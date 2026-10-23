@@ -4,6 +4,22 @@ Updated 2026-10-22. Execution checklist: [todo.md](todo.md).
 
 ## Current authorization — D2 literal certificates on pinned D1
 
+Latest explicit null-attribution follow-up (local medfit `a11c63b`): 85 D2/394 dependency +816 consumer
+=1210 deterministic assertions pass, zero warnings/errors; changed test/consumer
+lint clean. Tests now pin mbco/null:1 as an all-empty union, each excluded child's
+proof/id/parent, and successful nested-null rebasing. Wrong-node, missing-proof
+and dropped-child in-memory controls fail intended assertions. No production change.
+Claude424e4da7 approves with no findings; actually read C5/3c/3d/items8-10 and
+approved D2 PASS clauses. Prior "vacuous" claim rejected independently: full
+fit's resolved sibling prevents all-children-excluded predicate. Generated help
+read; prior review files/NOTE, roxygen/vignette, full D1 tests and D4 consumer
+code omitted. Scoped static D2 approval, not full consumer/D4 verification.
+Raw review: docs/specs/D2-null-attribution-claude-review-2026-10-22.json.
+Optional additional source-level mutation deferred. T5 UNACCEPTED;
+D3-D5 and real-case evidence remain open. The earlier review states below
+are historical; no automatic retry, installs, simulations, saved-result changes,
+push or merge.
+
 D2 implemented locally in `/private/tmp/medfit-d1.3jrA2K/medfit`, branch
 `codex/medfit-d2-literal-certificates`, local commit `d9ace70`, pinned D1 base
 `8d7d6c14e038b8f41d9e1bbe37a4e74bf54b404f`. Proof scope is explicit literal

@@ -3,7 +3,7 @@
 See [plan.md](plan.md) for rationale, ownership and constraints.
 
 - [x] D2 — literal equality contradiction certificates on pinned D1 8d7d6c1; retained exclusions, matched resolved sibling, unknown refusal, all-empty/nested/public failure and forgery controls. 1185 deterministic assertions pass; one Claude review completed, four concerns addressed locally.
-- [ ] D2 — independent closure review of post-review repairs and directly opened approved D2/spec clauses; no automatic retry. T5 UNACCEPTED; D3-D5 and real-case evidence remain open.
+- [x] D2 — explicit null:1 all-empty-union and nested certificate identity/proof assertions, with intended-assertion mutations; 1210 deterministic assertions/lint pass. Claude424e4da7 approves after directly reading approved D2/C5/3c/3d/items8-10. Scope/omissions in plan and raw review; no full consumer verification or T5 acceptance. D3-D5/real-case open.
 
 - [x] Item10 optional closure: positive winning k=2 oracle, fixed-mode scaling/stack-k mutations, four isolated k-factor mutations and separate tie/mismatch fixtures. 816 deterministic consumer assertions and lint pass; Claude64bcc7d9 approves with no findings. T5 remains unaccepted.
 
