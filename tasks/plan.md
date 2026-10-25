@@ -539,6 +539,15 @@ establishes all asymmetric/both-branch scenarios; retain injected controls.
   matrices, measurement models only; Chen: EQS/CALIS simulation of a three-latent causal chain, N = 50 and 75). Neither
   publishes a stored dataset or covariance matrix, so neither is a P3 input. Limits: Chen's extracted text is only a
   cover page, so that paper rests on the existing reading note, and its pp. 494-496 were never read.
+- Books, notebooks and Kline matrices screened 2026-10-24 (read-only, scratchpad only): Dropbox `~/Dropbox/Book/SEM/`
+  (Bollen, Kline 2023, Chen and Yung 2023) and four LLM notebooks hold no stored improper-null mediation input.
+  Kline Ch 9 Roth et al. (1989) path model (published matrix, N = 373; lavaan full + a/b/c/d nulls): all proper, matrix
+  hash 8ca8fd44f008fefaa9b7e6e36bf512b3. Kline Ch 14 Sabatelli (2003) two-factor CFA (N = 103): FULL model improper
+  (intimacy error variance -39.892), a measurement model, so nonqualifying without an author-ruled structural path
+  (not authorized). Author rulings: a published matrix counts as stored input but is evidence only, because
+  `medfit::fit_sem()` has no covariance input (signature check on 0.7.0, 0.12.0, 0.13.0), so P3 needs row-level data.
+  Remaining routes and gate: `docs/PLAN-p3-raw-data-routes-2026-10-24.md` (reviewed; R2 named-source check first,
+  R3 to R5 author-gated). T5 stays BLOCKED.
 - Bounded read-only search 2026-10-24 (file names and CSV headers across r-packages, research and
   dev-tools; no exhaustive claim): no stored improper-null input found. Literature notes and
   planning docs only.

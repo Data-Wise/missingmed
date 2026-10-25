@@ -57,6 +57,19 @@ Caveat that decides usefulness: P3 needs a mediation-shaped model whose **null**
 measurement model. Building X → M → Y on top of such data is a modeling choice, and whether that counts as "not
 retuning" is the author's call.
 
+## Dropbox, notebooks and Kline matrices (2026-10-24, read-only; author asked)
+
+- Dropbox `Book/SEM/` (synced at `~/Dropbox`): Bollen (1989), Kline (2023), Chen and Yung (2023), Bollen and Curran
+  (2006), Loehlin and Beaujean (2017), Kline's `PrinPracSEM5ComputerFiles`. Text extracted to the scratchpad and
+  grepped for Heywood and negative variance. Four notebooks (measurement error, mediation and interaction, multiple
+  paths, MNAR) report no improper-solution data.
+- Kline Ch 9 Roth path model (matrix, N = 373): full and a/b/c/d nulls proper (lavaan). Hash 8ca8fd44f008fefaa9b7e6e36bf512b3.
+- Kline Ch 14 Sabatelli two-factor CFA (N = 103): full model improper, intimacy error variance -39.892. Measurement
+  model, not a null; unusable without an author-ruled structural path.
+- `medfit::fit_sem()` has no `sample.cov` (0.7.0, 0.12.0, 0.13.0), so a matrix cannot enter the gate: P3 needs rows.
+- lavaan ships four datasets: PoliticalDemocracy, HolzingerSwineford1939 (screened, proper), Demo.growth,
+  Demo.twolevel (not mediation-shaped, unfitted). Next steps: `docs/PLAN-p3-raw-data-routes-2026-10-24.md`.
+
 ## Quick Wins (< 30 min each, read-only screening, each needs your go before any fit is run)
 
 1. **Screen shipped real datasets with latent mediators** — lavaan 0.7.3 and psych 2.6.5 are installed. Candidates:
