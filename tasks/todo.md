@@ -1,13 +1,17 @@
 # PR #102: T5 closure checklist
 
-See [plan.md](plan.md) for rationale, ownership and constraints.
+See [plan.md](plan.md) for rationale, ownership and constraints; its "Current state (2026-10-24)" section is authoritative.
+
+- [ ] Author decision: A (keep approved spec, authorize structured dependency evidence) or B (named spec amendment). Not recorded anywhere yet.
+- [ ] Author ruling: is the 2026-10-24 `meanstructure = NULL` edit outside the frozen review snapshot, or included in it?
+- [x] Receipt audit 2026-10-24: D1/D2 receipts, the D1 tolerance review JSON and the medfit 0.11.1 lib under /private/tmp are MISSING; marked in plan.md. Recover any copies if they exist elsewhere.
 
 - [x] D4 owner clause tracing and explicit nonwinning-child controls — both product orders/both nulls; 1584 deterministic assertions, new-file lint clean; two attribution/notice mutants discriminate.
 - [ ] D4 independent closure — Claude5ad08ae8 failed structured-output finalization; unread required bodies and unvalidated classification/two-failure/root-validation concerns remain. No automatic retry. Author requested wrap-up; T5 UNACCEPTED.
 
 - [x] D4 local implementation and deterministic checks — typed covariance-stage snapshot, internal null-only retention, public full-fit throw; 1470 assertions pass. Receipt linked in plan.
 - [x] D4 one authorized Claude review — scoped approve, one low attribution concern; omissions and post-review documentation recorded.
-- [ ] D4 independent closure — original C5/3c/3d/4.8–10 and omitted full test/helper bodies; explicit nonwinning covariance-failure attribution evidence. Do not infer closure from scoped approval.
+- [ ] D4 independent closure (earlier stage of the item above; same open gate) — original C5/3c/3d/4.8–10 and omitted full test/helper bodies; explicit nonwinning covariance-failure attribution evidence. Do not infer closure from scoped approval.
 - [x] D3 final source/spec omissions — Clauded7e0983c approved after reading original clauses/conversion/rebase/full tests; historical open descriptions below superseded.
 - [ ] D5 integration and qualifying real-case evidence; T5 remains UNACCEPTED.
 

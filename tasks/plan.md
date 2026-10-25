@@ -1,6 +1,34 @@
 # PR #102: T5 evidence closure plan
 
-Updated 2026-10-22. Execution checklist: [todo.md](todo.md).
+Updated 2026-10-24. Execution checklist: [todo.md](todo.md).
+
+## Current state (2026-10-24) — read this first
+
+- **Status:** T5 UNACCEPTED and BLOCKED. P3 (a stored improper-null input with provenance) is the open gate; the
+  author ruled medfit's seeded `sem_model_heywood()` nonqualifying (see P3). D4 is not independently closed;
+  D5 is not started.
+- **PR #102:** draft, base `dev`, pushed through `a20160c`. Not merged.
+- **Authorization since 2026-10-22:** the author approved pushing this branch (three pushes on 2026-10-24) and
+  approved returning #102 to draft. Merge, simulations and saved-result changes remain unauthorized. Scratch-library
+  `R CMD INSTALL` of medfit (dev, the D4 head) was done outside the user library on 2026-10-24 to prove the 0.14.0
+  warning; disclosed here and in `.STATUS`. Older "no installs/push" sentences below are dated history.
+- **Current baseline:** 816 consumer expectations (95 encoding + 126 provider + 595 acceptance) re-verified
+  2026-10-24 on the D4 head `3a98bf6` (medfit 0.12.0), identical before and after the `meanstructure` edit. The 768
+  dependency-side count (1,584 total) comes from the D4 closure matrix and was not re-run. Counts 776/858/1055/1300/
+  1386/1470 below are historical stages.
+- **Open decisions for the author (not decided here):**
+  1. **A or B** (see "Claude disposition", below): keep the approved spec and authorize structured dependency
+     evidence, or approve a named spec amendment. No choice is recorded anywhere in this plan.
+  2. **Late edit scope:** the 2026-10-24 `meanstructure = NULL` edit touches `R/mbco_sem.R`, which is in review scope.
+     The "Review endpoint" rule says later relevant changes invalidate the affected review scope. Either record an
+     explicit ruling that the edit is out of the frozen snapshot, or include it in the snapshot.
+- **D1–D5 (medfit work for T5; details in the PROPOSAL doc linked below):** D1 outcome ledger and public propagation;
+  D2 literal-equality contradiction certificates; D3 overflow-safe 64-RAW cap and duplicate branch maps; D4 post-fit
+  covariance-stage evidence retention; D5 integration into the missingmed adapter using documented evidence, not
+  private namespace recovery (not started).
+- **Receipt availability (checked 2026-10-24):** the D1 and D2 receipts, the D1 assertion-tolerance review JSON and the
+  installed medfit 0.11.1 library, all under `/private/tmp`, **no longer exist**. Claims that rest only on them are
+  unauditable from this repo; see the `[MISSING]` marks below. Recoverable material is in `docs/specs/`.
 
 ## Current checkpoint — D4 post-fit evidence and wrap-up
 
@@ -24,8 +52,9 @@ only its D3 base, kept by `keep/d3-pin-cba4c1a`) the receipt's consumer files gi
 expectations before and after, 0 failed.
 Not part of the D4/D5 review snapshot and no effect on T5 acceptance.
 
-D4 is implemented/tested locally on medfit branch `codex/medfit-d4-post-fit-evidence`
-from pinned D3 `cba4c1a`, not integrated. See
+D4 is implemented/tested locally in medfit on commit `3a98bf6` (kept by local branch
+`keep/d4-3a98bf6`; the original `codex/medfit-d4-post-fit-evidence` branch does not exist
+in the clone) from pinned D3 `cba4c1a`, not integrated. See
 [D4 receipt](../docs/specs/NOTE-D4-post-fit-evidence-2026-10-22.md) for the contract,
 clause-to-test tracing, exact checks and review limits; `.STATUS` owns current state.
 654 dependency +816 consumer =1470 deterministic assertions pass. Claude approves
@@ -35,7 +64,7 @@ formatting is not independently reviewed. D4 is **not independently closed**.
 
 Next bounded step: review omitted clauses/test bodies and close union-attribution
 evidence, then separately authorize D5. **T5 remains UNACCEPTED** pending D5 and
-qualifying real-case evidence. No installs/simulations/saved-result changes/push/merge.
+qualifying real-case evidence. No simulations/saved-result changes/merge (push and the scratch installs: see Current state).
 User requested wrap-up: planning/status/agent docs, website source and memory sync.
 
 Prior D3 omissions were closed by Clauded7e0983c: original clauses/proposal and
@@ -113,7 +142,7 @@ D3-D5 and real-case evidence remain open. The earlier review states below
 are historical; no automatic retry, installs, simulations, saved-result changes,
 push or merge.
 
-D2 implemented locally in `/private/tmp/medfit-d1.3jrA2K/medfit`, branch
+D2 implemented locally in `/private/tmp/medfit-d1.3jrA2K/medfit` [MISSING 2026-10-24], branch
 `codex/medfit-d2-literal-certificates`, local commit `d9ace70`, pinned D1 base
 `8d7d6c14e038b8f41d9e1bbe37a4e74bf54b404f`. Proof scope is explicit literal
 zero/nonzero equalities only; fixed table values, bounds and affine inference
@@ -125,7 +154,7 @@ source-loaded dependency, no installation. One Claude review returned
 needs-attention: consistent fixed-table forgery/unreachable premise, weak null
 assertions and empty-min warning addressed and retested. Post-review fixes not
 independently re-reviewed; Claude omitted cross-root approved spec/proposal.
-Receipt: `/private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D2-literal-certificates-2026-10-22.md`.
+Receipt: `/private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D2-literal-certificates-2026-10-22.md` [MISSING 2026-10-24, not recoverable].
 T5 UNACCEPTED. D3-D5 and real-case evidence remain open; no missingmed runtime
 integration, installs, simulations, saved-result changes, push or merge.
 Earlier authorization/status paragraphs below are historical snapshots.
@@ -155,7 +184,7 @@ concerns dispositioned: platform drift triggers remeasurement, and null case is
 now explicitly tagged (post-review edit retested, not independently re-reviewed).
 Class-only refusals/suppressed notices retain their narrower purpose; D5 adapter
 and real-case evidence remain open. No automatic review retry. T5 UNACCEPTED.
-Receipt: `/private/tmp/medfit-d1.3jrA2K/D1-assertion-tolerance-review-2026-10-22.json`.
+Receipt: `/private/tmp/medfit-d1.3jrA2K/D1-assertion-tolerance-review-2026-10-22.json` [MISSING 2026-10-24, not recoverable].
 
 Prior D1 follow-up: 329 deterministic assertions passed (306 medfit + 23 consumer).
 Exactly-64 raw-branch admission and duplicate/arbitrary positional-ID rejection
@@ -168,7 +197,7 @@ and public SEM negative-LR guards pass. Claude job
 consumer pooling/provider bodies and proposal in this run; those dispositions
 are Codex-verified, not independent full-spec sign-off. D3 does not authorize
 deduplicated execution. D2-D5 and real-case evidence remain open; T5 UNACCEPTED.
-Full receipt: `/private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D1-outcome-ledger-2026-10-22.md`.
+Full receipt: `/private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D1-outcome-ledger-2026-10-22.md` [MISSING 2026-10-24, not recoverable].
 
 2026-10-22: the author approved the three recommended rulings below. They now
 govern the evidence review; the approved spec is unchanged and no requirement
@@ -197,7 +226,7 @@ follow-up changes are tested, NOT Claude-reviewed; independent coverage remains
 open. No automatic retry. Review job `6b6a1736-0258-4d21-8f85-6cd23b8644cd`,
 sonnet / claude-sonnet-5-5, 224145 tokens, 8 turns, 72481 ms, $0.2615716;
 no lease/cost/turn exhaustion. Full dispositions/coverage/usage in receipt below.
-Receipt: `/private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D1-outcome-ledger-2026-10-22.md`.
+Receipt: `/private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D1-outcome-ledger-2026-10-22.md` [MISSING 2026-10-24, not recoverable].
 Scope deviation disclosed: a restricted R CMD check created its usual temporary
 medfit installation inside the isolated check folder. No dependencies or existing
 libraries changed; do not repeat under no-installs. Check had one pre-existing
@@ -212,7 +241,7 @@ Earlier implementation/check counts below are historical receipts, not reruns.
 This subsection records the pre-approval scope; the current authorization above
 supersedes it. The three rulings were subsequently approved, not implemented.
 
-Current baseline: missingmed HEAD `1601b29`; latest recorded verification is
+Historical baseline (superseded by "Current state"): missingmed HEAD `1601b29`; latest recorded verification was
 858 assertions and 24 intended-assertion mutations (see the T5 receipt), NOT
 rerun in this documentation pass. Counts 776/834 below identify older stages.
 All historical authorization statements below are superseded for present action
@@ -363,7 +392,7 @@ This is not full spec-compliance or implementation approval.
   This plan review does not fill historical implementation-review omissions.
 - **Version mismatch:** followed up read-only after review. Current medfit source
   HEAD is `dd42073d18bc0463f31a1a0e1d469117689b5b28` (DESCRIPTION 0.10.0);
-  installed library is 0.11.1 at `/private/tmp/claude-501/medfit-lib2` (RemoteSha
+  installed library is 0.11.1 at `/private/tmp/claude-501/medfit-lib2` [MISSING 2026-10-24] (RemoteSha
   absent). Deparsing installed `.sem_fit_syntax()` confirms `.sem_vcov()` precedes
   `c(fit, list(...))` there too. This confirms covariance-before-return control
   flow for that installation, not occurrence of an escaping covariance error or
@@ -409,7 +438,7 @@ The approved authority remains
 `docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md`; this plan does not amend it.
 The verification receipt is
 `docs/specs/NOTE-T5-acceptance-verification-2026-10-22.md`.
-At `bdd03e8`, 776 deterministic assertions pass, but T5 is unaccepted: the
+Historical stage (current baseline is in "Current state"): at `bdd03e8`, 776 deterministic assertions pass, but T5 is unaccepted: the
 bounded search found no qualifying stored improper-null input, guard-trigger
 coverage is missing, and Claude's broader spec/test-body review is incomplete.
 Passing injected diagnostics cannot establish real optimizer warning behavior.
@@ -513,7 +542,10 @@ does not authorize push, merge, install, simulation, or external submission.
 
 The author authorized targeted evidence-gap fixes and a fresh bounded review;
 no broader branch-enumerator design or spec amendment is inferred. No
-dependency installs, simulations, saved-result changes, or merge. Preserve the
+simulations, saved-result changes, or merge. As of 2026-10-24 the author has also
+approved pushing this branch and returning #102 to draft, and scratch-library
+medfit installs were made and disclosed (see Current state); no other dependency
+installs. Preserve the
 unrelated untracked research-workflow plan. Recheck this plan if the approved
 spec, medfit version, provider helper, fixture provenance or user constraints
 change. Do not repeat broad fixture discovery without a concrete new lead.
