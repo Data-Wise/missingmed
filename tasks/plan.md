@@ -491,6 +491,15 @@ and public once-per-dataset warnings, including branch identity. Hash existing
 inputs before/after; do not modify saved results. Do not assume this single case
 establishes all asymmetric/both-branch scenarios; retain injected controls.
 
+**P3 candidates ruled on (author, 2026-10-24).**
+- medfit `sem_model_heywood()` at n = 50, seed 10 (`tests/testthat/helper-sem.R:208`; used in
+  medfit's `test-sem-optim.R` and `test-sem-edge-grid.R`): **NONQUALIFYING.** A seeded simulator
+  call generates its data, which P3 excludes. Not executed or verified (it also describes an
+  improper full fit in a latent-mediator model, unchecked for a null). T5 stays BLOCKED.
+- Bounded read-only search 2026-10-24 (file names and CSV headers across r-packages, research and
+  dev-tools; no exhaustive claim): no stored improper-null input found. Literature notes and
+  planning docs only.
+
 ### Acceptance checkpoint and downstream tasks
 
 T5 closes only when the approved requirements have mapped, passing evidence,
