@@ -41,6 +41,22 @@ split uses an existing column and is declared, not retuned. A negative result he
 these are models I picked, not an exhaustive search. Quick Wins 1 and 2 are therefore closed; Quick Win 3 and the Medium
 items remain.
 
+## Zotero and literature leads (2026-10-24, read-only; author asked for books/manuscripts)
+
+Route: the `zotero` MCP server was down (connection refused); `obsidian-ops` Zotero search worked (multi-word queries
+return nothing, single words work). Metadata only; the contents below come from the extracted text where noted.
+
+| Lead | What it has | Status |
+|---|---|---|
+| Kolenikov and Bollen (2012), SMR 41(1), "Empirical Example" (text read) | A **real** negative error variance: Bollen (1993) cross-national liberal-democracy MTMM model, 8 indicators, 3 judges, ordinal and nonnormal. Reports estimates (Tables 7-8), not the raw data. | Best lead; a **measurement** (CFA/MTMM) model, not mediation. Raw data would be Bollen's (1993) cross-national indicators (source and access unverified). |
+| Dillon, Kumar and Mulani (1987); Rindskopf (1984) (text scanned) | Theory plus population-matrix illustrations; no real stored dataset found by keyword scan. | Likely no input. Not read in full. |
+| Bollen (1987), "Outliers and improper solutions: a CFA example" | Title says a real CFA example. No PDF found on disk. | Unread; needs the paper. |
+| Books in Zotero: Kline (2016), Bollen (1989), Mulaik (2009) | Textbooks sometimes print covariance matrices and Heywood examples. | Unknown; no PDFs attached, nothing read. |
+
+Caveat that decides usefulness: P3 needs a mediation-shaped model whose **null** is improper. Every lead above is a
+measurement model. Building X → M → Y on top of such data is a modeling choice, and whether that counts as "not
+retuning" is the author's call.
+
 ## Quick Wins (< 30 min each, read-only screening, each needs your go before any fit is run)
 
 1. **Screen shipped real datasets with latent mediators** — lavaan 0.7.3 and psych 2.6.5 are installed. Candidates:
