@@ -219,7 +219,7 @@
         call. = FALSE)
     }
   }
-  fit <- medfit::fit_sem(model, d, fixed_x = FALSE)
+  fit <- medfit::fit_sem(model, d, fixed_x = FALSE, meanstructure = NULL)
   if (!is.finite(fit@f)) stop("Non-finite full-fit discrepancy.", call. = FALSE)
   list(fit = fit, n_obs = fit@n_obs, improper = fit@diagnostics$improper)
 }

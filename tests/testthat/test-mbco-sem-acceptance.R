@@ -357,7 +357,7 @@ test_that("diagnostic state guards reject mismatches before public pooling", {
   tab <- medfit::mbco_sem(full, "mm_a", "mm_b")$tests
   nulls <- lapply(c("mm_a", "mm_b"), function(label) {
     medfit::fit_sem(paste(full@model, paste(label, "== 0"), sep = "\n"),
-      t5_data, fixed_x = FALSE)
+      t5_data, fixed_x = FALSE, meanstructure = NULL)
   })
   fit <- t5_fit()
   state <- "matched"

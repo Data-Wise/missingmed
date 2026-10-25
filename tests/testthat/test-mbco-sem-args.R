@@ -1,3 +1,31 @@
+fit_sem_calls_explicit <- function(exprs) {
+  found <- character()
+  walk <- function(e) {
+    if (is.call(e)) {
+      f <- e[[1L]]
+      if (identical(f, quote(fit_sem)) || identical(f, quote(medfit::fit_sem))) {
+        found <<- c(found, if (all(c("fixed_x", "meanstructure") %in% names(e))) "ok" else "bad")
+      }
+      for (i in seq_along(e)) {
+        if (!identical(e[[i]], quote(expr = ))) walk(e[[i]])
+      }
+    }
+  }
+  for (e in exprs) walk(e)
+  found
+}
+
+test_that("every fit_sem() call in the SEM MBCO adapter passes fixed_x and meanstructure", {
+  src <- test_path("..", "..", "R", "mbco_sem.R")
+  skip_if_not(file.exists(src), "package source not available")
+  found <- fit_sem_calls_explicit(parse(src, keep.source = FALSE))
+  expect_gte(length(found), 2L)
+  expect_true(all(found == "ok"))
+  # Planted defect: the form before medfit 0.14.0 must be reported.
+  old <- parse(text = "medfit::fit_sem(model, d, fixed_x = FALSE)", keep.source = FALSE)
+  expect_identical(fit_sem_calls_explicit(old), "bad")
+})
+
 test_that("SEM fit_args accepts exactly the approved ignored options", {
   check <- missingmed:::.mm_sem_check_args
   expect_silent(check(list()))
