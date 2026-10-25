@@ -16,19 +16,24 @@ Updated 2026-10-24. Execution checklist: [todo.md](todo.md).
   2026-10-24 on the D4 head `3a98bf6` (medfit 0.12.0), identical before and after the `meanstructure` edit. The 768
   dependency-side count (1,584 total) comes from the D4 closure matrix and was not re-run. Counts 776/858/1055/1300/
   1386/1470 below are historical stages.
-- **Open decisions for the author (not decided here):**
-  1. **A or B** (see "Claude disposition", below): keep the approved spec and authorize structured dependency
-     evidence, or approve a named spec amendment. No choice is recorded anywhere in this plan.
-  2. **Late edit scope:** the 2026-10-24 `meanstructure = NULL` edit touches `R/mbco_sem.R`, which is in review scope.
-     The "Review endpoint" rule says later relevant changes invalidate the affected review scope. Either record an
-     explicit ruling that the edit is out of the frozen snapshot, or include it in the snapshot.
+- **Decisions (author, 2026-10-24):**
+  1. **Path A chosen** (confirmed in chat; it was the 2026-10-22 approval of the bounded D1–D5 dependency design): the
+     approved spec stays unamended and every requirement still needs evidence. Path B is not in play.
+  2. **Late edits are in the frozen review snapshot:** `e9e2325` (`meanstructure = NULL`) and `2baa3e6` (guard test)
+     must be named by SHA in the final review; the acceptance row treats unreviewed final edits as BLOCKED.
+  3. **D1–D4 integration into medfit is owned by the medfit session (`medfit-oct-23`), after 0.14.0 ships.** The D-chain
+     touches 7 `R/` files; 6 of them (`classes.R`, `fit-sem.R`, `sem-fit.R`, `sem-mbco.R`, `sem-se.R`,
+     `sem-syntax-help.R`) also changed on medfit `dev` since the 0.12.0 base `505e8ed`, so expect real rebase work.
+     D5 cannot start until D1–D4 exist in a medfit missingmed can depend on. The commits are protected only by local
+     branches `keep/d4-3a98bf6` and `keep/d3-pin-cba4c1a`, not pushed.
 - **D1–D5 (medfit work for T5; details in the PROPOSAL doc linked below):** D1 outcome ledger and public propagation;
   D2 literal-equality contradiction certificates; D3 overflow-safe 64-RAW cap and duplicate branch maps; D4 post-fit
   covariance-stage evidence retention; D5 integration into the missingmed adapter using documented evidence, not
   private namespace recovery (not started).
-- **Receipt availability (checked 2026-10-24):** the D1 and D2 receipts, the D1 assertion-tolerance review JSON and the
-  installed medfit 0.11.1 library, all under `/private/tmp`, **no longer exist**. Claims that rest only on them are
-  unauditable from this repo; see the `[MISSING]` marks below. Recoverable material is in `docs/specs/`.
+- **Receipt availability (checked 2026-10-24):** the `/private/tmp` worktree and library paths below no longer exist.
+  The D1–D4 receipt notes are committed in medfit at `keep/d4-3a98bf6:planning/specs/NOTE-D{1,2,3,4}-*.md`
+  (recoverable). Truly gone: the D1 assertion-tolerance review JSON and the installed medfit 0.11.1 library; claims
+  resting only on those are unauditable (see the `[MISSING]` marks). Other review JSONs are in `docs/specs/`.
 
 ## Current checkpoint — D4 post-fit evidence and wrap-up
 
@@ -50,7 +55,7 @@ plus a guard test in `test-mbco-sem-args.R` (walks installed function bodies, no
 R CMD check). On the D4 head `3a98bf6` (kept by local branch `keep/d4-3a98bf6`; `cba4c1a` is
 only its D3 base, kept by `keep/d3-pin-cba4c1a`) the receipt's consumer files give 816
 expectations before and after, 0 failed.
-Not part of the D4/D5 review snapshot and no effect on T5 acceptance.
+Part of the frozen T5 review snapshot (author ruling 2026-10-24); value-neutral, but it must be reviewed.
 
 D4 is implemented/tested locally in medfit on commit `3a98bf6` (kept by local branch
 `keep/d4-3a98bf6`; the original `codex/medfit-d4-post-fit-evidence` branch does not exist
@@ -154,7 +159,7 @@ source-loaded dependency, no installation. One Claude review returned
 needs-attention: consistent fixed-table forgery/unreachable premise, weak null
 assertions and empty-min warning addressed and retested. Post-review fixes not
 independently re-reviewed; Claude omitted cross-root approved spec/proposal.
-Receipt: `/private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D2-literal-certificates-2026-10-22.md` [MISSING 2026-10-24, not recoverable].
+Receipt: `/private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D2-literal-certificates-2026-10-22.md` [worktree path gone 2026-10-24; committed copy: medfit `keep/d4-3a98bf6:planning/specs/NOTE-D2-literal-certificates-2026-10-22.md`].
 T5 UNACCEPTED. D3-D5 and real-case evidence remain open; no missingmed runtime
 integration, installs, simulations, saved-result changes, push or merge.
 Earlier authorization/status paragraphs below are historical snapshots.
@@ -197,7 +202,7 @@ and public SEM negative-LR guards pass. Claude job
 consumer pooling/provider bodies and proposal in this run; those dispositions
 are Codex-verified, not independent full-spec sign-off. D3 does not authorize
 deduplicated execution. D2-D5 and real-case evidence remain open; T5 UNACCEPTED.
-Full receipt: `/private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D1-outcome-ledger-2026-10-22.md` [MISSING 2026-10-24, not recoverable].
+Full receipt: `/private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D1-outcome-ledger-2026-10-22.md` [worktree path gone 2026-10-24; committed copy: medfit `keep/d4-3a98bf6:planning/specs/NOTE-D1-outcome-ledger-2026-10-22.md`].
 
 2026-10-22: the author approved the three recommended rulings below. They now
 govern the evidence review; the approved spec is unchanged and no requirement
@@ -226,7 +231,7 @@ follow-up changes are tested, NOT Claude-reviewed; independent coverage remains
 open. No automatic retry. Review job `6b6a1736-0258-4d21-8f85-6cd23b8644cd`,
 sonnet / claude-sonnet-5-5, 224145 tokens, 8 turns, 72481 ms, $0.2615716;
 no lease/cost/turn exhaustion. Full dispositions/coverage/usage in receipt below.
-Receipt: `/private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D1-outcome-ledger-2026-10-22.md` [MISSING 2026-10-24, not recoverable].
+Receipt: `/private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D1-outcome-ledger-2026-10-22.md` [worktree path gone 2026-10-24; committed copy as above].
 Scope deviation disclosed: a restricted R CMD check created its usual temporary
 medfit installation inside the isolated check folder. No dependencies or existing
 libraries changed; do not repeat under no-installs. Check had one pre-existing

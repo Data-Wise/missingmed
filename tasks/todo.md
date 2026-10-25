@@ -2,9 +2,9 @@
 
 See [plan.md](plan.md) for rationale, ownership and constraints; its "Current state (2026-10-24)" section is authoritative.
 
-- [ ] Author decision: A (keep approved spec, authorize structured dependency evidence) or B (named spec amendment). Not recorded anywhere yet.
-- [ ] Author ruling: is the 2026-10-24 `meanstructure = NULL` edit outside the frozen review snapshot, or included in it?
-- [x] Receipt audit 2026-10-24: D1/D2 receipts, the D1 tolerance review JSON and the medfit 0.11.1 lib under /private/tmp are MISSING; marked in plan.md. Recover any copies if they exist elsewhere.
+- [x] Author decisions 2026-10-24: path A chosen (spec unamended); `e9e2325` and `2baa3e6` are in the frozen review snapshot; medfit-oct-23 owns D1-D4 integration into medfit after 0.14.0 ships (see plan.md Current state).
+- [ ] D1-D4 integrated into a medfit that missingmed can depend on (owner: medfit-oct-23, after 0.14.0). D5 is blocked until then.
+- [x] Receipt audit 2026-10-24: /private/tmp paths are gone; D1-D4 receipt notes are recoverable from medfit `keep/d4-3a98bf6:planning/specs/`; only the D1 tolerance review JSON and the medfit 0.11.1 lib are truly lost (marked in plan.md).
 
 - [x] D4 owner clause tracing and explicit nonwinning-child controls — both product orders/both nulls; 1584 deterministic assertions, new-file lint clean; two attribution/notice mutants discriminate.
 - [ ] D4 independent closure — Claude5ad08ae8 failed structured-output finalization; unread required bodies and unvalidated classification/two-failure/root-validation concerns remain. No automatic retry. Author requested wrap-up; T5 UNACCEPTED.
