@@ -15,15 +15,16 @@ fit_sem_calls_explicit <- function(exprs) {
   found
 }
 
-test_that("every fit_sem() call in the SEM MBCO adapter passes fixed_x and meanstructure", {
-  src <- test_path("..", "..", "R", "mbco_sem.R")
-  skip_if_not(file.exists(src), "package source not available")
-  found <- fit_sem_calls_explicit(parse(src, keep.source = FALSE))
+test_that("every fit_sem() call in the package passes fixed_x and meanstructure", {
+  # Walks installed function bodies, so it runs under R CMD check as well as devtools::test().
+  ns <- asNamespace("missingmed")
+  funs <- Filter(is.function, mget(ls(ns, all.names = TRUE), envir = ns))
+  found <- fit_sem_calls_explicit(lapply(funs, body))
   expect_gte(length(found), 2L)
   expect_true(all(found == "ok"))
-  # Planted defect: the form before medfit 0.14.0 must be reported.
-  old <- parse(text = "medfit::fit_sem(model, d, fixed_x = FALSE)", keep.source = FALSE)
-  expect_identical(fit_sem_calls_explicit(old), "bad")
+  # Planted defect: a function body using the form before medfit 0.14.0 must be reported.
+  stub <- function(model, d) medfit::fit_sem(model, d, fixed_x = FALSE)
+  expect_identical(fit_sem_calls_explicit(list(body(stub))), "bad")
 })
 
 test_that("SEM fit_args accepts exactly the approved ignored options", {
