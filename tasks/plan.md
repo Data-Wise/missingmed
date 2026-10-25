@@ -530,6 +530,10 @@ establishes all asymmetric/both-branch scenarios; retain injected controls.
   medfit's `test-sem-optim.R` and `test-sem-edge-grid.R`): **NONQUALIFYING.** A seeded simulator
   call generates its data, which P3 excludes. Not executed or verified (it also describes an
   improper full fit in a latent-mediator model, unchecked for a null). T5 stays BLOCKED.
+- Author-authorized read-only fit screen 2026-10-24: 7 shipped or stored real datasets (lavaan PoliticalDemocracy,
+  HolzingerSwineford1939 whole and by school, mediation jobs and framing, medfit mediation_demo), full + both nulls,
+  medfit 0.12.0 (D4 head) and 0.13.0 (dev): **0 improper nulls**, hashes unchanged. Details and script:
+  `docs/PROPOSAL-p3-stored-improper-null-leads-2026-10-24.md`, `docs/specs/p3-screen-2026-10-24.R`. T5 stays BLOCKED.
 - Bounded read-only search 2026-10-24 (file names and CSV headers across r-packages, research and
   dev-tools; no exhaustive claim): no stored improper-null input found. Literature notes and
   planning docs only.
