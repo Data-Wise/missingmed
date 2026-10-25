@@ -57,6 +57,8 @@ items remain.
 
 ## Medium effort (1-2 hrs)
 
+- [x] **CLOSED 2026-10-24, no lead:** Chen 2001 and Gerbing 1987 are both Monte Carlo studies (generated samples), not
+  published datasets; see plan.md P3. Other literature (applied papers reporting a Heywood case with data) is still open.
 - [ ] **Mine the improper-solution literature for published datasets.** `mbco-lrt` already has notes on Chen et al.
   (2001) and Gerbing and Anderson (1987). Check whether either published a dataset or covariance matrix with a
   Heywood case in a mediation-shaped model; a published covariance matrix is stored input with citable provenance.

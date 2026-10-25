@@ -534,6 +534,11 @@ establishes all asymmetric/both-branch scenarios; retain injected controls.
   HolzingerSwineford1939 whole and by school, mediation jobs and framing, medfit mediation_demo), full + both nulls,
   medfit 0.12.0 (D4 head) and 0.13.0 (dev): **0 improper nulls**, hashes unchanged. Details and script:
   `docs/PROPOSAL-p3-stored-improper-null-leads-2026-10-24.md`, `docs/specs/p3-screen-2026-10-24.R`. T5 stays BLOCKED.
+- Literature check 2026-10-24 (read-only, `~/projects/research/mbco-lrt`): Chen et al. (2001) and Gerbing and Anderson
+  (1987) are both Monte Carlo studies of generated samples (Gerbing: LISREL runs from population correlation
+  matrices, measurement models only; Chen: EQS/CALIS simulation of a three-latent causal chain, N = 50 and 75). Neither
+  publishes a stored dataset or covariance matrix, so neither is a P3 input. Limits: Chen's extracted text is only a
+  cover page, so that paper rests on the existing reading note, and its pp. 494-496 were never read.
 - Bounded read-only search 2026-10-24 (file names and CSV headers across r-packages, research and
   dev-tools; no exhaustive claim): no stored improper-null input found. Literature notes and
   planning docs only.
