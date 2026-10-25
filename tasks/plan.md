@@ -18,8 +18,10 @@ counts and open-gap descriptions below are superseded by this follow-up.
 **Late edit 2026-10-24, value-neutral, NOT Claude-reviewed:** `R/mbco_sem.R:222` and
 `test-mbco-sem-acceptance.R:360` now pass `meanstructure = NULL` (medfit 0.14.0
 default-change warning; plan in [plan-medfit-defaults.md](plan-medfit-defaults.md)),
-plus a source-scan guard test in `test-mbco-sem-args.R`. Pinned medfit 0.12.0 (`cba4c1a`,
-kept by local branch `keep/d3-pin-cba4c1a`): SEM files 812 -> 815 expectations, 0 failed.
+plus a guard test in `test-mbco-sem-args.R` (walks installed function bodies, no skip under
+R CMD check). On the D4 head `3a98bf6` (kept by local branch `keep/d4-3a98bf6`; `cba4c1a` is
+only its D3 base, kept by `keep/d3-pin-cba4c1a`) the receipt's consumer files give 816
+expectations before and after, 0 failed.
 Not part of the D4/D5 review snapshot and no effect on T5 acceptance.
 
 D4 is implemented/tested locally on medfit branch `codex/medfit-d4-post-fit-evidence`
