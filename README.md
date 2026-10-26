@@ -23,7 +23,8 @@ Two estimators share one S7 pipeline:
 * **Inverse-probability weighting** (`method = "ipw"`) — reweights complete cases
   (stabilized weights, trimming, HC sandwich SEs).
 * **Structural equation models** (`engine = "lavaan"`) — give lavaan syntax in
-  `model`, including a latent mediator; works with both estimators.
+  `model`, including a latent mediator; works with both estimators. `run()` uses
+  lavaan; MI MBCO refits use medfit >= 0.10.0 with a strict option allow-list.
 * **Sensitivity to missing not at random** (`sensitivity_mnar()`) — repeats the
   analysis with the imputed values shifted, giving a sensitivity curve.
 

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | ACCEPTED 2026-10-16 (author): do not delegate; revisit on the section 5 triggers |
+| **Status** | SUPERSEDED 2026-10-16: accepted, then reversed the same day (author chose to delegate and replace the provider); see SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md. Section 2's "unverified" parity claim is now verified there (max difference 6.5e-12). |
 | **Date** | 2026-10-16 |
 | **Answers** | `.STATUS` open item (1); medsim#62 task 3 |
 | **Basis** | Read-only: medfit `origin/main` (0.10.0, 157a1db) `R/sem-mbco.R`, `R/fit-sem.R`, NEWS, the RMediation handoff in `planning/specs/`; missingmed `R/mbco_lavaan.R`, `R/run.R`, `SPEC-sem-mbco-2026-10-08.md`. **No parity run was made**: medfit 0.10.0 is not installed here (CRAN has 0.3.2), and installing it is out of scope for a read-only look. |

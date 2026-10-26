@@ -43,7 +43,10 @@ variable name, and a named list of lavaan options (as in
 family arguments. The tested paths are the regressions \code{mediator ~ treatment} (a) and \code{outcome ~ mediator} (b); a latent mediator uses its
 structural rows, and its measurement model and any direct effects of its
 indicators on the outcome stay free. Only \code{estimator = "ML"} (the default)
-is supported, with no \code{group}, \code{ordered} or \code{sampling.weights}.}
+is supported, with no \code{group}, \code{ordered} or \code{sampling.weights}.
+Refitting uses medfit >= 0.10.0, not lavaan's optimizer. The ignored
+options and syntax restrictions are described in \code{\link[=infer]{infer()}}. \code{fit_args}
+must be a list: use \code{list()}, not \code{NULL}.}
 }
 \value{
 An \link{MbcoMIResult}: the named numeric \code{c(D4, p, r4, nu, d_S)} with
@@ -110,6 +113,15 @@ would not be a likelihood ratio. A fit that converged but carries glm's
 "fitted probabilities numerically 0 or 1" warning is not refused (its
 likelihood is finite and the warning reaches you unchanged), but the
 chi-square-type reference may be poor for such near-separated data.
+
+For SEM, a dependency error (including a post-fit covariance/diagnostic error
+returning no usable likelihood) stops inference rather than selecting a
+surviving branch. A returned finite likelihood is retained despite diagnostic
+warnings, subject to every LR and completeness gate. This is not recovery of
+a likelihood hidden inside a dependency error or a global-optimality guarantee.
+Improper-null warnings additionally require resolved branch attribution:
+diagnostic refit errors, sample/LR mismatches or unreproduced flags stop
+inference even when the reported likelihoods are finite.
 
 At least two imputations are required. For a single complete dataset, use a
 complete-data MBCO test such as \code{\link[RMediation:mbco]{RMediation::mbco()}}.

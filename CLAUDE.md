@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **missingmed** — "Mediation Analysis with Multiple Imputation for Missing Data" (**v0.10.0**, dev 0.10.0.9000). A **thin orchestration layer** (the missing-data middle): it runs mediation across incomplete data and pools with Rubin's rules — **delegating fitting to `medfit`** and **inference to `RMediation`**, with simulation in `medsim`. **S7-first.**
 
-> **🟢 Roadmap complete (v0.3.0).** S7 rewrite + IPW (v0.2.0, 2026-06-12), then GLM family coverage (PR #5) and MNAR sensitivity `sensitivity_mnar()` (PR #6) landed 2026-08. Released on GitHub, the [pkgdown site](https://data-wise.github.io/missingmed/), and the [Data-Wise r-universe](https://data-wise.r-universe.dev). Post-release backlog: `docs/specs/PLAN-pre-v0.3.0-review-fixes-2026-08-29.md` (parked section).
+> **🟢 v0.3.0 roadmap complete; later work (to 0.10.0) is in `NEWS.md` and `docs/specs/PLAN-*`.** S7 rewrite + IPW (v0.2.0, 2026-06-12), then GLM family coverage (PR #5) and MNAR sensitivity `sensitivity_mnar()` (PR #6) landed 2026-08. Released on GitHub, the [pkgdown site](https://data-wise.github.io/missingmed/), and the [Data-Wise r-universe](https://data-wise.r-universe.dev). Post-release backlog: `docs/specs/PLAN-pre-v0.3.0-review-fixes-2026-08-29.md` (parked section).
 
 ## Core workflow (S7)
 
@@ -18,13 +18,14 @@ Four verbs over three S7 classes:
 - **`infer(type = c("mc","mbco"))`** — `mc`: Monte-Carlo CI via RMediation (an `X:M` model needs `treatment_level`, the x in a(b + theta3 x)); `mbco`: **D4-stacked MBCO** (`R/mbco_mi.R` — MBCO does **not** commute with Rubin's rules). `per_imputation_list()` exposes the per-imputation fits MBCO needs. **`ariv = c("fixed", "own")`**, default `"fixed"` (#19): `"fixed"` tests every imputation on the stacked fit's branch; `"own"` has the `D4`/`r4`/branch of v0.4.0 and the research prototype (`nu` and `p` differ since the df switched to Chan & Meng eq. 2.15, #62) and **can be liberal** at high missingness (size up to 0.083 Gaussian, 0.138 count outcomes; `docs/specs/SPEC-glm-mbco-calibration-2026-10-09.md`). Returns an **`MbcoMIResult`** (S7, parent `class_double`; index with `r["p"]`/`r[["p"]]`, `$` errors). The exported **`mbco_d4(implist, ...)`** is the same engine on a plain list of data frames. D4-MBCO under MI lives here by decision; RMediation keeps complete-data MBCO.
 - **Two estimators (orthogonal `method` axis):** `"mi"` (default; `data` = `mice::mids`) and `"ipw"` (`data` = `data.frame`; reweighted complete cases, stabilized weights, trimming, `se_type = "sandwich"`).
 
-The **S4 API was removed in 0.6.0**: `set_sem`/`run_sem`/`pool_sem`/`fit_model`/`lav_mice`/`mx_mice` were `.Defunct()` stubs in 0.6.0 and are deleted (0.7.0 line); the S4 classes, predicates and OpenMx tidiers are gone. **`engine = "lavaan"`** (`R/lavaan_spec.R`, the lavaan branch of `R/run.R`) takes `model` + `outcome` (+ `fit_args`) instead of formulas; MBCO works for it (ML only; `R/mbco_lavaan.R`; MLR, `group`, `ordered`, `sampling.weights` refuse).
+The **S4 API was removed in 0.6.0**: `set_sem`/`run_sem`/`pool_sem`/`fit_model`/`lav_mice`/`mx_mice` were `.Defunct()` stubs in 0.6.0 and are deleted (0.7.0 line); the S4 classes, predicates and OpenMx tidiers are gone. **`engine = "lavaan"`** (`R/lavaan_spec.R`, the lavaan branch of `R/run.R`) takes `model` + `outcome` (+ `fit_args`) instead of formulas; MBCO works for it (ML only via medfit >= 0.10.0; `R/mbco_sem.R`; MLR, `group`, `ordered`, `sampling.weights` refuse).
 
 ## Architecture
 
 - `R/MDMediationData.R`, `R/MDMediationFit.R`, `R/MDMediationResult.R` — the three S7 classes (each calls `S7::S4_register()`); `R/zzz.R` runs `S7::methods_register()`.
 - `R/set_md_mediation.R`, `R/run.R`, `R/pool.R`, `R/infer.R`, `R/accessors.R` — the S7 pipeline.
-- `R/ipw_run.R` — IPW weight estimation + fit; `R/mbco_mi.R` — D4-stacked MBCO + `mbco_d4()`; `.mm_d4_pool()` is the estimator-free pooling and takes a **log-likelihood provider** (one dataset -> `c(full, a, b, k_a, k_b)`): `.mm_glm_provider()` here, `.mm_lav_provider()` in `R/mbco_lavaan.R` (lavaan engine, ML only; nulls built from `parTable()` of the fitted full model); `R/MbcoMIResult.R` — its result class. That class is **not** `S4_register()`ed (fails for a `class_double` parent), so its `print` is registered on `base::print` (the namespace `print` is an S4 generic via the S4 classes (removed in 0.6.0)), and `[`/`[[`/`print` use the functional `` S7::`method<-`() `` form.
+- `R/ipw_run.R` — IPW weight estimation + fit; `R/mbco_mi.R` — D4-stacked MBCO + `mbco_d4()`; `.mm_d4_pool()` is the estimator-free pooling and takes a **log-likelihood provider** (one dataset -> `c(full, a, b, k_a, k_b)`): `.mm_glm_provider()` here, `.mm_sem_provider()` in `R/mbco_sem.R` (medfit ML refits with both null branches checked; `run()` still uses lavaan); `R/MbcoMIResult.R` — its result class. That class is **not** `S4_register()`ed (fails for a `class_double` parent), so its `print` is registered on `base::print` (the namespace `print` is an S4 generic via the S4 classes (removed in 0.6.0)), and `[`/`[[`/`print` use the functional `` S7::`method<-`() `` form.
+- `R/sensitivity_mnar.R` — `sensitivity_mnar()` (MNAR delta-adjustment sensitivity; result class in `R/MDSensitivityResult.R`).
 - `R/methods-output.R` (print/summary/tidy), `R/reexports.R` (`broom::tidy`).
 
 ## Dependencies (gotchas)
@@ -45,5 +46,12 @@ Needs medfit ≥ 0.3.1 + RMediation ≥ 1.5.0 installed (both from CRAN). **PRs 
 Part of the **mediationverse** ecosystem (Data-Wise org), coordinated via `~/projects/r-packages/mediation-planning/`. The companion **manuscript** (`~/projects/research/Missing Effect/`) now **runs on `medsim`, not missingmed** — missingmed is the productionized MI/IPW estimation layer, off the manuscript's critical path. Do **not** edit the manuscript repo (it has its own session). missingmed is a **dependency leaf** (imports medfit + RMediation; nothing imports it), so API changes don't cascade.
 
 ## Workflow
+
+For PR #102 evidence work, `tasks/plan.md` and `tasks/todo.md` own the current
+checkpoint; T5 remains unaccepted until its real-case gate closes. Source-load
+the pinned isolated medfit dependency for deterministic tests: stored inputs,
+single starts and a random-retry trap. A typed covariance-stage partial payload
+is not a public SEMFit; D5 integration must use documented evidence, not private
+namespace recovery. Website source edits are not deployment evidence. P3 (the stored improper-null input) routes and gate: `docs/PLAN-p3-raw-data-routes-2026-10-24.md`.
 
 Multi-branch: `main` (protected — PR-required, no force-push/deletions) ← `dev` (integration) ← `feature/*`. Don't commit to `main` directly.

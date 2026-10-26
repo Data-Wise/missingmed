@@ -2,7 +2,19 @@ status: active
 priority: --
 progress: 100
 kind: package
-updated: 2026-10-16
+updated: 2026-10-24
+p3_candidates: 2026-10-24 - medfit sem_model_heywood() seed 10 ruled nonqualifying (seeded generation); no stored improper-null input found; T5 stays BLOCKED. Detail in tasks/plan.md P3.
+p3_routes: 2026-10-24 - Dropbox SEM books, notebooks, Kline Roth (nulls proper) and Sabatelli (full-model CFA Heywood) screened; none qualifies; medfit has no covariance input, so P3 needs row-level data. Plan: docs/PLAN-p3-raw-data-routes-2026-10-24.md (reviewed). Next: R2 on author go.
+medfit_defaults: 2026-10-24 - meanstructure = NULL made explicit at the fit_sem() calls (R/mbco_sem.R:222, acceptance test:360) plus source-scan guard test; silences medfit 0.14.0 default-change warning, no numeric change. Fresh-process proof on medfit dev 964bf6d via public mbco_d4(): warning present before, absent after (the class is lost when mbco_d4 re-signals, so match the message text). On the D4 head 3a98bf6 (medfit 0.12.0; D3 base cba4c1a, so the receipt's commit, not just the base): the receipt's consumer files (encoding+provider+acceptance) give 816 expectations before and after, 0 failed; guard test fails on the 341ec6d source (1 failure, 0 errors) and runs with 0 skips on the installed package (it walks namespace function bodies). Pushed to PR #102 (head 7d487ee, guard-test change after it is local). 3a98bf6/f31e12e/cba4c1a were on no branch in the medfit clone; kept by local branches keep/d4-3a98bf6 and keep/d3-pin-cba4c1a (not pushed). medfit-oct-23 was told; it waits on this for its T10. Scratch-library installs of medfit dev/D4 head used (not the user library).
+d4_closure_followup: 2026-10-22 - Nonwinning-child controls in both product orders/both nulls; 768 dependency +816 consumer =1584 deterministic assertions pass, expanded test lint clean, mutants catch attribution/notice defects. Claude5ad08ae8 failed error_max_structured_output_retries; no valid verdict, unread bodies/draft concerns remain. D4 NOT independently closed; T5 UNACCEPTED. Matrix/receipt docs/specs/D4-closure-*. No installs/simulations/saved-result changes/push/merge; author requested wrap-up.
+local_checkpoints: medfit 3a98bf6 (D4 attribution controls over f31e12e); rforge website source 7c4ec3e. Rforge 46/47 wrapper checks; only pre-existing reference drift fails. Preview local, not deployed; T5 UNACCEPTED.
+d4_post_fit: 2026-10-22 - Local medfit D4 on codex/medfit-d4-post-fit-evidence from cba4c1a; typed covariance-stage evidence and checked internal null retention, public full fit still throws. 654 dependency +816 consumer =1470 deterministic assertions pass; one pre-existing assignment lint only. Claude cfded747 scoped approve, low union attribution concern; original spec/full-test omissions remain, so D4 not independently closed. Receipt docs/specs/NOTE-D4-post-fit-evidence-2026-10-22.md. T5 UNACCEPTED; D5/real cases open. No installs/simulations/saved-result changes/push/merge.
+d3_final_closure: 2026-10-22 - Claude d7e0983c approved after reading original C5/3c/3d/items8-10, proposal and conversion/rebase/full D3 tests; no findings. Supersedes earlier D3 omission notes, not D4/D5/T5 acceptance.
+wrap_up_docs: 2026-10-22 - Planning, CLAUDE.md and local gitignored AGENTS.md synchronized; Remember handoff refreshed. Rforge website source isolated on codex/d4-evidence-docs, strict offline content preview inspected, 920 Python tests pass/4 skip; full social-card build blocked by existing runtime/font network, generated-reference drift pre-existing. Website not deployed. No push/merge.
+d3_public_format: 2026-10-22 - Public/nested map propagation and tamper refusal pinned; huge-count wording clarified without numeric/cap change. 570 dependency +816 consumer =1386 deterministic assertions/lint pass. Claude0a653f34 approves with optional tests only; omitted spec/proposal/full test/conversion bodies, so no full spec closure. Prior base closure b6e11cec read original clauses. Raw docs/specs/D3-public-format-claude-review-2026-10-22.json. T5 UNACCEPTED; D4/D5/real-case open. No installs/simulations/saved-result changes/push/merge.
+d3_branch_map: 2026-10-22 - Isolated medfit codex/medfit-d3-branch-map on D2 a11c63b: overflow-safe 64-RAW cap and structural duplicate maps without execution changes. 484 dependency +816 consumer =1300 deterministic assertions/lint pass. Claude b0735071 needs-attention; four concerns addressed/retested, including confirmed error-ledger masking fix, not independently re-reviewed. Original C5/3c/3d/items8-10 omitted by Claude; owner traced, closure pending. Raw docs/specs/D3-claude-review-2026-10-22.json. T5 UNACCEPTED; D4/D5/real cases open. No installs/simulations/saved-result changes/push/merge.
+d2_null_attribution: 2026-10-22 - Tests only in isolated medfit: explicit null:1 all-empty union and nested certificate IDs/proofs; 1210 deterministic assertions/lint pass, zero warnings/errors. Claude424e4da7 approves with no findings, reads approved 3d/items8-10; no full consumer verification claimed. Raw review docs/specs/D2-null-attribution-claude-review-2026-10-22.json. T5 UNACCEPTED; D3-D5/real-case open. No installs/simulations/saved-result changes/push/merge.
+d2_literal_certificates: 2026-10-22 - Local medfit codex/medfit-d2-literal-certificates from pinned D1 8d7d6c1; exact explicit zero/nonzero equality certificates only. 369 dependency +816 consumer assertions pass, no warnings/errors. Claude ca1aef5c needs-attention; four concerns repaired/retested, not independently re-reviewed; cross-root spec/proposal omitted. Receipt /private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D2-literal-certificates-2026-10-22.md. T5 UNACCEPTED, D3-D5/real-case open. No installs/simulations/saved-result changes/push/merge.
 next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe (release PR #97,
   merge ed28304, tag v0.10.0); dev is 0.10.0.9000. #99 MERGED 2026-10-15 (3dbffc3): frozen-vector
   cross-check loosened 1e-12 -> 1e-10 (CRAN macOS arm64 R differs from Homebrew R by ~3e-12); fixes the
@@ -14,10 +26,119 @@ next: (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe 
   and quote the counts in every PR body.
   Full history through 2026-10-15: docs/archive/STATUS-next-history-2026-10-16.md.
   OPEN, in order:
-  (1) RESOLVED 2026-10-16: lavaan MBCO does NOT delegate to medfit's mbco_sem (author accepted
-      docs/specs/NOTE-lavaan-mbco-delegation-2026-10-16.md). Revisit only on its section 5 triggers
-      (CRAN medfit with mbco_sem, a passing diff_ll parity check, a use case lavaan cannot serve).
-      medsim#62 task 2 (optional delegation to mbco_d4()) is not blocked by this.
+  (1) lavaan MBCO -> medfit mbco_sem: author chose to delegate and REPLACE the lavaan provider
+      (2026-10-16). SPEC APPROVED, all four rulings as recommended (docs/specs/SPEC-lavaan-mbco-on-
+      mbco-sem-2026-10-16.md; strict fit_args allow-list, narrower syntax, merge to dev now, delete MLR
+      internals, refuse likelihood = "wishart"). Branch feature/lavaan-mbco-medfit (draft PR #102):
+      Item10 optional closure: k=2 oracle, fixed-mode mutations and fixture isolation;
+      816 consumer assertions/lint pass. Claude64bcc7d9 approves with no findings.
+      Tests only, T5 UNACCEPTED; real-case/D5 evidence still open. No push/merge.
+      Item10 hardening: injected tests outside medfit-specific skip; positive K=3 ARIV,
+      stack-only k mismatch and paired swaps; 776 consumer assertions/lint pass.
+      Claude03f86a8b approves scoped item10 review; optional hardening recorded in
+      docs/specs/NOTE-ITEM10-hardening-2026-10-22.md. T5 UNACCEPTED; real-case/D5 open.
+      T1/T2 adversarial repairs verified: 35 label + 94 provider assertions pass; lint clean.
+      Malformed modifiers, defined-name collisions, preconstrained null dimensions and unknown
+      constraint symbols guarded; warnings retained on failure. Three in-memory mutations killed.
+      Existing medfit 0.11.1 at /private/tmp/claude-501/medfit-lib2; no installs; RemoteSha absent.
+      Claude rerun: no blockers, static/partial coverage; final named-symbol guard tested afterward.
+      Historical T2 gap: branch-specific null improper attribution (T5 follow-up below).
+      Shared-label follow-up: direct tested-label/variance sharing refused; valid regression
+      and intercept sharing retained (one df, oracle parity). 38 label + 102 provider assertions
+      pass; mutations 15/14/3. Claude flags inferred indirect equality-to-variance bypass;
+      Exact indirect example failed closed in medfit; affine row-space guard now refuses
+      null-fixed nonpositive variances before fitting. 38+110 assertions pass, lint clean,
+      Joint feasibility/consistency now checked by capped dependency-free affine elimination.
+      38+124 assertions pass, lint clean, mutations 15/14/3/9. Claude approved this patch,
+      independently read spec and reproduced checks; only unverified extreme-scaling caveat.
+      Later integration/diagnostic acceptance gates remain; see receipt.
+      T3 DONE internally: approved fit_args allow-list, normalized duplicate refusal,
+      ML-only estimator; options ignored, fixed_x=FALSE retained. 214 total SEM assertions
+      pass; five mutations detected; lint clean; Claude T3 approval with reproduced checks.
+      Receipt NOTE-T3-fit-args-verification-2026-10-22.md.
+      T4 implemented locally: both public APIs use medfit; legacy provider and MLR
+      source harness retired; help, tutorials and contributor pointers updated.
+      NULL fit_args remains refused; list() accepted. Deterministic SEM checks:
+      246 assertions, zero failures/errors/warnings/skips; five mutations detected;
+      lint clean. Claude scoped static approval (no test execution), one stale
+      contributor pointer repaired afterward. Receipt NOTE-T4-public-wiring-
+      verification-2026-10-22.md. T5 attribution fallback implemented with exported
+      diagnostic refits: matching sample, factor/fixed-x state and both raw LRs
+      required; unresolved attribution refuses inference. 776 assertions pass;
+      targeted lint clean. T5 NOT fully accepted: real improper-null stored-data
+      evidence remains absent. Claude read relevant spec, ran acceptance tests,
+      returned needs-attention; broader 3c/3d test coverage map incomplete.
+      Empty-diagnostic bypass fixed and re-reviewed. Follow-up bounded search
+      found no existing stored improper-null fixture; no generators were run.
+      776 assertions rerun green. Claude confirms permitted fallback design but
+      withholds approval: real case absent, guard-trigger tests missing, broader
+      spec/test body review still partial. No implementation changes in this pass.
+      Receipt NOTE-T5-acceptance-verification-2026-10-22.md.
+      P1 guard controls now implemented: 834 deterministic assertions pass,
+      three isolated guard bypasses each detected by 10 assertion failures;
+      targeted lint clean. Claude scoped static P1 approval, spec excerpts only;
+      exact failing-branch assertions tightened afterward, tested not re-reviewed.
+      P2 criteria recorded; clause/body matrix and bounded Claude review complete
+      as an audit, NOT acceptance. 834 assertions rerun green; 19 mutations
+      detected, but most harness gates allow incidental errors. Claude needs-
+      attention: completeness interpretations and review omissions remain open.
+      Targeted follow-up: both mutation harnesses require intended assertions and
+      zero execution errors; five added bypasses, explicit post-fit policy/control.
+      858 deterministic assertions pass; 24 intended-assertion mutations each
+      have zero execution errors; targeted lint clean. Bounded Claude rerun:
+      needs-attention, coverage omissions retained; intermediate encoding-map
+      finding resolved by final full run. Warning-policy wording qualified after
+      review. Exclusion/64-limit/post-fit rulings and author-supplied stored
+      improper-null input remain required; T5 stays unaccepted.
+      Research-grounded T5 proposal revised in tasks/plan.md: reasoned exclusion
+      is not refusal; 64 is an engineering cap with distinct counting contracts;
+      escaping covariance failure is not preserved likelihood. No spec amendment
+      or implementation authorized. Claude plan review needs-attention (snapshot
+      only): rulings consistent with quoted spec; final frozen
+      implementation review and real-case hold remain open. Installed medfit
+      0.11.1 covariance-before-return flow inspected read-only, not a reproduced
+      failure. Review usage/dispositions in plan; final clarifications unreviewed.
+      Author approved the three recommended rulings afterward (2026-10-22).
+      Read-only medfit inventory and bounded D1-D5 design recorded in
+      PROPOSAL-T5-medfit-evidence-contract-2026-10-22.md: outcome ledger,
+      reasoned exclusion, raw-64 cap/duplicate evidence, typed post-fit payloads,
+      then separately authorized consumer integration. Existing singular-info
+      warning returns NA covariance; escaping errors are a distinct gap.
+      Inventory pass was read-only. Author later approved dependency design and
+      D1 only: isolated /private/tmp/medfit-d1.3jrA2K/medfit from 505e8ed,
+      codex/medfit-d1-outcome-ledger; versioned outcomes/public propagation,
+      local commit 06b2ca9 (not pushed/merged),
+      259 deterministic assertions pass, no changed-file lint/Rd findings.
+      Claude standard review partial (tests/spec omitted); notice-visibility
+      finding fixed, context/child-drop hardening added and tested afterward,
+      not re-reviewed at that checkpoint. Authorized focused review then read all
+      11 D1 test bodies/prior fixes: no blocker, three low findings dispositioned.
+      Latest assertion follow-up: 1055 deterministic assertions; header/fixture
+      guards and df derivation strengthened, tenfold empirical LR margin passes.
+      Claude78641aac approves consumer fixes; cross-root D1/spec reading omitted.
+      Null-case tag retested post-review, not re-reviewed; T5 unaccepted.
+      Prior follow-up: 329 deterministic assertions (306 medfit + 23 consumer).
+      Exactly-64 and duplicate/arbitrary-ID controls added; no fitter defect.
+      Affine gate blocks claimed generic-union bypass; version/ledger work is D5.
+      Internal pooling trust seam reproduced outside D1; SEM LR guards pass.
+      Claude21ecbeba approves, no findings; consumer/proposal omissions bounded.
+      Consumer integration and real-case evidence remain open. T5 unaccepted.
+      Child-objective consistency fixed; MBCO notice tests/help added; 273
+      deterministic assertions pass. Final follow-up not Claude-reviewed; direct
+      approved-spec/proposal review omissions remain. D2-D5 untouched, T5 unaccepted.
+      Restricted check made a temporary project install (disclosed no-installs
+      deviation); no dependencies/existing libraries changed. Check has one
+      existing undeclared-rlang warning. No simulations, saved-result edits or merge.
+      T5 remains unaccepted; real stored improper-null and final review still open.
+      T5 stays unaccepted; recommended path closes independent gaps first.
+      After T5 acceptance: T6 dependency
+      floor/package checks. No full RNG suite or vignette render.
+      Absolute raw-LR 1e-7
+      justified against stored observed/latent/interior-null oracle errors <=5.543e-10.
+      Receipt: docs/specs/NOTE-T2-provider-verification-2026-10-22.md. Full CI unrun (RNG suite).
+      Default medfit is 0.7.0; focused checks use the existing 0.11.1 library above.
+      Hard medfit >= 0.10.0 blocks CRAN until
+      medfit 0.10 is on CRAN.
   (2) CRAN: blocked on RMediation >= 1.7.1 on CRAN (latest release 1.6.1; 1.7.1 fixes the R-devel S7
       load error) and on the medfit floor. Re-check why the CRAN plan (docs/specs/PLAN-cran-1.0.0-
       2026-10-09.md) names medfit 0.7.0 now that medfit is at 0.10.0 on GitHub (CRAN medfit 0.3.2).

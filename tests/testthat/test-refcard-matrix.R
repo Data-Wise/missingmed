@@ -135,15 +135,12 @@ triggers <- list(
       family_y = stats::binomial(), treatment = "X", mediator = "M"))
   },
   "non-finite log-likelihood" = function() src(missingmed:::.mm_glm_ll),
-  "lavaan model did not converge" = function() {
-    msg_of(mbco_d4(mice::complete(imp, "all"), model = LMOD, treatment = "X", mediator = "M",
-      outcome = "Y", fit_args = list(control = list(iter.max = 1))))
-  },
+  "The full model did not converge or is unresolved" = function() src(missingmed:::.mm_sem_provider),
   "improper solution" = function() src(missingmed:::.mm_warn_improper),
   "MBCO inference for IPW is not yet implemented" = function() {
     msg_of(infer(suppressWarnings(run(md_of("glm, IPW"))), type = "mbco"))
   },
-  "supports estimator = \"ML\" only" = function() {
+  "must be \"ML\"" = function() {
     msg_of(infer(suppressWarnings(run(lav_md(list(estimator = "MLR")))), type = "mbco"))
   },
   "at least 2 imputations" = function() {

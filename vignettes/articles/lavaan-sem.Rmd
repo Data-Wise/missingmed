@@ -218,7 +218,8 @@ tidy(s)
 ## The MBCO test with a lavaan fit
 
 `infer(type = "mbco")` runs the same D4-stacked likelihood-ratio test of
-H0: a·b = 0 as the glm engine, with lavaan doing the refits. Each imputation is
+H0: a·b = 0 as the glm engine, with medfit (>= 0.10.0) doing the refits.
+`run()` still fits with lavaan; MBCO uses medfit's optimizer. Each imputation is
 fit once in full and once with the `a` path (`Mlat ~ X`) fixed to 0 and once with
 the `b` path (`Y ~ Mlat`) fixed to 0; the stacked data are fit the same three
 ways. With a latent mediator, only the **structural** path is fixed: the loadings,
@@ -267,3 +268,47 @@ validated pooling exists yet. Use `type = "mc"` for those fits.
 
 A refit that does not converge stops the test, naming the imputation (or the
 stacked data) and which fit; an improper solution warns once and goes on.
+An escaping dependency error, including a post-fit covariance/diagnostic error
+that returns no usable likelihood, also stops inference; no successful survivor
+is substituted. Diagnostic warnings do not discard a returned finite likelihood,
+but every LR/completeness gate must still pass. This does not recover a likelihood
+hidden inside an error or certify a global optimum.
+
+The local D4 dependency work adds a typed covariance-stage failure with a
+versioned partial likelihood, not a successful `SEMFit`. Its internal null-only
+retention does not authorize full-fit recovery through missingmed. T5 remains
+unaccepted pending D5 integration and qualifying real-case evidence; injected
+covariance failures are deterministic controls, not naturally observed cases.
+This is a development checkpoint, not a released capability claim.
+Improper-null warnings additionally require resolved branch attribution:
+diagnostic refit errors, sample/LR mismatches or unreproduced improper flags
+stop inference even when the reported likelihoods are finite.
+
+For MBCO, the allowed `fit_args` are `estimator = "ML"`, `std.lv`, `std.ov`,
+`fixed.x`, `conditional.x`, `meanstructure`, `information`, `missing`, `se` and
+`test`. These statistic-invariant options are ignored; medfit always receives
+`fixed_x = FALSE`. Every other option is refused by name, including `auto.*`,
+`orthogonal*`, `int.*.free`, `control` and `likelihood = "wishart"`. Thus the
+iteration-limit advice for `run()` above does not apply to MBCO.
+Use `fit_args = list()` for defaults; `NULL` remains invalid.
+
+MBCO syntax is narrower than lavaan syntax. Fixed tested paths, multigroup
+modifiers, nonlinear/product equalities, inequalities and bounded parameters
+are refused, as are `c()`/`label()` modifiers and multi-lhs regressions.
+Nulls forcing unsupported variance domains are refused before
+fitting; numerically unresolved affine checks also stop inference. No absence
+of warnings or successful surviving branch is a completeness certificate.
+Other unsupported medfit syntax fails explicitly rather than falling back to
+lavaan. Non-finite or materially negative raw likelihood-ratio summaries on
+either branch stop inference; roundoff-sized negatives within `1e-7` are
+reported and rounded to zero before pooling. SEM notices are collected into
+one dataset-labeled warning. Unattributed improper null notices trigger separate
+diagnostic refits through `fit_sem()`, using the original data and matching fitting
+options. Both reported likelihood ratios must match within `1e-7` raw LR units
+before assigning a/b labels; unresolved attribution stops inference. Warning
+order alone is never used to guess the affected branch.
+
+MBCO model columns must be numeric or two-level factors; factors with more
+levels are refused even if a newer medfit can expand them. Binary factor
+covariates use the factor-level order for 0/1 coding. The treatment must still
+be numeric under the public data specification.

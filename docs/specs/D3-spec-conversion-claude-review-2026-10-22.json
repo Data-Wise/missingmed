@@ -1,0 +1,138 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "claude_job_result: completed"
+    }
+  ],
+  "structuredContent": {
+    "ok": true,
+    "operation": "review",
+    "review_kind": "adversarial",
+    "subject_kind": "changes",
+    "subject_label": "08e2dc217c4a9eedbb41dd2cea5db761d9ab77d4..HEAD plus working tree",
+    "subject_fingerprint": "5ce23538a7f12d02142e516bc277c84a63bdc4f4d6211708205cb15cc5ceb7b5",
+    "usage_summary": "Usage: tokens=439022 output=9824 turns=16 duration_ms=71705 api_ms=70949 cost_usd=0.3128759",
+    "total_tokens": 439022,
+    "total_cost_usd": 0.3128759,
+    "cumulative_chain_cost_usd": 0.3128759,
+    "parent_job_id": null,
+    "num_turns": 16,
+    "duration_ms": 71705,
+    "duration_api_ms": 70949,
+    "task_profile": null,
+    "review_profile": "standard",
+    "requested_model": "sonnet",
+    "effective_models": [
+      "claude-sonnet-5-5"
+    ],
+    "effort": "medium",
+    "budget": {
+      "max_turns": 22,
+      "finalize_at_turn": 19,
+      "soft_budget_usd": 1,
+      "max_budget_usd": 1,
+      "timeout_ms": 240000
+    },
+    "evidence_lease": null,
+    "evidence_lease_exhausted": false,
+    "cost_budget_exhausted": false,
+    "turn_limit_reached": false,
+    "result": "{\"verdict\":\"approve\",\"summary\":\"No confirmed defects at cba4c1a, by reading only; I ran nothing and the 1386-assertion green result is the owner's. Read in full: spec lines 30-204, proposal lines 108-130, .sem_as_semfit, .sem_rebase_outcome/.sem_valid_outcome/.sem_require_outcome, mbco_sem R/sem-mbco.R:140-243, .sem_fit_branches, .sem_branch_map/.sem_raw_count, the diffs, and all of test-sem-branch-map.R. Conversion keeps the whole outcome node (branch_map included) in SEMFit diagnostics (R/fit-sem.R:189-190) after .sem_require_outcome. Rebasing changes only id/parent_id (R/sem-outcomes.R:174-181). .sem_valid_outcome recomputes the map and grid and refuses forged maps, dropped children and wrong IDs (R/sem-outcomes.R:207-246). mbco_sem validates the fit before refits (R/sem-mbco.R:157) and each refit (:181); a bad refit aborts with rejected_evidence and no p-value (:213-223). Clause map: C5 -> .sem_abort_outcome with retained notices (R/sem-outcomes.R:183-201), test lines 147-152. 3c/item 8 -> raw cap and zero-product duplicates (R/sem-fit.R:274-289, R/sem-outcomes.R:18-44), tests 12-96, 98-153, 155-182. 3d/items 9-10 -> diff touches no D4/df code; consumer scope unchanged. D3 proposal PASS -> tests 2-9 (63/64/65, overflow), 12-96 (32/64/128, zero fit calls over cap, duplicate IDs and tie). Not closed: D4, D5, real-case evidence; T5 unaccepted.\",\"findings\":[],\"next_steps\":[\"Optional: forge every field of nested refit maps (test line 144 changes only unique_count).\",\"Optional: pin message at and just above 2^53 and a non-power count such as 3^40.\",\"Optional: structurally validate the aggregate MBCO ledger (R/sem-mbco.R:210).\"],\"coverage\":{\"files_examined\":[\"docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md (30-204)\",\"docs/specs/PROPOSAL-T5-medfit-evidence-contract-2026-10-22.md (108-130)\",\"R/fit-sem.R\",\"R/sem-outcomes.R\",\"R/sem-mbco.R\",\"R/sem-fit.R\",\"tests/testthat/test-sem-branch-map.R\",\"NEWS.md\",\"planning/specs/NOTE-D3-branch-map-2026-10-22.md\"],\"files_skipped\":[\".STATUS\",\"man/fit_sem.Rd\",\"R/sem-constraints.R\"],\"areas\":[\"conversion\",\"rebasing\",\"validation\",\"MBCO propagation\",\"test mapping\"]},\"uncertainty\":\"low\",\"budget_exhausted\":false,\"recommended_followup\":{\"profile\":\"none\",\"focus\":[],\"reason\":\"Omitted sources reviewed; no defects.\"}}",
+    "structured_output": {
+      "verdict": "approve",
+      "summary": "No confirmed defects at cba4c1a, by reading only; I ran nothing and the 1386-assertion green result is the owner's. Read in full: spec lines 30-204, proposal lines 108-130, .sem_as_semfit, .sem_rebase_outcome/.sem_valid_outcome/.sem_require_outcome, mbco_sem R/sem-mbco.R:140-243, .sem_fit_branches, .sem_branch_map/.sem_raw_count, the diffs, and all of test-sem-branch-map.R. Conversion keeps the whole outcome node (branch_map included) in SEMFit diagnostics (R/fit-sem.R:189-190) after .sem_require_outcome. Rebasing changes only id/parent_id (R/sem-outcomes.R:174-181). .sem_valid_outcome recomputes the map and grid and refuses forged maps, dropped children and wrong IDs (R/sem-outcomes.R:207-246). mbco_sem validates the fit before refits (R/sem-mbco.R:157) and each refit (:181); a bad refit aborts with rejected_evidence and no p-value (:213-223). Clause map: C5 -> .sem_abort_outcome with retained notices (R/sem-outcomes.R:183-201), test lines 147-152. 3c/item 8 -> raw cap and zero-product duplicates (R/sem-fit.R:274-289, R/sem-outcomes.R:18-44), tests 12-96, 98-153, 155-182. 3d/items 9-10 -> diff touches no D4/df code; consumer scope unchanged. D3 proposal PASS -> tests 2-9 (63/64/65, overflow), 12-96 (32/64/128, zero fit calls over cap, duplicate IDs and tie). Not closed: D4, D5, real-case evidence; T5 unaccepted.",
+      "findings": [],
+      "next_steps": [
+        "Optional: forge every field of nested refit maps (test line 144 changes only unique_count).",
+        "Optional: pin message at and just above 2^53 and a non-power count such as 3^40.",
+        "Optional: structurally validate the aggregate MBCO ledger (R/sem-mbco.R:210)."
+      ],
+      "coverage": {
+        "files_examined": [
+          "docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md (30-204)",
+          "docs/specs/PROPOSAL-T5-medfit-evidence-contract-2026-10-22.md (108-130)",
+          "R/fit-sem.R",
+          "R/sem-outcomes.R",
+          "R/sem-mbco.R",
+          "R/sem-fit.R",
+          "tests/testthat/test-sem-branch-map.R",
+          "NEWS.md",
+          "planning/specs/NOTE-D3-branch-map-2026-10-22.md"
+        ],
+        "files_skipped": [
+          ".STATUS",
+          "man/fit_sem.Rd",
+          "R/sem-constraints.R"
+        ],
+        "areas": [
+          "conversion",
+          "rebasing",
+          "validation",
+          "MBCO propagation",
+          "test mapping"
+        ]
+      },
+      "uncertainty": "low",
+      "budget_exhausted": false,
+      "recommended_followup": {
+        "profile": "none",
+        "focus": [],
+        "reason": "Omitted sources reviewed; no defects."
+      }
+    },
+    "session_id": "d40ec1e4-a21a-4644-80ee-9ee88f0b6d76",
+    "resume_hint": "claude --resume d40ec1e4-a21a-4644-80ee-9ee88f0b6d76",
+    "disclosure": null,
+    "usage": {
+      "input_tokens": 18,
+      "cache_creation_input_tokens": 44021,
+      "cache_read_input_tokens": 385159,
+      "output_tokens": 9824,
+      "output_tokens_details": {
+        "thinking_tokens": 1157
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 44021,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 1304,
+          "cache_read_input_tokens": 57832,
+          "cache_creation_input_tokens": 1309,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1309
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "model_usage": {
+      "claude-sonnet-5-5": {
+        "inputTokens": 18,
+        "outputTokens": 9824,
+        "cacheReadInputTokens": 385159,
+        "cacheCreationInputTokens": 44021,
+        "webSearchRequests": 0,
+        "costUSD": 0.3128759,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 1157,
+        "canonicalModel": "claude-sonnet-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    }
+  }
+}

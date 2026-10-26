@@ -1,5 +1,33 @@
 # missingmed (development version)
 
+## Internal
+
+* Tighten deterministic SEM mutation checks to require intended assertion
+  failures with no execution errors; cover concealed survivor completion,
+  convergence/discrepancy guards and empty-diagnostic/sample-match bypasses.
+  Document the post-fit error policy and test injected returned-likelihood
+  retention with diagnostic notices, not recovery from dependency errors.
+  Real improper-null evidence remains
+  required before T5 acceptance.
+* Attribute improper SEM null warnings using separate diagnostic refits when
+  medfit omits branch identity. Require matching samples and both raw likelihood
+  ratios; unresolved attribution stops inference instead of guessing by order.
+  Branch attribution is covered by injected diagnostics; a real improper-null
+  stored-data acceptance case remains unverified.
+* Add deterministic SEM acceptance controls for independent denominator df,
+  public per-branch failures, encoding and branch diagnostics. Enforce the
+  approved two-level factor limit even with newer medfit, retain character-valued
+  full-fit improper diagnostics, and combine them with other SEM notices once.
+  Refuse `c()`/`label()` modifiers and multi-lhs regressions before lavaan's
+  parser normalization can erase the excluded constructs.
+* Route SEM MBCO in `infer()` and `mbco_d4(model = )` through the guarded medfit
+  provider (#101, #102); `run()` still uses lavaan. Retire the old lavaan MBCO
+  provider and internal MLR scaling code/harness; robust MBCO remains refused.
+  SEM MBCO requires medfit >= 0.10.0 at runtime. `fit_args = NULL` remains invalid.
+* Add the approved internal SEM `fit_args` allow-list: listed statistic-invariant
+  options are ignored, only ML is accepted, and all other options are refused
+  by name. The medfit adapter continues to force `fixed_x = FALSE`.
+
 # missingmed 0.10.0
 
 ## Breaking changes

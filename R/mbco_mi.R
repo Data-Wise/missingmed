@@ -219,7 +219,7 @@
   detail <- vapply(which(flagged), function(i) {
     paste0(where[[i]], " (", paste(attr(fits[[i]], "improper"), collapse = ", "), ")")
   }, "")
-  warning("MBCO refits gave an improper solution (lavaan's post.check failed) in ",
+  warning("MBCO refits gave an improper solution in ",
     paste(detail, collapse = "; "), ". The test proceeds; check the model for ",
     "a negative variance or a boundary estimate.",
     call. = FALSE
@@ -302,7 +302,25 @@
   lls <- lapply(seq_len(K), function(i) lls_of(implist[[i]], paste("imputation", i)))
   stacked <- do.call(rbind, implist)
   lls_S <- lls_of(stacked, "the stacked data")
-  .mm_warn_improper(c(lls, list(lls_S)), c(paste("imputation", seq_len(K)), "the stacked data"))
+  sem_notices <- c(lls, list(lls_S))
+  where <- c(paste("imputation", seq_len(K)), "the stacked data")
+  has_notice <- vapply(sem_notices, function(x) length(attr(x, "sem_warnings")) > 0L, NA)
+  if (any(has_notice)) {
+    # Include improper flags in the same collected warning, even when medfit
+    # supplies a diagnostic without emitting its own warning.
+    flagged <- vapply(sem_notices, function(x) length(attr(x, "improper")) > 0L, NA)
+    has_notice <- has_notice | flagged
+    detail <- vapply(sem_notices[has_notice], function(x) {
+      improper <- attr(x, "improper")
+      paste(c(attr(x, "sem_warnings"), if (length(improper)) {
+        paste0("improper solution (", paste(improper, collapse = ", "), ")")
+      }), collapse = "; ")
+    }, "")
+    warning("SEM MBCO warnings: ",
+      paste(paste0(where[has_notice], ": ", detail), collapse = "; "), call. = FALSE)
+  } else {
+    .mm_warn_improper(sem_notices, where)
+  }
   a_wins <- vapply(lls, function(l) l[["a"]] >= l[["b"]], logical(1))
   stacked_a <- lls_S[["a"]] >= lls_S[["b"]]
 
@@ -356,40 +374,9 @@
   }
 
   stats_d4 <- .mm_d4_from_stats(d_k, d_S, k = k)
-  # Internal, gate-only (SPEC-sem-mbco-2026-10-08.md, section 12): the provider
-  # also returns each null's SB (2001) scaling correction. D4 pooled the NAIVE
-  # statistics; this divides D4 by the arithmetic mean over imputations of the
-  # difference correction of the winning branch and refers it to F. That is NOT
-  # lavaan.mi's procedure, which takes the harmonic mean (harm = TRUE) of each
-  # model's scaling factor before differencing and refers to chi-square.
-  # "fixed" tests every imputation on the stacked branch, "own" on each
-  # imputation's own.
-  scaling <- NA_real_
-  if (!is.null(names(lls[[1L]])) && "cd_a" %in% names(lls[[1L]])) {
-    key_k <- if (ariv == "own") {
-      vapply(lls, function(l) if (l[["a"]] >= l[["b"]]) "a" else "b", "")
-    } else {
-      rep(if (stacked_a) "a" else "b", K)
-    }
-    cd_k <- vapply(seq_len(K), function(i) lls[[i]][[paste0("cd_", key_k[i])]], numeric(1))
-    # Only the corrections that enter the statistic must be usable: not the other
-    # branch's, and not the stacked fit's (which are never used).
-    for (i in seq_len(K)) {
-      tryCatch(.mm_check_cd(cd_k[i], paste0(key_k[i], " = 0")), error = function(e) {
-        stop("Fitting the MBCO models failed in imputation ", i, ": ",
-          conditionMessage(e),
-          call. = FALSE
-        )
-      })
-    }
-    scaling <- mean(cd_k)
-    stats_d4[["D4"]] <- stats_d4[["D4"]] / scaling
-    stats_d4[["p"]] <- stats::pf(stats_d4[["D4"]], k, stats_d4[["nu"]], lower.tail = FALSE)
-  }
-
   MbcoMIResult(
     stats_d4,
-    ariv = ariv, k = k, m = K, scaling = scaling,
+    ariv = ariv, k = k, m = K,
     stacked_branch = if (stacked_a) "a" else "b",
     branch_mix = length(unique(a_wins)) > 1L,
     p_branch_a = mean(a_wins)
@@ -528,6 +515,15 @@
 #' likelihood is finite and the warning reaches you unchanged), but the
 #' chi-square-type reference may be poor for such near-separated data.
 #'
+#' For SEM, a dependency error (including a post-fit covariance/diagnostic error
+#' returning no usable likelihood) stops inference rather than selecting a
+#' surviving branch. A returned finite likelihood is retained despite diagnostic
+#' warnings, subject to every LR and completeness gate. This is not recovery of
+#' a likelihood hidden inside a dependency error or a global-optimality guarantee.
+#' Improper-null warnings additionally require resolved branch attribution:
+#' diagnostic refit errors, sample/LR mismatches or unreproduced flags stop
+#' inference even when the reported likelihoods are finite.
+#'
 #' At least two imputations are required. For a single complete dataset, use a
 #' complete-data MBCO test such as [RMediation::mbco()].
 #'
@@ -552,6 +548,9 @@
 #'   structural rows, and its measurement model and any direct effects of its
 #'   indicators on the outcome stay free. Only `estimator = "ML"` (the default)
 #'   is supported, with no `group`, `ordered` or `sampling.weights`.
+#'   Refitting uses medfit >= 0.10.0, not lavaan's optimizer. The ignored
+#'   options and syntax restrictions are described in [infer()]. `fit_args`
+#'   must be a list: use `list()`, not `NULL`.
 #' @return An [MbcoMIResult]: the named numeric `c(D4, p, r4, nu, d_S)` with
 #'   the branch diagnostics as properties.
 #' @references
@@ -619,9 +618,7 @@ mbco_d4 <- function(implist, formula_y, formula_m,
         if (mediator %in% ov) mediator, vars = ov
       )
     }
-    .mm_lav_check_args(fit_args)
-    .mm_lav_check_rows(model, treatment, mediator, outcome)
-    return(.mm_d4_pool(unname(implist), .mm_lav_provider(
+    return(.mm_d4_pool(unname(implist), .mm_sem_provider(
       model, treatment, mediator, outcome, fit_args
     ), ariv))
   }
