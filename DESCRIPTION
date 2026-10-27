@@ -24,6 +24,7 @@ Imports:
     sandwich
 Suggests:
     testthat (>= 3.0.0),
+    withr,
     mitml,
     knitr,
     rmarkdown,

@@ -284,13 +284,14 @@ Improper-null warnings additionally require resolved branch attribution:
 diagnostic refit errors, sample/LR mismatches or unreproduced improper flags
 stop inference even when the reported likelihoods are finite.
 
-For MBCO, the allowed `fit_args` are `estimator = "ML"`, `std.lv`, `std.ov`,
+For MBCO, the allowed `fit_args` are `estimator = "ML"`, `std.lv`, `std.ov = FALSE`,
 `fixed.x`, `conditional.x`, `meanstructure`, `information`, `missing`, `se` and
 `test`. These statistic-invariant options are ignored; medfit always receives
 `fixed_x = FALSE`. Every other option is refused by name, including `auto.*`,
 `orthogonal*`, `int.*.free`, `control` and `likelihood = "wishart"`. Thus the
 iteration-limit advice for `run()` above does not apply to MBCO.
 Use `fit_args = list()` for defaults; `NULL` remains invalid.
+`std.ov = TRUE` is refused because standardization can change equality-constrained models.
 
 MBCO syntax is narrower than lavaan syntax. Fixed tested paths, multigroup
 modifiers, nonlinear/product equalities, inequalities and bounded parameters

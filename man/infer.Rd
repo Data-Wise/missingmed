@@ -73,8 +73,10 @@ not by itself discard that likelihood; all LR/completeness gates still apply.
 An improper-null warning additionally requires resolved branch attribution;
 failed or mismatched diagnostic refits stop inference even with finite LRs.
 SEM MBCO requires medfit >= 0.10.0; \code{\link[=run]{run()}} still uses lavaan. MBCO ignores
-\code{std.lv}, \code{std.ov}, \code{fixed.x}, \code{conditional.x}, \code{meanstructure},
+\code{std.lv}, \code{std.ov = FALSE}, \code{fixed.x}, \code{conditional.x}, \code{meanstructure},
 \code{information}, \code{missing}, \code{se} and \code{test}, and always uses \code{fixed_x = FALSE}.
+\code{std.ov = TRUE} is refused because standardizing observed variables can
+change equality-constrained models; this restriction applies to SEM MBCO.
 All other options (including \code{control}, \verb{auto.*} and \code{likelihood}) are
 refused. Nonlinear/bounded constraints and singular variance nulls are
 unsupported. Model columns must be numeric or two-level factors; the

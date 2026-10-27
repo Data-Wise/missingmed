@@ -313,7 +313,7 @@
   vars <- unique(c(a, b, variances, unlist(lapply(cons, function(z) {
     c(all.vars(str2lang(z$lhs)), all.vars(str2lang(z$rhs)))
   }))))
-  zero <- as.list(setNames(rep(0, length(vars)), vars))
+  zero <- as.list(stats::setNames(rep(0, length(vars)), vars))
   constants <- vapply(cons, function(z) {
     eval(str2lang(z$rhs), zero, baseenv()) - eval(str2lang(z$lhs), zero, baseenv())
   }, 0.0)
@@ -403,6 +403,10 @@
   bad <- nm[!keys %in% allowed]
   if (length(bad)) {
     stop("Unsupported SEM MBCO `fit_args` option: `", bad[1L], "`.", call. = FALSE)
+  }
+  if ("std_ov" %in% keys && !identical(fit_args[[which(keys == "std_ov")]], FALSE)) {
+    stop("SEM MBCO `fit_args` `std.ov` must be FALSE: observed-variable ",
+      "standardization can change equality constraints.", call. = FALSE)
   }
   if ("estimator" %in% keys) {
     estimator <- fit_args[[which(keys == "estimator")]]

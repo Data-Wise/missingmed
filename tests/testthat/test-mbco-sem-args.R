@@ -30,12 +30,26 @@ test_that("every fit_sem() call in the package passes fixed_x and meanstructure"
 test_that("SEM fit_args accepts exactly the approved ignored options", {
   check <- missingmed:::.mm_sem_check_args
   expect_silent(check(list()))
-  allowed <- list(estimator = "ML", std.lv = TRUE, std.ov = TRUE, fixed.x = TRUE,
+  allowed <- list(estimator = "ML", std.lv = TRUE, std.ov = FALSE, fixed.x = TRUE,
     conditional.x = TRUE, meanstructure = FALSE, information = "observed",
     missing = "listwise", se = "none", test = "none")
   for (nm in names(allowed)) expect_silent(check(allowed[nm]))
   expect_silent(check(allowed))
   expect_silent(check(list(ESTIMATOR = "ml", std_lv = TRUE, fixed_x = TRUE)))
+})
+
+test_that("SEM MBCO refuses observed standardization before fitting", {
+  check <- missingmed:::.mm_sem_check_args
+  for (name in c("std.ov", "std_ov", "STD.OV")) {
+    expect_error(check(setNames(list(TRUE), name)), "std.ov.*FALSE")
+    expect_silent(check(setNames(list(FALSE), name)))
+  }
+  for (value in list(NA, NULL, 1, "TRUE", c(FALSE, TRUE))) {
+    expect_error(check(list(std.ov = value)), "std.ov.*FALSE")
+  }
+  model <- "M ~ q*X; Y ~ b*M + q*X"
+  expect_error(missingmed:::.mm_sem_provider(model, "X", "M", "Y",
+    list(std.ov = TRUE)), "std.ov.*FALSE")
 })
 
 test_that("SEM fit_args refuses unknown and likelihood-changing options by name", {
@@ -65,7 +79,7 @@ test_that("ignored SEM options leave stored-data likelihood branches unchanged",
     list(model = "M =~ x4 + x5 + x6; M ~ x1; x9 ~ M + x1",
       d = lavaan::HolzingerSwineford1939, x = "x1", y = "x9")
   )
-  args <- list(estimator = "ML", std.lv = TRUE, std.ov = TRUE, fixed.x = TRUE,
+  args <- list(estimator = "ML", std.lv = TRUE, std.ov = FALSE, fixed.x = TRUE,
     conditional.x = TRUE, meanstructure = FALSE, information = "observed",
     missing = "listwise", se = "none", test = "none")
   for (case in cases) {
