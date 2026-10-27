@@ -1,13 +1,31 @@
-# PR #102: T5 evidence closure plan
+# T5 evidence closure plan (follow-up to merged PR #102)
 
-Updated 2026-10-24. Execution checklist: [todo.md](todo.md).
+Updated 2026-10-26. Execution checklist: [todo.md](todo.md).
 
-## Current state (2026-10-24) — read this first
+## Reading guide
 
-- **Status:** T5 UNACCEPTED and BLOCKED. P3 (a stored improper-null input with provenance) is the open gate; the
-  author ruled medfit's seeded `sem_model_heywood()` nonqualifying (see P3). D4 is not independently closed;
-  D5 is not started.
-- **PR #102:** draft, base `dev`, pushed through `a20160c`. Not merged.
+- **Live:** "Current state" (gates, decisions, baseline) and P3 under "Ordered work". Everything else is dated history
+  kept as a record of what was reviewed and when; counts and "next action" sentences in it are superseded.
+- **Authority:** the approved spec (`docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md`) is unamended; this plan
+  tracks evidence for it and never changes it.
+
+## Current state (2026-10-26) — read this first
+
+- **PR #102 MERGED (2026-10-26):** squash `9f77220` on `dev`, 2026-10-26T20:10Z, merged by Data-Wise; 49 commits, 55
+  files; final branch head `4a84e66`, tree identical to `origin/dev`. 0 reviews, 1 comment. T5 and D5 are therefore
+  **follow-up gates on `dev`**, not blockers of an open PR. The merge is not recorded as authorized anywhere below
+  (see the dated authorization bullet); the PR body is stale ("seven-commit", "T2–T7 unimplemented") and was left as
+  a merged record. Everything below dated 2026-10-24 is otherwise unchanged and still describes the open gates.
+
+- **Status:** T5 UNACCEPTED. P3's real-case gate is now met by the simulated seed-45 case (author ruling B, 2026-10-26, gate amended; see P3); D4 closure, D5 and the checkpoint remain open; the
+  author ruled medfit's seeded `sem_model_heywood()` nonqualifying (see P3), and on 2026-10-26 reversed that (option B): a documented
+  simulated case qualifies (seed 45); R3/R5 and the collaborator route are dropped. D4 is not independently
+  closed; D5 is not started.
+- **Open gates (2026-10-26, nothing actionable here until one moves):** (1) P3 closed by simulated seed 45 (ruling B); its D5-integration evidence is still open;
+  (2) D1-D4 integration: MET 2026-10-26 by medfit 0.15.0 (read-only check: NEWS sections D1-D4, PRs #336-#342; re-landed code, the pinned `3a98bf6`/`cba4c1a` are not ancestors), not yet verified against the reviewed D1-D4 receipts;
+  (3) D4 independent closure: author-authorized focused review of 0.15.0 done 2026-10-26 (read-only, one agent, nothing run): claims 1-4 supported by code and a discriminating test, no defect found, but GATE STAYS OPEN; gaps: `test-sem-post-fit-qa.R:28` asserts `winner %in% 1:2` (vacuous; verified), five untested `.sem_retain_covariance` clauses (`R/sem-outcomes.R:251-255`), no old-design comparison, suite counts unverified. Follow-up tests belong to medfit (cross-repo, needs a request); (4) D5, unblocked by (2), not started.
+  R4 is the author's to send. missingmed CRAN stays live, gated on RMediation >= 1.7.1 (author hold).
+- **PR #102 (as of 2026-10-24, superseded by the merge note above):** draft, base `dev`, pushed through `a20160c`. Not merged.
 - **Authorization since 2026-10-22:** the author approved pushing this branch (three pushes on 2026-10-24) and
   approved returning #102 to draft. Merge, simulations and saved-result changes remain unauthorized. Scratch-library
   `R CMD INSTALL` of medfit (dev, the D4 head) was done outside the user library on 2026-10-24 to prove the 0.14.0
@@ -35,7 +53,7 @@ Updated 2026-10-24. Execution checklist: [todo.md](todo.md).
   (recoverable). Truly gone: the D1 assertion-tolerance review JSON and the installed medfit 0.11.1 library; claims
   resting only on those are unauditable (see the `[MISSING]` marks). Other review JSONs are in `docs/specs/`.
 
-## Current checkpoint — D4 post-fit evidence and wrap-up
+## D4 checkpoint as of 2026-10-22 (historical stage; open gates are in Current state)
 
 Latest follow-up: [closure matrix](../docs/specs/D4-closure-matrix-2026-10-22.md).
 Nonwinning-child controls now explicitly cover both product orders and both nulls,
@@ -515,6 +533,7 @@ remains an explicit gap even if the rest is approved.
 
 ### P3: Real-case attribution gate — author input, then Codex, medium
 
+[Amended 2026-10-26: a documented SIMULATED case with origin labeled qualifies; see the last bullet below.]
 Author supplies the location and provenance of an already stored input/model
 known to yield an improper null. Verify read-only that the fitted full/a/b
 diagnostics identify the affected branch and that diagnostic refits match the
@@ -551,6 +570,19 @@ establishes all asymmetric/both-branch scenarios; retain injected controls.
 - Bounded read-only search 2026-10-24 (file names and CSV headers across r-packages, research and
   dev-tools; no exhaustive claim): no stored improper-null input found. Literature notes and
   planning docs only.
+- Simulated-data mechanism check 2026-10-26 (author: no collaborator, use simulated data; **P3 wording not amended**,
+  seeded data stays nonqualifying for the gate). Worktree `feature/heywood-null-research`, seed 45
+  (`dev/heywood-sim.csv`, sha256 62a6984a...ca257): `a == 0` improper, full and `b == 0` proper; LR/settings agree
+  and branch `a` is attributed on medfit 0.15.0 and pinned D4 0.12.0. Aggregation through `mbco_d4()` and
+  `run()`/`infer()` (K=5, seed 45 at position 3, `ariv` fixed/own, both builds): one `SEM MBCO warnings:` warning
+  naming `imputation 3` with `improper solution (a)`, finite `p`, clean control silent; mutants M1-M3 killed.
+  Detail: worktree `docs/NOTE-heywood-null-literature-and-sim-design-2026-10-26.md` (not on dev). T5 stays UNACCEPTED.
+- **Author ruling 2026-10-26, supersedes the earlier same-day option A (option B):** a documented SIMULATED case now
+  qualifies as P3 evidence; the collaborator route is dropped. Qualifying case: seed 45 (`dev/heywood-sim.csv`, sha256
+  62a6984a...ca257, origin SIMULATED), whose mechanism check above passed. This amends the P3 gate: the 2026-10-24
+  "seeded generation is nonqualifying" ruling and the "stored input" requirement no longer apply. Limits to carry: one
+  improper dataset among four clean siblings; stacked-fit outcome not recorded separately; pinned D4 build 3a98bf6 is not
+  in medfit `dev`. T5 stays UNACCEPTED: D5 integration, D4 independent closure and the checkpoint remain open.
 
 ### Acceptance checkpoint and downstream tasks
 
@@ -565,10 +597,10 @@ does not authorize push, merge, install, simulation, or external submission.
 
 The author authorized targeted evidence-gap fixes and a fresh bounded review;
 no broader branch-enumerator design or spec amendment is inferred. No
-simulations, saved-result changes, or merge. As of 2026-10-24 the author has also
-approved pushing this branch and returning #102 to draft, and scratch-library
-medfit installs were made and disclosed (see Current state); no other dependency
-installs. Preserve the
-unrelated untracked research-workflow plan. Recheck this plan if the approved
+saved-result changes. #102 is merged (see Current state); push approvals and the
+scratch-library medfit installs are disclosed there; no other dependency installs.
+Simulation: the only runs were the author-approved, scratch-only seed-45 mechanism
+checks of 2026-10-26 (see P3); any new simulation needs a fresh request. The research-workflow
+plan is committed (`87ea8e4`) as a record, unreconciled. Recheck this plan if the approved
 spec, medfit version, provider helper, fixture provenance or user constraints
 change. Do not repeat broad fixture discovery without a concrete new lead.

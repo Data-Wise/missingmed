@@ -1,18 +1,22 @@
-# PR #102: T5 closure checklist
+# T5 closure checklist (follow-up to merged PR #102)
 
-See [plan.md](plan.md) for rationale, ownership and constraints; its "Current state (2026-10-24)" section is authoritative.
+PR #102 merged to `dev` 2026-10-26 as `9f77220`; the open items below are follow-up gates, not blockers of an open PR.
+
+See [plan.md](plan.md) for rationale, ownership and constraints; its "Current state (2026-10-26)" section is authoritative.
 
 - [x] Author decisions 2026-10-24: path A chosen (spec unamended); `e9e2325` and `2baa3e6` are in the frozen review snapshot; medfit-oct-23 owns D1-D4 integration into medfit after 0.14.0 ships (see plan.md Current state).
-- [ ] D1-D4 integrated into a medfit that missingmed can depend on (owner: medfit-oct-23, after 0.14.0). D5 is blocked until then.
+- [x] D1-D4 integrated into a medfit that missingmed can depend on: medfit 0.15.0 (2026-10-26; PRs #336-#342, re-landed code). D5 unblocked; equivalence to reviewed receipts unverified.
 - [x] Receipt audit 2026-10-24: /private/tmp paths are gone; D1-D4 receipt notes are recoverable from medfit `keep/d4-3a98bf6:planning/specs/`; only the D1 tolerance review JSON and the medfit 0.11.1 lib are truly lost (marked in plan.md).
 
 - [x] D4 owner clause tracing and explicit nonwinning-child controls — both product orders/both nulls; 1584 deterministic assertions, new-file lint clean; two attribution/notice mutants discriminate.
-- [ ] D4 independent closure — Claude5ad08ae8 failed structured-output finalization; unread required bodies and unvalidated classification/two-failure/root-validation concerns remain. No automatic retry. Author requested wrap-up; T5 UNACCEPTED.
+- [ ] D4 independent closure, 2026-10-26 review of medfit 0.15.0: claims supported, no defect, gate open on test gaps (see plan.md Current state). Earlier attempt — Claude5ad08ae8 failed structured-output finalization; unread required bodies and unvalidated classification/two-failure/root-validation concerns remain. No automatic retry. Author requested wrap-up; T5 UNACCEPTED.
 
 - [x] D4 local implementation and deterministic checks — typed covariance-stage snapshot, internal null-only retention, public full-fit throw; 1470 assertions pass. Receipt linked in plan.
 - [x] D4 one authorized Claude review — scoped approve, one low attribution concern; omissions and post-review documentation recorded.
 - [ ] D4 independent closure (earlier stage of the item above; same open gate) — original C5/3c/3d/4.8–10 and omitted full test/helper bodies; explicit nonwinning covariance-failure attribution evidence. Do not infer closure from scoped approval.
 - [x] D3 final source/spec omissions — Clauded7e0983c approved after reading original clauses/conversion/rebase/full tests; historical open descriptions below superseded.
+- [ ] D4 test follow-up: medfit PR Data-Wise/medfit#355 (tests only; merged to medfit `dev` 2026-10-26 as `b45cb4c18`, CI green) pins root attribution and five `.sem_retain_covariance` clauses; 1690 tests/8495 expectations/1 pre-existing failure (same on `dev`). Not D4 closure; `compare_lr`/`anova` handling of the new class and the old-design comparison remain.
+- [ ] D4 Codex review 2026-10-26 (read-only, tests not run): no high-severity defect, `compare_lr`/`anova` safe. Open for medfit owner: losing-branch covariance failure invalidates a valid-winner union; any `.sem_vcov()` error retained as LR evidence (split expected vs internal); root attribution first-in-order (pinned by #355); NEWS note for `simpleError` handlers; one real improper-null fixture. Gate stays open. Owner ruling 2026-10-26 (`.STATUS` `d4_owner_ruling`): (b) narrow retention to a new typed covariance-diagnostic class, others fail closed; (a) keep union invalidation (ADR, revisit after (b)). Awaiting medfit PR to dev, then fresh independent D4 review. Details in `.STATUS` `d4_codex_review`.
 - [ ] D5 integration and qualifying real-case evidence; T5 remains UNACCEPTED.
 
 - [x] D3 public/format follow-up — public/nested mapping and tamper coverage; non-scientific, approximate/overflow count wording. 1386 deterministic assertions/lint pass. Claude0a653f34 approves, no confirmed bugs; optional tests deferred. Latest spec/conversion-source omissions recorded, no full closure claim. T5 UNACCEPTED.
@@ -45,12 +49,13 @@ See [plan.md](plan.md) for rationale, ownership and constraints; its "Current st
 - [x] D1 — Codex/Claude: run authorized focused review of all D1 test bodies and prior fixes; no blocker, three low findings dispositioned, confirmed child-objective inconsistency repaired and notice coverage added; 273 deterministic assertions pass. No installs in this follow-up.
 - [ ] D1 — Independent final coverage: focused review omitted PROPOSAL-T5/direct approved clauses; final objective-guard/help/test edits tested but not Claude-reviewed. No automatic retry; receipt in isolated medfit planning/specs/NOTE-D1-outcome-ledger-2026-10-22.md. Prior restricted-check temporary install remains a disclosed historical deviation. T5 unaccepted.
 - [ ] P3 route plan 2026-10-24 (`docs/PLAN-p3-raw-data-routes-2026-10-24.md`, reviewed): R2 check named Dropbox SEM sources for row-level mediation data (next, author go); R3 to R5 author-gated. Roth proper; Sabatelli is a full-model CFA Heywood case (nonqualifying). Row-level data required.
-- [ ] P3 — Author: identify a qualifying pre-existing stored improper-null input/model with provenance. (2026-10-24: medfit `sem_model_heywood()` seed 10 ruled NONQUALIFYING, seeded generation; no other lead found; see plan.md P3. T5 stays BLOCKED.)
+- [ ] P3 — Author: identify a qualifying pre-existing stored improper-null input/model with provenance. Superseded 2026-10-26 (ruling B): simulated seed 45 accepted, gate amended; see plan.md P3. (2026-10-24: medfit `sem_model_heywood()` seed 10 ruled NONQUALIFYING, seeded generation; no other lead found; see plan.md P3. T5 stays BLOCKED.)
 - [x] D1 findings follow-up: retain outer notices, verify LR=9 mutant, measure raw sample serialization; 281 deterministic assertions pass; one Claude rerun completed.
 - [ ] D1 remaining review: proposal and full C5/4.8/4.10 test tracing plus latest notice-summary/doc fixes; direct spec source omissions closed, no acceptance inferred.
 - [x] D1 notice repair: confirmed typed MBCO-boundary warning/message loss fixed; union replay and nonduplicate attribution tested; 295 deterministic assertions pass. Codex clause tracing completed.
 - [x] D1 matrix findings disposition: verify version-skew reachability and pooling trust seam; add exactly-64/duplicate-ID controls and mutation check. 329 deterministic assertions pass. Claude21ecbeba approves with no findings; consumer/proposal omissions remain bounded, not full-spec sign-off. No production fix needed; D5 integration and D3 canonical mapping remain deferred.
 - [ ] Independent full-spec/consumer integration sign-off and D2-D5 evidence remain open; T5 unaccepted pending real-case evidence. No deduplicated execution authorized.
+- [x] P3 mechanism check on simulated seed 45 (2026-10-26, worktree only): LR/settings agreement, branch `a`, K=5 aggregation through mbco_d4() and run()/infer(), mutants M1-M3 killed. Does not close the item below: seeded data is nonqualifying and the gate wording is unamended.
 - [ ] P3 — Codex, after input: verify actual branch diagnostics, LR/settings agreement and public warning aggregation without changing saved artifacts.
 - [ ] Checkpoint — Codex: verify every T5 requirement has adequate evidence; leave T5 unaccepted otherwise.
 - [ ] After T5 acceptance — Codex: resume T6; scope-check T7 commands against the continuing prohibitions before execution.
