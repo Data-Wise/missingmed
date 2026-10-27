@@ -9,7 +9,7 @@ See [plan.md](plan.md) for rationale, ownership and constraints; its "Current st
 - [x] Receipt audit 2026-10-24: /private/tmp paths are gone; D1-D4 receipt notes are recoverable from medfit `keep/d4-3a98bf6:planning/specs/`; only the D1 tolerance review JSON and the medfit 0.11.1 lib are truly lost (marked in plan.md).
 
 - [x] D4 owner clause tracing and explicit nonwinning-child controls — both product orders/both nulls; 1584 deterministic assertions, new-file lint clean; two attribution/notice mutants discriminate.
-- [ ] D4 independent closure — Claude5ad08ae8 failed structured-output finalization; unread required bodies and unvalidated classification/two-failure/root-validation concerns remain. No automatic retry. Author requested wrap-up; T5 UNACCEPTED.
+- [ ] D4 independent closure, 2026-10-26 review of medfit 0.15.0: claims supported, no defect, gate open on test gaps (see plan.md Current state). Earlier attempt — Claude5ad08ae8 failed structured-output finalization; unread required bodies and unvalidated classification/two-failure/root-validation concerns remain. No automatic retry. Author requested wrap-up; T5 UNACCEPTED.
 
 - [x] D4 local implementation and deterministic checks — typed covariance-stage snapshot, internal null-only retention, public full-fit throw; 1470 assertions pass. Receipt linked in plan.
 - [x] D4 one authorized Claude review — scoped approve, one low attribution concern; omissions and post-review documentation recorded.

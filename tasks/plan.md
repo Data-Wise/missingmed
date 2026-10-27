@@ -23,7 +23,7 @@ Updated 2026-10-26. Execution checklist: [todo.md](todo.md).
   closed; D5 is not started.
 - **Open gates (2026-10-26, nothing actionable here until one moves):** (1) P3 closed by simulated seed 45 (ruling B); its D5-integration evidence is still open;
   (2) D1-D4 integration: MET 2026-10-26 by medfit 0.15.0 (read-only check: NEWS sections D1-D4, PRs #336-#342; re-landed code, the pinned `3a98bf6`/`cba4c1a` are not ancestors), not yet verified against the reviewed D1-D4 receipts;
-  (3) D4 independent closure, now targets the released 0.15.0 code, needs author authorization for a fresh focused review; (4) D5, unblocked by (2), not started.
+  (3) D4 independent closure: author-authorized focused review of 0.15.0 done 2026-10-26 (read-only, one agent, nothing run): claims 1-4 supported by code and a discriminating test, no defect found, but GATE STAYS OPEN; gaps: `test-sem-post-fit-qa.R:28` asserts `winner %in% 1:2` (vacuous; verified), five untested `.sem_retain_covariance` clauses (`R/sem-outcomes.R:251-255`), no old-design comparison, suite counts unverified. Follow-up tests belong to medfit (cross-repo, needs a request); (4) D5, unblocked by (2), not started.
   R4 is the author's to send. missingmed CRAN stays live, gated on RMediation >= 1.7.1 (author hold).
 - **PR #102 (as of 2026-10-24, superseded by the merge note above):** draft, base `dev`, pushed through `a20160c`. Not merged.
 - **Authorization since 2026-10-22:** the author approved pushing this branch (three pushes on 2026-10-24) and
