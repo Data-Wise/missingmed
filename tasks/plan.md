@@ -11,6 +11,8 @@ Updated 2026-10-26. Execution checklist: [todo.md](todo.md).
 
 ## Current state (2026-10-26) — read this first
 
+- **PR #113 MERGED (2026-10-26):** squash `a4c512ef741ca208290389205d13a9117bf91772` on `dev`; SEM MBCO refuses `std.ov = TRUE` and local CI repairs landed. Local CI passed before the merge (0 errors, 0 warnings, 1 CRAN incoming note; lint and pkgdown passed). Next gate: D4 independent closure after the pending medfit covariance-retention change; D5 and the T5 checkpoint remain open.
+
 - **PR #102 MERGED (2026-10-26):** squash `9f77220` on `dev`, 2026-10-26T20:10Z, merged by Data-Wise; 49 commits, 55
   files; final branch head `4a84e66`, tree identical to `origin/dev`. 0 reviews, 1 comment. T5 and D5 are therefore
   **follow-up gates on `dev`**, not blockers of an open PR. The merge is not recorded as authorized anywhere below
