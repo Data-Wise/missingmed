@@ -23,7 +23,7 @@ next: (refreshed 2026-10-26) PR #102 MERGED to dev 2026-10-26T20:10Z as 9f77220 
   of an open PR (P3 stored improper-null input; D4 independent closure; D1-D4 integration into medfit after
   0.14.0, owned by medfit-oct-23; D1-D4 commits survive only on local keep/d4-3a98bf6 and keep/d3-pin-cba4c1a).
   D5 recheck trigger (2026-10-26, author-agreed): a medfit release after 0.15.0 that contains D1-D4; checked read-only at
-  session start, no cross-repo action. P3 ruling request drafted: docs/REQUEST-p3-ruling-2026-10-26.md (author decides; gate wording unamended).
+  session start, no cross-repo action. P3 ruling 2026-10-26 = A (keep gate; T5 blocked until a real stored case appears; R3/R5 held): docs/REQUEST-p3-ruling-2026-10-26.md.
   missingmed CRAN stays live, blocked by RMediation >= 1.7.1 (author hold).
   The "draft PR #102" and "No open issues or PRs" wording below is dated history (2026-10-16).
   (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe (release PR #97,

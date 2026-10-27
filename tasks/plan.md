@@ -564,6 +564,8 @@ establishes all asymmetric/both-branch scenarios; retain injected controls.
   `run()`/`infer()` (K=5, seed 45 at position 3, `ariv` fixed/own, both builds): one `SEM MBCO warnings:` warning
   naming `imputation 3` with `improper solution (a)`, finite `p`, clean control silent; mutants M1-M3 killed.
   Detail: worktree `docs/NOTE-heywood-null-literature-and-sim-design-2026-10-26.md` (not on dev). T5 stays UNACCEPTED.
+- **Author ruling 2026-10-26 (option A):** keep the gate; T5 stays blocked until a real stored case appears. The simulated
+  seed-45 case remains nonqualifying; gate wording unchanged; R3 and R5 stay held. Request: `docs/REQUEST-p3-ruling-2026-10-26.md`.
 
 ### Acceptance checkpoint and downstream tasks
 

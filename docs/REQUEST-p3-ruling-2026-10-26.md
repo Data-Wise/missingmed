@@ -1,5 +1,7 @@
 # REQUEST: P3 ruling (2026-10-26)
 
+**ANSWERED 2026-10-26: A.** Author: "keep the gate; T5 stays blocked until a real stored case appears." Gate wording unchanged; R3 and R5 stay held. Original request follows.
+
 Author decision needed. Nothing here amends the P3 gate; `tasks/plan.md` P3 keeps its wording until you answer.
 
 ## Question
