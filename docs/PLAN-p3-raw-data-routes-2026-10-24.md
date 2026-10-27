@@ -1,6 +1,6 @@
 # PLAN: close P3 with row-level stored data (2026-10-24)
 
-Status: draft for review. Nothing executed. Context: `tasks/plan.md` P3; leads in
+Status: HISTORICAL. Superseded 2026-10-26 by author ruling B (simulated seed 45 qualifies; collaborator route, R3 and R5 dropped); see `tasks/plan.md` P3. Original status: draft for review. Nothing executed. Context: `tasks/plan.md` P3; leads in
 `docs/PROPOSAL-p3-stored-improper-null-leads-2026-10-24.md`.
 
 ## Goal

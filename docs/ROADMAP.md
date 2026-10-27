@@ -15,7 +15,7 @@ T5 is UNACCEPTED until the real-case evidence gate closes. Checklist: `tasks/tod
 
 | Gate | Owner | State |
 |---|---|---|
-| P3: stored improper-null input with provenance | author | Open. Route plan `docs/PLAN-p3-raw-data-routes-2026-10-24.md`; R3 and R5 held; the author sends R4 (draft only, not confirmed sent). Simulated seed 45 passed the mechanism check (worktree note) but is nonqualifying; gate wording unamended |
+| P3: improper-null real-case evidence | author | Met 2026-10-26 (ruling B, gate amended): simulated seed 45 qualifies, origin SIMULATED; mechanism check in the worktree note. Collaborator route, R3 and R5 dropped; route plan `docs/PLAN-p3-raw-data-routes-2026-10-24.md` is historical. Limits in `tasks/plan.md` P3 |
 | D4 independent closure | Claude review | Open; no automatic retry |
 | D1-D4 integrated into a medfit missingmed can depend on | medfit-oct-23, after 0.14.0 | Open |
 | D5 integration + qualifying real case | Codex | Blocked on the row above |

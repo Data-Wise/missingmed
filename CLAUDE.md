@@ -52,6 +52,6 @@ checkpoint; T5 remains unaccepted until its real-case gate closes. Source-load
 the pinned isolated medfit dependency for deterministic tests: stored inputs,
 single starts and a random-retry trap. A typed covariance-stage partial payload
 is not a public SEMFit; D5 integration must use documented evidence, not private
-namespace recovery. Website source edits are not deployment evidence. P3 (the stored improper-null input) routes and gate: `docs/PLAN-p3-raw-data-routes-2026-10-24.md`.
+namespace recovery. Website source edits are not deployment evidence. P3 was met 2026-10-26 by the simulated seed-45 case (author ruling B; gate amended, see `tasks/plan.md` P3); `docs/PLAN-p3-raw-data-routes-2026-10-24.md` is the historical route plan.
 
 Multi-branch: `main` (protected — PR-required, no force-push/deletions) ← `dev` (integration) ← `feature/*`. Don't commit to `main` directly.

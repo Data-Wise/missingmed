@@ -1,5 +1,7 @@
 # BRAINSTORM: unblock P3 (stored improper-null input) — 2026-10-26
 
+> Superseded 2026-10-26 by author ruling B: simulated seed 45 qualifies, the collaborator ask (item 2) is dropped. Kept as a record; see `tasks/plan.md` P3.
+
 Depth: default. Focus: feat/ops. Context: PR #102 merged to `dev` (`9f77220`); T5 and D5 are follow-up gates.
 Canonical record: `tasks/plan.md` P3; route plan: `docs/PLAN-p3-raw-data-routes-2026-10-24.md`. This file adds
 no new evidence; it ranks the existing routes and records the 2026-10-26 author answers.
