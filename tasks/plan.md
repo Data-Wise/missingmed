@@ -1,13 +1,19 @@
-# PR #102: T5 evidence closure plan
+# T5 evidence closure plan (follow-up to merged PR #102)
 
-Updated 2026-10-24. Execution checklist: [todo.md](todo.md).
+Updated 2026-10-26. Execution checklist: [todo.md](todo.md).
 
-## Current state (2026-10-24) — read this first
+## Current state (2026-10-26) — read this first
+
+- **PR #102 MERGED (2026-10-26):** squash `9f77220` on `dev`, 2026-10-26T20:10Z, merged by Data-Wise; 49 commits, 55
+  files; final branch head `4a84e66`, tree identical to `origin/dev`. 0 reviews, 1 comment. T5 and D5 are therefore
+  **follow-up gates on `dev`**, not blockers of an open PR. The merge is not recorded as authorized anywhere below
+  (see the dated authorization bullet); the PR body is stale ("seven-commit", "T2–T7 unimplemented") and was left as
+  a merged record. Everything below dated 2026-10-24 is otherwise unchanged and still describes the open gates.
 
 - **Status:** T5 UNACCEPTED and BLOCKED. P3 (a stored improper-null input with provenance) is the open gate; the
   author ruled medfit's seeded `sem_model_heywood()` nonqualifying (see P3). D4 is not independently closed;
   D5 is not started.
-- **PR #102:** draft, base `dev`, pushed through `a20160c`. Not merged.
+- **PR #102 (as of 2026-10-24, superseded by the merge note above):** draft, base `dev`, pushed through `a20160c`. Not merged.
 - **Authorization since 2026-10-22:** the author approved pushing this branch (three pushes on 2026-10-24) and
   approved returning #102 to draft. Merge, simulations and saved-result changes remain unauthorized. Scratch-library
   `R CMD INSTALL` of medfit (dev, the D4 head) was done outside the user library on 2026-10-24 to prove the 0.14.0
@@ -551,6 +557,13 @@ establishes all asymmetric/both-branch scenarios; retain injected controls.
 - Bounded read-only search 2026-10-24 (file names and CSV headers across r-packages, research and
   dev-tools; no exhaustive claim): no stored improper-null input found. Literature notes and
   planning docs only.
+- Simulated-data mechanism check 2026-10-26 (author: no collaborator, use simulated data; **P3 wording not amended**,
+  seeded data stays nonqualifying for the gate). Worktree `feature/heywood-null-research`, seed 45
+  (`dev/heywood-sim.csv`, sha256 62a6984a...ca257): `a == 0` improper, full and `b == 0` proper; LR/settings agree
+  and branch `a` is attributed on medfit 0.15.0 and pinned D4 0.12.0. Aggregation through `mbco_d4()` and
+  `run()`/`infer()` (K=5, seed 45 at position 3, `ariv` fixed/own, both builds): one `SEM MBCO warnings:` warning
+  naming `imputation 3` with `improper solution (a)`, finite `p`, clean control silent; mutants M1-M3 killed.
+  Detail: worktree `docs/NOTE-heywood-null-literature-and-sim-design-2026-10-26.md` (not on dev). T5 stays UNACCEPTED.
 
 ### Acceptance checkpoint and downstream tasks
 

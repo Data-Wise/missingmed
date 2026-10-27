@@ -1,6 +1,8 @@
-# PR #102: T5 closure checklist
+# T5 closure checklist (follow-up to merged PR #102)
 
-See [plan.md](plan.md) for rationale, ownership and constraints; its "Current state (2026-10-24)" section is authoritative.
+PR #102 merged to `dev` 2026-10-26 as `9f77220`; the open items below are follow-up gates, not blockers of an open PR.
+
+See [plan.md](plan.md) for rationale, ownership and constraints; its "Current state (2026-10-26)" section is authoritative.
 
 - [x] Author decisions 2026-10-24: path A chosen (spec unamended); `e9e2325` and `2baa3e6` are in the frozen review snapshot; medfit-oct-23 owns D1-D4 integration into medfit after 0.14.0 ships (see plan.md Current state).
 - [ ] D1-D4 integrated into a medfit that missingmed can depend on (owner: medfit-oct-23, after 0.14.0). D5 is blocked until then.
@@ -51,6 +53,7 @@ See [plan.md](plan.md) for rationale, ownership and constraints; its "Current st
 - [x] D1 notice repair: confirmed typed MBCO-boundary warning/message loss fixed; union replay and nonduplicate attribution tested; 295 deterministic assertions pass. Codex clause tracing completed.
 - [x] D1 matrix findings disposition: verify version-skew reachability and pooling trust seam; add exactly-64/duplicate-ID controls and mutation check. 329 deterministic assertions pass. Claude21ecbeba approves with no findings; consumer/proposal omissions remain bounded, not full-spec sign-off. No production fix needed; D5 integration and D3 canonical mapping remain deferred.
 - [ ] Independent full-spec/consumer integration sign-off and D2-D5 evidence remain open; T5 unaccepted pending real-case evidence. No deduplicated execution authorized.
+- [x] P3 mechanism check on simulated seed 45 (2026-10-26, worktree only): LR/settings agreement, branch `a`, K=5 aggregation through mbco_d4() and run()/infer(), mutants M1-M3 killed. Does not close the item below: seeded data is nonqualifying and the gate wording is unamended.
 - [ ] P3 — Codex, after input: verify actual branch diagnostics, LR/settings agreement and public warning aggregation without changing saved artifacts.
 - [ ] Checkpoint — Codex: verify every T5 requirement has adequate evidence; leave T5 unaccepted otherwise.
 - [ ] After T5 acceptance — Codex: resume T6; scope-check T7 commands against the continuing prohibitions before execution.
