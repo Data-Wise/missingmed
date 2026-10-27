@@ -35,8 +35,10 @@
 #'   An improper-null warning additionally requires resolved branch attribution;
 #'   failed or mismatched diagnostic refits stop inference even with finite LRs.
 #'   SEM MBCO requires medfit >= 0.10.0; [run()] still uses lavaan. MBCO ignores
-#'   `std.lv`, `std.ov`, `fixed.x`, `conditional.x`, `meanstructure`,
+#'   `std.lv`, `std.ov = FALSE`, `fixed.x`, `conditional.x`, `meanstructure`,
 #'   `information`, `missing`, `se` and `test`, and always uses `fixed_x = FALSE`.
+#'   `std.ov = TRUE` is refused because standardizing observed variables can
+#'   change equality-constrained models; this restriction applies to SEM MBCO.
 #'   All other options (including `control`, `auto.*` and `likelihood`) are
 #'   refused. Nonlinear/bounded constraints and singular variance nulls are
 #'   unsupported. Model columns must be numeric or two-level factors; the

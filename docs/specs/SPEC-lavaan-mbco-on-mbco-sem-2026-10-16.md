@@ -74,7 +74,8 @@ dl  <- mb$tests$diff_ll                       # rows a, b in path order
 
 | Treatment | Options |
 |---|---|
-| **Ignore** (statistic unchanged in every case tested, observed and latent, with and without covariates) | `estimator = "ML"`, `std.lv`, `std.ov`, `fixed.x`, `conditional.x`, `meanstructure`, `information`, `missing` (imputed data are complete), `se`, `test` |
+| **Ignore** (within the tested scope) | `estimator = "ML"`, `std.lv`, `std.ov = FALSE`, `fixed.x`, `conditional.x`, `meanstructure`, `information`, `missing` (imputed data are complete), `se`, `test` |
+| **Refuse** (author amendment 2026-10-26) | `std.ov = TRUE` or a non-scalar/non-logical value: standardization can change equality constraints linking coefficients on different scales. |
 | **Always pass `fixed_x = FALSE`** to `fit_sem()`; never map `fixed.x` | All 12 combinations of lavaan `fixed.x` x medfit `fixed_x` x {none, covariate, latent} gave the same statistic, and `fixed_x = TRUE` errors when the syntax writes a (co)variance of a fixed variable |
 | **Refuse, naming the option** | any `auto.*` (including `auto.var`, `auto.fix.first`, untested), `orthogonal*`, `int.*.free`, `control` (lavaan's `iter.max` is not nloptr's `maxeval`), `group`, `ordered`, `sampling.weights`, any non-ML `estimator`, and **anything not listed above** |
 | **Refuse (approved section 6, Q4)** | `likelihood = "wishart"` |

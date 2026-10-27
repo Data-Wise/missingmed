@@ -2,6 +2,9 @@
 
 ## Internal
 
+* Refuse `std.ov = TRUE` in SEM MBCO: observed-variable standardization can
+  change equality-constrained models, while the medfit refits use unscaled data.
+
 * Tighten deterministic SEM mutation checks to require intended assertion
   failures with no execution errors; cover concealed survivor completion,
   convergence/discrepancy guards and empty-diagnostic/sample-match bypasses.

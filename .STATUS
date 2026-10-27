@@ -3,6 +3,7 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-10-26
+sem_std_ov: 2026-10-26 - SEM MBCO rejects std.ov = TRUE because observed-variable scaling can change shared-coefficient constraints; std.ov = FALSE remains accepted. Focused args tests passed with isolated medfit 0.15.0. Local-CI policy unchanged.
 roadmap: 2026-10-26 - docs/ROADMAP.md created (index of shipped, T5 gates, post-T5, parked); owner files stay tasks/plan.md and tasks/todo.md.
 p3_candidates: 2026-10-24 - medfit sem_model_heywood() seed 10 ruled nonqualifying (seeded generation); no stored improper-null input found. HISTORICAL: ruling B (2026-10-26) dropped the seeded-generation exclusion. Detail in tasks/plan.md P3.
 p3_routes: 2026-10-24 - Dropbox SEM books, notebooks, Kline Roth (nulls proper) and Sabatelli (full-model CFA Heywood) screened; none qualifies; medfit has no covariance input, so P3 needs row-level data. Plan: docs/PLAN-p3-raw-data-routes-2026-10-24.md (reviewed). HISTORICAL: route plan superseded by ruling B (2026-10-26); R2-R5 dropped.

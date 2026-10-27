@@ -404,6 +404,10 @@
   if (length(bad)) {
     stop("Unsupported SEM MBCO `fit_args` option: `", bad[1L], "`.", call. = FALSE)
   }
+  if ("std_ov" %in% keys && !identical(fit_args[[which(keys == "std_ov")]], FALSE)) {
+    stop("SEM MBCO `fit_args` `std.ov` must be FALSE: observed-variable ",
+      "standardization can change equality constraints.", call. = FALSE)
+  }
   if ("estimator" %in% keys) {
     estimator <- fit_args[[which(keys == "estimator")]]
     if (!is.character(estimator) || length(estimator) != 1L || is.na(estimator) ||
