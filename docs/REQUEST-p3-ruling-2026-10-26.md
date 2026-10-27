@@ -1,5 +1,7 @@
 # REQUEST: P3 ruling (2026-10-26)
 
+**FINAL 2026-10-26: B** (author reversed A later the same day: "remove collaborator; use simulated data"; P3 gate amended in tasks/plan.md). Earlier answer A, kept as a record:
+
 **ANSWERED 2026-10-26: A.** Author: "keep the gate; T5 stays blocked until a real stored case appears." Gate wording unchanged; R3 and R5 stay held. Original request follows.
 
 Author decision needed. Nothing here amends the P3 gate; `tasks/plan.md` P3 keeps its wording until you answer.

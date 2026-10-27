@@ -17,11 +17,11 @@ Updated 2026-10-26. Execution checklist: [todo.md](todo.md).
   (see the dated authorization bullet); the PR body is stale ("seven-commit", "T2–T7 unimplemented") and was left as
   a merged record. Everything below dated 2026-10-24 is otherwise unchanged and still describes the open gates.
 
-- **Status:** T5 UNACCEPTED and BLOCKED. P3 (a stored improper-null input with provenance) is the open gate; the
-  author ruled medfit's seeded `sem_model_heywood()` nonqualifying (see P3), and on 2026-10-26 ruled option A: keep the
-  gate, wait for a real stored case (R3, R5 held; simulated seed 45 stays nonqualifying). D4 is not independently
+- **Status:** T5 UNACCEPTED. P3's real-case gate is now met by the simulated seed-45 case (author ruling B, 2026-10-26, gate amended; see P3); D4 closure, D5 and the checkpoint remain open; the
+  author ruled medfit's seeded `sem_model_heywood()` nonqualifying (see P3), and on 2026-10-26 reversed that (option B): a documented
+  simulated case qualifies (seed 45); R3/R5 and the collaborator route are dropped. D4 is not independently
   closed; D5 is not started.
-- **Open gates (2026-10-26, nothing actionable here until one moves):** (1) P3 real stored case, author-supplied;
+- **Open gates (2026-10-26, nothing actionable here until one moves):** (1) P3 closed by simulated seed 45 (ruling B); its D5-integration evidence is still open;
   (2) D1-D4 integration into a medfit release after 0.15.0, owner medfit-oct-23, read-only recheck at session start;
   (3) D4 independent closure, needs author authorization for a fresh focused review; (4) D5, blocked on (2).
   R4 is the author's to send. missingmed CRAN stays live, gated on RMediation >= 1.7.1 (author hold).
@@ -533,6 +533,7 @@ remains an explicit gap even if the rest is approved.
 
 ### P3: Real-case attribution gate — author input, then Codex, medium
 
+[Amended 2026-10-26: a documented SIMULATED case with origin labeled qualifies; see the last bullet below.]
 Author supplies the location and provenance of an already stored input/model
 known to yield an improper null. Verify read-only that the fitted full/a/b
 diagnostics identify the affected branch and that diagnostic refits match the
@@ -576,8 +577,12 @@ establishes all asymmetric/both-branch scenarios; retain injected controls.
   `run()`/`infer()` (K=5, seed 45 at position 3, `ariv` fixed/own, both builds): one `SEM MBCO warnings:` warning
   naming `imputation 3` with `improper solution (a)`, finite `p`, clean control silent; mutants M1-M3 killed.
   Detail: worktree `docs/NOTE-heywood-null-literature-and-sim-design-2026-10-26.md` (not on dev). T5 stays UNACCEPTED.
-- **Author ruling 2026-10-26 (option A):** keep the gate; T5 stays blocked until a real stored case appears. The simulated
-  seed-45 case remains nonqualifying; gate wording unchanged; R3 and R5 stay held. Request: `docs/REQUEST-p3-ruling-2026-10-26.md`.
+- **Author ruling 2026-10-26, supersedes the earlier same-day option A (option B):** a documented SIMULATED case now
+  qualifies as P3 evidence; the collaborator route is dropped. Qualifying case: seed 45 (`dev/heywood-sim.csv`, sha256
+  62a6984a...ca257, origin SIMULATED), whose mechanism check above passed. This amends the P3 gate: the 2026-10-24
+  "seeded generation is nonqualifying" ruling and the "stored input" requirement no longer apply. Limits to carry: one
+  improper dataset among four clean siblings; stacked-fit outcome not recorded separately; pinned D4 build 3a98bf6 is not
+  in medfit `dev`. T5 stays UNACCEPTED: D5 integration, D4 independent closure and the checkpoint remain open.
 
 ### Acceptance checkpoint and downstream tasks
 

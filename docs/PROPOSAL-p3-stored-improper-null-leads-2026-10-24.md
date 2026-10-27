@@ -95,7 +95,7 @@ retuning" is the author's call.
 - [ ] **Search other labs' public replication data** (OSF/Dataverse) for latent-mediator studies that report a
   Heywood case or a negative variance, then record URL, version and hash before any use. Needs network access and
   your approval to download (downloads need explicit permission).
-- [ ] **Ask collaborators.** A short, specific request: "a dataset and latent-mediator model where lavaan or Mplus gave
+- [x] **Dropped 2026-10-26 (author ruling B: use simulated data, no collaborator).** Was: **Ask collaborators.** A short, specific request: "a dataset and latent-mediator model where lavaan or Mplus gave
   a negative variance." People who run SEMs often have exactly one.
 
 ## Long-term (future sessions)
