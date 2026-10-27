@@ -313,7 +313,7 @@
   vars <- unique(c(a, b, variances, unlist(lapply(cons, function(z) {
     c(all.vars(str2lang(z$lhs)), all.vars(str2lang(z$rhs)))
   }))))
-  zero <- as.list(setNames(rep(0, length(vars)), vars))
+  zero <- as.list(stats::setNames(rep(0, length(vars)), vars))
   constants <- vapply(cons, function(z) {
     eval(str2lang(z$rhs), zero, baseenv()) - eval(str2lang(z$lhs), zero, baseenv())
   }, 0.0)

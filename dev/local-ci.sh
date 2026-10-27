@@ -10,10 +10,10 @@ Rscript -e 'res <- rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), er
 print(res)
 n <- c(errors = length(res$errors), warnings = length(res$warnings), notes = length(res$notes))
 cat("CHECK COUNTS:", paste(names(n), n, sep = "=", collapse = " "), "\n")
-if (n[["errors"]] > 0 || n[["warnings"]] > 0) quit(status = 1)'
+if (!identical(res$status, 0L) || n[["errors"]] > 0 || n[["warnings"]] > 0) quit(status = 1)'
 
 echo "== lintr on R/ =="
-LINTR_ERROR_ON_LINT=true Rscript -e 'lintr::lint_package()'
+LINTR_ERROR_ON_LINT=true Rscript -e 'pkgload::load_all(".", quiet = TRUE); print(lintr::lint_package())'
 
 echo "== pkgdown reference index =="
 Rscript -e 'pkgdown::check_pkgdown()'
