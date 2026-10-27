@@ -11,8 +11,13 @@ Updated 2026-10-26. Execution checklist: [todo.md](todo.md).
   a merged record. Everything below dated 2026-10-24 is otherwise unchanged and still describes the open gates.
 
 - **Status:** T5 UNACCEPTED and BLOCKED. P3 (a stored improper-null input with provenance) is the open gate; the
-  author ruled medfit's seeded `sem_model_heywood()` nonqualifying (see P3). D4 is not independently closed;
-  D5 is not started.
+  author ruled medfit's seeded `sem_model_heywood()` nonqualifying (see P3), and on 2026-10-26 ruled option A: keep the
+  gate, wait for a real stored case (R3, R5 held; simulated seed 45 stays nonqualifying). D4 is not independently
+  closed; D5 is not started.
+- **Open gates (2026-10-26, nothing actionable here until one moves):** (1) P3 real stored case, author-supplied;
+  (2) D1-D4 integration into a medfit release after 0.15.0, owner medfit-oct-23, read-only recheck at session start;
+  (3) D4 independent closure, needs author authorization for a fresh focused review; (4) D5, blocked on (2).
+  R4 is the author's to send. missingmed CRAN stays live, gated on RMediation >= 1.7.1 (author hold).
 - **PR #102 (as of 2026-10-24, superseded by the merge note above):** draft, base `dev`, pushed through `a20160c`. Not merged.
 - **Authorization since 2026-10-22:** the author approved pushing this branch (three pushes on 2026-10-24) and
   approved returning #102 to draft. Merge, simulations and saved-result changes remain unauthorized. Scratch-library
