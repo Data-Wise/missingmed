@@ -2,7 +2,8 @@ status: active
 priority: --
 progress: 100
 kind: package
-updated: 2026-10-26
+updated: 2026-10-27
+session_handoff: 2026-10-27 - PR #113 merged to dev; its status and plan record is committed locally at a8cd432. D4 remains open: medfit session reported no implementation commit for the narrowed covariance-retention change; its D4 worktree was at dd4d9e6f and had no PR at last check. D5 integration and T5 checkpoint remain open. Next: medfit implements and reviews the narrowed change, then independently review D4. No tests run during this handoff.
 pr_113: 2026-10-26 - PR #113 squash-merged to dev as a4c512ef741ca208290389205d13a9117bf91772; SEM MBCO rejects std.ov = TRUE and local CI repairs landed. Next gate: D4 independent closure after the pending medfit covariance-retention change; see tasks/plan.md.
 sem_std_ov: 2026-10-26 - SEM MBCO rejects std.ov = TRUE because observed-variable scaling can change shared-coefficient constraints; std.ov = FALSE remains accepted. Focused args tests passed with isolated medfit 0.15.0. Local-CI policy unchanged.
 local_ci: 2026-10-26 - PR #113 review: local CI passes with isolated medfit 0.15.0 and network access (R CMD check 0 errors, 0 warnings, 1 CRAN incoming note; lint and pkgdown pass). Declared withr, qualified stats::setNames, and corrected runner context/status handling.
