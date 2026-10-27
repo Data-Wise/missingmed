@@ -2,6 +2,13 @@
 
 Updated 2026-10-26. Execution checklist: [todo.md](todo.md).
 
+## Reading guide
+
+- **Live:** "Current state" (gates, decisions, baseline) and P3 under "Ordered work". Everything else is dated history
+  kept as a record of what was reviewed and when; counts and "next action" sentences in it are superseded.
+- **Authority:** the approved spec (`docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md`) is unamended; this plan
+  tracks evidence for it and never changes it.
+
 ## Current state (2026-10-26) — read this first
 
 - **PR #102 MERGED (2026-10-26):** squash `9f77220` on `dev`, 2026-10-26T20:10Z, merged by Data-Wise; 49 commits, 55
@@ -46,7 +53,7 @@ Updated 2026-10-26. Execution checklist: [todo.md](todo.md).
   (recoverable). Truly gone: the D1 assertion-tolerance review JSON and the installed medfit 0.11.1 library; claims
   resting only on those are unauditable (see the `[MISSING]` marks). Other review JSONs are in `docs/specs/`.
 
-## Current checkpoint — D4 post-fit evidence and wrap-up
+## D4 checkpoint as of 2026-10-22 (historical stage; open gates are in Current state)
 
 Latest follow-up: [closure matrix](../docs/specs/D4-closure-matrix-2026-10-22.md).
 Nonwinning-child controls now explicitly cover both product orders and both nulls,
@@ -585,10 +592,10 @@ does not authorize push, merge, install, simulation, or external submission.
 
 The author authorized targeted evidence-gap fixes and a fresh bounded review;
 no broader branch-enumerator design or spec amendment is inferred. No
-simulations, saved-result changes, or merge. As of 2026-10-24 the author has also
-approved pushing this branch and returning #102 to draft, and scratch-library
-medfit installs were made and disclosed (see Current state); no other dependency
-installs. Preserve the
-unrelated untracked research-workflow plan. Recheck this plan if the approved
+saved-result changes. #102 is merged (see Current state); push approvals and the
+scratch-library medfit installs are disclosed there; no other dependency installs.
+Simulation: the only runs were the author-approved, scratch-only seed-45 mechanism
+checks of 2026-10-26 (see P3); any new simulation needs a fresh request. The research-workflow
+plan is committed (`87ea8e4`) as a record, unreconciled. Recheck this plan if the approved
 spec, medfit version, provider helper, fixture provenance or user constraints
 change. Do not repeat broad fixture discovery without a concrete new lead.
