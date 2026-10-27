@@ -15,7 +15,7 @@ See [plan.md](plan.md) for rationale, ownership and constraints; its "Current st
 - [x] D4 one authorized Claude review — scoped approve, one low attribution concern; omissions and post-review documentation recorded.
 - [ ] D4 independent closure (earlier stage of the item above; same open gate) — original C5/3c/3d/4.8–10 and omitted full test/helper bodies; explicit nonwinning covariance-failure attribution evidence. Do not infer closure from scoped approval.
 - [x] D3 final source/spec omissions — Clauded7e0983c approved after reading original clauses/conversion/rebase/full tests; historical open descriptions below superseded.
-- [ ] D4 test follow-up: medfit PR Data-Wise/medfit#355 (tests only, open, CI pending) pins root attribution and five `.sem_retain_covariance` clauses; 1690 tests/8495 expectations/1 pre-existing failure (same on `dev`). Not D4 closure; `compare_lr`/`anova` handling of the new class and the old-design comparison remain.
+- [ ] D4 test follow-up: medfit PR Data-Wise/medfit#355 (tests only; merged to medfit `dev` 2026-10-26 as `b45cb4c18`, CI green) pins root attribution and five `.sem_retain_covariance` clauses; 1690 tests/8495 expectations/1 pre-existing failure (same on `dev`). Not D4 closure; `compare_lr`/`anova` handling of the new class and the old-design comparison remain.
 - [ ] D5 integration and qualifying real-case evidence; T5 remains UNACCEPTED.
 
 - [x] D3 public/format follow-up — public/nested mapping and tamper coverage; non-scientific, approximate/overflow count wording. 1386 deterministic assertions/lint pass. Claude0a653f34 approves, no confirmed bugs; optional tests deferred. Latest spec/conversion-source omissions recorded, no full closure claim. T5 UNACCEPTED.
