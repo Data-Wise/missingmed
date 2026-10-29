@@ -1,5 +1,8 @@
 # missingmed (development version)
 
+* S7 property access now works under the declared R 4.1 minimum.
+* Preserve formula offsets when fitting MBCO constrained branches on R 4.1.
+
 ## Internal
 
 * Refuse `std.ov = TRUE` in SEM MBCO: observed-variable standardization can
