@@ -36,15 +36,26 @@
         collapse = " + "
       )
     }
-    return(stats::reformulate(rhs, response = formula[[2]]))
+    return(stats::reformulate(rhs, response = formula[[2]], env = environment(formula)))
   }
-  # drop.terms() carries the response EXPRESSION, the intercept flag and any
-  # offset() through. Rebuilding from term.labels alone (via reformulate with
-  # all.vars(formula)[1]) silently turned `log(Y) ~ .` into `Y ~ .`, so llF and
-  # llC were computed on different scales and 2*(llF - llC) was not a
-  # likelihood ratio at all; it also regained a suppressed intercept and
-  # dropped offsets.
-  stats::formula(stats::drop.terms(tt, idx, keep.response = TRUE))
+  # R 4.1 drop.terms() can discard offsets. Restore only missing original
+  # expressions so versions that retain them do not count an offset twice.
+  result <- stats::formula(stats::drop.terms(tt, idx, keep.response = TRUE))
+  offsets <- function(terms) {
+    as.list(attr(terms, "variables"))[attr(terms, "offset") + 1L]
+  }
+  original <- offsets(tt)
+  retained <- offsets(stats::terms(result))
+  for (offset in original) {
+    matched <- which(vapply(retained, identical, logical(1), offset))
+    if (length(matched)) {
+      retained <- retained[-matched[1L]]
+    } else {
+      result[[3L]] <- call("+", result[[3L]], offset)
+    }
+  }
+  environment(result) <- environment(formula)
+  result
 }
 
 # How many parameters does nulling `var` remove from `formula`? This is the
