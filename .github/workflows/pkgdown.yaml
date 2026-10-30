@@ -3,6 +3,8 @@
 on:
   push:
     branches: [main, dev]
+  pull_request:
+    branches: [dev]
   release:
     types: [published]
   workflow_dispatch:
@@ -30,8 +32,12 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, local::.
+          extra-packages: any::pkgdown, local::., github::Data-Wise/medfit@e068d7506c6263dcda7f5485c09f892249165fbf
           needs: website
+
+      - name: Verify SEM provider version
+        run: stopifnot(packageVersion("medfit") == "0.15.0")
+        shell: Rscript {0}
 
       - name: Remove dev-only markdown from the site build
         # pkgdown renders every root *.md as a page and has no exclude hook

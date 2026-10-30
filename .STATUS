@@ -3,7 +3,7 @@ priority: --
 progress: 100
 kind: package
 updated: 2026-10-29
-r41_checks: 2026-10-29 - PR #114 merged into dev as 65da5b9. Full vignette archive checks: R 4.6.2 OK; R 4.1 tests and vignettes pass, with a prepared-runtime stats4 warning and note. Post-merge hosted check and site build fail because the runner installs medfit 0.3.2 but the vignette requires >= 0.10.0; this issue also occurred before the PR. No release.
+r41_checks: 2026-10-29 - PR #114 merged into dev as 65da5b9. Full vignette archive checks: R 4.6.2 OK; R 4.1 tests and vignettes pass, with a prepared-runtime stats4 warning and note. Hosted check and site previously failed because the runner installed medfit 0.3.2. PR #115 pins medfit 0.15.0; both hosted PR checks passed at 6dc0a57. Integration pending. No release.
 r41_offset: 2026-10-29 - PR #114 preserves constrained-formula offsets and environments; R 4.1.3 and 4.6.2 archive suites each 2423 pass, 10 skip, zero fail; warnings/notes remain. No release.
 sem_std_ov: 2026-10-26 - SEM MBCO rejects std.ov = TRUE because observed-variable scaling can change shared-coefficient constraints; std.ov = FALSE remains accepted. Focused args tests passed with isolated medfit 0.15.0. Local-CI policy unchanged.
 local_ci: 2026-10-26 - PR #113 review: local CI passes with isolated medfit 0.15.0 and network access (R CMD check 0 errors, 0 warnings, 1 CRAN incoming note; lint and pkgdown pass). Declared withr, qualified stats::setNames, and corrected runner context/status handling.

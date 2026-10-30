@@ -1,7 +1,7 @@
 #!/bin/sh
-# Local CI: the gates the GitHub PR workflows used to run (check.yml, lint.yaml,
-# pkgdown.yaml). Run before opening a PR and quote the counts in the PR body.
-# GitHub still runs the same workflows on push to main/dev.
+# Local CI: run the package check, lint, and pkgdown reference checks before
+# opening a PR and quote the counts in the PR body. GitHub also checks package
+# and site builds on PRs to dev and pushes to main/dev.
 set -e
 cd "$(dirname "$0")/.."
 
