@@ -27,8 +27,8 @@ Two estimators share one S7 pipeline:
 * **Sensitivity to missing not at random** (`sensitivity_mnar()`) — repeats the
   analysis with the imputed values shifted, giving a sensitivity curve.
 
-New to the package? Start with *Choosing an analysis* on the
-[website](https://data-wise.github.io/missingmed/).
+New to the package? Start with
+[*Choosing an analysis*](https://data-wise.github.io/missingmed/articles/choosing-an-analysis.html).
 
 For the indirect effect it provides both a **Monte-Carlo confidence interval**
 and a **D4-stacked MBCO** likelihood-ratio test (which, unlike pooling, respects
