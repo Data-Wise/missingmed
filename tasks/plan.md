@@ -1111,6 +1111,20 @@ installed in all three runs.
 - Lint found no lints. [Run](https://github.com/Data-Wise/missingmed-t7-ci-8394fdf/actions/runs/45678849268)
 - pkgdown built the site. GitHub marked the Pages deployment step **Skipped**. [Run](https://github.com/Data-Wise/missingmed-t7-ci-8394fdf/actions/runs/45678849028)
 
+#### Exact PR #117 head on private hosted CI
+
+On 2026-11-25, all three workflows passed on `dev` in the separate
+private [`Data-Wise/missingmed-t7-ci-9222cd6`](https://github.com/Data-Wise/missingmed-t7-ci-9222cd6) repository. GitHub
+reported `9222cd62a304a0f5506db77beeb059fe2d7702a4`, the head of missingmed PR #117,
+for all three runs. The workflows pinned RMediation 1.6.1, and the logs
+confirm that all three installed RMediation 1.6.1, S7 1.0.0, and medfit 0.20.0.
+
+- R CMD check reported `Status: OK`. Testthat reported 2,571 passes, 2 skips,
+  0 failures, and 0 warnings. [Run](https://github.com/Data-Wise/missingmed-t7-ci-9222cd6/actions/runs/45717056347)
+- Lint reported no findings. [Run](https://github.com/Data-Wise/missingmed-t7-ci-9222cd6/actions/runs/45717056369)
+- pkgdown built the site. GitHub marked the Pages deployment step **Skipped**.
+  [Run](https://github.com/Data-Wise/missingmed-t7-ci-9222cd6/actions/runs/45717056358)
+
 T7 remains open at the author's request.
 
 ## Boundaries and invalidators
