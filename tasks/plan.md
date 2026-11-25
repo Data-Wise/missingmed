@@ -1125,6 +1125,9 @@ confirm that all three installed RMediation 1.6.1, S7 1.0.0, and medfit 0.20.0.
 - pkgdown built the site. GitHub marked the Pages deployment step **Skipped**.
   [Run](https://github.com/Data-Wise/missingmed-t7-ci-9222cd6/actions/runs/45717056358)
 
+**Technical acceptance (2026-11-25).** PR #117 at `9222cd6` meets the T7
+technical gates with RMediation pinned to 1.6.1. Treat the RMediation upgrade
+as a separate follow-up once a build containing the S4 fix is available.
 T7 remains open at the author's request.
 
 ## Boundaries and invalidators
