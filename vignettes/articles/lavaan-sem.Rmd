@@ -217,8 +217,13 @@ tidy(s)
 
 ## The MBCO test with a lavaan fit
 
+missingmed requires medfit 0.14.0 or later. For SEM MBCO, medfit versions
+below 0.19.0 use the guarded affine path. When a warning from that
+path lacks a null label, missingmed checks separate diagnostic refits against
+the original sample and both likelihood ratios before attributing it.
+
 `infer(type = "mbco")` runs the same D4-stacked likelihood-ratio test of
-H0: a·b = 0 as the glm engine, with medfit (>= 0.10.0) doing the refits.
+H0: a·b = 0 as the glm engine.
 `run()` still fits with lavaan; MBCO uses medfit's optimizer. Each imputation is
 fit once in full and once with the `a` path (`Mlat ~ X`) fixed to 0 and once with
 the `b` path (`Y ~ Mlat`) fixed to 0; the stacked data are fit the same three
@@ -268,21 +273,14 @@ validated pooling exists yet. Use `type = "mc"` for those fits.
 
 A refit that does not converge stops the test, naming the imputation (or the
 stacked data) and which fit; an improper solution warns once and goes on.
-An escaping dependency error, including a post-fit covariance/diagnostic error
-that returns no usable likelihood, also stops inference; no successful survivor
-is substituted. Diagnostic warnings do not discard a returned finite likelihood,
-but every LR/completeness gate must still pass. This does not recover a likelihood
-hidden inside an error or certify a global optimum.
-
-The local D4 dependency work adds a typed covariance-stage failure with a
-versioned partial likelihood, not a successful `SEMFit`. Its internal null-only
-retention does not authorize full-fit recovery through missingmed. T5 remains
-unaccepted pending D5 integration and qualifying real-case evidence; injected
-covariance failures are deterministic controls, not naturally observed cases.
-This is a development checkpoint, not a released capability claim.
-Improper-null warnings additionally require resolved branch attribution:
-diagnostic refit errors, sample/LR mismatches or unreproduced improper flags
-stop inference even when the reported likelihoods are finite.
+With medfit 0.19.0 or later, SEM MBCO validates the version-1 outcome ledgers
+for the full fit and both nulls before pooling. Missing, unknown,
+incomplete or mismatched evidence stops inference. A validated retained
+null likelihood can be pooled and the warning names the dataset and
+the affected null. An escaping fit error stops inference. The guarded
+affine path on older medfit builds requires an upgrade for typed
+covariance retention. An unattributed improper-null warning still
+requires matching diagnostic refits.
 
 For MBCO, the allowed `fit_args` are `estimator = "ML"`, `std.lv`, `std.ov = FALSE`,
 `fixed.x`, `conditional.x`, `meanstructure`, `information`, `missing`, `se` and

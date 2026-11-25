@@ -42,7 +42,7 @@ Notes:
 * MBCO with `lavaan` is maximum likelihood only: `estimator = "MLR"`, `"MLM"`,
   `"WLSMV"`, and `group`, `ordered` and `sampling.weights` in `fit_args` are
   refused, naming the option.
-  SEM MBCO refits use medfit >= 0.10.0, while `run()` uses lavaan; unlisted
+  SEM MBCO refits use medfit >= 0.14.0, while `run()` uses lavaan; unlisted
   options (including `control`, `auto.*` and `likelihood`) are also refused.
 * IPW has no imputations, so it has no MBCO test and no delta sensitivity analysis.
 

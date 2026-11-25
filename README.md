@@ -24,7 +24,9 @@ Two estimators share one S7 pipeline:
   (stabilized weights, trimming, HC sandwich SEs).
 * **Structural equation models** (`engine = "lavaan"`) — give lavaan syntax in
   `model`, including a latent mediator; works with both estimators. `run()` uses
-  lavaan; MI MBCO refits use medfit >= 0.10.0 with a strict option allow-list.
+  lavaan. MI MBCO refits use medfit >= 0.14.0 with a strict option allow-list.
+  With medfit >= 0.19.0, SEM MBCO validates the full and null outcome ledgers
+  and names the affected null when the backend retains a likelihood.
 * **Sensitivity to missing not at random** (`sensitivity_mnar()`) — repeats the
   analysis with the imputed values shifted, giving a sensitivity curve.
 
@@ -46,11 +48,16 @@ install.packages(
 )
 ```
 
-Or the development version from GitHub:
+For the development branch on GitHub, include the Data-Wise R-universe so
+`pak` can resolve the medfit dependency:
 
 ```r
 # install.packages("pak")
-pak::pak("Data-Wise/missingmed")
+options(repos = c(
+  datawise = "https://data-wise.r-universe.dev",
+  CRAN = "https://cloud.r-project.org"
+))
+pak::pak("Data-Wise/missingmed@dev")
 ```
 
 ## The pipeline

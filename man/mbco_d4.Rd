@@ -44,7 +44,7 @@ family arguments. The tested paths are the regressions \code{mediator ~ treatmen
 structural rows, and its measurement model and any direct effects of its
 indicators on the outcome stay free. Only \code{estimator = "ML"} (the default)
 is supported, with no \code{group}, \code{ordered} or \code{sampling.weights}.
-Refitting uses medfit >= 0.10.0, not lavaan's optimizer. The ignored
+Refitting uses medfit >= 0.14.0, not lavaan's optimizer. The ignored
 options and syntax restrictions are described in \code{\link[=infer]{infer()}}. \code{fit_args}
 must be a list: use \code{list()}, not \code{NULL}.}
 }
@@ -114,14 +114,14 @@ would not be a likelihood ratio. A fit that converged but carries glm's
 likelihood is finite and the warning reaches you unchanged), but the
 chi-square-type reference may be poor for such near-separated data.
 
-For SEM, a dependency error (including a post-fit covariance/diagnostic error
-returning no usable likelihood) stops inference rather than selecting a
-surviving branch. A returned finite likelihood is retained despite diagnostic
-warnings, subject to every LR and completeness gate. This is not recovery of
-a likelihood hidden inside a dependency error or a global-optimality guarantee.
-Improper-null warnings additionally require resolved branch attribution:
-diagnostic refit errors, sample/LR mismatches or unreproduced flags stop
-inference even when the reported likelihoods are finite.
+With medfit >= 0.19.0, SEM MBCO validates the version-1 outcome ledgers
+for the full fit and both nulls before pooling. Missing, unknown,
+incomplete or mismatched evidence stops inference. A validated retained
+null likelihood can be pooled and the warning names the dataset and
+the affected null. An escaping fit error stops inference. The guarded
+affine path on older medfit builds requires an upgrade for typed
+covariance retention. An unattributed improper-null warning still
+requires matching diagnostic refits.
 
 At least two imputations are required. For a single complete dataset, use a
 complete-data MBCO test such as \code{\link[RMediation:mbco]{RMediation::mbco()}}.

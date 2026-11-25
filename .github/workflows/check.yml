@@ -1,4 +1,4 @@
-# SEM vignettes need a newer medfit than the package's general CRAN floor.
+# SEM vignettes use the tested medfit build from Data-Wise R-universe.
 name: R-CMD-check
 
 on:
@@ -23,14 +23,16 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
+          extra-repositories: https://data-wise.r-universe.dev
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck, github::Data-Wise/medfit@e068d7506c6263dcda7f5485c09f892249165fbf
+          # RMediation 1.11.1 fails S4 union registration under S7 1.0.0.
+          extra-packages: any::rcmdcheck, RMediation@1.6.1
           needs: check
 
       - name: Verify SEM provider version
-        run: stopifnot(packageVersion("medfit") == "0.15.0")
+        run: stopifnot(packageVersion("medfit") == "0.20.0")
         shell: Rscript {0}
 
       - uses: r-lib/actions/check-r-package@v2

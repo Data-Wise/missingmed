@@ -46,7 +46,7 @@ test_that("missing or failed refits cannot produce an accepted provider result",
 })
 
 test_that("stored observed and latent data agree with the lavaan branch oracle", {
-  skip_if_not_installed("medfit", "0.10.0")
+  skip_if_not_installed("medfit", "0.14.0")
   cases <- list(
     list(d = setNames(iris[1:4], c("X", "M", "Y", "C")),
       model = "M ~ X + C; Y ~ M + X + C"),
@@ -206,7 +206,7 @@ test_that("unsupported options and full-fit errors never silently fall through",
 })
 
 test_that("real affine equality nulls retain one dimension and match the oracle", {
-  skip_if_not_installed("medfit", "0.10.0")
+  skip_if_not_installed("medfit", "0.14.0")
   d <- setNames(iris[1:4], c("X", "M", "Y", "C"))
   for (con in c("a == b", "a == 2*b + 1")) {
     model <- paste("M ~ a*X + C; Y ~ b*M + X + C;", con)
@@ -237,7 +237,7 @@ test_that("diagnostic notices survive a later refit failure", {
 })
 
 test_that("shared regression and intercept labels remain one-dimensional", {
-  skip_if_not_installed("medfit", "0.10.0")
+  skip_if_not_installed("medfit", "0.14.0")
   d <- setNames(iris[1:4], c("X", "M", "Y", "C"))
   for (model in c("M ~ a*X + C; Y ~ b*M + a*X + C",
     "M ~ a*X + C; Y ~ b*M + X + C; Y ~ a*1")) {
