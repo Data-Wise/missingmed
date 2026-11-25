@@ -48,7 +48,7 @@ Part of the **mediationverse** ecosystem (Data-Wise org), coordinated via `~/pro
 ## Workflow
 
 For PR #102 evidence work, `tasks/plan.md` and `tasks/todo.md` own the current
-checkpoint; T5 remains unaccepted until its real-case gate closes. Source-load
+checkpoint and T5 acceptance gates. Source-load
 the pinned isolated medfit dependency for deterministic tests: stored inputs,
 single starts and a random-retry trap. A typed covariance-stage partial payload
 is not a public SEMFit; D5 integration must use documented evidence, not private

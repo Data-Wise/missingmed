@@ -204,8 +204,8 @@
 }
 
 .mm_sem_fit <- function(model, d) {
-  if (utils::packageVersion("medfit") < "0.10.0") {
-    stop("The SEM provider requires medfit >= 0.10.0.", call. = FALSE)
+  if (utils::packageVersion("medfit") < "0.14.0") {
+    stop("The SEM provider requires medfit >= 0.14.0.", call. = FALSE)
   }
   observed <- lavaan::lavNames(lavaan::lavaanify(model), "ov")
   for (name in intersect(observed, names(d))) {
@@ -242,7 +242,166 @@
   list(f = null@f, n_obs = null@n_obs, improper = null@diagnostics$improper)
 }
 
-.mm_sem_mbco <- function(fit, a, b) medfit::mbco_sem(fit, a, b)
+.mm_sem_medfit_mbco <- function(fit, a, b) medfit::mbco_sem(fit, a, b)
+
+# Check the documented version-1 evidence for the affine SEM subset. The
+# syntax gate admits no generic unions, so each full or null fit must be a leaf.
+.mm_sem_ledger_node <- function(node, id, parent, children) {
+  if (!is.list(node) || !identical(node[["schema_version"]], 1L)) {
+    stop("Missing or unknown SEM outcome ledger schema for ", id, ".", call. = FALSE)
+  }
+  optimizer <- node[["optimizer"]]
+  likelihood <- node[["likelihood"]]
+  context <- node[["context"]]
+  notices <- node[["notices"]]
+  improper <- node[["improper"]]
+  if (!identical(node[["id"]], id) || !identical(node[["parent_id"]], parent) ||
+      !is.list(node[["children"]]) || length(node[["children"]]) != children ||
+      !identical(node[["enumeration"]], list(state = "complete", required = children)) ||
+      !identical(node[["outcome"]], "resolved") || !identical(node[["feasibility"]], "witness") ||
+      !is.list(optimizer) || !identical(optimizer[["state"]], "accepted") ||
+      !is.numeric(optimizer[["status"]]) || length(optimizer[["status"]]) != 1L ||
+      !is.finite(optimizer[["status"]]) ||
+      !is.list(likelihood) || !identical(likelihood[["state"]], "available") ||
+      !is.numeric(likelihood[["f"]]) || length(likelihood[["f"]]) != 1L ||
+      !is.finite(likelihood[["f"]]) ||
+      !all(c("condition", "improper") %in% names(node)) || !is.null(node[["condition"]]) ||
+      !(is.null(improper) || (is.character(improper) && !anyNA(improper))) ||
+      !is.list(notices) || !is.list(notices[["warnings"]]) || !is.list(notices[["messages"]]) ||
+      !is.list(context) || !is.list(context[["model"]]) || !is.list(context[["domain"]]) ||
+      !is.list(context[["settings"]]) || !is.data.frame(node[["constraints"]]) ||
+      !all(c("lhs", "op", "rhs") %in% names(node[["constraints"]]))) {
+    stop("Incomplete or unresolved SEM outcome ledger for ", id, ".", call. = FALSE)
+  }
+}
+
+.mm_sem_match_ledger <- function(node, full, model, constraints, f) {
+  context <- node[["context"]]
+  base <- full[["context"]]
+  # The root owns the sample; a child may carry only its documented hash.
+  if (!identical(context[["n_obs"]], base[["n_obs"]]) ||
+      !identical(context[["sample_hash"]], base[["sample_hash"]]) ||
+      (!is.null(context[["sample"]]) && !identical(context[["sample"]], base[["sample"]])) ||
+      !identical(context[["domain"]], base[["domain"]]) ||
+      !identical(context[["settings"]], base[["settings"]]) ||
+      !identical(context[["model"]][["syntax"]], model) ||
+      !identical(context[["model"]][["parameters"]], base[["model"]][["parameters"]]) ||
+      !identical(node[["constraints"]], constraints) ||
+      !identical(node[["likelihood"]][["f"]], f)) {
+    stop("SEM outcome ledger sample, model, settings or discrepancy mismatch for ",
+      node[["id"]], ".", call. = FALSE)
+  }
+}
+
+.mm_sem_covariance_notice <- function(node, label = NULL) {
+  covariance <- node[["covariance"]]
+  post_fit <- node[["post_fit"]]
+  if (length(covariance) == 1L && covariance %in% c("available", "unavailable", "not_retained") &&
+      is.null(post_fit)) {
+    return(character())
+  }
+  diagnostic <- if (is.list(post_fit)) post_fit[["condition"]]
+  if (is.null(label) || !identical(covariance, "failed") ||
+      !is.list(post_fit) || !identical(post_fit[["schema_version"]], 1L) ||
+      !identical(post_fit[["stage"]], "covariance") || !is.list(diagnostic) ||
+      !"medfit_sem_covariance_diagnostic" %in% diagnostic[["class"]] ||
+      !"error" %in% diagnostic[["class"]] ||
+      length(diagnostic[["kind"]]) != 1L ||
+      !diagnostic[["kind"]] %in% c("information_not_pd", "negative_variance") ||
+      !is.character(diagnostic[["message"]]) || length(diagnostic[["message"]]) != 1L ||
+      is.na(diagnostic[["message"]])) {
+    stop("Invalid SEM covariance evidence for ", node[["id"]], ".", call. = FALSE)
+  }
+  paste0(label, " = 0 covariance-stage failure: ", diagnostic[["message"]],
+    "; likelihood retained, covariance unavailable")
+}
+
+.mm_sem_mbco <- function(fit, a, b) {
+  # Older dependencies still support the guarded affine provider and its
+  # matched diagnostic refits. Typed retention requires both documented ledgers.
+  if (utils::packageVersion("medfit") < "0.19.0") {
+    return(withCallingHandlers(.mm_sem_medfit_mbco(fit, a, b),
+      medfit_sem_covariance_notice = function(w) {
+        stop("SEM covariance retention requires medfit >= 0.19.0.", call. = FALSE)
+      }))
+  }
+  full <- fit@diagnostics[["ledger"]]
+  .mm_sem_ledger_node(full, "fit", NA_character_, 0L)
+  .mm_sem_covariance_notice(full)
+  base <- full[["context"]]
+  hash <- base[["sample_hash"]]
+  domain <- base[["domain"]]
+  settings <- base[["settings"]]
+  if (!identical(base[["sample"]], fit@data) || !identical(base[["n_obs"]], fit@n_obs) ||
+      !is.character(hash) || length(hash) != 1L || is.na(hash) || !nzchar(hash) ||
+      !identical(base[["model"]][["syntax"]], fit@model) ||
+      !identical(domain[["objective"]], "normal_ml_discrepancy") ||
+      !identical(domain[["information"]], fit@information) ||
+      !is.null(domain[["weights"]]) ||
+      !identical(domain[["fixed_x"]], character()) || !is.list(domain[["factors"]]) ||
+      !is.logical(domain[["meanstructure"]]) || length(domain[["meanstructure"]]) != 1L ||
+      is.na(domain[["meanstructure"]]) || !is.list(settings[["control"]]) ||
+      !is.numeric(settings[["n_starts"]]) || length(settings[["n_starts"]]) != 1L ||
+      !is.finite(settings[["n_starts"]]) || settings[["n_starts"]] < 1 ||
+      !identical(settings[["se_type"]], "model") ||
+      !identical(full[["likelihood"]][["f"]], fit@f)) {
+    stop("SEM outcome ledger does not match the full fit.", call. = FALSE)
+  }
+  warned <- FALSE
+  mb <- withCallingHandlers(.mm_sem_medfit_mbco(fit, a, b),
+    medfit_sem_covariance_notice = function(w) {
+      warned <<- TRUE
+      invokeRestart("muffleWarning")
+    })
+  root <- mb[["ledger"]]
+  .mm_sem_ledger_node(root, "mbco", NA_character_, 3L)
+  .mm_sem_covariance_notice(root)
+  constraints <- full[["constraints"]]
+  .mm_sem_match_ledger(root, full, fit@model, constraints, fit@f)
+  if (!identical(root[["context"]][["sample"]], fit@data) ||
+      !identical(mb[["n_obs"]], fit@n_obs) || !identical(mb[["unresolved"]], FALSE)) {
+    stop("Incomplete or unresolved SEM outcome ledger for mbco.", call. = FALSE)
+  }
+  nodes <- root[["children"]]
+  .mm_sem_ledger_node(nodes[[1L]], "mbco/full", "mbco", 0L)
+  .mm_sem_match_ledger(nodes[[1L]], full, fit@model, constraints, fit@f)
+  .mm_sem_covariance_notice(nodes[[1L]])
+  labels <- c(a, b)
+  sides <- c("a", "b")
+  tab <- mb[["tests"]]
+  if (!.mm_sem_valid_lr_table(tab, paste(labels, "== 0")) ||
+      !identical(unname(mb[["parameter"]]), 1) ||
+      !all(is.finite(tab[["diff_ll"]])) ||
+      !all(abs(tab[["diff_ll"]] - fit@n_obs * (tab[["f"]] - fit@f)) <= 1e-7)) {
+    stop("SEM outcome ledger has an incomplete or mismatched LR table.", call. = FALSE)
+  }
+  covariance <- character()
+  improper <- character()
+  for (i in seq_along(labels)) {
+    node <- nodes[[i + 1L]]
+    .mm_sem_ledger_node(node, paste0("mbco/null:", i), "mbco", 0L)
+    restriction <- data.frame(op = "==", lhs = labels[i], rhs = "0")
+    if ("level" %in% names(constraints)) restriction$level <- 1L
+    .mm_sem_match_ledger(node, full, paste(fit@model, tab[["constraint"]][i], sep = "\n"),
+      rbind(constraints, restriction), tab[["f"]][i])
+    covariance <- c(covariance, .mm_sem_covariance_notice(node, sides[i]))
+    if (length(node[["improper"]])) improper <- c(improper, sides[i])
+  }
+  if (warned && !length(covariance)) {
+    stop("SEM covariance notice has no matching null ledger evidence.", call. = FALSE)
+  }
+  mb$covariance_notices <- covariance
+  mb$improper <- improper
+  mb
+}
+
+.mm_sem_valid_lr_table <- function(tab, expected) {
+  is.data.frame(tab) && nrow(tab) == 2L &&
+    identical(as.character(tab[["constraint"]]), expected) &&
+    length(tab[["converged"]]) == 2L && all(tab[["converged"]] %in% TRUE) &&
+    is.numeric(tab[["f"]]) && length(tab[["f"]]) == 2L && all(is.finite(tab[["f"]])) &&
+    is.numeric(tab[["diff_ll"]]) && length(tab[["diff_ll"]]) == 2L
+}
 
 .mm_sem_attribute_nulls <- function(fit, a, b, mb, d) {
   labels <- c(a, b)
@@ -440,15 +599,14 @@
     before <- length(notices$messages)
     mb <- .mm_sem_mbco(full$fit, lab$a, lab$b)
     null_notices <- notices$messages[seq_along(notices$messages) > before]
+    notices$messages <- c(notices$messages, mb$covariance_notices)
     if (any(grepl("^improper solution:", null_notices, ignore.case = TRUE)) &&
         length(mb$improper) == 0L) {
       mb <- .mm_sem_attribute_nulls(full$fit, lab$a, lab$b, mb, d)
     }
     tab <- mb$tests
     expected <- paste(c(lab$a, lab$b), "== 0")
-    if (!is.data.frame(tab) || nrow(tab) != 2L || !identical(as.character(tab$constraint), expected) ||
-        !all(tab$converged %in% TRUE) || length(tab$converged) != 2L ||
-        length(tab$f) != 2L || any(!is.finite(tab$f)) || length(tab$diff_ll) != 2L) {
+    if (!.mm_sem_valid_lr_table(tab, expected)) {
       stop("Unresolved or incomplete a = 0 / b = 0 refits.", call. = FALSE)
     }
     lr <- vapply(seq_len(2L), function(i) .mm_sem_lr(tab$diff_ll[i], expected[i]), 0.0)

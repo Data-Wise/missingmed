@@ -1,15 +1,33 @@
 # T5 evidence closure plan (follow-up to merged PR #102)
 
-Updated 2026-10-26. Execution checklist: [todo.md](todo.md).
+Updated 2026-11-24. See the [execution checklist](todo.md).
 
 ## Reading guide
 
-- **Live:** "Current state" (gates, decisions, baseline) and P3 under "Ordered work". Everything else is dated history
+- **Live:** "Current state" (gates, decisions, baseline), P3 under "Ordered work", and "P2 direct review and findings". Other checkpoints are dated history
   kept as a record of what was reviewed and when; counts and "next action" sentences in it are superseded.
 - **Authority:** the approved spec (`docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md`) is unamended; this plan
   tracks evidence for it and never changes it.
 
-## Current state (2026-10-26) — read this first
+## Current state (2026-11-24)
+
+- **D5 adapter implemented locally.** Pin medfit v0.19.0 at `2c334734c9cc89043f8ed1daddfae0d992890739`, which contains the narrowed D4 covariance-retention change. Validate the documented version-1 fit and MBCO ledgers before pooling. Both APIs preserve the affected null's identity and refuse missing, unknown, incomplete or mismatched evidence in both ARIV modes.
+- **Verification.** 80 D5 assertions passed on exact v0.19.0 using explicit single starts. Eight targeted regression files passed 1,047 assertions on a scratch copy of missingmed `origin/dev` at `4272b367` with the D5 code and a scratch-only medfit single-start default. Changed-file lint, Rd and pkgdown checks passed.
+- **D5 qualifying-case replay verified.** The five-imputation October case pooled on both public APIs and in both ARIV modes with one start per fit. Fixed `r4 = 2.646410449319` and own `r4 = 2.257159071191`. Each call warned only for imputation 3's improper `a = 0` null. See [the replay receipt](#five-imputation-seed-45-replay).
+- **Same-engine replay agreement verified.** All 18 separate full and null fits matched provider rows, settings, diagnostics, and raw LRs on the same pins. See [the fit comparison](#same-engine-full-and-null-fit-comparison).
+- **Final pinned deterministic verification recorded.** Both clean suites passed 2,158 assertions. All 32 external mutants tripped their intended assertions, and all 31 fixture-manifest entries matched. See [the final verification receipt](#final-pinned-deterministic-verification).
+- **Two pinned D5 follow-up checks passed.** A consistent v1 ledger with a material negative LR was rejected in all 24 cases, and the floor-only mutant tripped all 24 rejection assertions. The stacked `a = 0` pair passed 104 assertions on typed retention and ordinary error propagation. See [the follow-up receipts](#pinned-d5-follow-up-checks).
+- **Targeted P2 direct reads completed across two reviews.** The omissions-only review approved its scope. See [P2 direct review and findings](#p2-direct-review-and-findings).
+- **Old-design comparison verified.** On the same single-start fixture, medfit v0.15.0 retained the ordinary covariance error at each null and pinned v0.19.0 propagated it unchanged. See [the comparison receipt](#old-design-covariance-retention-comparison).
+- **Public defaults and guarded affine fallback verified.** The pinned v0.19.0 default retried and pooled the stored seed-45 case. The v0.15.0 fallback reproduced the improper null by diagnostic refit and refused ordinary covariance retention at either null. Both APIs and ARIV modes passed. See [the public API checks](#public-default-and-legacy-fallback-checks).
+- **P2 findings disposition recorded.** The evidence supports the approved T5 gates on the tested pins and inputs. See [the disposition](#p2-findings-disposition).
+- **Opus follow-ups verified on 2026-11-25.** The seven targeted missingmed files passed 1,033 assertions with medfit's shipped defaults. The local archive preserves the pinned sources, replay inputs, scripts, and receipts. All 86 manifest entries verified. See [the follow-up record](#opus-challenge-follow-up).
+- **T5 ACCEPTED by the owner on 2026-11-25.** Acceptance covers the approved T5 gates on the tested pins. Broader D4 closure stays open. See [the acceptance record](#acceptance-checkpoint-and-downstream-tasks).
+- **T6 floor and documentation verified.** medfit 0.14.0 is the minimum for the supported binary-factor path. medfit 0.19.0 remains the minimum for typed covariance retention. See [T6 verification](#t6-dependency-and-documentation).
+
+## Historical state (2026-10-26)
+
+- **PR #113 MERGED (2026-10-26):** squash `a4c512ef741ca208290389205d13a9117bf91772` on `dev`; SEM MBCO refuses `std.ov = TRUE` and local CI repairs landed. Local CI passed before the merge (0 errors, 0 warnings, 1 CRAN incoming note; lint and pkgdown passed). Next gate: D4 independent closure after the pending medfit covariance-retention change; D5 and the T5 checkpoint remain open.
 
 - **PR #102 MERGED (2026-10-26):** squash `9f77220` on `dev`, 2026-10-26T20:10Z, merged by Data-Wise; 49 commits, 55
   files; final branch head `4a84e66`, tree identical to `origin/dev`. 0 reviews, 1 comment. T5 and D5 are therefore
@@ -582,16 +600,518 @@ establishes all asymmetric/both-branch scenarios; retain injected controls.
   62a6984a...ca257, origin SIMULATED), whose mechanism check above passed. This amends the P3 gate: the 2026-10-24
   "seeded generation is nonqualifying" ruling and the "stored input" requirement no longer apply. Limits to carry: one
   improper dataset among four clean siblings; stacked-fit outcome not recorded separately; pinned D4 build 3a98bf6 is not
-  in medfit `dev`. T5 stays UNACCEPTED: D5 integration, D4 independent closure and the checkpoint remain open.
+  in medfit `dev`. The following replay updates the D5 evidence and records the stacked result.
+
+#### Five-imputation seed-45 replay
+
+Verified 2026-11-23 on missingmed `8dac15d9fbb748958e65044d178c336f931f5631` and medfit
+v0.19.0 `2c334734c9cc89043f8ed1daddfae0d992890739` from scratch source archives. Used the
+original seed order `1, 2, 45, 3, 4`. Seed 45 came from the stored
+`feature-heywood-null-research` worktree CSV (`dev/heywood-sim.csv`, SHA-256
+`62a6984af07f995328f8fdad1a483dc43c0e2f345d140b0758b145886cdca257`).
+The four siblings were regenerated with the October driver and their original seeds.
+
+Each full model and null used one optimizer start per imputation and on the stack.
+Only imputation 3's `a == 0` fit used an explicit start. The replay supplied the
+second perturbation from the October medfit build `9fadff9b20b7ffb198627954cd78cf5e70a327cd`
+(model-derived RNG seed `1823461111`, Mersenne-Twister/Inversion/Rejection), mapped
+to the adapter's labels. All other fits used their default initial vector.
+Runtime tracing verified the start budget and blocked optimizer retries. A separate
+default-start control had rejected seed 45's `a == 0` reduced Hessian on both
+v0.15.0 and v0.19.0.
+
+The supplied vector uses the replay model's parameter names.
+
+```csv
+parameter,start
+M=~m2,-0.015365160146605647
+M=~m3,0.092621658202869675
+mm_a,-0.94725863718524272
+y~x,-0.32276360499666262
+mm_b,-0.80605398685085683
+m1~~m1,1.1099659554037746
+m2~~m2,0.98516196053151406
+m3~~m3,0.23464242494811161
+y~~y,0.59084518979911815
+M~~M,0.53634429154938223
+x~~x,0.72924686905101022
+```
+
+`mbco_d4()` and `run()` → `infer(type = "mbco")` returned identical results
+within each ARIV mode. The stack selected `b = 0` in both modes. Own ARIV used
+`a = 0` in imputation 4. Independent calculations from the branch likelihood
+ratios reproduced the pooled results.
+
+| ARIV | `r4` | `D4` | `p` |
+|---|---:|---:|---:|
+| Fixed | 2.646410449319 | 0.012045458409 | 0.915450739531 |
+| Own | 2.257159071191 | 0.013484967866 | 0.910304801930 |
+
+Each public call emitted one warning with this text.
+
+```text
+SEM MBCO warnings: imputation 3: improper solution: negative variance: M~~M; improper solution (a)
+```
+
+All six `a == 0` fits per call returned finite covariance. Both modes pooled
+successfully and validated and attributed the improper `a = 0` fit. For
+imputation 3, both modes used the `b = 0` LR in the pooled statistic.
+
+#### Same-engine full and null fit comparison
+
+Verified 2026-11-23 from scratch archives of missingmed
+`8dac15d9fbb748958e65044d178c336f931f5631` and medfit v0.19.0
+`2c334734c9cc89043f8ed1daddfae0d992890739`. Separate `medfit::fit_sem()` calls
+fit the full model, `a = 0`, and `b = 0` for each of the five imputations and the
+stack (18 fits). Each used one optimizer start. Only imputation 3's `a = 0` null
+used the recovered October vector above. Runtime checks blocked optimizer retries.
+
+The fits and the provider used the same rows in the same order, with 100 rows
+per imputation and 500 on the stack and no rows dropped. Sample hashes matched
+after applying the imputation-number row-name prefixes used by the
+`run()` → `infer()` stack. Model syntax, constraints, and likelihood and optimizer
+settings matched across both APIs and ARIV modes.
+
+The maximum absolute difference was zero for all 18 fit discrepancies and all
+12 raw LRs computed as `n * (f_null - f_full)` before branch selection. The
+adapter's raw LR agreement tolerance is `1e-7`. These separate calls used the
+same medfit engine and start protocol as the provider and establish agreement
+with the wrapper. The `K = 20` test supplies the independent df oracle.
+
+| Dataset | Raw LR, `a = 0` | Raw LR, `b = 0` |
+|---|---:|---:|
+| Imputation 1 | 6.890089917 | 0.049607329 |
+| Imputation 2 | 5.766668495 | 0.000282660 |
+| Imputation 3 | 5.463181273 | 0.073946710 |
+| Imputation 4 | 1.966401631 | 3.263906225 |
+| Imputation 5 | 9.578136123 | 5.653238667 |
+| Stack | 26.854969044 | 0.219613427 |
+
+All 18 fits converged and returned finite covariance. The sole improper fit was
+imputation 3's `a = 0` null (`negative variance: M~~M`). The provider ledger
+matched the diagnostics from the separate calls, and each public call
+attributed its single warning to that null. The October `heywood-sim.csv` and
+the recovered `seed45-october-retry.rds` are hash-verified local inputs outside
+the pinned source archives. A replay also requires those two artifacts.
+
+### Final pinned deterministic verification
+
+Verified 2026-11-23 from exact scratch source archives of missingmed
+`8dac15d9fbb748958e65044d178c336f931f5631` and medfit v0.19.0
+`2c334734c9cc89043f8ed1daddfae0d992890739`. The consumer harness supplied one
+start when `fit_sem()` had no explicit start count. Perturbed optimizer
+starts were blocked. Both repositories stayed read-only during verification.
+
+| Clean suite | Files | Test bodies | Passed assertions | Failures | Errors | Warnings | Skips |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| missingmed | 7 | 73 | 1,033 | 0 | 0 | 0 | 0 |
+| medfit | 8 | 79 | 1,125 | 0 | 0 | 0 | 0 |
+| **Total** | **15** | **152** | **2,158** | **0** | **0** | **0** | **0** |
+
+All 32 external mutants tripped their intended assertions, with 356 total
+assertion failures (296 intended and 60 incidental across eight mutants), zero
+execution errors, and zero skips. The assertion CSV lists the intended failures.
+The raw logs and result CSV preserve the wider counts. The harness was
+adapted in scratch to target the relocated encoding tests and shared LR-table
+guards and to name the test namespace when both packages were source-loaded.
+
+| Mutant | Intended assertion location | Intended failures |
+|---|---|---:|
+| `li_df` | `test-mbco-sem-acceptance.R:23, 25, 26` | 4 |
+| `stack_divisor` | `test-mbco-encoding.R:13, 14, 15` | 5 |
+| `tie` | `test-mbco-encoding.R:31, 33` | 2 |
+| `diagnostic_labels` | `test-mbco-encoding.R:16, 24` | 4 |
+| `dimensions` | `test-mbco-encoding.R:43` | 2 |
+| `factor_limit` | `test-mbco-sem-acceptance.R:208` | 1 |
+| `improper_payload` | `test-mbco-sem-acceptance.R:219, 222` | 2 |
+| `encoding` | `test-mbco-sem-acceptance.R:180` | 26 |
+| `syntax` | `test-mbco-sem-acceptance.R:463` | 3 |
+| `null_identity` | `test-mbco-sem-acceptance.R:447` | 8 |
+| `null_lr_match` | `test-mbco-sem-acceptance.R:332` | 2 |
+| `full_fixed_x` | `test-mbco-sem-acceptance.R:404, 412` | 10 |
+| `null_factors` | `test-mbco-sem-acceptance.R:404, 412` | 10 |
+| `null_fixed_x` | `test-mbco-sem-acceptance.R:404, 412` | 10 |
+| `survivor_complete` | `test-mbco-sem-acceptance.R:104` | 48 |
+| `table_converged` | `test-mbco-sem-acceptance.R:104` | 36 |
+| `table_finite` | `test-mbco-sem-acceptance.R:104` | 12 |
+| `empty_improper` | `test-mbco-sem-acceptance.R:447, 454, 455` | 14 |
+| `null_nobs` | `test-mbco-sem-acceptance.R:332` | 1 |
+| `lr` | `test-mbco-sem-provider.R:15, 21, 22, 24` | 7 |
+| `completeness` | `test-mbco-sem-provider.R:32, 35` | 9 |
+| `labels` | `test-mbco-sem-provider.R:87, 91` | 7 |
+| `feasibility` | `test-mbco-sem-provider.R:272, 275` | 4 |
+| `args` | `test-mbco-sem-args.R:60, 62, 65, 69, 71` | 33 |
+| `d4_root_attribution` | `test-sem-post-fit-qa.R:23` | 2 |
+| `d4_child_notices` | `test-sem-post-fit-qa.R:49, 50` | 2 |
+| `d5_wrong_null` | `test-mbco-sem-ledger.R:41` | 8 |
+| `d5_unknown_schema` | `test-mbco-sem-ledger.R:72` | 8 |
+| `d5_unresolved_child` | `test-mbco-sem-ledger.R:72` | 4 |
+| `d5_sample_hash` | `test-mbco-sem-ledger.R:72` | 4 |
+| `d5_settings` | `test-mbco-sem-ledger.R:72` | 4 |
+| `d5_raw_lr` | `test-mbco-sem-ledger.R:72` | 4 |
+
+The `empty_improper` mutant emitted both mutation-run warnings. The first was
+at the `mbco_d4()` refusal assertion and the second at the `infer()` refusal
+assertion (lines 454 and 455). Both warning messages were identical.
+
+The incidental failures were `improper_payload` 15, `encoding` 10,
+`null_identity` 2, `lr` 7, `completeness` 5, `labels` 6, `feasibility` 5,
+and `args` 10.
+
+```text
+SEM MBCO warnings: imputation 1: improper solution: null variance; imputation 2: improper solution: null variance; the stacked data: improper solution: null variance
+```
+
+All 31 SHA-256 entries matched before and after. The before and after manifests
+each had SHA-256 `87da38ff64f08646a633be98ad6a7a242ecf824ee8de8f7029c1c4da2e44a125`.
+
+| Stored input | Unchanged SHA-256 |
+|---|---|
+| medfit `memory_exp.rds` | `ec778dc6503cb6ad0351b0dd8ce47b03c3e16ad0f67212512b263aa1f2acdccd` |
+| missingmed `mbco-d4-medsim-0.5.1.rds` | `b88d9e26e462f6f387ea711766511507f8c638939f18d95ddab67c640964e4e8` |
+| October `heywood-sim.csv` | `62a6984af07f995328f8fdad1a483dc43c0e2f345d140b0758b145886cdca257` |
+| Recovered `seed45-october-retry.rds` | `c17e6ebe4881e4c625cf094041f8a526568ed259a5ec692d16ccaa00076a0e7c` |
+
+The per-file counts, exact failed assertion messages, and complete manifests
+are in the local scratch receipt at `/private/tmp/t5-final.OP8Mt2/T5-verification.md`.
+See [P2 direct review and findings](#p2-direct-review-and-findings) for review
+coverage. See [the owner decision](#acceptance-checkpoint-and-downstream-tasks).
+
+### Pinned D5 follow-up checks
+
+Both checks source-loaded the same scratch archives with single starts and
+blocked optimizer retries. The pins were missingmed
+`8dac15d9fbb748958e65044d178c336f931f5631` and medfit v0.19.0
+`2c334734c9cc89043f8ed1daddfae0d992890739`. Both repositories stayed read-only
+during execution, and all 31 fixture SHA-256 entries matched before and after
+each check.
+
+#### Consistent v1 ledger with a material negative LR
+
+Starting from a genuine medfit MBCO response, the control set one null's
+discrepancy below the full fit and updated the ledger and LR table consistently.
+Each injected ledger passed validation and reached the LR guard with a planted
+raw LR of approximately `-0.001`. `mbco_d4()` and `infer(type = "mbco")`
+refused both nulls at each of two imputations and at the stack, in `fixed` and
+`own` ARIV modes. Each error named the dataset and null.
+
+The original run passed 52 assertions. The floor-only mutant changed only the
+handling of material negative LRs to return zero. It pooled in all 24 cases
+and failed all 24 intended `expect_error()` assertions at
+`test-negative-ledger.R:71`. The other 28 assertions passed. Both runs had zero
+execution errors, warnings, or skips. The test and both logs are in the local
+scratch directory `/private/tmp/t5-negative-lr.uVi1Y2/`.
+
+#### Paired covariance failures at the stacked null
+
+The clean and two fault runs used the same two completed datasets assembled
+from stored `iris` rows. Both faults were injected at `.sem_vcov()` for the
+240-row stacked `a = 0` fit, with the same rows, model, and fitted parameters.
+The typed `information_not_pd` diagnostic retained the likelihood in the v1
+ledger and left both raw LRs and the complete pooled result identical to the
+clean run in both APIs and modes (`r4 = 2.84326984096`). Each typed run emitted
+exactly one warning.
+
+```text
+SEM MBCO warnings: the stacked data: a = 0 covariance-stage failure: injected stack covariance failure; likelihood retained, covariance unavailable
+```
+
+The ordinary error with the same message escaped medfit unchanged. Both APIs
+refused at the stack in both modes, returned no pooled result, and emitted no
+warning.
+
+```text
+Fitting the MBCO models failed in the stacked data: injected stack covariance failure
+```
+
+All 104 assertions passed, with zero failures, execution errors, unexpected
+warnings, or skips. The run captured and asserted the four expected typed
+warnings. The test and log are in `/private/tmp/t5-stack-pair.3JPex3/`.
+
+These scratch checks supply the two targeted controls identified in the
+bounded review. The test files live outside the package's CI suite. T5 remains
+UNACCEPTED.
+
+### P2 direct review and findings
+
+Two bounded Claude reviews covered missingmed
+`8dac15d9fbb748958e65044d178c336f931f5631` and medfit v0.19.0
+`2c334734c9cc89043f8ed1daddfae0d992890739`. The first (`e4ecb890`,
+needs attention) directly read the approved spec, principal test and
+implementation bodies, original mutation harness, and both follow-up
+controls and logs. The omissions-only review (`65be00b1`, approve for its
+scope) directly read the remaining targeted argument, label, branch,
+certificate, and covariance bodies, the retention source, public help,
+plan receipts, mutation CSVs, fixture manifests, and fit comparison. Together
+they complete the targeted P2 direct reads. T5 sign-off is a separate checkpoint.
+Both review receipts and their exact coverage are in the local scratch directory
+`/private/tmp/t5-final.OP8Mt2/` as `T5-P2-Claude-direct-review.json` and
+`T5-P2-Claude-omissions-review.json`.
+
+- **Pinned controls.** The original `c(4, -1)` injection places the negative
+  on the smaller LR. For a fixed-mode imputation whose non-selected null is
+  invalid, use the new consistent-ledger control. It injects each null
+  separately with the stacked branch selection intact. The five D5 ledger
+  mutants share a rejection assertion. More specific per-field messages and
+  stronger optional label and mixed-certification tests remain follow-ups.
+- **Evidence scope.** The deterministic runs used single starts. The focused
+  [public API checks](#public-default-and-legacy-fallback-checks) exercise the
+  shipped multi-start default on stored inputs. Adding the two scratch controls
+  to CI remains a separate follow-up.
+- **Old-design provenance.** The archived old `DESCRIPTION`, `R/sem-fit.R`,
+  `R/sem-mbco.R`, and `memory_exp.rds` match medfit v0.15.0
+  `e068d7506c6263dcda7f5485c09f892249165fbf`. The fixture has the same hash as
+  the v0.19.0 candidate copy. The saved pinned v0.19.0 `anova-probe.log` records
+  LR agreement, both `anova()` refusals, and propagation of the ordinary error.
+  The fresh [old-design comparison](#old-design-covariance-retention-comparison)
+  supplies the older build's executed receipt.
+
+### Old-design covariance retention comparison
+
+On 2026-11-24, fresh R processes source-loaded medfit v0.15.0
+`e068d7506c6263dcda7f5485c09f892249165fbf` and v0.19.0
+`2c334734c9cc89043f8ed1daddfae0d992890739` from Git archives. Each fit used one
+start, with an `rnorm()` trap for random retries. Both versions used the same
+369-row `memory_exp.rds` and injected the ordinary `.sem_vcov` `simpleError`
+`injected internal allocation failure` separately at each null.
+
+| medfit | `a = 0` | `b = 0` |
+| --- | --- | --- |
+| v0.15.0 | Retained likelihood, recorded `covariance = "failed"`, and emitted one `medfit_sem_covariance_notice`. | Retained likelihood, recorded `covariance = "failed"`, and emitted one `medfit_sem_covariance_notice`. |
+| v0.19.0 | Propagated the identical `simpleError` with zero warnings and no MBCO result. | Propagated the identical `simpleError` with zero warnings and no MBCO result. |
+
+The clean baselines agreed exactly across pins (raw LRs `221.04554608529347`
+and `3.4172105424343622`, MBCO p-value `0.06451994756817192`). Each v0.15.0
+retention run preserved both raw LRs and the p-value. The before and after
+fixture SHA-256 matched (`ec778dc6503cb6ad0351b0dd8ce47b03c3e16ad0f67212512b263aa1f2acdccd`).
+Both repos were read-only during the run. Scratch receipts are `compare.R`,
+`medfit-0.15.0.log`, and `medfit-0.19.0.log` in
+`/private/tmp/t5-old-design.afsX7V/`. The public missingmed behavior is covered by
+the follow-up below.
+
+### Public default and legacy fallback checks
+
+On 2026-11-24, fresh R 4.6.2 processes source-loaded missingmed
+`8dac15d9fbb748958e65044d178c336f931f5631` and medfit v0.19.0
+`2c334734c9cc89043f8ed1daddfae0d992890739` or v0.15.0
+`e068d7506c6263dcda7f5485c09f892249165fbf` from Git archives. Both
+`mbco_d4()` and `run()` followed by `infer(type = "mbco")` used `fixed` and
+`own` ARIV. Inputs were two 184-row blocks of alternating rows from
+`memory_exp.rds` and, for the retry check, two copies of the stored 100-row
+seed-45 CSV. No imputed values were generated and no start was overridden.
+
+- **v0.19.0 shipped default.** All eight untraced calls pooled. Observation-only
+  reruns matched their outputs and warnings and confirmed three complete v1
+  MBCO ledgers per call with a five-start budget on the full and null fits.
+  `memory_exp.rds` used nine solver calls per public call and emitted no warnings.
+  Seed 45 used 15 solves per public call. Its `a = 0` fits in both imputations
+  and on the stack failed the first reduced-Hessian check and accepted
+  `perturbed start 2 of 4`. Each call emitted one aggregated warning naming
+  those three improper `a = 0` nulls. The caller's RNG state was unchanged.
+- **v0.15.0 guarded affine fallback.** All four clean `memory_exp.rds` calls
+  pooled without warnings. The four seed-45 calls pooled after 24 matching
+  diagnostic refits in total, two per dataset per call, and each emitted one
+  aggregated warning naming the improper `a = 0` nulls. Injecting the ordinary
+  `.sem_vcov` error separately at imputation 1's `a = 0` and `b = 0` nulls
+  refused pooling in all eight API/mode/null combinations with
+  `SEM covariance retention requires medfit >= 0.19.0.` and no warning.
+
+The logged pooled statistics agreed across both APIs, modes, and builds for
+each fixture (`r4 = 0.831413516655587` on `memory_exp.rds` and `r4 = 0` on
+seed 45). All three input-file hashes matched before and after. Both repos were
+read-only during the checks. Scratch receipts are `check.R`, `medfit-0.19.0.log`,
+and `medfit-0.15.0.log` in `/private/tmp/t5-public-defaults.KpEHnx/`.
+
+### P2 findings disposition
+
+Checkpoint review on 2026-11-24 against the approved spec and acceptance
+criteria, on missingmed `8dac15d` and the medfit pins above. The latest
+committed and working-tree changes since the tested missingmed pin are
+documentation only. No fits, mutations, or external reviews were rerun for
+this disposition. The two Claude receipts establish their stated review
+coverage. The later comparison and public-API receipts were checked locally.
+
+| Review finding | Disposition |
+| --- | --- |
+| Shipped multi-start path untested | The [public default check](#public-default-and-legacy-fallback-checks) observed retry and v1 ledger validation and preserved RNG state in both APIs and ARIV modes. The [seven targeted test files](#opus-challenge-follow-up) also passed with unmodified defaults. The two-copy seed-45 stress case and the five-imputation single-start replay exercise different setups. |
+| Negative-LR and stacked-null controls are scratch-only | Accepted as executed T5 evidence for §§3b–3c. The [two receipts](#pinned-d5-follow-up-checks) identify the scripts, pins, exact assertions and outcomes. Porting them into the test suite remains a regression-coverage follow-up. |
+| Replay used a recovered start and same-engine fits | The [18-fit comparison](#same-engine-full-and-null-fit-comparison) establishes wrapper agreement, including rows, settings, LR and diagnostic identity. The recovered start is part of that replay's setup. The separate default run demonstrated a native retry. These receipts do not establish global optimality or independent-engine parity for the improper null. |
+| Material-negative non-selected branch mislabeled | Use the [consistent-ledger control](#consistent-v1-ledger-with-a-material-negative-lr) for item 7. It injects each branch in turn with the fixed-mode stack selection intact, so one injection targets the non-selected branch. The older `c(4, -1)` example puts the negative on the smaller LR. |
+| Old-design probe unpinned and legacy wrapper behavior untested | Resolved on the two pins. The [direct comparison](#old-design-covariance-retention-comparison) records both nulls on both versions. The [v0.15.0 public fallback](#public-default-and-legacy-fallback-checks) pools clean fits, attributes improper nulls through matched refits, and refuses covariance retention at either null. Other pre-v0.19 builds were not exercised in this check. |
+| Incidental mutation failures undisclosed | Resolved in the [deterministic receipt](#final-pinned-deterministic-verification). The CSV records 356 total failures, 296 intended and 60 incidental across eight mutants. All 32 mutants tripped their intended assertions, with zero execution errors or skips. |
+| Five ledger mutants share a generic rejection assertion | The targeted body and each isolated mutant support the required refusal behavior. Field-specific error assertions remain an optional diagnostic improvement. |
+| Two replay inputs are outside the Git archives | The stored CSV and recovered start are preserved with the Git source archives and replay scripts in the [verified local archive](#opus-challenge-follow-up). |
+| Mixed certified/failed branch order and weak label assertion | Both failure orderings required by item 8 are exercised in medfit `test-sem-outcomes.R` (the partial-failure and survivor-mutant bodies). Reversing the order within the mixed certificate case adds coverage. The tested-term modifier assertion in missingmed `test-mbco-sem-label.R` remains an optional assertion-strength improvement. |
+
+The adjacent spec items remain visible for the broader migration review. In
+§3/C1, the duplicate-row rule is ambiguous for repeated source terms because
+lavaan collapses them before missingmed counts rows, including a repeat with a
+different label. The owner should confirm the intended rule before changing
+the parser or the spec. In §4.1, named refusal of `auto.cov.y` has a mutation
+receipt. The specific option-pass-through mutant against the lavaan parity
+oracle remains unverified. Both are outside the items 7–10 T5 controls.
+
+The existing evidence supports likelihood validity, branch completeness,
+historical df and output compatibility, diagnostic attribution, the amended
+stored-case gate, and pinned verification. The targeted P2 reads and this
+disposition support the [owner's acceptance decision](#acceptance-checkpoint-and-downstream-tasks).
+
+### Opus challenge follow-up
+
+The bounded read-only Opus review returned inconclusive, leaning ready, with
+no demonstrated defect. It flagged the forced single-start suite, temporary
+evidence storage, and the scope of the replay claim. It reviewed selected
+receipts directly and relied on the two P2 reviews for the approved spec,
+medfit source, and most test bodies. No specific approved T5 requirement was
+identified as needing a separate D4 sign-off.
+
+On 2026-11-25, the seven targeted missingmed test files ran in a fresh R process
+from exact Git archives of missingmed
+`8dac15d9fbb748958e65044d178c336f931f5631` and medfit v0.19.0
+`2c334734c9cc89043f8ed1daddfae0d992890739`. The runner used the shipped medfit
+defaults with no `fit_sem()` trace or retry trap. All 1,033 assertions across
+73 test bodies passed, with zero failures, errors, warnings, or skips. The
+caller's RNG state and all 31 fixture SHA-256 entries were unchanged. Both
+repositories stayed read-only during the run. The 32 mutant results remain
+evidence from the separate single-start run.
+
+The local archive at
+`/Users/davood/projects/r-packages/evidence/missingmed/t5-2026-11-25/`
+preserves the pinned sources, seed-45 CSV, recovered start, replay and 18-fit
+scripts and receipts, mutation harnesses and results, P2 and Opus reviews, and
+shipped-default runner and results. Its `README.md` indexes the files and
+`ORIGINS.tsv` maps original paths. All 86 entries in `SHA256SUMS` verified
+after copying. The archived scripts retain their original paths, which can be
+pointed to the bundled inputs in a scratch replay.
 
 ### Acceptance checkpoint and downstream tasks
 
-T5 closes only when the approved requirements have mapped, passing evidence,
-the real-case gap is resolved, and Claude findings/coverage omissions are
-dispositioned. Then resume T6 dependency-floor/NEWS/vignette work. T7's full
-checks require a separate execution-scope check: do not invoke a runner that
-executes prohibited simulations or updates saved artifacts. Passing this plan
-does not authorize push, merge, install, simulation, or external submission.
+On 2026-11-25 the owner accepted T5 on missingmed
+`8dac15d9fbb748958e65044d178c336f931f5631` and medfit v0.19.0
+`2c334734c9cc89043f8ed1daddfae0d992890739`. The decision is based on the mapped
+passing evidence, the amended stored-case gate, the two P2 direct reviews
+taken together, and the Opus follow-up checks. The broader independent D4
+closure stays open.
+
+### T6 dependency and documentation
+
+On 2026-11-25, the original 0.10.0 floor candidate passed 932 assertions and
+produced three errors when SEM inputs used a binary factor. medfit 0.14.0
+(`b7d7566328e6b97368409a2b64344a1d220c27ae`) introduced SEM factor
+encoding and passed all 953 applicable assertions across six targeted files.
+With the updated floor and unchanged shipped starts, pinned medfit 0.19.0
+passed all 1,033 assertions across seven files. Both final runs had zero
+failures, errors, warnings, or skips in the files selected for that version.
+The ledger test file applies to 0.19.0 and later.
+
+`DESCRIPTION`, NEWS, the SEM provider guard, help, and vignettes now use the
+0.14.0 minimum. The guarded affine path still supports older medfit versions
+within the new floor. Typed covariance retention requires medfit 0.19.0 or
+later. CRAN offered medfit 0.3.2, and the Data-Wise R-universe offered 0.20.0
+when checked. The development installation instructions include the Data-Wise
+repository. The checked source versions were 0.14.0 and the accepted 0.19.0
+pin.
+
+### T7 execution scope
+
+`make ci` invokes `dev/local-ci.sh`, which runs a full R CMD check. That
+includes tests that generate data and vignettes that generate data and impute
+missing values. The full runner was held under the existing execution limits.
+
+The R CMD check, lint, and pkgdown workflows now add Data-Wise R-universe
+through `setup-r`. A local pak resolution selected medfit 0.20.0, RMediation
+1.11.1, and S7 1.0.0. Hosted execution is pending.
+
+The published medfit 0.20.0 source (`4739e8e76020cd7d0e5f8f29e9d918c6dd4e6ef8`)
+was loaded in scratch with installed RMediation 1.6.1 and S7 0.2.2.
+The seven focused test files passed 1,033 assertions with zero failures,
+errors, warnings, or skips. The source tarball built with vignette builds
+disabled, actionlint passed, lintr reported zero lints, and the pkgdown index
+check passed with 15 Pandoc `--mathml` deprecation warnings.
+
+On 2026-11-25 the author authorized scratch installs and the full runner,
+including data-generating tests and vignettes, with no push. The run used a
+clean archive of missingmed `5de579e747adfbb76c06283a438f35487d7fe995` on
+macOS arm64, R 4.6.2. The scratch medfit 0.20.0 and S7 1.0.0 installs
+loaded. An initial pak rebuild of nloptr 2.2.1 failed to link against
+`emutls_w`, so the run reused the installed nloptr 2.2.1.
+
+RMediation 1.11.1 (`2b3907a16cb329cca32dc4d1b5919d8b8af62e1c`) failed
+to install under S7 1.0.0. Sourcing its class definitions reproduced the
+failure in `S7::S4_register(MBCOResult)` at `R/00_classes.R:303`.
+The same RMediation source installed under S7 0.2.2 in a separate scratch
+library and then failed to load under S7 1.0.0. With all three resolved
+versions selected, `make ci` exited 2 during `R CMD build`: RMediation's
+`.onLoad` failed on an unregistered S4 class union while installing
+missingmed for vignette builds. No vignettes, tests, lint, or pkgdown checks
+ran in this invocation. Scratch logs are in
+`/private/tmp/missingmed-t7-ci.pHL016/` (`ci.log`, `install-exact.log`,
+`runtime-exact.log`, and `union-trace.log`).
+
+The follow-up used the published CRAN RMediation 1.6.1 source, S7 1.0.0,
+and the same medfit 0.20.0 archive in a fresh scratch library. All three
+installed and loaded together. `RMediation::medci()` returned the finite
+95% interval `[0.08723788, 0.33999687]` for the smoke input. The three
+source hashes are in `/private/tmp/missingmed-t7-compatible.XXai6i/source-sha256.txt`.
+This is a compatible local test combination. Hosted dependency resolution
+still selects the incompatible RMediation 1.11.1.
+
+On the clean `5de579e` source with these versions, `make ci` installed
+missingmed for the vignette build and exited 2 while rendering
+`mbco-mi.Rmd` (result chunk) and `technical.Rmd` (sensitivity-grid chunk).
+Both failed with `could not find function "tidy"`. Under S7 1.0.0,
+the three `S7::method(tidy, ...) <-` assignments bind an external-generic
+sentinel to missingmed's exported `tidy`. `broom::tidy` remains callable.
+A scratch-only control called `` S7::`method<-` `` directly
+for all three methods. The exported generic was again identical to
+`broom::tidy`, and both failing vignettes rendered. The source checkout
+retains the original code. Separate lintr and pkgdown index checks passed
+on the unmodified source, with zero lints and 15 Pandoc deprecation
+warnings during pkgdown. See `/private/tmp/missingmed-t7-compatible.XXai6i/`
+for `ci.log`, `tidy-probe.log`, and `tidy-control-render.log`.
+
+On the unmodified source and same three versions, the separate
+`R CMD check --as-cran --no-manual --ignore-vignettes` reported zero errors,
+zero warnings, and one CRAN incoming feasibility note. It passed 2,489
+assertions with zero failures or warnings and 10 skips: eight CRAN-mode
+skips, one for absent regmedint, and one for the refcard outside the built
+package. See `check-no-vignettes.log` and the `testthat.Rout` under the
+scratch check directory.
+
+The verified `tidy()` change and NEWS entry are in local commit `9df4578`.
+Full `make ci` passed in scratch with RMediation 1.6.1, S7 1.0.0, and
+medfit 0.20.0. It built and rechecked all four package vignettes.
+R CMD check reported zero errors, zero warnings, and one CRAN incoming
+feasibility note. The suite passed 2,489 assertions with zero failures
+or warnings and the same 10 skips. Lintr reported zero lints and the
+pkgdown index passed with 15 Pandoc deprecation warnings. A separate
+S7 0.2.2 check verified the callable re-export and passed all 176 assertions
+in the focused S7 class test file. Logs and source hashes are in
+`/private/tmp/missingmed-t7-tidy.UVzx14/`.
+
+Local commit `8394fdf` adds `RMediation@1.6.1` to the R CMD check,
+lint, and pkgdown workflow dependency inputs. In scratch, the workflow
+inputs and action defaults were passed to `pak::lockfile_create()` with
+pak 0.11.1, empty user and site libraries, Posit Package Manager's Noble
+repository, and Data-Wise R-universe. Each lockfile resolved RMediation
+1.6.1, S7 1.0.0, and medfit 0.20.0. All three resolved sources downloaded.
+The medfit archive matched the tested SHA-256. The RMediation and S7
+archives matched the tested source trees apart from repository metadata
+and the corresponding MD5 manifest. Actionlint passed all three files.
+Scratch lockfiles and the resolver log are in
+`/private/tmp/missingmed-t7-ci-pin.eUMhWh/`.
+
+On 2026-11-25, all three hosted workflows passed on `dev` in the separate
+private `Data-Wise/missingmed-t7-ci-8394fdf` repository. GitHub reported
+`8394fdfe690a5b449498c9b66a7ac7b8b18af2a2` as the head SHA for each run.
+The dependency logs show RMediation 1.6.1, S7 1.0.0, and medfit 0.20.0
+installed in all three runs.
+
+- R CMD check reported `Status: OK`. [Run](https://github.com/Data-Wise/missingmed-t7-ci-8394fdf/actions/runs/45678848975)
+- Lint found no lints. [Run](https://github.com/Data-Wise/missingmed-t7-ci-8394fdf/actions/runs/45678849268)
+- pkgdown built the site. GitHub marked the Pages deployment step **Skipped**. [Run](https://github.com/Data-Wise/missingmed-t7-ci-8394fdf/actions/runs/45678849028)
+
+T7 remains open at the author's request.
 
 ## Boundaries and invalidators
 
@@ -599,8 +1119,9 @@ The author authorized targeted evidence-gap fixes and a fresh bounded review;
 no broader branch-enumerator design or spec amendment is inferred. No
 saved-result changes. #102 is merged (see Current state); push approvals and the
 scratch-library medfit installs are disclosed there; no other dependency installs.
-Simulation: the only runs were the author-approved, scratch-only seed-45 mechanism
-checks of 2026-10-26 (see P3); any new simulation needs a fresh request. The research-workflow
+Simulation: the author-approved October seed-45 mechanism checks and November
+replay of the four fixed siblings ran in scratch (see P3). Any new simulation
+needs a fresh request. The research-workflow
 plan is committed (`87ea8e4`) as a record, unreconciled. Recheck this plan if the approved
 spec, medfit version, provider helper, fixture provenance or user constraints
 change. Do not repeat broad fixture discovery without a concrete new lead.

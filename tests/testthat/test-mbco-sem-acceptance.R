@@ -1,5 +1,5 @@
 # T5: stored observations and injected summaries only; no data generators.
-skip_if_not_installed("medfit", "0.10.0")
+skip_if_not_installed("medfit", "0.14.0")
 t5_data <- setNames(iris[1:4], c("X", "M", "Y", "C"))
 t5_model <- "M ~ X + C; Y ~ M + X + C"
 t5_direct <- function(imps = list(t5_data, t5_data), model = t5_model, ...) {

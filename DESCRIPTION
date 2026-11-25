@@ -13,7 +13,7 @@ Depends:
     methods (>= 4.1.0)
 Imports:
     S7 (>= 0.2.0),
-    medfit (>= 0.3.1),
+    medfit (>= 0.14.0),
     RMediation (>= 1.5.0),
     mice (>= 3.18.0),
     lavaan (>= 0.7-3),

@@ -1,5 +1,5 @@
 # Public SEM migration: stored complete observations, no stochastic imputation.
-skip_if_not_installed("medfit", "0.10.0")
+skip_if_not_installed("medfit", "0.14.0")
 sem_public_data <- setNames(iris[1:4], c("X", "M", "Y", "C"))
 sem_public_model <- "M ~ X + C; Y ~ M + X + C"
 sem_public_imps <- list(sem_public_data, sem_public_data)

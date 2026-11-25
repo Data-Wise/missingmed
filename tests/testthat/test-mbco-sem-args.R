@@ -72,7 +72,7 @@ test_that("SEM fit_args refuses unknown and likelihood-changing options by name"
 })
 
 test_that("ignored SEM options leave stored-data likelihood branches unchanged", {
-  skip_if_not_installed("medfit", "0.10.0")
+  skip_if_not_installed("medfit", "0.14.0")
   cases <- list(
     list(model = "M ~ X + C; Y ~ M + X + C",
       d = setNames(iris[1:4], c("X", "M", "Y", "C")), x = "X", y = "Y"),
@@ -99,7 +99,7 @@ test_that("SEM options never reach the dependency adapter and refusals precede f
 })
 
 test_that("the real SEM adapter always supplies fixed_x FALSE", {
-  skip_if_not_installed("medfit", "0.10.0")
+  skip_if_not_installed("medfit", "0.14.0")
   original <- medfit::fit_sem
   seen <- list()
   local_mocked_bindings(fit_sem = function(model, data, ...) {

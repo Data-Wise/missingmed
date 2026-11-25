@@ -66,13 +66,15 @@ the refits: the tested paths are the structural regressions \code{mediator ~ tre
 is supported; \code{MLR}, \code{MLM}, \code{WLSMV}, \code{group}, \code{ordered}, \code{sampling.weights}
 and \code{method = "ipw"} are refused, naming the option. A refit that did not
 converge stops the test, naming the dataset, the branch and the model.
-SEM dependency errors, including post-fit covariance/diagnostic errors that
-return no usable likelihood, also stop inference; no surviving branch is
-substituted. A diagnostic warning with a returned finite likelihood does
-not by itself discard that likelihood; all LR/completeness gates still apply.
-An improper-null warning additionally requires resolved branch attribution;
-failed or mismatched diagnostic refits stop inference even with finite LRs.
-SEM MBCO requires medfit >= 0.10.0; \code{\link[=run]{run()}} still uses lavaan. MBCO ignores
+With medfit >= 0.19.0, SEM MBCO validates the version-1 outcome ledgers
+for the full fit and both nulls before pooling. Missing, unknown,
+incomplete or mismatched evidence stops inference. A validated retained
+null likelihood can be pooled and the warning names the dataset and
+the affected null. An escaping fit error stops inference. The guarded
+affine path on older medfit builds requires an upgrade for typed
+covariance retention. An unattributed improper-null warning still
+requires matching diagnostic refits.
+SEM MBCO requires medfit >= 0.14.0; \code{\link[=run]{run()}} still uses lavaan. MBCO ignores
 \code{std.lv}, \code{std.ov = FALSE}, \code{fixed.x}, \code{conditional.x}, \code{meanstructure},
 \code{information}, \code{missing}, \code{se} and \code{test}, and always uses \code{fixed_x = FALSE}.
 \code{std.ov = TRUE} is refused because standardizing observed variables can
