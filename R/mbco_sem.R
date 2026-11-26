@@ -347,10 +347,10 @@
       !identical(full[["likelihood"]][["f"]], fit@f)) {
     stop("SEM outcome ledger does not match the full fit.", call. = FALSE)
   }
-  warned <- FALSE
+  covariance_warnings <- list()
   mb <- withCallingHandlers(.mm_sem_medfit_mbco(fit, a, b),
     medfit_sem_covariance_notice = function(w) {
-      warned <<- TRUE
+      covariance_warnings[[length(covariance_warnings) + 1L]] <<- w
       invokeRestart("muffleWarning")
     })
   root <- mb[["ledger"]]
@@ -401,10 +401,11 @@
     covariance <- c(covariance, .mm_sem_covariance_notice(node, sides[i]))
     if (length(node[["improper"]])) improper <- c(improper, sides[i])
   }
-  if (warned && !length(covariance)) {
+  if (length(covariance_warnings) && !length(covariance)) {
     stop("SEM covariance notice has no matching null ledger evidence.", call. = FALSE)
   }
   mb$covariance_notices <- covariance
+  mb$covariance_warnings <- covariance_warnings
   mb$improper <- improper
   mb
 }
@@ -602,8 +603,10 @@
   function(d) {
     notices <- new.env(parent = emptyenv())
     notices$messages <- character()
+    notices$conditions <- list()
     collect <- function(w) {
       notices$messages <- c(notices$messages, conditionMessage(w))
+      notices$conditions[[length(notices$conditions) + 1L]] <- w
       invokeRestart("muffleWarning")
     }
     out <- tryCatch(withCallingHandlers({
@@ -617,6 +620,7 @@
     mb <- .mm_sem_mbco(full$fit, lab$a, lab$b)
     null_notices <- notices$messages[seq_along(notices$messages) > before]
     notices$messages <- c(notices$messages, mb$covariance_notices)
+    notices$conditions <- c(notices$conditions, mb$covariance_warnings)
     if (any(grepl("^improper solution:", null_notices, ignore.case = TRUE)) &&
         length(mb$improper) == 0L) {
       mb <- .mm_sem_attribute_nulls(full$fit, lab$a, lab$b, mb, d)
@@ -643,6 +647,7 @@
       stop(conditionMessage(e), detail, call. = FALSE)
     })
     attr(out, "sem_warnings") <- unique(notices$messages)
+    attr(out, "sem_warning_conditions") <- notices$conditions
     out
   }
 }

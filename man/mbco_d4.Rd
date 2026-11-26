@@ -121,7 +121,9 @@ null likelihood can be pooled and the warning names the dataset and
 the affected null. An escaping fit error stops inference. The guarded
 affine path on older medfit builds requires an upgrade for typed
 covariance retention. An unattributed improper-null warning still
-requires matching diagnostic refits.
+requires matching diagnostic refits. Conditions collected during SEM refits
+are reported in one warning that inherits their classes. A handler that
+muffles one of those classes muffles the entire combined warning.
 
 At least two imputations are required. For a single complete dataset, use a
 complete-data MBCO test such as \code{\link[RMediation:mbco]{RMediation::mbco()}}.

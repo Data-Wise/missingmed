@@ -1,3 +1,11 @@
+# missingmed (development version)
+
+## Bug fixes
+
+- Both SEM MBCO APIs preserve medfit warning classes in the combined warning.
+  Improper solutions use the same dataset and branch format whether or not
+  medfit emitted a warning (#104, #109).
+
 # missingmed 0.11.2
 
 ## Bug fixes

@@ -204,6 +204,7 @@ for (api in c("mbco_d4", "infer")) for (mode in c("fixed", "own")) {
     real_mbco <- missingmed:::.mm_sem_medfit_mbco
     observe <- function(invoke, fault = NULL) {
       warnings <- character()
+      covariance_warnings <- list()
       visited <- data.frame(rows = integer(), side = character())
       target <- list()
       responses <- list()
@@ -240,11 +241,15 @@ for (api in c("mbco_d4", "infer")) for (mode in c("fixed", "own")) {
           with_mocked_bindings(invoke(), .mm_sem_medfit_mbco = track_mbco, .package = "missingmed"),
           .sem_fit_syntax = track_fit, .sem_vcov = inject_vcov,
           .sem_perturbed_starts = block_retry, .package = "medfit"),
+        medfit_sem_covariance_notice = function(w) {
+          covariance_warnings[[length(covariance_warnings) + 1L]] <<- w
+        },
         warning = function(w) {
           warnings <<- c(warnings, conditionMessage(w))
           invokeRestart("muffleWarning")
         }), error = identity)
-      list(result = result, warnings = warnings, visited = visited, target = target,
+      list(result = result, warnings = warnings, covariance_warnings = covariance_warnings,
+        visited = visited, target = target,
         responses = responses, dependency_error = dependency_error)
     }
 
@@ -265,6 +270,9 @@ for (api in c("mbco_d4", "infer")) for (mode in c("fixed", "own")) {
     expect_identical(refused$visited, head(clean$visited, -1L))
 
     expect_identical(retained$result, clean$result)
+    expect_length(retained$covariance_warnings, 1L)
+    expect_length(clean$covariance_warnings, 0L)
+    expect_length(refused$covariance_warnings, 0L)
     expect_identical(retained$warnings, paste0("SEM MBCO warnings: the stacked data: ",
       "a = 0 covariance-stage failure: ", fault_text, "; likelihood retained, covariance unavailable"))
     expect_identical(lapply(retained$responses, function(x) x$tests),
