@@ -29,6 +29,8 @@
 
 ## Internal
 
+* Pin the release and development installs to RMediation 1.11.2 and use the
+  tagged medfit 0.20.0 build in CI and the install guides.
 * Tighten deterministic SEM mutation checks to require intended assertion
   failures with no execution errors; cover concealed survivor completion,
   convergence/discrepancy guards and empty-diagnostic/sample-match bypasses.
