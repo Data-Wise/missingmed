@@ -1173,12 +1173,14 @@ substantive model -- not of a bug.
   Methods*, *28*(5), 1207--1221.
 - Lunceford, J. K., & Davidian, M. (2004). Stratification and weighting via the
   propensity score in estimation of causal treatment effects: a comparative
-  study. *Statistics in Medicine*, 23(19), 2937--2960. doi:10.1002/sim.1903
+  study. *Statistics in Medicine*, 23(19), 2937--2960.
+  <https://doi.org/10.1002/sim.1903>
 - Robins, J. M., & Gill, R. D. (1997). Non-response models for the analysis of
   non-monotone ignorable missing data. *Statistics in Medicine*, 16(1), 39--56.
 - Robins, J. M., Rotnitzky, A., & Zhao, L. P. (1994). Estimation of regression
   coefficients when some regressors are not always observed. *Journal of the
-  American Statistical Association*, 89(427), 846--866. doi:10.1080/01621459.1994.10476818
+  American Statistical Association*, 89(427), 846--866.
+  <https://doi.org/10.1080/01621459.1994.10476818>
 - Seaman, S. R., & White, I. R. (2013). Review of inverse probability weighting
   for dealing with missing data. *Statistical Methods in Medical Research*,
   22(3), 278--295.

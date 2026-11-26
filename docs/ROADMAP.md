@@ -7,7 +7,7 @@ for evidence and the [status file](../.STATUS) for the current handoff.
 
 - v0.2.0 S7 rewrite + IPW (2026-06-12); GLM families (PR #5) and `sensitivity_mnar()` (PR #6) (2026-08).
 - [v0.11.0](https://github.com/Data-Wise/missingmed/releases/tag/v0.11.0)
-  released 2026-11-25 and is available from [Data-Wise R-universe](https://data-wise.r-universe.dev/missingmed).
+  released 2026-11-25.
   It uses medfit for SEM MBCO refits. See [NEWS](../NEWS.md) and the
   [release checklist](PLAN-release-0.11.0.md) for release details and checks.
 
@@ -15,6 +15,32 @@ for evidence and the [status file](../.STATUS) for the current handoff.
   released 2026-11-26 from `main` at `42b4805` ([PR #128](https://github.com/Data-Wise/missingmed/pull/128)).
   It includes the R-devel contrast-error test fix and SEM ledger regression
   controls. See the [release checklist](PLAN-release-0.11.1.md).
+
+- [v0.11.2](https://github.com/Data-Wise/missingmed/releases/tag/v0.11.2)
+  released 2026-11-26 from `main` at `af2c6ec` ([PR #136](https://github.com/Data-Wise/missingmed/pull/136)).
+  It ships the SEM MBCO diagnostic that identifies each failed null branch and
+  its dataset in both public APIs and ARIV modes. See the
+  [release checklist](PLAN-release-0.11.2.md).
+
+## R-universe verification for v0.11.2
+
+[Data-Wise R-universe](https://data-wise.r-universe.dev/missingmed) published
+v0.11.2 from `af2c6ec`. All nine targets reported `OK`, covering source and
+vignettes, Linux release and devel, macOS release and oldrel, Windows release,
+oldrel and devel, and Wasm. Each of the seven native R CMD check jobs reported
+zero errors, warnings, or notes, with 2,707 test passes and 10 skips.
+
+The published source archive matched its advertised SHA-256
+(`b143d9c87696fcd93ea6d6fa5888811a73cdcd36f8c35afcfca2ad45e1f03d2f`).
+It installed and loaded in a fresh R 4.6.2 library with medfit 0.20.0,
+RMediation 1.11.2, and S7 1.0.0. The installed package recorded `af2c6ec`
+as its source commit.
+
+The hosted tooling logged a Node `Buffer()` deprecation during artifact
+download and a 404 for the Bioconductor 3.25 workflows index. The initial
+pkgdown probe returned 404 and the live site probe returned 200.
+Publication succeeded.
+[R-universe build](https://github.com/r-universe/data-wise/actions/runs/45893877330)
 
 ## R-universe verification for v0.11.1
 
@@ -36,8 +62,14 @@ messages came from the hosted build tooling and publication succeeded.
 ## Website
 
 The [public pkgdown site](https://data-wise.github.io/missingmed/) includes
-the [C5 diagnostic documentation](#c5-diagnostic-on-main). For the v0.11.1
-release, the [post-merge pkgdown build](https://github.com/Data-Wise/missingmed/actions/runs/45773976381)
+the [C5 diagnostic documentation](#c5-diagnostic-on-main). The v0.11.2
+[release-triggered pkgdown build](https://github.com/Data-Wise/missingmed/actions/runs/45892379653)
+passed and the [Pages deployment](https://github.com/Data-Wise/missingmed/actions/runs/45892892935)
+published `gh-pages` commit `efb103d`. The live homepage and
+[v0.11.2 changelog](https://data-wise.github.io/missingmed/news/index.html)
+matched the deployed files byte for byte.
+
+For the v0.11.1 release, the [post-merge pkgdown build](https://github.com/Data-Wise/missingmed/actions/runs/45773976381)
 and [Pages deployment](https://github.com/Data-Wise/missingmed/actions/runs/45774376667)
 passed. The live homepage, changelog, and cookbook matched the deployed files.
 
