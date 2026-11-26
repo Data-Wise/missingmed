@@ -83,9 +83,11 @@ All other options (including \code{control}, \verb{auto.*} and \code{likelihood}
 refused. Nonlinear/bounded constraints and singular variance nulls are
 unsupported. Model columns must be numeric or two-level factors; the
 treatment must be numeric. The \code{c()} and \code{label()} modifiers and multi-lhs
-regressions are refused. Warning notices name the affected datasets;
-unattributed improper null notices trigger separate diagnostic refits, which
-must match both reported likelihood ratios before assigning branch labels.
+regressions are refused. SEM refit notices name the affected datasets in
+one warning that inherits their condition classes. A handler that muffles
+one of those classes muffles the entire combined warning. Unattributed
+improper null notices trigger separate diagnostic refits, which must match
+both reported likelihood ratios before assigning branch labels.
 Unresolved attribution stops inference rather than guessing warning order.
 }
 }

@@ -220,21 +220,24 @@
   c(T = .mm_mbco_T_from_lls(fits), k = if (a_wins) fits[["k_a"]] else fits[["k_b"]])
 }
 
-# One warning for every fit a provider flagged as an improper solution (attribute
-# "improper": the names of the flagged fits), naming the datasets.
-.mm_warn_improper <- function(fits, where) {
-  flagged <- vapply(fits, function(f) length(attr(f, "improper")) > 0L, NA)
-  if (!any(flagged)) {
-    return(invisible(NULL))
-  }
-  detail <- vapply(which(flagged), function(i) {
-    paste0(where[[i]], " (", paste(attr(fits[[i]], "improper"), collapse = ", "), ")")
-  }, "")
-  warning("MBCO refits gave an improper solution in ",
-    paste(detail, collapse = "; "), ". The test proceeds; check the model for ",
-    "a negative variance or a boundary estimate.",
-    call. = FALSE
-  )
+# Signal one warning for all SEM notices and improper fits, grouped by dataset.
+.mm_warn_sem <- function(fits, where) {
+  detail <- lapply(fits, function(fit) {
+    improper <- attr(fit, "improper")
+    c(attr(fit, "sem_warnings"), if (length(improper)) {
+      paste0("improper solution (", paste(improper, collapse = ", "), ")")
+    })
+  })
+  affected <- lengths(detail) > 0L
+  if (!any(affected)) return(invisible(NULL))
+
+  message <- paste0("SEM MBCO warnings: ", paste(paste0(where[affected], ": ",
+    vapply(detail[affected], paste, "", collapse = "; ")), collapse = "; "))
+  conditions <- lapply(fits[affected], function(fit) attr(fit, "sem_warning_conditions"))
+  classes <- unique(unlist(lapply(do.call(c, conditions), class), use.names = FALSE))
+  classes <- union(setdiff(classes, c("warning", "condition")), "simpleWarning")
+  warning(warningCondition(message, class = classes,
+    warnings = stats::setNames(conditions, where[affected])))
 }
 
 .mm_check_K <- function(K) {
@@ -313,25 +316,7 @@
   lls <- lapply(seq_len(K), function(i) lls_of(implist[[i]], paste("imputation", i)))
   stacked <- do.call(rbind, implist)
   lls_S <- lls_of(stacked, "the stacked data")
-  sem_notices <- c(lls, list(lls_S))
-  where <- c(paste("imputation", seq_len(K)), "the stacked data")
-  has_notice <- vapply(sem_notices, function(x) length(attr(x, "sem_warnings")) > 0L, NA)
-  if (any(has_notice)) {
-    # Include improper flags in the same collected warning, even when medfit
-    # supplies a diagnostic without emitting its own warning.
-    flagged <- vapply(sem_notices, function(x) length(attr(x, "improper")) > 0L, NA)
-    has_notice <- has_notice | flagged
-    detail <- vapply(sem_notices[has_notice], function(x) {
-      improper <- attr(x, "improper")
-      paste(c(attr(x, "sem_warnings"), if (length(improper)) {
-        paste0("improper solution (", paste(improper, collapse = ", "), ")")
-      }), collapse = "; ")
-    }, "")
-    warning("SEM MBCO warnings: ",
-      paste(paste0(where[has_notice], ": ", detail), collapse = "; "), call. = FALSE)
-  } else {
-    .mm_warn_improper(sem_notices, where)
-  }
+  .mm_warn_sem(c(lls, list(lls_S)), c(paste("imputation", seq_len(K)), "the stacked data"))
   a_wins <- vapply(lls, function(l) l[["a"]] >= l[["b"]], logical(1))
   stacked_a <- lls_S[["a"]] >= lls_S[["b"]]
 
@@ -533,7 +518,9 @@
 #' the affected null. An escaping fit error stops inference. The guarded
 #' affine path on older medfit builds requires an upgrade for typed
 #' covariance retention. An unattributed improper-null warning still
-#' requires matching diagnostic refits.
+#' requires matching diagnostic refits. Conditions collected during SEM refits
+#' are reported in one warning that inherits their classes. A handler that
+#' muffles one of those classes muffles the entire combined warning.
 #'
 #' At least two imputations are required. For a single complete dataset, use a
 #' complete-data MBCO test such as [RMediation::mbco()].

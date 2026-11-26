@@ -464,16 +464,56 @@ test_that("parser normalization cannot admit explicitly excluded syntax", {
   }
 })
 
-test_that("improper flags without emitted warnings still warn once by dataset", {
+test_that("SEM warnings retain their classes and share one improper format", {
+  fit <- t5_fit()
+  flagged <- FALSE
+  emit <- FALSE
+  full_notice <- rlang::warning_cnd("medfit_warning_default_change", message = "full fit warning")
+  null_notice <- warningCondition("null fit warning", class = "medfit_test_null_warning")
   local_mocked_bindings(.mm_sem_fit = function(model, d) {
-    list(fit = NULL, n_obs = nrow(d), improper = "residual variance")
-  }, .mm_sem_mbco = function(fit, a, b) list(tests = data.frame(
-    constraint = paste(c(a, b), "== 0"), f = c(1, 2),
-    diff_ll = c(1, 9), converged = TRUE)))
-  w <- capture_warnings(r <- t5_direct())
-  expect_length(w, 1L)
-  expect_match(w, "imputation 1.*full.*imputation 2.*full.*stacked data.*full")
-  expect_true(is.finite(r[["p"]]))
+    if (emit) warning(full_notice)
+    list(fit = NULL, n_obs = nrow(d), improper = if (flagged) "residual variance" else character())
+  }, .mm_sem_mbco = function(fit, a, b) {
+    if (emit) warning(null_notice)
+    list(improper = if (flagged) "b" else character(), tests = data.frame(
+      constraint = paste(c(a, b), "== 0"), f = c(1, 2), diff_ll = c(1, 9), converged = TRUE))
+  })
+
+  where <- c("imputation 1", "imputation 2", "the stacked data")
+  format_warning <- function(detail) {
+    paste0("SEM MBCO warnings: ", paste(paste0(where, ": ", detail), collapse = "; "))
+  }
+  for (mode in c("own", "fixed")) {
+    for (invoke in list(function() t5_direct(ariv = mode),
+      function() infer(fit, type = "mbco", ariv = mode))) {
+      flagged <- emit <- FALSE
+      expect_no_warning(clean <- invoke())
+      flagged <- TRUE
+      expect_warning(without_notice <- invoke(),
+        format_warning("improper solution (full, b)"), fixed = TRUE, class = "simpleWarning")
+      expect_identical(without_notice, clean)
+
+      emit <- TRUE
+      seen <- list()
+      observe <- function(w) seen[[length(seen) + 1L]] <<- w
+      other <- capture_warnings(with_notice <- withCallingHandlers(invoke(),
+        medfit_test_null_warning = observe,
+        medfit_warning_default_change = function(w) {
+          observe(w)
+          invokeRestart("muffleWarning")
+        }))
+      expect_length(other, 0L)
+      expect_length(seen, 2L)
+      if (length(seen) == 2L) {
+        expect_identical(seen[[1L]], seen[[2L]])
+        expect_identical(conditionMessage(seen[[1L]]),
+          format_warning("full fit warning; null fit warning; improper solution (full, b)"))
+        expect_identical(seen[[1L]]$warnings, stats::setNames(
+          rep(list(list(full_notice, null_notice)), length(where)), where))
+      }
+      expect_identical(with_notice, clean)
+    }
+  }
 })
 
 test_that("unused binary levels cannot yield a silent constant-covariate result", {
