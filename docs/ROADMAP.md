@@ -61,6 +61,25 @@ messages came from the hosted build tooling and publication succeeded.
 
 ## Website
 
+[PR #139](https://github.com/Data-Wise/missingmed/pull/139) merged into
+`main` at `21fd72c` and closed [#104](https://github.com/Data-Wise/missingmed/issues/104)
+and [#109](https://github.com/Data-Wise/missingmed/issues/109). Both SEM MBCO
+APIs now preserve medfit warning classes and use the same format for improper
+fits in both ARIV modes. Post-merge
+[R CMD check](https://github.com/Data-Wise/missingmed/actions/runs/45906461654),
+[lint](https://github.com/Data-Wise/missingmed/actions/runs/45906461639), and
+[pkgdown](https://github.com/Data-Wise/missingmed/actions/runs/45906461626)
+all passed on `21fd72c`. R CMD check reported 2,820 passes, two skips, and zero
+test failures or warnings.
+
+[Pages deployed](https://github.com/Data-Wise/missingmed/actions/runs/45906781402)
+`gh-pages` commit `a9fd674`. The live
+[`infer()` reference](https://data-wise.github.io/missingmed/reference/infer.html),
+[`mbco_d4()` reference](https://data-wise.github.io/missingmed/reference/mbco_d4.html),
+and [SEM guide](https://data-wise.github.io/missingmed/articles/lavaan-sem.html)
+matched the deployed files byte for byte. GitHub's generated Pages build
+emitted one nonblocking Node.js 20 warning from `actions/upload-artifact@v4`.
+
 [PR #137](https://github.com/Data-Wise/missingmed/pull/137) merged into
 `main` at `1531384` with the same tree as `fe566e6`. Post-merge
 [R CMD check](https://github.com/Data-Wise/missingmed/actions/runs/45898363039),
