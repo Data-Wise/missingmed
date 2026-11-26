@@ -1,6 +1,6 @@
 # missingmed roadmap
 
-Updated 2026-11-25. See the [T5 plan](../tasks/plan.md#current-state-2026-11-24)
+Updated 2026-11-26. See the [T5 plan](../tasks/plan.md#current-state-2026-11-24)
 for evidence and the [status file](../.STATUS) for the current handoff.
 
 ## Shipped
@@ -11,10 +11,34 @@ for evidence and the [status file](../.STATUS) for the current handoff.
   It uses medfit for SEM MBCO refits. See [NEWS](../NEWS.md) and the
   [release checklist](PLAN-release-0.11.0.md) for release details and checks.
 
+- [v0.11.1](https://github.com/Data-Wise/missingmed/releases/tag/v0.11.1)
+  released 2026-11-26 from `main` at `42b4805` ([PR #128](https://github.com/Data-Wise/missingmed/pull/128)).
+  It includes the R-devel contrast-error test fix and SEM ledger regression
+  controls. See the [release checklist](PLAN-release-0.11.1.md).
+
+## R-universe verification for v0.11.1
+
+[Data-Wise R-universe](https://data-wise.r-universe.dev/api/packages/missingmed)
+published v0.11.1 from `42b4805`. All nine targets reported `OK`: source and
+vignettes, Linux release and devel, macOS release and oldrel, Windows release,
+oldrel and devel, and Wasm. The seven native R CMD check jobs each reported
+2,659 passing assertions, 10 skips, and zero failures or test warnings.
+The downloaded R-universe source archive matched the published SHA-256 and
+installed and loaded in a fresh R 4.6.2 library with medfit 0.20.0,
+RMediation 1.11.2, and S7 1.0.0.
+
+The [R-universe build log](https://github.com/r-universe/data-wise/actions/runs/45782240792)
+records a Node `Buffer()` deprecation in its artifact-download step and a 404
+from the Bioconductor 3.25 workflows index during metadata collection. Its
+initial pkgdown URL probe returned 404, then the live site returned 200. These
+messages came from the hosted build tooling and publication succeeded.
+
 ## Website
 
 The [public pkgdown site](https://data-wise.github.io/missingmed/) serves
-v0.11.0, including the updated analysis guide and favicon.
+v0.11.1. The [post-merge pkgdown build](https://github.com/Data-Wise/missingmed/actions/runs/45773976381)
+and [Pages deployment](https://github.com/Data-Wise/missingmed/actions/runs/45774376667)
+passed. The live homepage, changelog, and cookbook matched the deployed files.
 
 [PR #125](https://github.com/Data-Wise/missingmed/pull/125) refreshed the
 cookbook, tutorials, and guides and merged into `main` as `eba33d4`.
@@ -62,9 +86,6 @@ passed. R-CMD-check reported 2,571 passes, two skips, zero failures, and
 zero test warnings. Pages deployment was skipped on `dev`.
 
 ## Next
-
-- [v0.11.1](PLAN-release-0.11.1.md) is prepared as a patch candidate for the
-  R-devel and SEM ledger test follow-ups.
 
 - T6 verified the medfit 0.14.0 dependency floor and synchronized NEWS, help, and vignettes. Typed covariance retention requires medfit 0.19.0 or later.
 - T7 is closed with RMediation 1.6.1. PR #117 merged to `dev` at `ca4957f`, where R CMD check, lint, and pkgdown passed and Pages deployment was skipped.
