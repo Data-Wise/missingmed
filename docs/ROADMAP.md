@@ -35,8 +35,9 @@ messages came from the hosted build tooling and publication succeeded.
 
 ## Website
 
-The [public pkgdown site](https://data-wise.github.io/missingmed/) serves
-v0.11.1. The [post-merge pkgdown build](https://github.com/Data-Wise/missingmed/actions/runs/45773976381)
+The [public pkgdown site](https://data-wise.github.io/missingmed/) includes
+the [C5 diagnostic documentation](#c5-diagnostic-on-main). For the v0.11.1
+release, the [post-merge pkgdown build](https://github.com/Data-Wise/missingmed/actions/runs/45773976381)
 and [Pages deployment](https://github.com/Data-Wise/missingmed/actions/runs/45774376667)
 passed. The live homepage, changelog, and cookbook matched the deployed files.
 
@@ -95,12 +96,13 @@ The PR squash-merged into `dev` as `6245b53`. Post-merge
 passed. R-CMD-check reported 2,571 passes, two skips, zero failures, and
 zero test warnings. Pages deployment was skipped on `dev`.
 
-## Next
+## C5 diagnostic on main
 
-Review the local `codex/c5-main-port` branch from `main` at `252fc7c`.
-It ports [PR #130](https://github.com/Data-Wise/missingmed/pull/130) so SEM
-MBCO fit errors identify the dataset and the failed null branch. The single-start
-replay on medfit v0.19.0 (`2c334734`) passed all 24 cases across `mbco_d4()`,
+[PR #133](https://github.com/Data-Wise/missingmed/pull/133) ported the C5 fix
+from [PR #130](https://github.com/Data-Wise/missingmed/pull/130) and merged into
+`main` as `0dfefce` on 2026-11-26. SEM MBCO fit errors now identify the dataset
+and failed null branch. The single-start replay on medfit v0.19.0
+(`2c334734`) passed all 24 cases across `mbco_d4()`,
 `infer(type = "mbco")`, both ARIV modes, both nulls, and three dataset positions.
 The C5 test made 48 assertions, and all 284 ledger assertions passed without
 failures, skips, or warnings. `make ci` passed on R 4.6.2 with the existing pins
@@ -109,6 +111,16 @@ reported zero errors, warnings, and notes, with 2,707 test passes and 10 skips.
 Lint and the pkgdown reference check passed. Pandoc reported a nonblocking
 `--mathml` deprecation during the reference check. The package version remains
 0.11.1.
+
+The merge commit passed
+[R-CMD-check](https://github.com/Data-Wise/missingmed/actions/runs/45884928030),
+[lint](https://github.com/Data-Wise/missingmed/actions/runs/45884927853), and
+[pkgdown](https://github.com/Data-Wise/missingmed/actions/runs/45884928037).
+R-CMD-check reported 2,775 passes, two skips, and zero test failures or warnings.
+The [Pages deployment](https://github.com/Data-Wise/missingmed/actions/runs/45885340967)
+published `gh-pages` commit `42c4688`. The updated
+[live SEM guide](https://data-wise.github.io/missingmed/articles/lavaan-sem.html)
+matched the deployed HTML byte for byte.
 
 ## Completed follow-ups
 
