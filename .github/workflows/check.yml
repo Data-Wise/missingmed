@@ -1,4 +1,4 @@
-# SEM vignettes use the tested medfit build from Data-Wise R-universe.
+# SEM vignettes use the medfit v0.20.0 release commit.
 name: R-CMD-check
 
 on:
@@ -28,7 +28,7 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           # RMediation 1.11.1 fails S4 union registration under S7 1.0.0.
-          extra-packages: any::rcmdcheck, RMediation@1.6.1
+          extra-packages: any::rcmdcheck, RMediation@1.6.1, github::Data-Wise/medfit@4739e8e76020cd7d0e5f8f29e9d918c6dd4e6ef8
           needs: check
 
       - name: Verify SEM provider version

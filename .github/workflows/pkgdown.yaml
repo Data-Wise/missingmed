@@ -33,7 +33,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, local::., RMediation@1.6.1
+          extra-packages: any::pkgdown, local::., RMediation@1.6.1, github::Data-Wise/medfit@4739e8e76020cd7d0e5f8f29e9d918c6dd4e6ef8
           needs: website
 
       - name: Verify SEM provider version

@@ -368,8 +368,9 @@ test_that("a fit that fails in one imputation names that imputation", {
     d
   })
   il[[2]]$F <- factor(rep("a", nrow(il[[2]])))
+  # R-devel adds the variable name and a newline before the contrast error.
   expect_error(em_d4(il, formula_y = Y ~ X + M + F),
-    "failed in imputation 2: contrasts can be applied only")
+    "failed in imputation 2:.*contrasts can be applied only")
 })
 
 test_that("tibbles and a family given as a string are valid input", {
