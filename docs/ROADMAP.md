@@ -55,6 +55,19 @@ and [Pages deployment](https://github.com/Data-Wise/missingmed/actions/runs/4575
 passed. The updated installation links were verified on the live homepage
 and Getting Started article.
 
+[PR #123](https://github.com/Data-Wise/missingmed/pull/123) moved the checkout
+and Pages deploy actions to Node.js 24 and merged into `main` at `0a72156`.
+Its post-merge pkgdown build and deploy step passed without Node.js 20
+deprecation warnings. Pages published `gh-pages` commit `a2ff957`.
+[Pkgdown run](https://github.com/Data-Wise/missingmed/actions/runs/45760884890) ·
+[Pages deployment](https://github.com/Data-Wise/missingmed/actions/runs/45761259587) ·
+[Receipt in PR #124](https://github.com/Data-Wise/missingmed/pull/124)
+
+The guide corrections and favicon proposed in PR #116 are present on `main`
+and the live site. The README links directly to the updated guide.
+[PR #116](https://github.com/Data-Wise/missingmed/pull/116) ·
+[Live Choosing an analysis guide](https://data-wise.github.io/missingmed/articles/choosing-an-analysis.html)
+
 ## T5 evidence and owner decision
 
 The owner **accepted T5 on 2026-11-25** on missingmed `8dac15d` and medfit
@@ -124,11 +137,27 @@ matched the deployed HTML byte for byte.
 
 ## Completed follow-ups
 
-- T6 verified the medfit 0.14.0 dependency floor and synchronized NEWS, help, and vignettes. Typed covariance retention requires medfit 0.19.0 or later.
+- T6 verified medfit 0.14.0 and synchronized NEWS, help, and vignettes.
+  Both the package dependency and the SEM provider runtime guard require
+  medfit 0.14.0. The separate typed covariance-retention path requires 0.19.0.
+  [DESCRIPTION](../DESCRIPTION#L16) · [SEM provider](../R/mbco_sem.R#L207-L209) ·
+  [Covariance-retention guard](../R/mbco_sem.R#L322-L326) ·
+  [Issue #106](https://github.com/Data-Wise/missingmed/issues/106)
 - T7 is closed with RMediation 1.6.1. PR #117 merged to `dev` at `ca4957f`, where R CMD check, lint, and pkgdown passed and Pages deployment was skipped.
 - The [ledger regression suite](../tests/testthat/test-mbco-sem-ledger.R) now covers material negative
   LRs in consistent v1 ledgers and paired failures at the stacked `a = 0` null. The replay inputs
   and [original receipts](../tasks/plan.md#pinned-d5-follow-up-checks) are preserved in the local archive.
+
+## CRAN submission hold
+
+As of 2026-11-26, CRAN medfit 0.3.2 is below missingmed's declared minimum
+of 0.14.0. CRAN RMediation 1.6.1 satisfies the declared minimum of 1.5.0.
+The earlier RMediation 1.7.1 threshold came from R-devel S7 compatibility
+work. Current hosted checks use RMediation 1.11.2. Compatibility on a
+CRAN-only setup still needs verification once medfit meets the floor.
+[medfit on CRAN](https://cran.r-project.org/web/packages/medfit/index.html) ·
+[RMediation on CRAN](https://cran.r-project.org/web/packages/RMediation/index.html) ·
+[Declared dependencies](../DESCRIPTION#L16-L17)
 
 ## Parked
 
