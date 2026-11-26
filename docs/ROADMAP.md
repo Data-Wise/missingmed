@@ -64,11 +64,21 @@ the decision.
 | Gate | Owner | State |
 |---|---|---|
 | P3: improper-null real-case evidence | author | Met 2026-10-26 (ruling B, gate amended): simulated seed 45 qualifies, origin SIMULATED; mechanism check in the worktree note. Collaborator route, R3 and R5 dropped; route plan `docs/PLAN-p3-raw-data-routes-2026-10-24.md` is historical. Limits in `tasks/plan.md` P3 |
-| D4 independent closure | Independent reviewer | No separate D4 sign-off recorded. The T5 disposition records targeted review coverage and the comparison of covariance error handling on both medfit versions. |
+| D4 independent closure | Owner | Closed 2026-11-26 on missingmed `39c6012` and medfit v0.19.0 `2c334734` after independent review. See the [closure evidence](https://github.com/Data-Wise/missingmed/blob/2baba8c5baf8da30b9db46c72b09d588021baf92/tasks/plan.md#d4-independent-closure). |
 | D1–D4 integration | medfit | Pinned v0.19.0 (`2c334734`) includes narrowed covariance retention. |
 | D5 integration | Codex | Implemented locally at `8dac15d`. Pinned tests cover both APIs, both ARIV modes, and refusal of invalid ledgers. |
 | D5 qualifying-case replay | Codex | The five-imputation replay pooled with the recovered single start for imputation 3's `a = 0` null. All 18 same-engine fits agreed on raw LRs. The shipped-default check exercised native retries separately. |
 | T5 acceptance | Owner | Accepted 2026-11-25 after the P2 findings disposition and Opus follow-up. |
+
+## D4 closure on dev
+
+[PR #131](https://github.com/Data-Wise/missingmed/pull/131) recorded the passing
+C5, `anova()`, and old-design replays and squash-merged into `dev` as `2baba8c`.
+The post-merge [R-CMD-check](https://github.com/Data-Wise/missingmed/actions/runs/45875372666),
+[lint](https://github.com/Data-Wise/missingmed/actions/runs/45875372576), and
+[pkgdown](https://github.com/Data-Wise/missingmed/actions/runs/45875372667)
+workflows all passed on that SHA. R-CMD-check reported 2,775 passes, two skips,
+and zero test failures or warnings. The pkgdown run skipped Pages deployment.
 
 ## R-devel follow-up
 
