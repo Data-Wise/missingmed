@@ -47,6 +47,31 @@ test_that("both public APIs name the exact retained null once in each ARIV mode"
   }
 })
 
+positions <- c("imputation 1", "imputation 2", "the stacked data")
+
+test_that("nonconverged nulls name the dataset and branch in both public APIs", {
+  skip_if_not_installed("medfit", "0.19.0")
+  local_mocked_bindings(.mm_sem_fit = ledger_single_start)
+  refit <- getFromNamespace(".sem_fit_syntax", "medfit")
+  no_convergence <- getFromNamespace(".sem_no_convergence", "medfit")
+  for (api in ledger_apis()) for (mode in c("fixed", "own")) {
+    for (side in c("a", "b")) for (target in 1:3) local({
+      calls <- 0L
+      local_mocked_bindings(.sem_fit_syntax = function(model, ...) {
+        if (length(model) == 1L && endsWith(model, paste0("\n", side, " == 0"))) {
+          calls <<- calls + 1L
+          if (calls == target) no_convergence("planted null optimizer failure")
+        }
+        refit(model, ...)
+      }, .package = "medfit")
+      dataset <- positions[[target]]
+      expect_error(api(mode), paste0("failed in ", dataset, ": The ", side,
+        " = 0 model did not converge"), fixed = TRUE)
+      expect_identical(calls, target)
+    })
+  }
+})
+
 test_that("unknown, incomplete and mismatched ledgers refuse both public APIs and ARIV modes", {
   skip_if_not_installed("medfit", "0.19.0")
   real <- missingmed:::.mm_sem_medfit_mbco
@@ -94,7 +119,6 @@ test_that("unknown, incomplete and mismatched ledgers refuse both public APIs an
   }
 })
 
-positions <- c("imputation 1", "imputation 2", "the stacked data")
 sides <- c("a", "b")
 
 for (api in c("mbco_d4", "infer")) for (mode in c("fixed", "own")) {
