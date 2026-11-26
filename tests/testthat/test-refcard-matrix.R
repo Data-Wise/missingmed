@@ -137,6 +137,7 @@ triggers <- list(
   "non-finite log-likelihood" = function() src(missingmed:::.mm_glm_ll),
   "The full model did not converge or is unresolved" = function() src(missingmed:::.mm_sem_provider),
   "improper solution" = function() src(missingmed:::.mm_warn_improper),
+  "SEM covariance retention requires medfit >= 0.19.0" = function() src(missingmed:::.mm_sem_mbco),
   "MBCO inference for IPW is not yet implemented" = function() {
     msg_of(infer(suppressWarnings(run(md_of("glm, IPW"))), type = "mbco"))
   },
