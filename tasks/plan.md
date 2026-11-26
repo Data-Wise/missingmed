@@ -1,6 +1,6 @@
 # T5 evidence closure plan (follow-up to merged PR #102)
 
-Updated 2026-11-24. See the [execution checklist](todo.md).
+Updated 2026-11-26. See the [execution checklist](todo.md).
 
 ## Reading guide
 
@@ -9,7 +9,9 @@ Updated 2026-11-24. See the [execution checklist](todo.md).
 - **Authority:** the approved spec (`docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md`) is unamended; this plan
   tracks evidence for it and never changes it.
 
-## Current state (2026-11-24)
+## Current state (2026-11-26)
+
+- **D4 CLOSED by the owner on 2026-11-26.** The bounded independent review passed on missingmed `39c6012` and medfit v0.19.0 `2c334734`. See the [D4 closure evidence](#d4-independent-closure).
 
 - **D5 adapter implemented locally.** Pin medfit v0.19.0 at `2c334734c9cc89043f8ed1daddfae0d992890739`, which contains the narrowed D4 covariance-retention change. Validate the documented version-1 fit and MBCO ledgers before pooling. Both APIs preserve the affected null's identity and refuse missing, unknown, incomplete or mismatched evidence in both ARIV modes.
 - **Verification.** 80 D5 assertions passed on exact v0.19.0 using explicit single starts. Eight targeted regression files passed 1,047 assertions on a scratch copy of missingmed `origin/dev` at `4272b367` with the D5 code and a scratch-only medfit single-start default. Changed-file lint, Rd and pkgdown checks passed.
@@ -22,7 +24,7 @@ Updated 2026-11-24. See the [execution checklist](todo.md).
 - **Public defaults and guarded affine fallback verified.** The pinned v0.19.0 default retried and pooled the stored seed-45 case. The v0.15.0 fallback reproduced the improper null by diagnostic refit and refused ordinary covariance retention at either null. Both APIs and ARIV modes passed. See [the public API checks](#public-default-and-legacy-fallback-checks).
 - **P2 findings disposition recorded.** The evidence supports the approved T5 gates on the tested pins and inputs. See [the disposition](#p2-findings-disposition).
 - **Opus follow-ups verified on 2026-11-25.** The seven targeted missingmed files passed 1,033 assertions with medfit's shipped defaults. The local archive preserves the pinned sources, replay inputs, scripts, and receipts. All 86 manifest entries verified. See [the follow-up record](#opus-challenge-follow-up).
-- **T5 ACCEPTED by the owner on 2026-11-25.** Acceptance covers the approved T5 gates on the tested pins. Broader D4 closure stays open. See [the acceptance record](#acceptance-checkpoint-and-downstream-tasks).
+- **T5 ACCEPTED by the owner on 2026-11-25.** Acceptance covers the approved T5 gates on the tested pins. See [the acceptance record](#acceptance-checkpoint-and-downstream-tasks).
 - **T6 floor and documentation verified.** medfit 0.14.0 is the minimum for the supported binary-factor path. medfit 0.19.0 remains the minimum for typed covariance retention. See [T6 verification](#t6-dependency-and-documentation).
 
 ## Historical state (2026-10-26)
@@ -990,8 +992,36 @@ On 2026-11-25 the owner accepted T5 on missingmed
 `8dac15d9fbb748958e65044d178c336f931f5631` and medfit v0.19.0
 `2c334734c9cc89043f8ed1daddfae0d992890739`. The decision is based on the mapped
 passing evidence, the amended stored-case gate, the two P2 direct reviews
-taken together, and the Opus follow-up checks. The broader independent D4
-closure stays open.
+taken together, and the Opus follow-up checks. D4 was a separate gate and
+was closed in the [2026-11-26 decision](#d4-independent-closure).
+
+### D4 independent closure
+
+On 2026-11-26 the owner closed D4 after a bounded independent review of Git
+archives of missingmed `39c60122cf8a82f5e1d68038b8865980da337a11`
+(PR #130 merged to `dev`, with the same tree as reviewed head `03f322d`)
+and medfit v0.19.0 `2c334734c9cc89043f8ed1daddfae0d992890739`.
+
+| Check | Verified evidence |
+| --- | --- |
+| C5 convergence and diagnostic attribution | The committed `test-mbco-sem-ledger.R` and a separate replay with unlabeled paths each passed 24 single-start optimizer-failure scenarios. Across `mbco_d4()` and `infer(type = "mbco")`, both ARIV modes, both nulls, and both imputations plus the stack, the public error named the dataset and the failed `a = 0` or `b = 0` model. The unlabeled-path replay also verified that the error preserved the underlying failure detail. The retained-covariance and improper-warning attribution tests passed. |
+| `anova()` | On the same single-start fixture, both clean null LRs agreed with `mbco_sem()` within `1e-10`. `anova()` rejected the typed covariance error and its partial payload as inputs in the scratch replay. |
+| Old-design comparison | The [single-start comparison](#old-design-covariance-retention-comparison) reproduced on both nulls. v0.15.0 `e068d7506c6263dcda7f5485c09f892249165fbf` retained the likelihood and emitted one covariance notice per injection. v0.19.0 propagated the identical ordinary `.sem_vcov` error with zero warnings and returned no MBCO result. On the unchanged 369-row `memory_exp.rds`, the two clean raw LRs matched exactly (`221.04554608529347` and `3.4172105424343622`), as did the p-value (`0.06451994756817192`). The fixture SHA-256 was `ec778dc6503cb6ad0351b0dd8ce47b03c3e16ad0f67212512b263aa1f2acdccd`. |
+
+The §3c/item 8 completeness controls passed, including losing-child
+attribution and refusal of incomplete results. The §3d/items 9–10 df and
+encoding controls passed. The independent K=20 test passed nine assertions
+on shipped code and produced four assertion failures under the Li-for-Chan–Meng
+mutant. Focused suites passed 1,259 missingmed and 1,205 medfit assertions,
+with zero failures, errors, or skips. missingmed emitted zero warnings.
+medfit emitted one sign-branch starts-disagree warning.
+
+Local scratch receipts live in `/private/tmp/d4-review-39c6012.7vMb5I/`
+(`c5-alias.log`, `anova-both.log`, `old.log`, `pinned.log`,
+`df-mutation.log`, `missingmed.log`, and `medfit.log`). The closure
+covers the approved checks on these pins. The old-design comparison is
+same-engine evidence, and the two `anova()` partial-input refusal checks
+are scratch checks. All three repositories were read-only during verification.
 
 ### T6 dependency and documentation
 
