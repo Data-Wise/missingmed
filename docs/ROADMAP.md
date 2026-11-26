@@ -97,6 +97,21 @@ zero test warnings. Pages deployment was skipped on `dev`.
 
 ## Next
 
+Review the local `codex/c5-main-port` branch from `main` at `252fc7c`.
+It ports [PR #130](https://github.com/Data-Wise/missingmed/pull/130) so SEM
+MBCO fit errors identify the dataset and the failed null branch. The single-start
+replay on medfit v0.19.0 (`2c334734`) passed all 24 cases across `mbco_d4()`,
+`infer(type = "mbco")`, both ARIV modes, both nulls, and three dataset positions.
+The C5 test made 48 assertions, and all 284 ledger assertions passed without
+failures, skips, or warnings. `make ci` passed on R 4.6.2 with the existing pins
+(medfit 0.20.0 at `4739e8e`, RMediation 1.11.2, S7 1.0.0). R CMD check
+reported zero errors, warnings, and notes, with 2,707 test passes and 10 skips.
+Lint and the pkgdown reference check passed. Pandoc reported a nonblocking
+`--mathml` deprecation during the reference check. The package version remains
+0.11.1.
+
+## Completed follow-ups
+
 - T6 verified the medfit 0.14.0 dependency floor and synchronized NEWS, help, and vignettes. Typed covariance retention requires medfit 0.19.0 or later.
 - T7 is closed with RMediation 1.6.1. PR #117 merged to `dev` at `ca4957f`, where R CMD check, lint, and pkgdown passed and Pages deployment was skipped.
 - The [ledger regression suite](../tests/testthat/test-mbco-sem-ledger.R) now covers material negative

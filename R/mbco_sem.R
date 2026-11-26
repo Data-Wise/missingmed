@@ -354,6 +354,23 @@
       invokeRestart("muffleWarning")
     })
   root <- mb[["ledger"]]
+  labels <- c(a, b)
+  sides <- c("a", "b")
+  tab <- mb[["tests"]]
+  expected <- paste(labels, "== 0")
+
+  # A labeled unresolved result is diagnostic evidence only. Report the
+  # failed nulls before the resolved-ledger gate discards their identities.
+  if (identical(mb[["unresolved"]], TRUE) && is.list(root) &&
+      identical(root[["schema_version"]], 1L) && identical(root[["id"]], "mbco") &&
+      identical(root[["outcome"]], "unresolved") && .mm_sem_lr_table_labels(tab, expected)) {
+    converged <- tab[["converged"]]
+    if (is.logical(converged) && length(converged) == 2L && !anyNA(converged) && any(!converged)) {
+      failed <- paste(paste0(sides[!converged], " = 0 model"), collapse = " and ")
+      stop("The ", failed, " did not converge.", call. = FALSE)
+    }
+  }
+
   .mm_sem_ledger_node(root, "mbco", NA_character_, 3L)
   .mm_sem_covariance_notice(root)
   constraints <- full[["constraints"]]
@@ -366,10 +383,7 @@
   .mm_sem_ledger_node(nodes[[1L]], "mbco/full", "mbco", 0L)
   .mm_sem_match_ledger(nodes[[1L]], full, fit@model, constraints, fit@f)
   .mm_sem_covariance_notice(nodes[[1L]])
-  labels <- c(a, b)
-  sides <- c("a", "b")
-  tab <- mb[["tests"]]
-  if (!.mm_sem_valid_lr_table(tab, paste(labels, "== 0")) ||
+  if (!.mm_sem_valid_lr_table(tab, expected) ||
       !identical(unname(mb[["parameter"]]), 1) ||
       !all(is.finite(tab[["diff_ll"]])) ||
       !all(abs(tab[["diff_ll"]] - fit@n_obs * (tab[["f"]] - fit@f)) <= 1e-7)) {
@@ -395,9 +409,13 @@
   mb
 }
 
-.mm_sem_valid_lr_table <- function(tab, expected) {
+.mm_sem_lr_table_labels <- function(tab, expected) {
   is.data.frame(tab) && nrow(tab) == 2L &&
-    identical(as.character(tab[["constraint"]]), expected) &&
+    identical(as.character(tab[["constraint"]]), expected)
+}
+
+.mm_sem_valid_lr_table <- function(tab, expected) {
+  .mm_sem_lr_table_labels(tab, expected) &&
     length(tab[["converged"]]) == 2L && all(tab[["converged"]] %in% TRUE) &&
     is.numeric(tab[["f"]]) && length(tab[["f"]]) == 2L && all(is.finite(tab[["f"]])) &&
     is.numeric(tab[["diff_ll"]]) && length(tab[["diff_ll"]]) == 2L
@@ -406,8 +424,7 @@
 .mm_sem_attribute_nulls <- function(fit, a, b, mb, d) {
   labels <- c(a, b)
   tab <- mb$tests
-  if (!is.data.frame(tab) || nrow(tab) != 2L ||
-      !identical(as.character(tab$constraint), paste(labels, "== 0"))) {
+  if (!.mm_sem_lr_table_labels(tab, paste(labels, "== 0"))) {
     stop("Unresolved null-warning attribution: incomplete branch table.", call. = FALSE)
   }
   improper <- vapply(seq_along(labels), function(i) {
