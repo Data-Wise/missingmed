@@ -11,13 +11,13 @@ Source:
 [`inst/CITATION`](https://github.com/Data-Wise/missingmed/blob/main/inst/CITATION)
 
 Tofighi D (2026). *missingmed: Mediation Analysis with Multiple
-Imputation for Missing Data*. R package version 0.11.1,
+Imputation for Missing Data*. R package version 0.11.2,
 <https://github.com/Data-Wise/missingmed>.
 
     @Manual{,
       title = {{missingmed}: Mediation Analysis with Multiple Imputation for Missing Data},
       author = {Davood Tofighi},
       year = {2026},
-      note = {R package version 0.11.1},
+      note = {R package version 0.11.2},
       url = {https://github.com/Data-Wise/missingmed},
     }
