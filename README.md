@@ -40,18 +40,9 @@ the union-null geometry of `H0: ab = 0`).
 
 ## Installation
 
-From the Data-Wise R-universe (binaries, no compilation):
-
-```r
-install.packages(
-  "missingmed",
-  repos = c("https://data-wise.r-universe.dev", "https://cloud.r-project.org")
-)
-```
-
-For the development branch on GitHub, include the Data-Wise R-universe for
-medfit. The verified CI combination uses medfit 0.20.0, S7 1.0.0, and
-RMediation 1.6.1:
+Install from Data-Wise R-universe with the tested dependency versions.
+The published RMediation 1.11.1 build on R-universe fails to load with S7
+1.0.0. Pin RMediation to 1.6.1.
 
 ```r
 # install.packages("pak")
@@ -59,9 +50,12 @@ options(repos = c(
   datawise = "https://data-wise.r-universe.dev",
   CRAN = "https://cloud.r-project.org"
 ))
-pak::pak(c("Data-Wise/missingmed@dev", "medfit@0.20.0",
-           "S7@1.0.0", "RMediation@1.6.1"))
+pak::pak(c("missingmed", "medfit@0.20.0", "S7@1.0.0", "RMediation@1.6.1"))
 ```
+
+For the GitHub development branch, replace `"missingmed"` with
+`"Data-Wise/missingmed@dev"`. On R 4.1, use `"S7@0.2.2"` in place
+of `"S7@1.0.0"` because S7 1.0.0 requires R 4.2 or later.
 
 ## The pipeline
 

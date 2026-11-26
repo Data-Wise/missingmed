@@ -39,7 +39,8 @@ options(repos = c(
 pak::pak(c("deps::.", "medfit@0.20.0", "S7@1.0.0", "RMediation@1.6.1"))
 ```
 
-See the [installation instructions](README.md#installation) for the GitHub install.
+On R 4.1, use `"S7@0.2.2"` in place of `"S7@1.0.0"`. See the
+[installation instructions](README.md#installation) for the GitHub install.
 
 Notes
 

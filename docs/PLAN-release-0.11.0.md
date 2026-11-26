@@ -14,7 +14,8 @@ updates from [PR #118](https://github.com/Data-Wise/missingmed/pull/118).
   build: medfit 0.20.0 (`4739e8e`), S7 1.0.0, RMediation 1.6.1. Preserve the
   medfit 0.14.0 package dependency floor and document that covariance
   retention requires medfit 0.19.0 or later. Keep the RMediation pin in CI and
-  the reproducible install instructions.
+  the reproducible install instructions. Use S7 0.2.2 for the R 4.1
+  check because S7 1.0.0 requires R 4.2 or later.
 - T5 was accepted on its recorded pins, and T7 is closed. After PR #117,
   [R CMD check](https://github.com/Data-Wise/missingmed/actions/runs/45721304132),
   [lint](https://github.com/Data-Wise/missingmed/actions/runs/45721304101), and
@@ -23,7 +24,9 @@ updates from [PR #118](https://github.com/Data-Wise/missingmed/pull/118).
   D4 sign-off remains open. Review the release with that boundary explicit.
 - Keep RMediation 1.6.1 for this candidate. RMediation PR #191 verifies the
   S7 compatibility workflow on its development branch. A dependency upgrade
-  needs its own release and missingmed verification.
+  needs its own release and missingmed verification. The current R-universe
+  RMediation 1.11.1 build fails to load with S7 1.0.0. Pin RMediation 1.6.1
+  in the R-universe install instructions as well as the development guide.
 
 ## Release gates
 
