@@ -23,6 +23,9 @@
 
 ## Bug fixes
 
+* With medfit 0.19.0 or later, a nonconverged SEM MBCO null now reports the
+  dataset and the failed `a = 0` or `b = 0` model.
+
 * S7 property access now works under the declared R 4.1 minimum.
 * Preserve formula offsets when fitting MBCO constrained branches on R 4.1.
 

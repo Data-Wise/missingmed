@@ -2,7 +2,8 @@ status: active
 priority: --
 progress: 100
 kind: package
-updated: 2026-11-25
+updated: 2026-11-26
+c5_null_diagnostics: 2026-11-26 - On codex/c5-null-nonconvergence, both public APIs identify the dataset and branch for failed a = 0 and b = 0 SEM null refits in both ARIV modes. All 24 failure scenarios and 1284 focused assertions passed with medfit v0.19.0 at 2c334734. Independent D4 closure remains open.
 t5_regressions: 2026-11-25 - Ported the consistent-ledger negative-LR and paired stacked a = 0 covariance controls to tests/testthat/test-mbco-sem-ledger.R, covering both public APIs and ARIV modes. All 236 ledger assertions passed, and the floor-only mutant tripped all 24 intended rejection assertions. make ci passed on R 4.6.2 with medfit 0.20.0, RMediation 1.11.2, and S7 1.0.0. Independent D4 closure remains open.
 session_handoff: 2026-11-25 - Owner ACCEPTED T5 on missingmed 8dac15d9fbb748958e65044d178c336f931f5631 and medfit v0.19.0 (2c334734c9cc89043f8ed1daddfae0d992890739). The decision is recorded in tasks/plan.md and tasks/todo.md, with the two P2 reviews, Opus follow-up, shipped-default run, and verified local archive. Broader D4 independent closure stays open.
 website_0100: 2026-11-25 - Docs-only PR #116 to main at d90f45f corrects the MBCO decision table and guide links and adds a favicon. The local 0.10.0 build ran the examples, passed 1,594 link and asset checks and 1,709 test assertions, with zero lint findings. Hosted dependency setup fails when medfit 0.3.2 loads with S7 1.0.0. A scratch install reproduced the error and loaded missingmed 0.10.0 with medfit 0.3.2 and S7 0.2.2. PR #116 is open and the public site still serves the previous guide.
