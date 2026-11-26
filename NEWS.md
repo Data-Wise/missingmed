@@ -1,9 +1,9 @@
-# missingmed (development version)
+# missingmed 0.11.2
 
 ## Bug fixes
 
 - SEM MBCO errors now identify each failed null branch and its dataset (imputation
-  number or stacked data) in both public APIs and ARIV modes (#130).
+  number or stacked data) in both public APIs and ARIV modes (#130, #133).
 
 # missingmed 0.11.1
 
