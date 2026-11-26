@@ -61,6 +61,21 @@ messages came from the hosted build tooling and publication succeeded.
 
 ## Website
 
+[PR #137](https://github.com/Data-Wise/missingmed/pull/137) merged into
+`main` at `1531384` with the same tree as `fe566e6`. Post-merge
+[R CMD check](https://github.com/Data-Wise/missingmed/actions/runs/45898363039),
+[lint](https://github.com/Data-Wise/missingmed/actions/runs/45898363035), and
+[pkgdown](https://github.com/Data-Wise/missingmed/actions/runs/45898363071)
+passed with no Node.js 20 warnings. R CMD check reported 2,775 passes, two
+skips, and zero errors, warnings, or notes.
+
+GitHub's automatically generated [Pages workflow](https://github.com/Data-Wise/missingmed/actions/runs/45898759296)
+passed and published `gh-pages` commit `53e85a7`. Its build job emitted one
+Node.js 20 deprecation warning from `actions/upload-artifact@v4`. The
+[live technical vignette](https://data-wise.github.io/missingmed/articles/technical.html)
+matched the deployed HTML byte for byte and contained both corrected HTTPS
+DOI links.
+
 The [public pkgdown site](https://data-wise.github.io/missingmed/) includes
 the [C5 diagnostic documentation](#c5-diagnostic-on-main). The v0.11.2
 [release-triggered pkgdown build](https://github.com/Data-Wise/missingmed/actions/runs/45892379653)
