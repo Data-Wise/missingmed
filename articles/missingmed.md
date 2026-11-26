@@ -12,6 +12,10 @@ The S7 pipeline is four verbs:
 
 ## A worked example
 
+Before running the example, follow the [installation
+instructions](https://data-wise.github.io/missingmed/index.html#installation)
+for missingmed and its tested dependency versions.
+
 We simulate a simple mediation model `X -> M -> Y` with a confounder
 `C`, impose some MAR missingness, and impute with `mice`.
 

@@ -39,7 +39,11 @@ unlike pooling, respects the union-null geometry of `H0: ab = 0`).
 
 ## Installation
 
-Install from Data-Wise R-universe with the tested dependency versions.
+Install the [current release from Data-Wise
+R-universe](https://data-wise.r-universe.dev/missingmed) with the tested
+dependency versions below. See the
+[changelog](https://data-wise.github.io/missingmed/news/index.html) for
+release details.
 
 ``` r
 
