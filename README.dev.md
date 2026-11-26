@@ -45,7 +45,8 @@ pak::pak(c(
 ```
 
 On R 4.1, replace `"S7@1.0.0"` with `"S7@0.2.2"`. See the
-[installation instructions](README.md#installation) for the GitHub install.
+[installation instructions](https://data-wise.github.io/missingmed/index.html#installation)
+for the GitHub install.
 
 Notes
 

@@ -6,23 +6,16 @@ for evidence and the [status file](../.STATUS) for the current handoff.
 ## Shipped
 
 - v0.2.0 S7 rewrite + IPW (2026-06-12); GLM families (PR #5) and `sensitivity_mnar()` (PR #6) (2026-08).
-- v0.10.0 released 2026-10-14 (GitHub, r-universe); `dev` is 0.10.0.9000. Per-release detail: `NEWS.md`.
-- PR #102 (lavaan MBCO on medfit) merged to `dev` 2026-10-26 as `9f77220`.
-  The released v0.10.0 still uses lavaan for SEM MBCO refits.
+- [v0.11.0](https://github.com/Data-Wise/missingmed/releases/tag/v0.11.0)
+  released 2026-11-25 and is available from [Data-Wise R-universe](https://data-wise.r-universe.dev/missingmed).
+  It uses medfit for SEM MBCO refits. See [NEWS](../NEWS.md) for release details.
 
-## Website for v0.10.0
+## Website
 
-[PR #116](https://github.com/Data-Wise/missingmed/pull/116) corrects the MBCO
-decision table and guide links and adds the favicon. The local site built with
-examples and passed 1,594 link and asset checks. The hosted package check, lint,
-and pkgdown jobs all failed because medfit 0.3.2 fails to load with S7 1.0.0. A scratch
-install reproduced the failure and loaded missingmed 0.10.0 with medfit 0.3.2 and
-S7 0.2.2. The [hosted build log](https://github.com/Data-Wise/missingmed/actions/runs/45564567996/job/139036125094)
-records the error.
-
-Next, verify a compatible dependency set through a separately scoped hosted CI
-fix. Recheck PR #116 before merging, then verify the guide and favicon on the
-public site.
+The [public pkgdown site](https://data-wise.github.io/missingmed/) serves
+v0.11.0, including the updated analysis guide and favicon.
+[The release deployment](https://github.com/Data-Wise/missingmed/actions/runs/45749138848)
+built the site from `bf85884`.
 
 ## T5 evidence and owner decision
 
@@ -42,7 +35,11 @@ the decision.
 
 ## Next
 
-- [Prepare 0.11.0 for GitHub and R-universe](PLAN-release-0.11.0.md). The public site stays on 0.10.0 until deployment.
+- [PR #120](https://github.com/Data-Wise/missingmed/pull/120) updates the
+  contrast-error test for R-devel. The exact PR head passed hosted R-devel checks on
+  Linux and Windows. The upstream PR checks stopped at their medfit 0.20.0
+  version guard after resolving 0.21.0 from R-universe. The release checks are
+  recorded in the [0.11.0 checklist](PLAN-release-0.11.0.md).
 
 - T6 verified the medfit 0.14.0 dependency floor and synchronized NEWS, help, and vignettes. Typed covariance retention requires medfit 0.19.0 or later.
 - T7 is closed with RMediation 1.6.1. PR #117 merged to `dev` at `ca4957f`, where R CMD check, lint, and pkgdown passed and Pages deployment was skipped.
