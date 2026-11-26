@@ -29,10 +29,17 @@ make check
 
 Dependencies
 
-The package uses your normal R library. Add the Data-Wise R-universe to
-`options("repos")` before running `pak::local_install_deps()`. It provides the
-required medfit version. Keep CRAN in the list for other dependencies. See the
-[installation instructions](README.md#installation) for the repository setup.
+From the checkout, use the dependency combination verified in CI:
+
+```r
+options(repos = c(
+  datawise = "https://data-wise.r-universe.dev",
+  CRAN = "https://cloud.r-project.org"
+))
+pak::pak(c("deps::.", "medfit@0.20.0", "S7@1.0.0", "RMediation@1.6.1"))
+```
+
+See the [installation instructions](README.md#installation) for the GitHub install.
 
 Notes
 

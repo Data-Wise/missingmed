@@ -42,8 +42,10 @@ the decision.
 
 ## Next
 
+- [Prepare 0.11.0 for GitHub and R-universe](PLAN-release-0.11.0.md). The public site stays on 0.10.0 until deployment.
+
 - T6 verified the medfit 0.14.0 dependency floor and synchronized NEWS, help, and vignettes. Typed covariance retention requires medfit 0.19.0 or later.
-- T7 full scratch CI passed with the `tidy()` fix, RMediation 1.6.1, S7 1.0.0, and medfit 0.20.0. All three workflows resolved the same versions in scratch after pinning RMediation. The private hosted runs on `8394fdf` passed and skipped Pages deployment. T7 remains open for the upstream PR.
+- T7 is closed with RMediation 1.6.1. PR #117 merged to `dev` at `ca4957f`, where R CMD check, lint, and pkgdown passed and Pages deployment was skipped.
 - The replay inputs and receipts are in the verified local archive. Porting the two scratch controls into the suite remains a regression follow-up.
 
 ## Parked

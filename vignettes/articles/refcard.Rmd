@@ -70,7 +70,8 @@ set `options(lifecycle_verbosity = "warning")` to see every one).
 | MBCO: a glm refit has a non-finite log-likelihood | `non-finite log-likelihood` | check the data for degenerate columns |
 | MBCO: a SEM full refit failed | `The full model did not converge or is unresolved` | simplify/check the model; lavaan controls are not medfit controls |
 | `sensitivity_mnar(on_error = "continue")`: a rung failed (warning) | `rung(s) failed` | `tidy()` has an `error` column naming each failure; fix the cause and rerun the failed deltas |
-| MBCO: improper solution in a refit (warning) | `improper solution` | check the model for a negative variance or a boundary estimate; the test proceeds |
+| MBCO: improper solution in a refit (warning) | `improper solution` | check the dataset and fit named in the warning for a negative variance or boundary estimate |
+| SEM MBCO: retaining a null likelihood requires a newer medfit | `SEM covariance retention requires medfit >= 0.19.0` | upgrade medfit and check the null and dataset named in any subsequent warning |
 | MBCO with IPW | `MBCO inference for IPW is not yet implemented` | use `type = "mc"` |
 | MBCO with a lavaan estimator other than ML | `must be "ML"` | use `type = "mc"`, or refit with ML |
 | MBCO with fewer than two imputations | `at least 2 imputations` | re-impute with `m >= 2` |
@@ -83,5 +84,5 @@ set `options(lifecycle_verbosity = "warning")` to see every one).
 ## Where to read more
 
 * the test: `vignette("mbco-mi")`; the options: `?mbco_d4`; the result: `?MbcoMIResult`
-* structural equation models: the *Structural equation models* article
+* structural equation models: the [*Structural equation models* article](lavaan-sem.html)
 * choosing between engines and methods: the *Choosing an analysis* article
