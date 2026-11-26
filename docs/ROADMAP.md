@@ -15,6 +15,15 @@ for evidence and the [status file](../.STATUS) for the current handoff.
 
 The [public pkgdown site](https://data-wise.github.io/missingmed/) serves
 v0.11.0, including the updated analysis guide and favicon.
+
+[PR #125](https://github.com/Data-Wise/missingmed/pull/125) refreshed the
+cookbook, tutorials, and guides and merged into `main` as `eba33d4`.
+The [post-merge pkgdown build](https://github.com/Data-Wise/missingmed/actions/runs/45763654984)
+passed. The [Pages deployment](https://github.com/Data-Wise/missingmed/actions/runs/45763991106)
+published `gh-pages` commit `407ca66`. All seven updated articles matched
+the deployed HTML byte for byte, including the
+[live cookbook](https://data-wise.github.io/missingmed/articles/cookbook.html).
+
 [PR #121](https://github.com/Data-Wise/missingmed/pull/121) merged
 into `main` as `81880e0`. Its [post-merge pkgdown build](https://github.com/Data-Wise/missingmed/actions/runs/45757386943)
 and [Pages deployment](https://github.com/Data-Wise/missingmed/actions/runs/45757715117)
