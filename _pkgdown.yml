@@ -1,8 +1,8 @@
 url: https://data-wise.github.io/missingmed/
 
 # Released versions build to the site root and development versions
-# (x.y.z.9000) to /dev/, so users of the CRAN/r-universe release read docs for
-# the version they have. The workflow deploys both main and dev pushes.
+# (x.y.z.9000) with development URLs. GitHub Actions builds on dev and
+# deploys from main pushes and published releases.
 development:
   mode: auto
 

@@ -1,0 +1,161 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "claude_job_result: completed"
+    }
+  ],
+  "structuredContent": {
+    "ok": true,
+    "operation": "review",
+    "review_kind": "adversarial",
+    "subject_kind": "changes",
+    "subject_label": "cba4c1acbe752280ab9bcf2ccb910071ab2b541c..HEAD plus working tree",
+    "subject_fingerprint": "881721c93050f7e3479cf7c2b3d45a3c40c119eb9cc45ef87628dd05318c5f3e",
+    "usage_summary": "Usage: tokens=235477 output=9585 turns=11 duration_ms=76198 api_ms=75293 cost_usd=0.2402473",
+    "total_tokens": 235477,
+    "total_cost_usd": 0.2402473,
+    "cumulative_chain_cost_usd": 0.2402473,
+    "parent_job_id": null,
+    "num_turns": 11,
+    "duration_ms": 76198,
+    "duration_api_ms": 75293,
+    "task_profile": null,
+    "review_profile": "standard",
+    "requested_model": "sonnet",
+    "effective_models": [
+      "claude-sonnet-5-5"
+    ],
+    "effort": "medium",
+    "budget": {
+      "max_turns": 22,
+      "finalize_at_turn": 19,
+      "soft_budget_usd": 1,
+      "max_budget_usd": 1,
+      "timeout_ms": 240000
+    },
+    "evidence_lease": null,
+    "evidence_lease_exhausted": false,
+    "cost_budget_exhausted": false,
+    "turn_limit_reached": false,
+    "result": "{\"verdict\":\"approve\",\"summary\":\"I found no ship blocker in the D4 diff after a bounded read-only review. I ran no tests, so this is from reading the code. The checked D4 clauses appear implemented as specified. Definition validation runs before covariance. The accepted outcome is snapshotted before the covariance step. Only errors from the covariance step are certified as covariance-stage. fit_sem throws the typed condition, and the SEMFit conversion refuses a retained post_fit. Internal null refits retain a likelihood only through the validated retention handler, followed by data, n_obs, q, df+1, constraints, mean structure, fixed_x, information, weights and factors checks in mbco_sem. The singular-information warning and NA path is untouched. I saw no fabricated covariance, standard error or globality. One low-severity attribution imprecision remains. Every covariance failure the tests exercise is an injected throw, so none of it is real-case evidence. T5 stays unaccepted and there is no D5 claim.\",\"findings\":[{\"severity\":\"low\",\"title\":\"Nested union failure takes first partial branch's post_fit, not the winner's\",\"body\":\"In the nested zero-product path, when any branch retained a covariance-stage failure, the top-level outcome is marked covariance failed and takes post_fit from the first failed branch. The winner's vcov and defined are discarded. The first failed branch need not be the minimum-f winner, so the top-level ledger can pair the winner's likelihood with another branch's failure condition. A retained null's LR is still the true minimum, so the p-value is not affected. The result is conservative but imprecise attribution. This is inferred from the code. The nested test fails branch 1 or 2 but does not clearly pin a non-winning failure with a valid winner.\",\"file\":\"R/sem-fit.R\",\"line_start\":394,\"line_end\":400,\"confidence\":0.4,\"recommendation\":\"Document that top-level post_fit is the first failed branch's evidence, or select the failing branch by winner identity. Add a test asserting which branch's post_fit is surfaced when the winner's covariance is valid.\"}],\"next_steps\":[\"Add a nested test where a non-winning branch fails covariance and the winner's covariance is valid, and assert the surfaced post_fit and branch identity.\",\"Seek naturally observed covariance-stage evidence; the current evidence uses injected throws only.\",\"Keep T5 unaccepted and make no D5 integration claim until separately authorized.\"],\"coverage\":{\"files_examined\":[\"R/sem-fit.R\",\"R/sem-outcomes.R (diff)\",\"R/sem-mbco.R (diff)\",\"R/fit-sem.R (diff)\",\"R/sem-se.R (diff and grep)\",\"NEWS.md (diff)\",\"AGENTS.md (diff)\",\"man/mbco_sem.Rd (diff)\",\"tests/testthat/test-sem-post-fit.R (lines 100-165 plus test_that headers)\",\"PROPOSAL-T5 lines 125-165\"],\"files_skipped\":[\"SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md (C5, 3c, 3d, 4.8-10 not read)\",\"tests/testthat/test-sem-post-fit.R lines 1-99\",\"CLAUDE.md diff\",\"man/fit_sem.Rd diff (only the R source documentation was read)\",\"full bodies of .sem_outcome, .sem_require_outcome, .sem_condition_record and .sem_vcov\",\"the mbco_sem LR/p-value consumption code\",\"the unretained-notice path for non-winning branches\"],\"areas\":[\"exclusively-covariance classification\",\"objective and context retention\",\"null ordering\",\"nested completeness\",\"dimension and domain checks\",\"identification and boundary policy\",\"doc claims\"]},\"uncertainty\":\"medium\",\"budget_exhausted\":false,\"recommended_followup\":{\"profile\":\"standard\",\"focus\":[\"Read the SPEC clauses C5, 3c, 3d and 4.8-10 and map each to a test\",\"Read test-sem-post-fit.R lines 1-99\",\"Check deletion (listwise) context retention and the df-difference==1 assumption in mbco_sem\",\"Check that retained-null notices and boundary warnings are not double-counted\"],\"reason\":\"The spec clauses and the first part of the test file were not read, so the clause-to-test mapping is incomplete.\"}}",
+    "structured_output": {
+      "verdict": "approve",
+      "summary": "I found no ship blocker in the D4 diff after a bounded read-only review. I ran no tests, so this is from reading the code. The checked D4 clauses appear implemented as specified. Definition validation runs before covariance. The accepted outcome is snapshotted before the covariance step. Only errors from the covariance step are certified as covariance-stage. fit_sem throws the typed condition, and the SEMFit conversion refuses a retained post_fit. Internal null refits retain a likelihood only through the validated retention handler, followed by data, n_obs, q, df+1, constraints, mean structure, fixed_x, information, weights and factors checks in mbco_sem. The singular-information warning and NA path is untouched. I saw no fabricated covariance, standard error or globality. One low-severity attribution imprecision remains. Every covariance failure the tests exercise is an injected throw, so none of it is real-case evidence. T5 stays unaccepted and there is no D5 claim.",
+      "findings": [
+        {
+          "severity": "low",
+          "title": "Nested union failure takes first partial branch's post_fit, not the winner's",
+          "body": "In the nested zero-product path, when any branch retained a covariance-stage failure, the top-level outcome is marked covariance failed and takes post_fit from the first failed branch. The winner's vcov and defined are discarded. The first failed branch need not be the minimum-f winner, so the top-level ledger can pair the winner's likelihood with another branch's failure condition. A retained null's LR is still the true minimum, so the p-value is not affected. The result is conservative but imprecise attribution. This is inferred from the code. The nested test fails branch 1 or 2 but does not clearly pin a non-winning failure with a valid winner.",
+          "file": "R/sem-fit.R",
+          "line_start": 394,
+          "line_end": 400,
+          "confidence": 0.4,
+          "recommendation": "Document that top-level post_fit is the first failed branch's evidence, or select the failing branch by winner identity. Add a test asserting which branch's post_fit is surfaced when the winner's covariance is valid."
+        }
+      ],
+      "next_steps": [
+        "Add a nested test where a non-winning branch fails covariance and the winner's covariance is valid, and assert the surfaced post_fit and branch identity.",
+        "Seek naturally observed covariance-stage evidence; the current evidence uses injected throws only.",
+        "Keep T5 unaccepted and make no D5 integration claim until separately authorized."
+      ],
+      "coverage": {
+        "files_examined": [
+          "R/sem-fit.R",
+          "R/sem-outcomes.R (diff)",
+          "R/sem-mbco.R (diff)",
+          "R/fit-sem.R (diff)",
+          "R/sem-se.R (diff and grep)",
+          "NEWS.md (diff)",
+          "AGENTS.md (diff)",
+          "man/mbco_sem.Rd (diff)",
+          "tests/testthat/test-sem-post-fit.R (lines 100-165 plus test_that headers)",
+          "PROPOSAL-T5 lines 125-165"
+        ],
+        "files_skipped": [
+          "SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md (C5, 3c, 3d, 4.8-10 not read)",
+          "tests/testthat/test-sem-post-fit.R lines 1-99",
+          "CLAUDE.md diff",
+          "man/fit_sem.Rd diff (only the R source documentation was read)",
+          "full bodies of .sem_outcome, .sem_require_outcome, .sem_condition_record and .sem_vcov",
+          "the mbco_sem LR/p-value consumption code",
+          "the unretained-notice path for non-winning branches"
+        ],
+        "areas": [
+          "exclusively-covariance classification",
+          "objective and context retention",
+          "null ordering",
+          "nested completeness",
+          "dimension and domain checks",
+          "identification and boundary policy",
+          "doc claims"
+        ]
+      },
+      "uncertainty": "medium",
+      "budget_exhausted": false,
+      "recommended_followup": {
+        "profile": "standard",
+        "focus": [
+          "Read the SPEC clauses C5, 3c, 3d and 4.8-10 and map each to a test",
+          "Read test-sem-post-fit.R lines 1-99",
+          "Check deletion (listwise) context retention and the df-difference==1 assumption in mbco_sem",
+          "Check that retained-null notices and boundary warnings are not double-counted"
+        ],
+        "reason": "The spec clauses and the first part of the test file were not read, so the clause-to-test mapping is incomplete."
+      }
+    },
+    "session_id": "9c4db590-9c68-43a0-b957-9fe3c8b9c923",
+    "resume_hint": "claude --resume 9c4db590-9c68-43a0-b957-9fe3c8b9c923",
+    "disclosure": null,
+    "usage": {
+      "input_tokens": 12,
+      "cache_creation_input_tokens": 31227,
+      "cache_read_input_tokens": 194653,
+      "output_tokens": 9585,
+      "output_tokens_details": {
+        "thinking_tokens": 4706
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 31227,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 1624,
+          "cache_read_input_tokens": 44816,
+          "cache_creation_input_tokens": 1531,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1531
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "model_usage": {
+      "claude-sonnet-5-5": {
+        "inputTokens": 12,
+        "outputTokens": 9585,
+        "cacheReadInputTokens": 194653,
+        "cacheCreationInputTokens": 31227,
+        "webSearchRequests": 0,
+        "costUSD": 0.2402473,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 4706,
+        "canonicalModel": "claude-sonnet-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    }
+  }
+}

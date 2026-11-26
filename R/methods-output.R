@@ -92,9 +92,9 @@ S7::method(summary, MDMediationResult) <- function(object, ...) {
 }
 
 # tidy(<MDMediationResult>)  (broom::tidy, imported)
-S7::method(tidy, MDMediationResult) <- function(x, ...) {
+S7::`method<-`(broom::tidy, MDMediationResult, value = function(x, ...) {
   tibble::as_tibble(x@tidy_table)
-}
+})
 
 # print(<MDSensitivityResult>)
 S7::method(print, MDSensitivityResult) <- function(x, ...) {
@@ -251,7 +251,7 @@ print.summary.MDSensitivityResult <- function(x, ...) {
 )
 
 # tidy(<MDSensitivityResult>) -- one row per rung
-S7::method(tidy, MDSensitivityResult) <- function(x, ...) {
+S7::`method<-`(broom::tidy, MDSensitivityResult, value = function(x, ...) {
   base <- x@grid
   # The validator allows an empty @msp; report it as NA rather than fail.
   base$msp <- if (length(x@msp)) x@msp else NA_real_
@@ -270,7 +270,7 @@ S7::method(tidy, MDSensitivityResult) <- function(x, ...) {
   # Only when a rung failed, so the table of a clean run is unchanged.
   if (any(!is.na(x@failed))) base$error <- x@failed
   tibble::as_tibble(base)
-}
+})
 
 # print(<MbcoMIResult>). Registered on base::print, not the namespace's
 # `print`: that can be an S4 generic (the S4 classes and the OpenMx import
@@ -292,7 +292,7 @@ S7::`method<-`(base::print, MbcoMIResult, value = function(x, ...) {
 })
 
 # tidy(<MbcoMIResult>)  (broom::tidy, imported)
-S7::method(tidy, MbcoMIResult) <- function(x, ...) {
+S7::`method<-`(broom::tidy, MbcoMIResult, value = function(x, ...) {
   v <- S7::S7_data(x)
   tibble::tibble(
     term = "indirect", statistic = v[["D4"]], df1 = x@k, df2 = v[["nu"]],
@@ -300,4 +300,4 @@ S7::method(tidy, MbcoMIResult) <- function(x, ...) {
     stacked_branch = x@stacked_branch, branch_mix = x@branch_mix,
     p_branch_a = x@p_branch_a, m = x@m
   )
-}
+})

@@ -42,6 +42,7 @@
 #' @importFrom rlang %||%
 #' @importFrom tibble as_tibble
 #' @importFrom methods is
+#' @rawNamespace if (getRversion() < "4.3.0") importFrom(S7, "@")
 "_PACKAGE"
 
 ## usethis namespace: start

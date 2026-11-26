@@ -1,0 +1,193 @@
+# T2 provider verification receipt
+
+Approved migration specification unchanged. Internal provider only; public wiring
+is T4, option support T3, and independent historical-df controls T5.
+
+## Executed dependency
+
+Existing medfit 0.11.1 at `/private/tmp/claude-501/medfit-lib2/medfit`.
+RemoteSha is absent; installed `R/medfit.rdb` MD5 is
+`ba238e7ccb15b7c057be715a3c8f5574` (artifact identity, not a security claim).
+No dependency installation, random-data generation, calibration or saved-result
+changes were performed. R's stored iris and lavaan's HolzingerSwineford1939 data
+were fitted. Interior-null input uses iris outcome residuals plus fixed X/C terms.
+
+## Numerical policy
+
+Absolute tolerance: 1e-7 **raw LR units**, inclusive, before stack/K division.
+Finite LR in [-1e-7, 0) is rounded to zero with a collected warning. LR below
+-1e-7 refuses inference naming the branch; pooling adds the dataset name.
+There is no likelihood-relative allowance. Nonnegative LR does not certify a
+global optimum.
+
+Against the existing lavaan provider, maximum absolute branch-LR differences:
+
+| Stored input/model | Maximum difference |
+|---|---:|
+| iris observed/covariate | 1.242e-10 |
+| Holzinger latent mediator | 5.155e-11 |
+| iris residualized interior null | 5.543e-10 |
+
+Thus 1e-7 leaves roughly 180-fold margin above the largest inspected numerical
+disagreement while remaining an absolute, small LR resolution. The null b LR
+was zero under both fitters. Tests bracket -1e-7 by 1e-12 and cover non-finite
+values. This is scoped empirical justification, not a universal error bound;
+revalidate on dependency/optimizer changes or larger observed numerical errors.
+
+### D1 assertion follow-up (2026-10-22)
+
+The stored observed/latent/residualized-null oracle test now requires every
+branch disagreement below 1e-8 (at least tenfold margin below the unchanged
+1e-7 raw-LR refusal policy). It also explicitly requires both fitters' null-b
+LR magnitudes below 1e-8. These controls passed with the existing installed
+medfit library, deterministic one-start override and random-retry stop.
+This revalidates a bounded empirical margin, not convergence-derived error
+bounds or a universal relative tolerance. Zero LR is the null target, not
+the negative refusal boundary; do not conflate the two. Original measurements
+above remain historical evidence rather than newly measured exact errors.
+An error above 1e-8 triggers dependency/platform-specific remeasurement and
+investigation, not automatic loosening of the test or the production policy.
+
+## Completeness policy and coverage
+
+Without a dependency ledger, nonlinear equalities, inequalities, bounds, and
+equalities through defined-parameter aliases are refused before full fitting.
+This also prevents nested generic-product refits from entering medfit's union
+enumerator. No failure string establishes infeasibility. Duplicate products and
+a seven-factor product (beyond the 64-branch enumeration limit) are refused at
+this boundary rather than enumerated. Ordinary separate a/b nulls remain used.
+
+Injected controls cover either missing/failed branch, all-failure, duplicate
+rows, potentially better missing branch (1 versus survivor 9), optimizer and
+covariance exceptions, dropped observations, successful minimum and S7 result,
+both ARIV modes, both branch LRs and stack violations. Covariance exceptions
+currently refuse inference; warning-only fits preserve likelihood summaries.
+Warnings are aggregated once with dataset names. Public infer()/mbco_d4() are
+still unchanged: their propagation controls belong to T4/T5.
+
+In-memory mutations (no source edits) were killed: LR validation bypass gave
+14 assertion failures/1 error; completeness bypass gave 9 failures; swapped
+medfit a/b arguments gave 1 error. No mutated binding persisted.
+
+Full package CI was not run because its suite generates random data. These
+focused checks are not calibration or package-wide acceptance evidence.
+
+## Adversarial-review repairs
+
+Claude's fixed-string syntax counterexamples were independently reproduced.
+Multi-group modifiers on untested terms and non-identifier equal() labels are
+now refused before rewriting; generated labels reserve constraint/defined names.
+Stored iris fits with a == b and a == 2*b + 1 match lavaan branch LRs within
+1e-7 and independently show one additional null df. Affine rank checks now
+refuse preconstrained tested paths (including a == 0, a == 1, and indirect
+a == b; b == 0 constraints). Hard-coded k=1 is therefore checked against the
+supported affine constraint geometry rather than inferred from convergence.
+This does not establish identification for every singular SEM.
+
+Collected warnings survive later refit failures. Refit improper warnings are
+still surfaced as generic SEM notices; branch-specific improper attribution
+remains an integration acceptance gap. T1/T2 focused tests: 35/94 passing,
+zero failures/warnings/skips; provider lint clean. Unknown constraint symbols
+(including pi, T and F unless actual model labels) are refused before fitting.
+Reproduce mutations with the existing library (no install):
+
+```sh
+R_LIBS=/private/tmp/claude-501/medfit-lib2 Rscript dev/check-sem-provider-mutations.R
+```
+
+Current killed-mutation failures/errors: LR 15, completeness 14, labels 2.
+
+Claude follow-up job 47e15ca0-7b80-4651-838c-9bb08ad58a2c found no T1/T2
+blockers, but returned needs-attention for a low-confidence named-constant
+counterexample. The symbol guard and five refusal assertions were added after
+that review and verified locally, not re-reviewed. Review coverage was static:
+code diff, receipt and spec sections 1-4; tests/harness only partially read,
+T1 tests and spec sections 5 onward skipped. No R execution by Claude.
+Uncertainty: medium. Suggested follow-up: full test reading and shared-label
+coverage during later integration gates. Requested Sonnet, effective
+claude-sonnet-5-5, medium effort, standard profile: 8 turns, 63.911 seconds,
+152821 tokens, $0.2089233. No evidence lease, cost or turn exhaustion.
+Session: ac9d67a6-cd4e-4c8b-968a-deb78eb37a9d; manual resume hint:
+`claude --resume ac9d67a6-cd4e-4c8b-968a-deb78eb37a9d`.
+
+## Shared-label verification (2026-10-22)
+
+The blanket shared-label df finding is not confirmed: stored iris with
+`M ~ a*X + C; Y ~ b*M + a*X + C` has a one-df increment for both nulls
+and matching provider/lavaan LRs (103.1167 and 53.93841). Regression and
+intercept sharing are now covered by deterministic df and LR parity tests.
+Spec C1/C3 and section 7 support preserving those equalities.
+
+The variance case is confirmed: `M ~ a*X; X ~~ a*X; Y ~ b*M + X`
+returned an accepted provider a LR about 1.0244742e10, while the lavaan
+null failed convergence. Its zero-variance null is singular. Tested labels
+shared directly with diagonal variances are now refused before fitting.
+Focused tests: 38 label + 102 provider assertions, no failures/warnings/skips;
+lint clean. Mutation detections: 15 LR, 14 completeness, 3 labels.
+
+Claude follow-up 62c322ed-1f9e-4d75-b316-aa453deddc53 accepted the narrow
+fix but flagged an indirect-equality bypass (`a == v`, with v a variance).
+This is inferred, not reproduced or fixed; T2 is NOT fully accepted.
+Review read code and both test files but skipped spec, mutation harness and
+all execution. Uncertainty medium; next check is indirect/transitive equalities
+and latent/residual variance domains. Requested Sonnet, effective
+claude-sonnet-5-5, standard/medium: 7 turns, 34.688 seconds, 150543 tokens,
+$0.127495. No evidence lease or cost/turn exhaustion. Session/resume:
+`claude --resume 098271b2-d506-4f58-9fd7-610a00d6225c`.
+
+## Indirect equality verification (2026-10-22)
+
+The exact `M ~ a*X; X ~~ v*X; Y ~ b*M + X; a == v` stored-iris
+probe already fails closed with installed medfit 0.11.1: its a refit reports
+stationarity 0.00787 exceeding 0.001. No accepted bad LR was reproduced.
+Nevertheless its null algebra forces v=0. Per spec 3b's variance-domain gate,
+the provider now detects fixed variance coordinates in each null's affine
+row space, including transitive and scaled equalities, and refuses values
+<=1e-10 (absolute parameter units, conservatively treating numerically zero
+positive values as unsupported). This is not the separate raw-LR tolerance.
+Positive forced variances and still-free variances remain supported.
+
+Tests: 38 label + 110 provider assertions pass, no failures/warnings/skips;
+lint clean; mutation detections 15/14/3. Approved spec unchanged.
+Claude job 009bc0a9-e57d-4656-8bfd-a6131c105fd8 independently reproduced
+these checks and read the relevant spec, code, test files and mutation harness.
+Only unrelated plan skipped. Verdict needs-attention, uncertainty medium:
+single-coordinate guard is correct but does not prove joint positive-variance
+feasibility (e.g. a==v1+v2), nor consistency of redundant equalities. Both
+follow-up findings are inferred, not reproduced accepted-LR failures. General
+joint feasibility remains unresolved; T2 is not fully accepted. Suggested next
+check: stored-data joint-variance probe before choosing a broader solver/policy.
+Requested Sonnet/effective claude-sonnet-5-5, standard/medium: 10 turns,
+48.708 seconds, 179589 tokens, $0.1317963. No evidence lease, cost exhaustion
+or turn exhaustion. Manual resume:
+`claude --resume 52023dc3-03ec-4b6e-b74f-1a320077def9`.
+
+## Joint feasibility and consistency (2026-10-22)
+
+Both stored-iris probes already fail closed in medfit 0.11.1: a==v1+v2
+fails the a refit with a nearly singular Hessian; v1==v2;v1==v2+1 fails
+the full fit with a violated constraint. No accepted invalid LR reproduced.
+The early validation gaps are confirmed algebraically against spec 3b's
+variance-domain requirement. A dependency-free Fourier-Motzkin check now
+tests full and null affine systems jointly, with labeled variances >=1e-10.
+Equalities become opposing inequalities; contradictory zero rows are retained.
+Mixed-sign/positive joint constraints and consistent redundant rows remain
+accepted. Work exceeding 4096 intermediate rows or nonzero normalized
+coefficients <=1e-12 is explicitly unresolved, never presumed feasible.
+The final normalized feasibility resolution is 1e-12; this is not exact
+arithmetic or a universal numerical certificate, and the variance floor is
+an absolute parameter-unit support restriction, separate from raw LR tolerance.
+
+38 label + 124 provider assertions pass, zero failures/errors/warnings/skips;
+lint clean. Four mutation detections: LR15, completeness14, labels3,
+feasibility9. No installs, simulations or saved-result changes; spec unchanged.
+Claude job 0b51dd00-fd34-41ab-96a0-2fa167673449: approve, no concrete
+blockers, low uncertainty. Independently read spec/code/full tests/harness and
+executed both test files and all mutations; only unrelated plan skipped.
+Low-confidence residual caveat: extreme scaling might shrink an infeasibility
+margin below normalized tolerance; no failing input or invalid LR demonstrated.
+No further review recommended; numerical hardening remains optional.
+Requested Sonnet/effective claude-sonnet-5-5, standard/medium: 7 turns,
+41.825 seconds, 122869 tokens, $0.1276941. No evidence lease or cost/turn
+exhaustion. Manual resume:
+`claude --resume 2a6c634c-81ef-45e3-91f3-a8d1f70ed713`.

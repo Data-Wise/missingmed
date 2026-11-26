@@ -77,12 +77,14 @@ test_that("ariv = 'own' is bit-identical to the old infer(type = 'mbco')", {
     r <- infer(fit_case(case), type = "mbco", ariv = "own")
     # The pre-#19 driver (helper-legacy-mbco.R), run in this session on the
     # same imputations, so the comparison does not depend on platform floating
-    # point. The vector frozen on the fixture's machine is a cross-check.
+    # point. The vector frozen on the fixture's machine is a cross-check, held
+    # to the file's default 1e-10: it is exact on the fixture's machine but off
+    # by ~3e-12 on r-universe's CRAN-built R for macOS arm64.
     old <- legacy_d4_mbco(mice::complete(case$mids, action = "all"),
       case$formula_y, case$formula_m, stats::gaussian(), stats::gaussian(),
       "X", "M"
     )
-    expect_rel_equal(old, case$legacy_own, tol = 1e-12)
+    expect_rel_equal(old, case$legacy_own)
     expect_identical(S7::S7_data(r), old)
     expect_identical(r["p"], old["p"])
     expect_identical(r[["p"]], old[["p"]])

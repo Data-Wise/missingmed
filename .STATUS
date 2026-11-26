@@ -2,478 +2,197 @@ status: active
 priority: --
 progress: 100
 kind: package
-updated: 2026-10-14
-next: MERGED 2026-10-14 (squash, dev 6072cea): #91 removes the dead MDMediationFit@fits property (closes #88; NEWS Breaking changes), #92 print reads the indirect effect from medfit::nie() and the pie slot for x = 0 (closes #89; printed values unchanged), #93 test-mbco-convergence.R captures its deliberate glm warnings via quiet_glm() + 9 edge-case tests: suite WARN 20 -> 0 (dev 6072cea: FAIL 0, WARN 0). #94 MERGED 2026-10-14 (64ff4f2; closes #86): infer(type = "mc") warns once per session (class missingmed_link_scale_warning) on a non-identity family_m/family_y link; not on MBCO or lavaan fits. X:M fits are skipped (medfit InteractionMediationData has no family slots) but that is NOT a gap: run() and medfit (0.3.2 and dev) refuse X:M unless both models are Gaussian identity (checked 2026-10-14), so no medfit change is needed. #95 MERGED 2026-10-14 (6d43c85; closes #87): .lintr (defaults, line length 110, object_name and indentation off; R/ only) + lint.yaml failing on any lint; R/ at 0 lints. All four parked issues #86-#89 are closed. #90 MERGED 2026-10-14 (9e00273, squash; docs only): ?mbco_d4, vignette("mbco-mi") and the .mm_d4_from_stats comment now scope the eq. 2.15 df (derived for the own-branch statistic at a regular null; a working reference distribution for the fixed-branch default and at a = b = 0) and name mitml ariv = "positive"; dev NEWS Documentation entry. Local lavaan upgraded to 0.7-3 2026-10-14: document() clean (no drift from the hand-edited Rd), mbco-mi vignette renders. v0.9.0 RELEASED 2026-10-09 (release PR #81, merge 36ea8ec, tag v0.9.0, GitHub release); dev is 0.9.0.9000 (#82); #83 merged (eb09373, US English). r-universe serves 0.9.0 (confirmed 2026-10-10). #85 MERGED 2026-10-10 (7242700): pkgdown deploys only from main or a release, dev pushes build without publishing; the next push to main is the first live test. Parked list in docs/specs/PLAN-pre-v0.3.0-review-fixes-2026-08-29.md status-checked 2026-10-10: 9 resolved, 4 open and low value (binomial a*b warning, lintr, dead MDMediationFit@fits, medfit::nie()), 1 unverified (estimator gating); the four open items are issues #86-#89. CRAN T4 partly done 2026-10-10: Linux `R CMD check --as-cran` on released R 4.6.1 (Docker rocker/r-devel:latest is NOT R-devel; CRAN deps, medfit 0.3.2; dev 543a7d3) = 0 errors, 0 warnings, 1 NOTE (New submission, large version component 0.9.0.9000, maintainer dtofighi@gmail.com); tests FAIL 0 / WARN 20 / SKIP 11 / PASS 1562; win-builder RESULTS (emailed 2026-10-11, read 2026-10-14): release R 4.6.1 = 1 NOTE (new submission, version 0.9.0.9000) only; R-devel (r90655) = 1 ERROR, install failed: RMediation .onLoad "Class union has not been registered with S4; please call S4_register(new_union(class_integer, class_double))" (newer S7 on R-devel), NOT missingmed code. RMediation 1.7.1 fixes it (win-builder OK on R-devel r90659, 4.6.1, 4.5.3, 2026-10-13) but is unreleased (CRAN and r-universe serve 1.6.1); before CRAN submission raise the floor to RMediation (>= 1.7.1) once it is on CRAN, then re-run win-builder devel. Earlier: win-builder release+devel UPLOADED 2026-10-10 20:36 MDT from dev 08e2c4f (FTP 226 each; results are emailed to dtofighi@gmail.com, none by 21:41, release queue looked stalled; check spam, else resend); remaining: those two Windows verdicts, mac-builder, a true R-devel run, maintainer email choice (gmail vs unm), see docs/specs/PLAN-cran-1.0.0-2026-10-09.md. F DONE 2026-10-10 (read-only check of medfit dev e27e122): native SEM does NOT by itself remove `.lav_round_nobs()`; the rounding fix is `.lavaan_n_obs()` in medfit R/extract-lavaan.R (fb542dd), present in the v0.6.0 tag and absent from v0.5.0, on the lavaan extract route that engine = "lavaan" uses, while fit_sem/engine = "native" is a separate SEMFit route; the helper goes when the medfit floor is raised to a CRAN release carrying the fix (CRAN medfit is 0.3.2), independent of native SEM. C (MLR, T7/T8b) GATE FAILED 2026-10-10; MLR stays refused (spec section 12). MERGED 2026-10-10 as PR #84 (b2b18f2, squash; harness + results + restored refusal + spec section 12 + two Codex review fixes: used-correction validation, naive comparator independent of scaling; rerun of the five refusal-heavy cells on hopper job 4335889, merged table out-mlr-v3 / out-mlr-combined-v3.txt: 77 pass, 1 FAIL (heavy latent n=500 25% (.3,0) = 0.067), 2 UNUSABLE ((0,0) 5.9% and (0,.1) 7.0% without a scaled p); branch suite 1590 pass). Worktree and local branch removed 2026-10-10 (see worktrees:). Earlier detail: hopper job 4335503 (80 cells x 1000) 79/80 cells <= 0.065, heavy/latent/n=500/25%/(.3,0) = 0.067; naive D4 max 0.058 in all 80 cells (no gain from the scaling); 535/80000 replications refused (negative SB2001 correction), 5 skewed latent n=200 40%-missing cells above 5% refused. Codex adversarial review (2026-10-10) was right on 3 points: refusal restored (internal options(missingmed.internal_mlr=TRUE) only for gate reruns), combiner hardened (exit 1 unless complete/valid/in bounds; dev/sim-sem-mbco-mlr-combine-test.R), and the statistic is NOT lavaan.mi's (harmonic mean of model factors + chi-square; mine is arithmetic mean of delta_c + F), corrected in the spec. Branch suite 0 fail / 1587 pass (dev 1548). Finding kept: lavaan se="none" flips MLR information observed->expected (~3% on the scaling factor). Hopper: branch build 0.9.0.9000 in ~/Rlib-sem (backup ~/Rlib-backup/missingmed-before-5daa6aa), results ~/projects/missingmed_sim/out-mlr and out-mlr-combined-v2.txt. Decision pending: open one PR feature/mbco-mlr -> dev (harness + results + refusal + spec) or park the branch; no CRAN/user-facing doc change needed (MLR was never released). CRAN plan docs/specs/PLAN-cran-1.0.0-2026-10-09.md (D5 to D10 decided; submission waits on medfit 0.7.0; T3 dropped, WORDLIST not needed). Then PLAN docs/specs/PLAN-open-items-2026-10-09.md (decided in the grill; order A, D, B, G, E, C). A DONE 2026-10-09 (#61, c2fafb0: sensitivity_mnar(on_error =)). D DONE 2026-10-09 (#62, fb17b60: D4 nu is now Chan and Meng eq. 2.15 as in mitml; note docs/specs/NOTE-d4-denominator-vs-mitml-2026-10-09.md); B: spec docs/specs/SPEC-glm-mbco-calibration-2026-10-09.md, harness merged (#63, cb86c67, T1+T2 done); Merged 2026-10-09: #63 harness, #64 lifecycle (d13a5f4; lavaan stable, on_error experimental), #65 plain-Gaussian own calibration (dc8c012; C7 FAILS: own up to 0.083 at 40% missing, fixed <= 0.047). medsim review: docs/specs/REVIEW-medsim-2026-10-09.md. DONE 2026-10-09 (#66, b86ad7e): own-ariv docs PR (own documented as liberal, stale 'reproduces 0.4.0' claims reworded, glm rows in operating characteristics, spec line that mc coverage with treatment_level is uncalibrated). G DONE 2026-10-09 (#67: lavaan tutorial section; IPW accepts only HC1, MLR all HC; ML ignores). E DONE 2026-10-09 (design note docs/specs/NOTE-ipw-weight-score-stacking-2026-10-09.md: medfit does NOT stack, no medfit/RMediation change needed; implementation M, hopper gate). E steps 1-2 DONE (#68: .ipw_weights_info() + internal .ipw_stacked_vcov(), unstabilized/joint/no-trim glm, not wired). E step 3 DONE (#69: stabilized/per-variable/trimmed, brute-force exact, bootstrap oracle 39/40; marginal SEs barely move, cov(a,b) is what differs; results in note section 9). MERGED 2026-10-09: #70 (1c5b50e: run() refuses a per-variable weight_formula omitting an incomplete variable; Codex finding) and #71 (cf8f47f: coverage-gate harness T1-T3, spec addendum A: known_hc0 arm, C1 bar 0.065). Coverage gate: SPEC/PLAN-ipw-stack-coverage-2026-10-09.md approved; T1-T3 done on the laptop (controls pass). T4 DONE 2026-10-09 (hopper pilot job 4334216 clean: 0 error/NA/non-PD rows; dev ec51884 installed on hopper, backup in ~/Rlib-backup). T5/T6 DONE 2026-10-09 (hopper job 4334224; spec section 13): NO default change for any weight form (C2 fails everywhere; C1 fails for stacked and, in auxm, for the shipped path). Stacked (HC0-type) is not better than shipped HC3 on coverage; the missing HC correction is the larger part of the deficit; auxm has bias in b (joint missingness model misspecified by construction in aux/auxm; spec premise corrected). SECOND GATE DONE 2026-10-09 (spec SPEC-ipw-stack-hc-gate section 11, hopper job 4334434, PR #74): stacked HC3 closes most of the HC0 deficit but is 1-3% narrower than shipped with no demonstrated benefit; pre-registered decision: sjt viable (tested scope), uj/sj/spv none (uj/sj fail C2 by 0.003-0.008 beyond tolerance in two auxmj cells; spv fails C1 in auxm). NOTHING WIRED; stacking stays internal (plan T8'); item E closed. #73 and #74 MERGED 2026-10-09 (5f7a885, b2a083b). F7 SPEC APPROVED 2026-10-09 (docs/specs/SPEC-ipw-missingness-default-2026-10-09.md). T0 docs correction = PR #75. Gate T1-T4 DONE (harness dev/sim-ipw-mech-*; hopper jobs 4334835 run 1, 4335160 run 2 amended with MC fallback for RMediation dop failures): sequential (chain-rule) missingness model unbiased in all cells (max |bias b| 0.0043 at n=5000; joint up to 0.024, marginal up to 0.046); as written C4 FAILS on the dop artifact -> keep joint + warn + opt-in; amended run ADOPT D; caveat: sequential RMSE(b) 3-13% above joint at n<=500 where forms differ. LITERATURE CHECK 2026-10-09: five papers read (depth stated in docs/specs/NOTE-ipw-literature-check-2026-10-09.md); sequential default is an RMM special case (RG97 s9), assumes dependence on fully observed variables only (STT18 s3.1); technical.Rmd:1115 RRZ claim supported with conditions, 'honest' overstated; T6 docs PR (11-row audit) awaits the author. ADOPT D chosen by the author 2026-10-09 (spec 11c Q6). #75 (T0 docs) and #76 (harness + results) MERGED 2026-10-09 (9c75032, f7da7b0); T5 + T6 (sequential default, docs) = PR #77. C (MLR) stays simulation-gated. RUN 2026-10-09 (job 4333687, 396 tasks, 132 cells): C1/C2/C4/C5 PASS (max size 0.057), C3 FAIL (bin_m n=500 40% power 0.433), ariv='own' liberal in 23/110 null cells (max 0.138). Decisions pending, see section 9 of the spec. Hopper now has missingmed 0.8.0.9000 in ~/Rlib-sem (backup of 0.7.0.9000 in ~/Rlib-backup). Open finding: glm MBCO refits ignore fit_args (R/mbco_mi.R .mm_glm_ll). v0.8.0 RELEASED 2026-10-09 (tag v0.8.0 on 15c6254; GitHub release; release PR #59; dev bumped to 0.8.0.9000 in #60). r-universe serves 0.8.0 (confirmed 2026-10-09). MERGED to dev 2026-10-09: #55 (4997b63, MBCO refuses non-converged glm refits) and #56 (b5853a1, MBCO for engine = "lavaan" (ML only; infer, sensitivity_mnar, mbco_d4(model =)) + provider seam + refcard/cookbook/FAQ docs; review fixes for := models, fit_args reaching the null refits, fixed paths, improper-solution warning; Codex review approved). released as 0.8.0. ML calibration gate (T8a) PASSED under the restated criterion (D3, 2026-10-09; 40 cells, size <= 0.057, SPEC-sem-mbco section 11). MLR (T7/T8b) deferred and refused. glm engine not run through the calibration grid. Hopper sim harness: dev/sim-sem-mbco-*; results in ~/projects/missingmed_sim/out on hopper. Branches/worktrees for #55, #56, #58, #60 removed 2026-10-09. Before that: v0.7.0 RELEASED 2026-10-08 (tag v0.7.0 on 98e94e4; GitHub release; dev is 0.7.0.9000; contents: #50 stubs deleted, #51 fit_args for glm +
-  run(...)/sensitivity_mnar(...) deprecation + optional outcome on glm). v0.6.0 RELEASED 2026-10-08 (tag v0.6.0 on d4cc31c; GitHub release; r-universe serves 0.6.0).
-  Contents: engine = "lavaan" (set_md_mediation(model, outcome, fit_args) -> run -> pool ->
-  infer("mc"); latent mediators; IPW with robust SEs; sensitivity_mnar mc) and the S4
-  removal (six .Defunct() stubs in R/defunct.R; OpenMx/dplyr/purrr no longer imported).
-  PRs #40-#47. dev was 0.6.0.9000 after it. Five tutorials added (#46: choosing-an-analysis,
-  reading-results, ipw-weighting, sensitivity-mnar, lavaan-sem) and two stale passages
-  fixed (#45). Plan/grill: docs/specs/PLAN-s7-sem-engine-2026-10-08.md,
-  GRILL-s7-sem-engine-plan-2026-10-08.md. Mediationverse check (2026-10-08): nothing
-  imports missingmed, so the S4 removal does not cascade; the ecosystem manifest entry is
-  stale ("S4, multiple imputation"); lavaan 0.7-3 (CRAN 2026-10-08) passes the full suite.
-  NEXT: (1) DONE 2026-10-08 (#50, #51): 0.7.0 = run(...) deprecation into fit_args (H1) + .Defunct() stubs deleted.
-  (2) SEM-MBCO spec: constrained lavaan refits, what "b = 0" means for a latent mediator.
-  (3) DONE 2026-10-08 (PR #48): lavaan floor >= 0.7-3, IPW guards normalize every lavaan
-  spelling, license now GPL (>= 3). (4) medfit extract_mediation() truncates lavaan's weighted nobs
-  (355.99999999999994 -> 355) with as.integer() at 4 sites in R/extract-lavaan.R; fix is
-  round(); missingmed works around it in .lav_round_nobs(), remove once medfit >= 0.5.1 is on CRAN
-  (medfit 0.5.1 release requested; plan docs/specs/PLAN-medfit-0.5.1-cascade-2026-10-08.md).
-  (5) Update the missingmed entry in mediation-planning/ECOSYSTEM-MANIFEST.yaml (other
-  repo; needs permission). (6) Add lavaan 0.7-3's information_bread/information_meat_hc
-  to the lavaan tutorial. Before CRAN: 1.0.0. Open question for upstream: whether medfit's
-  sandwich stacks the weight-model score (RRZ 1994). Manuscript runs on medsim, not
-  missingmed.
-  NATIVE ENGINE (2026-10-08): a native nloptr SEM engine is planned for MEDFIT (0.6.0,
-  GitHub first), not here. Decisions J1-J17 in docs/specs/GRILL-native-sem-engine-nloptr-
-  2026-10-08.md and GRILL-sem-syntax-framework-2026-10-08.md; plan PLAN-native-sem-engine-
-  nloptr-2026-10-08.md; brief HANDOFF-medfit-native-sem-engine-2026-10-08.md (sent to the
-  medfit session 17:52; it ran P0 and awaits the author's answers on grammar-spec owner,
-  CONSTRAINT-expression evaluation, dialect name, and Ext D sequencing). lavaan 0.7-3
-  report: docs/reports/REPORT-lavaan-0.7-3-changes-2026-10-08.md. missingmed keeps
-  engine = "lavaan" (J8); a native pass-through here comes after medfit ships it.
+updated: 2026-11-25
+session_handoff: 2026-11-25 - Owner ACCEPTED T5 on missingmed 8dac15d9fbb748958e65044d178c336f931f5631 and medfit v0.19.0 (2c334734c9cc89043f8ed1daddfae0d992890739). The decision is recorded in tasks/plan.md and tasks/todo.md, with the two P2 reviews, Opus follow-up, shipped-default run, and verified local archive. Broader D4 independent closure stays open.
+website_0100: 2026-11-25 - Docs-only PR #116 to main at d90f45f corrects the MBCO decision table and guide links and adds a favicon. The local 0.10.0 build ran the examples, passed 1,594 link and asset checks and 1,709 test assertions, with zero lint findings. Hosted dependency setup fails when medfit 0.3.2 loads with S7 1.0.0. A scratch install reproduced the error and loaded missingmed 0.10.0 with medfit 0.3.2 and S7 0.2.2. PR #116 is open and the public site still serves the previous guide.
+r41_checks: 2026-10-29 - PR #114 merged into dev as 65da5b9. Full vignette archive checks: R 4.6.2 OK; R 4.1 tests and vignettes pass, with a prepared-runtime stats4 warning and note. Hosted check and site previously failed because the runner installed medfit 0.3.2. PR #115 pins medfit 0.15.0 and merged into dev as 46520f3; both hosted PR checks passed at 50b9840. Post-merge R-CMD-check 40979440432 and pkgdown 40979384561 passed. No release.
+r41_offset: 2026-10-29 - PR #114 preserves constrained-formula offsets and environments; R 4.1.3 and 4.6.2 archive suites each 2423 pass, 10 skip, zero fail; warnings/notes remain. No release.
+pr_113: 2026-10-26 - PR #113 squash-merged to dev as a4c512ef741ca208290389205d13a9117bf91772; SEM MBCO rejects std.ov = TRUE and local CI repairs landed. Next gate: D4 independent closure after the pending medfit covariance-retention change; see tasks/plan.md.
+sem_std_ov: 2026-10-26 - SEM MBCO rejects std.ov = TRUE because observed-variable scaling can change shared-coefficient constraints; std.ov = FALSE remains accepted. Focused args tests passed with isolated medfit 0.15.0. Local-CI policy unchanged.
+local_ci: 2026-10-26 - PR #113 review: local CI passes with isolated medfit 0.15.0 and network access (R CMD check 0 errors, 0 warnings, 1 CRAN incoming note; lint and pkgdown pass). Declared withr, qualified stats::setNames, and corrected runner context/status handling.
+roadmap: 2026-11-25 - docs/ROADMAP.md records the v0.10.0 website blocker, owner acceptance of T5 on the tested pins, and T6 and T7 sequencing. Acceptance evidence lives in tasks/plan.md and tasks/todo.md.
+p3_candidates: 2026-10-24 - medfit sem_model_heywood() seed 10 ruled nonqualifying (seeded generation); no stored improper-null input found. HISTORICAL: ruling B (2026-10-26) dropped the seeded-generation exclusion. Detail in tasks/plan.md P3.
+p3_routes: 2026-10-24 - Dropbox SEM books, notebooks, Kline Roth (nulls proper) and Sabatelli (full-model CFA Heywood) screened; none qualifies; medfit has no covariance input, so P3 needs row-level data. Plan: docs/PLAN-p3-raw-data-routes-2026-10-24.md (reviewed). HISTORICAL: route plan superseded by ruling B (2026-10-26); R2-R5 dropped.
+d4_codex_review: 2026-10-26 - read-only Codex review of medfit 9599608 (+#341/#342/#355), nothing run, nothing changed: no high-severity defect; compare_lr/anova handle the new class safely. Open design findings for the medfit maintainer: (1) moderate, a losing-branch covariance failure invalidates a union whose winner has valid covariance (R/sem-fit.R:391-402); (2) moderate, every .sem_vcov() error is retained as LR evidence, not only the improper-null case (R/sem-fit.R:189,204; R/sem-mbco.R:197); (3) low, root attribution is first-in-branch-order, #355 pins it; (4) low, retention checks consistency, not forgery. Also: NEWS migration note for simpleError handlers. Unverified: tests not run, b45cb4c18 absent from local medfit objects, no natural negative-variance fixture. D4 gate stays open; no fix authorized.
+d4_repro: 2026-10-26 - authorized read-only repro of Codex findings 1-2 against the medfit test-d4-closure worktree (no medfit writes; script in session scratchpad). CONFIRMED 1: on the memory_exp union (winner = branch 2) a planted .sem_vcov failure in the losing branch alone raises medfit_sem_covariance_error and returns no fit (winner-only failure also raises). CONFIRMED 2: mbco_sem() retains the null with 2 warnings for 'computationally singular', 'negative variance' and 'out of memory' alike; nothing separates an improper-null failure from any other error. Both match the code comments (deliberate: no fit when the union is incomplete), so defect-vs-policy is still the medfit owner's ruling. Planted failures only; no natural negative-variance fixture. D4 gate stays open.
+d4_owner_ruling: 2026-10-26 - medfit author ruling via medfit-oct-25 (second Codex pass rated finding 2 HIGH, vs main). (b) NARROW: .sem_vcov() raises a new typed class for medfit's own covariance diagnostics (singular/non-PD information, negative variance); only it is retained as LR evidence (sem-fit.R, .sem_retain_covariance); any other error incl. OOM fails closed; tests cover allowed and refused classes. (a) KEEP union invalidation on a losing-branch covariance failure (intended, fails closed; ADR, no code change, revisit after (b)). Pending: medfit PR to dev (link to follow). D4 gate and T5 stay OPEN; no medfit change made from here.
+d4_test_pr: 2026-10-26 - medfit PR Data-Wise/medfit#355 (feature/test-d4-closure, tests only; squash-merged to medfit dev 2026-10-26 as b45cb4c18, CI green, branch kept): pins D4 root attribution (tightening) and 5 uncovered .sem_retain_covariance clauses. Full suite 1690 tests/8495 expectations/1 failed vs dev 1687/8458/1 failed; same pre-existing test-methods-tidy.R run-order failure. Covers two D4 test gaps only; D4 independent closure and T5 stay open.
+p3_sim_check: 2026-10-26 - simulated seed-45 improper-null case (worktree feature/heywood-null-research, not on dev): LR/settings/branch attribution and K=5 warning aggregation via mbco_d4() and run()/infer() pass on medfit 0.15.0 and D4 0.12.0; mutants M1-M3 killed. Mechanism check only: P3 gate wording unamended, T5 UNACCEPTED. Detail in tasks/plan.md P3.
+medfit_defaults: 2026-10-24 - meanstructure = NULL made explicit at the fit_sem() calls (R/mbco_sem.R:222, acceptance test:360) plus source-scan guard test; silences medfit 0.14.0 default-change warning, no numeric change. Fresh-process proof on medfit dev 964bf6d via public mbco_d4(): warning present before, absent after (the class is lost when mbco_d4 re-signals, so match the message text). On the D4 head 3a98bf6 (medfit 0.12.0; D3 base cba4c1a, so the receipt's commit, not just the base): the receipt's consumer files (encoding+provider+acceptance) give 816 expectations before and after, 0 failed; guard test fails on the 341ec6d source (1 failure, 0 errors) and runs with 0 skips on the installed package (it walks namespace function bodies). Pushed to PR #102 (head 7d487ee, guard-test change after it is local). 3a98bf6/f31e12e/cba4c1a were on no branch in the medfit clone; kept by local branches keep/d4-3a98bf6 and keep/d3-pin-cba4c1a (not pushed). medfit-oct-23 was told; it waits on this for its T10. Scratch-library installs of medfit dev/D4 head used (not the user library).
+d4_closure_followup: 2026-10-22 - Nonwinning-child controls in both product orders/both nulls; 768 dependency +816 consumer =1584 deterministic assertions pass, expanded test lint clean, mutants catch attribution/notice defects. Claude5ad08ae8 failed error_max_structured_output_retries; no valid verdict, unread bodies/draft concerns remain. D4 NOT independently closed; T5 UNACCEPTED. Matrix/receipt docs/specs/D4-closure-*. No installs/simulations/saved-result changes/push/merge; author requested wrap-up.
+local_checkpoints: medfit 3a98bf6 (D4 attribution controls over f31e12e); rforge website source 7c4ec3e. Rforge 46/47 wrapper checks; only pre-existing reference drift fails. Preview local, not deployed; T5 UNACCEPTED.
+d4_post_fit: 2026-10-22 - Local medfit D4 on codex/medfit-d4-post-fit-evidence from cba4c1a; typed covariance-stage evidence and checked internal null retention, public full fit still throws. 654 dependency +816 consumer =1470 deterministic assertions pass; one pre-existing assignment lint only. Claude cfded747 scoped approve, low union attribution concern; original spec/full-test omissions remain, so D4 not independently closed. Receipt docs/specs/NOTE-D4-post-fit-evidence-2026-10-22.md. T5 UNACCEPTED; D5/real cases open. No installs/simulations/saved-result changes/push/merge.
+d3_final_closure: 2026-10-22 - Claude d7e0983c approved after reading original C5/3c/3d/items8-10, proposal and conversion/rebase/full D3 tests; no findings. Supersedes earlier D3 omission notes, not D4/D5/T5 acceptance.
+wrap_up_docs: 2026-10-22 - Planning, CLAUDE.md and local gitignored AGENTS.md synchronized; Remember handoff refreshed. Rforge website source isolated on codex/d4-evidence-docs, strict offline content preview inspected, 920 Python tests pass/4 skip; full social-card build blocked by existing runtime/font network, generated-reference drift pre-existing. Website not deployed. No push/merge.
+d3_public_format: 2026-10-22 - Public/nested map propagation and tamper refusal pinned; huge-count wording clarified without numeric/cap change. 570 dependency +816 consumer =1386 deterministic assertions/lint pass. Claude0a653f34 approves with optional tests only; omitted spec/proposal/full test/conversion bodies, so no full spec closure. Prior base closure b6e11cec read original clauses. Raw docs/specs/D3-public-format-claude-review-2026-10-22.json. T5 UNACCEPTED; D4/D5/real-case open. No installs/simulations/saved-result changes/push/merge.
+d3_branch_map: 2026-10-22 - Isolated medfit codex/medfit-d3-branch-map on D2 a11c63b: overflow-safe 64-RAW cap and structural duplicate maps without execution changes. 484 dependency +816 consumer =1300 deterministic assertions/lint pass. Claude b0735071 needs-attention; four concerns addressed/retested, including confirmed error-ledger masking fix, not independently re-reviewed. Original C5/3c/3d/items8-10 omitted by Claude; owner traced, closure pending. Raw docs/specs/D3-claude-review-2026-10-22.json. T5 UNACCEPTED; D4/D5/real cases open. No installs/simulations/saved-result changes/push/merge.
+d2_null_attribution: 2026-10-22 - Tests only in isolated medfit: explicit null:1 all-empty union and nested certificate IDs/proofs; 1210 deterministic assertions/lint pass, zero warnings/errors. Claude424e4da7 approves with no findings, reads approved 3d/items8-10; no full consumer verification claimed. Raw review docs/specs/D2-null-attribution-claude-review-2026-10-22.json. T5 UNACCEPTED; D3-D5/real-case open. No installs/simulations/saved-result changes/push/merge.
+d2_literal_certificates: 2026-10-22 - Local medfit codex/medfit-d2-literal-certificates from pinned D1 8d7d6c1; exact explicit zero/nonzero equality certificates only. 369 dependency +816 consumer assertions pass, no warnings/errors. Claude ca1aef5c needs-attention; four concerns repaired/retested, not independently re-reviewed; cross-root spec/proposal omitted. Receipt /private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D2-literal-certificates-2026-10-22.md. T5 UNACCEPTED, D3-D5/real-case open. No installs/simulations/saved-result changes/push/merge.
+t6: 2026-11-25 - The medfit 0.14.0 minimum passed 953 targeted assertions, and the accepted medfit 0.19.0 pin passed 1,033. Updated the package floor, NEWS, help, and vignettes. Typed covariance retention requires medfit 0.19.0 or later.
+next: (refreshed 2026-11-25) Local missingmed 0.11.0 checks passed on R 4.1.3 and 4.6.2 with RMediation 1.11.2 and medfit 0.20.0. All three hosted workflows passed on 95618d2 in the private rehearsal, with Pages deployment skipped. Next is release PR approval. See docs/PLAN-release-0.11.0.md. The live site remains on 0.10.0.
+  (historical 2026-10-26) PR #102 MERGED to dev 2026-10-26T20:10Z as 9f77220 (squash of 49 commits, merged by
+  Data-Wise; final branch head 4a84e66, tree identical to origin/dev). 0 reviews, no recorded merge authorization
+  in these docs. T5 stays UNACCEPTED and D5 is not started: both are now FOLLOW-UP gates on dev, not blockers
+  of an open PR (P3 met by simulated seed 45, ruling B; its D5-integration evidence is still open; D4 independent closure; D1-D4 integration into medfit after
+  0.14.0, owned by medfit-oct-23; D1-D4 commits survive only on local keep/d4-3a98bf6 and keep/d3-pin-cba4c1a).
+  D5 recheck trigger MET 2026-10-26: medfit 0.15.0 contains D1-D4 (re-landed as PRs #336-#342; pinned commits are not ancestors), so D5 is unblocked but not started;
+  D4 review of 0.15.0 done 2026-10-26: no defect, gate open (vacuous winner assertion, 5 untested retain-covariance clauses); equivalence to reviewed receipts unverified. P3 ruling 2026-10-26 = B (supersedes same-day A): simulated seed 45 accepted, gate amended, collaborator route dropped, R3/R5 dropped; T5 still UNACCEPTED (D4 closure, D5, checkpoint): docs/REQUEST-p3-ruling-2026-10-26.md.
+  missingmed CRAN stays live, blocked by RMediation >= 1.7.1 (author hold).
+  The "draft PR #102" and "No open issues or PRs" wording below is dated history (2026-10-16).
+  (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe (release PR #97,
+  merge ed28304, tag v0.10.0); dev is 0.10.0.9000. #99 MERGED 2026-10-15 (3dbffc3): frozen-vector
+  cross-check loosened 1e-12 -> 1e-10 (CRAN macOS arm64 R differs from Homebrew R by ~3e-12); fixes the
+  r-universe macOS check failure of 0.10.0 (binaries were served throughout). No open issues or PRs.
+  #100 MERGED 2026-10-16 (f30f2b6): PRs are gated locally, not by GitHub CI. `make ci`
+  (dev/local-ci.sh) runs R CMD check --as-cran, lintr and pkgdown::check_pkgdown(); check, lint and
+  pkgdown workflows run on push to main/dev only. The required R-CMD-check status was removed from
+  main protection (by the author, 2026-10-16), so dev->main PRs no longer wait on it. Run `make ci`
+  and quote the counts in every PR body.
+  Full history through 2026-10-15: docs/archive/STATUS-next-history-2026-10-16.md.
+  OPEN, in order:
+  (1) lavaan MBCO -> medfit mbco_sem: author chose to delegate and REPLACE the lavaan provider
+      (2026-10-16). SPEC APPROVED, all four rulings as recommended (docs/specs/SPEC-lavaan-mbco-on-
+      mbco-sem-2026-10-16.md; strict fit_args allow-list, narrower syntax, merge to dev now, delete MLR
+      internals, refuse likelihood = "wishart"). Branch feature/lavaan-mbco-medfit (draft PR #102):
+      Item10 optional closure: k=2 oracle, fixed-mode mutations and fixture isolation;
+      816 consumer assertions/lint pass. Claude64bcc7d9 approves with no findings.
+      Tests only, T5 UNACCEPTED; real-case/D5 evidence still open. No push/merge.
+      Item10 hardening: injected tests outside medfit-specific skip; positive K=3 ARIV,
+      stack-only k mismatch and paired swaps; 776 consumer assertions/lint pass.
+      Claude03f86a8b approves scoped item10 review; optional hardening recorded in
+      docs/specs/NOTE-ITEM10-hardening-2026-10-22.md. T5 UNACCEPTED; real-case/D5 open.
+      T1/T2 adversarial repairs verified: 35 label + 94 provider assertions pass; lint clean.
+      Malformed modifiers, defined-name collisions, preconstrained null dimensions and unknown
+      constraint symbols guarded; warnings retained on failure. Three in-memory mutations killed.
+      Existing medfit 0.11.1 at /private/tmp/claude-501/medfit-lib2; no installs; RemoteSha absent.
+      Claude rerun: no blockers, static/partial coverage; final named-symbol guard tested afterward.
+      Historical T2 gap: branch-specific null improper attribution (T5 follow-up below).
+      Shared-label follow-up: direct tested-label/variance sharing refused; valid regression
+      and intercept sharing retained (one df, oracle parity). 38 label + 102 provider assertions
+      pass; mutations 15/14/3. Claude flags inferred indirect equality-to-variance bypass;
+      Exact indirect example failed closed in medfit; affine row-space guard now refuses
+      null-fixed nonpositive variances before fitting. 38+110 assertions pass, lint clean,
+      Joint feasibility/consistency now checked by capped dependency-free affine elimination.
+      38+124 assertions pass, lint clean, mutations 15/14/3/9. Claude approved this patch,
+      independently read spec and reproduced checks; only unverified extreme-scaling caveat.
+      Later integration/diagnostic acceptance gates remain; see receipt.
+      T3 DONE internally: approved fit_args allow-list, normalized duplicate refusal,
+      ML-only estimator; options ignored, fixed_x=FALSE retained. 214 total SEM assertions
+      pass; five mutations detected; lint clean; Claude T3 approval with reproduced checks.
+      Receipt NOTE-T3-fit-args-verification-2026-10-22.md.
+      T4 implemented locally: both public APIs use medfit; legacy provider and MLR
+      source harness retired; help, tutorials and contributor pointers updated.
+      NULL fit_args remains refused; list() accepted. Deterministic SEM checks:
+      246 assertions, zero failures/errors/warnings/skips; five mutations detected;
+      lint clean. Claude scoped static approval (no test execution), one stale
+      contributor pointer repaired afterward. Receipt NOTE-T4-public-wiring-
+      verification-2026-10-22.md. T5 attribution fallback implemented with exported
+      diagnostic refits: matching sample, factor/fixed-x state and both raw LRs
+      required; unresolved attribution refuses inference. 776 assertions pass;
+      targeted lint clean. T5 NOT fully accepted: real improper-null stored-data
+      evidence remains absent. Claude read relevant spec, ran acceptance tests,
+      returned needs-attention; broader 3c/3d test coverage map incomplete.
+      Empty-diagnostic bypass fixed and re-reviewed. Follow-up bounded search
+      found no existing stored improper-null fixture; no generators were run.
+      776 assertions rerun green. Claude confirms permitted fallback design but
+      withholds approval: real case absent, guard-trigger tests missing, broader
+      spec/test body review still partial. No implementation changes in this pass.
+      Receipt NOTE-T5-acceptance-verification-2026-10-22.md.
+      P1 guard controls now implemented: 834 deterministic assertions pass,
+      three isolated guard bypasses each detected by 10 assertion failures;
+      targeted lint clean. Claude scoped static P1 approval, spec excerpts only;
+      exact failing-branch assertions tightened afterward, tested not re-reviewed.
+      P2 criteria recorded; clause/body matrix and bounded Claude review complete
+      as an audit, NOT acceptance. 834 assertions rerun green; 19 mutations
+      detected, but most harness gates allow incidental errors. Claude needs-
+      attention: completeness interpretations and review omissions remain open.
+      Targeted follow-up: both mutation harnesses require intended assertions and
+      zero execution errors; five added bypasses, explicit post-fit policy/control.
+      858 deterministic assertions pass; 24 intended-assertion mutations each
+      have zero execution errors; targeted lint clean. Bounded Claude rerun:
+      needs-attention, coverage omissions retained; intermediate encoding-map
+      finding resolved by final full run. Warning-policy wording qualified after
+      review. Exclusion/64-limit/post-fit rulings and author-supplied stored
+      improper-null input remain required; T5 stays unaccepted.
+      Research-grounded T5 proposal revised in tasks/plan.md: reasoned exclusion
+      is not refusal; 64 is an engineering cap with distinct counting contracts;
+      escaping covariance failure is not preserved likelihood. No spec amendment
+      or implementation authorized. Claude plan review needs-attention (snapshot
+      only): rulings consistent with quoted spec; final frozen
+      implementation review and real-case hold remain open. Installed medfit
+      0.11.1 covariance-before-return flow inspected read-only, not a reproduced
+      failure. Review usage/dispositions in plan; final clarifications unreviewed.
+      Author approved the three recommended rulings afterward (2026-10-22).
+      Read-only medfit inventory and bounded D1-D5 design recorded in
+      PROPOSAL-T5-medfit-evidence-contract-2026-10-22.md: outcome ledger,
+      reasoned exclusion, raw-64 cap/duplicate evidence, typed post-fit payloads,
+      then separately authorized consumer integration. Existing singular-info
+      warning returns NA covariance; escaping errors are a distinct gap.
+      Inventory pass was read-only. Author later approved dependency design and
+      D1 only: isolated /private/tmp/medfit-d1.3jrA2K/medfit from 505e8ed,
+      codex/medfit-d1-outcome-ledger; versioned outcomes/public propagation,
+      local commit 06b2ca9 (not pushed/merged),
+      259 deterministic assertions pass, no changed-file lint/Rd findings.
+      Claude standard review partial (tests/spec omitted); notice-visibility
+      finding fixed, context/child-drop hardening added and tested afterward,
+      not re-reviewed at that checkpoint. Authorized focused review then read all
+      11 D1 test bodies/prior fixes: no blocker, three low findings dispositioned.
+      Latest assertion follow-up: 1055 deterministic assertions; header/fixture
+      guards and df derivation strengthened, tenfold empirical LR margin passes.
+      Claude78641aac approves consumer fixes; cross-root D1/spec reading omitted.
+      Null-case tag retested post-review, not re-reviewed; T5 unaccepted.
+      Prior follow-up: 329 deterministic assertions (306 medfit + 23 consumer).
+      Exactly-64 and duplicate/arbitrary-ID controls added; no fitter defect.
+      Affine gate blocks claimed generic-union bypass; version/ledger work is D5.
+      Internal pooling trust seam reproduced outside D1; SEM LR guards pass.
+      Claude21ecbeba approves, no findings; consumer/proposal omissions bounded.
+      Consumer integration and real-case evidence remain open. T5 unaccepted.
+      Child-objective consistency fixed; MBCO notice tests/help added; 273
+      deterministic assertions pass. Final follow-up not Claude-reviewed; direct
+      approved-spec/proposal review omissions remain. D2-D5 untouched, T5 unaccepted.
+      Restricted check made a temporary project install (disclosed no-installs
+      deviation); no dependencies/existing libraries changed. Check has one
+      existing undeclared-rlang warning. No simulations, saved-result edits or merge.
+      T5 remains unaccepted; real stored improper-null and final review still open.
+      T5 stays unaccepted; recommended path closes independent gaps first.
+      After T5 acceptance: T6 dependency
+      floor/package checks. No full RNG suite or vignette render.
+      Absolute raw-LR 1e-7
+      justified against stored observed/latent/interior-null oracle errors <=5.543e-10.
+      Receipt: docs/specs/NOTE-T2-provider-verification-2026-10-22.md. Full CI unrun (RNG suite).
+      Default medfit is 0.7.0; focused checks use the existing 0.11.1 library above.
+      Hard medfit >= 0.10.0 blocks CRAN until
+      medfit 0.10 is on CRAN.
+  (2) CRAN: blocked on RMediation >= 1.7.1 on CRAN (latest release 1.6.1; 1.7.1 fixes the R-devel S7
+      load error) and on the medfit floor. Re-check why the CRAN plan (docs/specs/PLAN-cran-1.0.0-
+      2026-10-09.md) names medfit 0.7.0 now that medfit is at 0.10.0 on GitHub (CRAN medfit 0.3.2).
+      Then: raise floors, drop .lav_round_nobs() once a CRAN medfit carries .lavaan_n_obs(), re-run
+      win-builder devel; consider dropping quarto/pkgdown from Suggests. mac-builder failed
+      builder-side twice on 2026-10-14 (library broken, not missingmed): retry.
+  (3) mediate_mi() (user-API spec follow-up): not started; waits on
+      the author's go-ahead.
+  (4) Not started / gated: FIML-MBCO (P6); complete-data infer(<lavaan>) (P4, may be superseded by
+      medfit mbco_sem). MLR MBCO stays refused (gate failed, PR #84). Latent MBCO: lavaan ML works;
+      multi-start acceptance criteria not verified.
+  RESOLVED since the history: the feature/mbco-mlr "decision pending" (PR #84 merged 2026-10-10);
+  the "glm MBCO refits ignore fit_args" finding (likelihood-changing fit_args are now refused by
+  .check_mbco_fit_args(), R/mbco_mi.R:74-75).
 type: r
-worktrees:
-  2026-10-10: REMOVED worktrees and local branches feature/mbco-mlr (PR #84, merge b2b18f2),
-    feature/ipw-literature-docs (PR #78, b0dc4df) and feature/us-english-fixes (PR #83,
-    eb09373). Each was clean, its tip == its merged PR's head, and the merge commit is in
-    origin/dev; `git branch -d` sufficed. No remote feature/* branches remain. Later the
-    same day the author deleted feature/pool-mref (PR #29, bbb89b3) and
-    feature/relicense-lavaan-floor (PR #48, d1588f8) with `git branch -D` (squash merges;
-    tip == PR head, merge commit in origin/dev). The leftover local branch
-    worktree/quiet-meadow-d4ed (tip c751fff, an ancestor of origin/dev, no PR) was also
-    deleted by the author, with its remote branch, and `git fetch --prune` cleared 23
-    stale origin/feature/* tracking refs. Only local branches dev and main remain; remote
-    has dev, main, gh-pages. Last worktree, app-made pensive-kare-38530a (detached HEAD
-    at 898cb7b, clean, session already archived), then REMOVED with `git worktree remove
-    --force`; 898cb7b stays on origin as refs/pull/29/head, and its ignored
-    session-report-2026-10-07.html was copied to the main checkout's .remember/. Only
-    the main checkout remains.
-  2026-10-07: post-v0.5.1 cleanup. REMOVED 12 worktrees: 7 agent worktrees
-    under .claude/worktrees/ and ~/.git-worktrees/missingmed/{feature-defensive-
-    tests, feature-docs-site, feature-review-followups, feature-vignette-
-    replication, release-0.5.1}. Each branch tip == its merged PR's head
-    (#29-#36) and each merge commit is in origin/dev; dt-* branches are
-    contained in feature/defensive-tests (#32); worktree-agent-* sit at
-    397cd3c (on main). Untracked P1 e2e scratch (dev/e2e-p1*) was backed up
-    first. The 19 local branches need `git branch -D` (squash merges; the
-    branch-guard hook blocks it for the agent). Remote branches were already
-    auto-deleted. pensive-kare-38530a (this session, feature/pool-mref) is
-    removed by archiving the session.
-  2026-10-07: app-made worktrees sad-bell-54d993 (PR #21/#23 session),
-    vigilant-shaw-3f3543 (PR #22) and wonderful-curran-d50199 (PR #24)
-    REMOVED; the sad-bell and vigilant-shaw sessions archived. Their local
-    .token-optimizer stores are copied to the main checkout's
-    .token-optimizer/backup-<name>/. Local branches deleted after checking
-    each tip == its merged PR's head (or == main at adb6259):
-    feature/s7-dev-article, feature/ariv-fixed, feature/ariv-rank-guard,
-    feature/vignette-mbco-mi, claude/affectionate-wozniak-46b84f,
-    claude/vigilant-shaw-3f3543. docs/ipw-phase1-spec deleted on origin after
-    PR #26 landed its spec; local copy deleted too.
-  2026-09-23: feature-narfcs-leftovers REMOVED after PR #15 merged (local tip
-    == remote tip == PR head fd75a3d; merge 65f8052 on dev). Local and remote
-    branch deleted.
-  2026-09-23: feature-pooled-inference REMOVED after PR #14 merged (local tip
-    == remote tip == PR head 6f919f3; merge 2f191d4 on dev). Local and remote
-    branch deleted.
-  2026-09-23: feature-drop-renv REMOVED after PR #12 merged (local tip
-    16c1bce == PR head == remote tip; merge e6662a5 on dev). Local and remote
-    branch deleted.
-  2026-09-23: feature-narfcs-delegation REMOVED after PR #13 merged (local tip
-    63e7f2f == PR head). Local branch deleted; origin/feature/narfcs-delegation
-    was gone from origin too by 21:47Z.
-  2026-09-23: pruned 4 dead entries whose /Users/dt/ directories no longer
-    existed (feature-glm-phase, feature-mnar-sensitivity, feature-review-fixes,
-    fix-minibook). Their 4 local branches and the 3 remote ones were then
-    DELETED, after checking each tip: feature/glm-phase = PR #5 head (merged 24fffc3),
-    feature/mnar-sensitivity = PR #6 head (b9ac0ce), feature/review-fixes =
-    PR #7 head (3521d91); fix-minibook @ 240544e had no PR and its commit was
-    already in dev's history. The three PR branches are restorable from their
-    merged PRs.
+worktrees: (2026-10-26) main checkout (feature/lavaan-mbco-medfit) plus ~/.git-worktrees/missingmed/feature-heywood-null-research
+  (untracked research files only). mediation-planning worktrees (docs-mediationverse-review-2026-10-26 kept, docs-coordination-banner-2026-10-26
+  PR #16) are in the other repo. Earlier: (2026-10-16) only the main checkout (dev). Cleanup log through 2026-10-10:
+  docs/archive/STATUS-worktrees-log-2026-10-16.md.
 
 # missingmed — Missing-data causal mediation (R package, mediationverse)
 # Scope decided 2026-06-04 (Data-Wise/missingmed#1): general CRAN-targeted toolkit —
 # MI + IPW estimators, SEM + GLM models, MAR + MNAR sensitivity. S7-first.
 # Thin orchestration layer: fit via medfit, infer via rmediation, simulate via medsim.
 
-## post-0.5.1 (dev 0.5.1.9000)
-- 2026-10-07 (merged): PR #39 feature/docs-audit-new -> dev (169195b, squash).
-  Audit docs 1-5: articles supported-models (rules asserted live), faq,
-  s4-migration; technical.Rmd 3A (X:M pooling); verb examples. Check
-  --as-cran 0/0/0 (medfit 0.4.0 and 0.3.2). PR #38 (169195b's parent line):
-  dev bumped to 0.5.1.9000.
-
-## 0.5.1 (released 2026-10-07; PRs #28-#36)
-- 2026-10-07 (released): v0.5.1. Bump PR #36 -> dev (b5dcb2a, squash);
-  release PR #37 dev -> main (12ad874, merge commit); CI green on main;
-  tag v0.5.1 on 12ad874; GitHub release "missingmed 0.5.1" (latest,
-  03:44Z 2026-10-08). Gate: tests 1281 (medfit 0.4.0) / 1277 + 2 skip
-  (0.3.2); check --as-cran 0/0/0. pkgdown root serves 0.5.1. r-universe
-  still 0.5.0 at release time (polls main). dev stays at 0.5.1 (no .9000
-  bump yet).
-- 2026-10-07 (merged): PR #35 feature/docs-site -> dev (0f6e869, squash). Website audit items
-  1-2: pkgdown development mode auto (site deployed dev builds at the root;
-  root stays dev-built until the next main build or a manual
-  workflow_dispatch on main); conf_int implemented (pool() adds per-coef
-  conf_low/high on Rubin t); DESCRIPTION rewritten; inst/CITATION; S4 pages
-  marked deprecated (0.6.0); paper references made generic. Tests 1281 /
-  1277+2 skip; check 0/0/0. Remaining audit items: new docs 1-5 (supported-
-  models article, X:M technical section, verb examples, FAQ, S4 migration).
-- 2026-10-07 (merged): PR #34 feature/vignette-replication -> dev
-  (29daa69, squash). New vignette worked-analysis.Rmd: tutorial of
-  the paper's illustrative-analysis steps on simulated data (no manuscript
-  values), Part 1 core workflow, Part 2 what dev adds over 0.5.0. Check
-  --as-cran 0/0/0; renders in 1.8 s.
-- 2026-10-07 (merged): PR #33 feature/review-followups -> dev (a368e85,
-  squash). #32's open
-  questions 1-5: pool_sem() Rubin t p-values (was geometric mean of p) + CIs;
-  NA-aware tipping point; sensitivity_mnar(ariv =); warnings for args a type
-  ignores; integer seed recorded. Tests 1275 pass (0.4.0) / 1271 + 2 skip
-  (0.3.2); check 0/0/0; 8 new tests fail on dev (positive control).
-- 2026-10-07 (merged): PR #32 feature/defensive-tests -> dev (1506c45,
-  squash). Defensive
-  checks + engine validation/error catching + edge-case and E2E tests across
-  S7, MNAR, MBCO, IPW and S4, from five parallel units (each probed bad input
-  on dev first: silent-wrong -> guard, obscure crash -> clear error, clear ->
-  pin, works -> leave). Fixes: pool() stacked estimates by position;
-  infer() ignored unknown ...; deprecated S4 run_sem() never worked (swapped
-  args) and lav_mice() rejected valid syntax. Gate: tests 1231 pass (medfit
-  0.4.0) / 1227 + 2 skip (0.3.2), check --as-cran 0/0/0, coverage 78.9 ->
-  94.3%. Open questions listed in the PR body.
-- 2026-10-07 (merged): PR #31 feature/set-md-validation -> dev (e49804e,
-  squash; P1). Shared
-  .check_roles() for set_md_mediation() and mbco_d4() (mbco_d4 tightened:
-  formula_m's response may involve only the mediator; the mediator may not be
-  formula_y's response); set_md_mediation()-only .check_md_spec() on
-  data-expanded terms: bare X/M main effects + one X:M in formula_y, X:M needs
-  gaussian identity, numeric treatment (logical refused: medfit errors on
-  XTRUE). E2E: wrong-LHS control silently accepted on dev, refused now; pooled
-  a/b/c_prime identical before/after. Tests 553 pass (dev baseline 503);
-  check --as-cran 0/0/0 locally.
-- 2026-10-07 (merged): PR #30 feature/spec-p3-engine-evidence -> dev
-  (a4e38dd, squash). Grill evidence line corrected (medfit 0.4.0 accepts glm
-  and regmedint; 0.3.2 glm only); P3 added to the SEM spec as a proposed,
-  open amendment.
-- 2026-10-07 (merged): PR #29 feature/pool-mref -> dev (bbb89b3, squash).
-  Fixes a Codex adversarial-review finding on #28: averaging int_ref mixed
-  each imputation's theta3 with its own m_ref. pool() now averages m_ref
-  (recovered as m_star + int_ref/theta3, with a b0 + covariate-means
-  fallback when theta3 = 0) and sets int_ref = theta3 * (m_ref - m_star) from
-  pooled values; differing m_star across imputations errors. Read back from
-  int_ref because CRAN medfit 0.3.2 (CI) lacks the covariate-means
-  attribute. Gate: CI R-CMD-check + pkgdown green; local check vs medfit
-  0.3.2 1 NOTE, 504 pass.
-- 2026-10-07 (merged): PR #28 feature/pool-interaction -> dev (2450c71,
-  squash), closes #20. pool() sets the X:M path properties in one props<-
-  call, pools theta3 and recomputes the four-way decomposition (int_ref
-  averaged); .pool_wald() tolerates the interaction class's missing family
-  props and gives theta3/b0 their source rows' df. infer(type = "mc") gains
-  treatment_level (required on X:M fits, error elsewhere; RMediation::ci() on
-  pooled (a, b, theta3)); sensitivity_mnar passes it through; print/summary
-  show the X:M indirect effect at x = 0 and 1. Gate: check --as-cran 1 NOTE
-  (incoming baseline), tests 498 pass (was 459); known-answer MC test, planted
-  wrong estimand caught (2 failures).
-
-## v0.5.0 -- released 2026-10-07
-- 2026-10-07 (released): PR #25 dev -> main merged (397cd3c, merge commit)
-  after 4/4 checks; push CI on main green (R-CMD-check, pkgdown). Tag v0.5.0
-  on 397cd3c; GitHub release "missingmed 0.5.0", notes = the NEWS 0.5.0
-  section. Pre-merge review: versions consistent; leak grep clean on the
-  vignette, NEWS and PR body.
-- 2026-10-07 (merged): PR #26 feature/ipw-phase1-spec -> dev (1ea84bd,
-  squash): docs/specs/SPEC-ipw-phase1-2026-06-11.md landed unchanged from the
-  never-merged docs/ipw-phase1-spec branch (IPW itself shipped in 0.2.0).
-- 2026-10-07 (bump): DESCRIPTION 0.5.0 (Date 2026-10-07); NEWS heading
-  "missingmed 0.5.0", its Bug fixes bullet reworded to the user-visible
-  change (k is a rank difference; differs from 0.4.0 only on aliased
-  designs); CLAUDE.md v0.5.0; mbco-mi vignette "default since 0.5.0"; README
-  drops the stale "non-CRAN deps" note. Gate on the bumped tree: check
-  --as-cran Status OK (0/0/0, vignettes rebuilt), devtools::test 122 tests /
-  459 expectations, 0 fail/skip/warn; dev/e2e-narfcs.R 7/7.
-- 2026-10-07 (merged): PR #24 feature/vignette-mbco-mi -> dev (7c8df62):
-  mbco-mi vignette retitled "Testing an indirect effect with incomplete
-  data" and expanded into a worked guide (MC interval + D4-MBCO on one
-  synthetic fit; X:M model shown with MBCO only, pending #20). Grund, Ludtke &
-  Robitzsch cited as 2023, Psych Methods 28(5) (was the 2021 preprint), in
-  both vignettes and mbco_d4() docs. NEWS (#19 bullet, 0.2.0 entry) and the
-  R/mbco_mi.R D4 comment reworded to describe ariv mechanically. Leak grep
-  run on the .Rmd AND rendered HTML (computed output can match).
-- 2026-10-07 (merged): PR #23 feature/s7-dev-article -> dev (5284b18): the
-  pkgdown Developer article classes_methods.qmd rewritten around the S7
-  classes (property and method tables generated at build time); stale S4
-  PlantUML source dropped.
-- 2026-10-07 (merged): PR #22 feature/ariv-rank-guard -> dev (2c06edb): the
-  ariv = "fixed" guard compares k, not design ranks; .mm_drop_df() is a rank
-  difference under both ariv values.
-- 2026-10-07 (docs, 34720c9): CLAUDE.md and technical.Rmd document
-  MbcoMIResult, ariv and mbco_d4().
-- 2026-10-07 (merged): PR #21 feature/ariv-fixed -> dev (13aa37c, squash),
-  closes #19. infer(type = "mbco") gains ariv = c("fixed", "own"), default
-  "fixed": each imputation's statistic is recomputed on the stacked fit's
-  branch before forming r4 (ported from medsim 0.5.1). "own" is bit-identical
-  to 0.4.0 and keeps the different-k refusal; "fixed" uses the stacked k with
-  a design-rank guard. New exported mbco_d4(implist, ...) and S7 class
-  MbcoMIResult (parent class_double; `[`, `[[`, print, tidy; properties ariv,
-  k, m, stacked_branch, branch_mix, p_branch_a). K = 1 still errors. The
-  TODO(rmediation) note is retired: D4-MBCO under MI lives in missingmed.
-  sensitivity_mnar(type = "mbco") now uses the fixed default too.
-  Tests: medsim 0.5.1 fixture on synthetic data (data-raw/, no medsim dep),
-  rel 1e-10 with Inf == Inf; "own" identity checked against the pre-#19 code
-  in tests/testthat/helper-legacy-mbco.R. devtools::test 120 tests / 448
-  expectations, 0 fail/skip/warn; check --as-cran 0/0/0; CI green.
-  S7 gotchas recorded in R/MbcoMIResult.R and R/methods-output.R comments.
-
-## v0.4.0 RELEASED -- 2026-09-23
-- 2026-09-23 (release): PR #17 dev -> main (adb6259, merge commit). Tag
-  v0.4.0 on adb6259; GitHub release "missingmed 0.4.0" published 22:53Z and
-  marked latest. Release gate on dev 927402b: check --as-cran 0/0/0, FAIL 0 |
-  WARN 0 | PASS 322 (v0.3.1 shipped with 200), dev/e2e-narfcs.R 7/7. The bump
-  commit merged the dev NEWS section's two "## Bug fixes" headings (left by
-  separate PRs) and added a Dependencies note.
-- 2026-09-23 (merged): PR #16 feature/cran-deps -> dev (88b4f65, squash).
-  medfit 0.3.2 and RMediation 1.6.1 are on CRAN, so DESCRIPTION drops
-  Remotes: and Additional_repositories:. CI installed both from the CRAN mirror
-  (packagemanager.posit.co/cran), with no r-universe involved. CLAUDE.md,
-  README.dev.md and the missingmed vignette no longer call them non-CRAN.
-  Built by plumbing from a scratch tree, with no worktree. Remote branch deleted.
-- 2026-09-23 (merged): PR #15 feature/narfcs-leftovers -> dev (65f8052,
-  squash). (1) `...` into run() closed as NOT a bug: unknown args already
-  error ("unused argument"), because medfit forwards `...` to glm(). (2) C2
-  fixed: every rung's imputations are checked for NA/NaN/Inf after
-  re-imputation, so a rung can no longer silently run complete-case. (3) The
-  vignette's 5B.2 table and 5B.3 figure come from one live
-  sensitivity_mnar() run (the old figure used a constant se of 0.075), with
-  stopifnot() guards on the three claims the prose makes. check 0/0/0
-  including the vignette build, PASS 322, E2E 7/7, CI green.
-- 2026-09-23 (merged): PR #14 feature/pooled-inference -> dev (2f191d4,
-  squash). pool()'s tidy table gains statistic/df/riv/fmi/p_value per
-  coefficient (the p_value column was documented but never built). df is
-  Barnard-Rubin with each model's complete-data df (n_obs minus its m_*/y_*
-  count; Inf for binomial/poisson); a/b/c_prime alias rows repeat their
-  sources; m = 1 (IPW) is the single-fit Wald test. Hand-computed, not
-  mice::pool.scalar. E2E: identical to summary(mice::pool(with(imp, lm(...))))
-  to 1e-13 on all 7 terms. check 0/0/0, PASS 320 (was 283), CI green.
-  Spec: docs/specs/SPEC-pooled-inference-columns-2026-09-23.md.
-- 2026-09-23 (merged): PR #12 feature/drop-renv -> dev (e6662a5, squash).
-  renv REMOVED. renv/ had been deleted, uncommitted, in the main checkout
-  while .Rprofile still sourced renv/activate.R, so R failed at startup there.
-  renv.lock (2026-06-04, R 4.5.2) lacked S7, medfit and sandwich and pinned
-  RMediation 1.2.2, below the >= 1.5.0 floor; CI already disabled renv, and
-  medfit, RMediation and medsim use none. Removed renv/, renv.lock, .Rprofile,
-  the two .Rbuildignore lines and the CI env var; README.dev.md and CLAUDE.md
-  updated. check --as-cran 0/0/0 with tests, dev/e2e-narfcs.R 7/7, CI green,
-  all with no RENV_* variable set. #12 was first AUTO-CLOSED when dev was
-  deleted at 21:35:54Z (base_ref_deleted); the cause recorded by the session
-  that did it was a commit-tree push with an empty SHA, which became
-  :refs/heads/dev. dev was re-pushed at 02c921c with history intact, #12 was
-  reopened, and dev now has the protect-dev-from-deletion ruleset (23904111),
-  matching craft, savant, rforge and flow-cli.
-- 2026-09-23 (merged): PR #13 feature/narfcs-delegation -> dev (b37d882,
-  squash). sensitivity_mnar() hands deltas to mice NARFCS: norm + ums ->
-  mnar.norm, logreg -> mnar.logreg, else post; new `ums =`, @mechanism_used,
-  @scale. Refuses before any re-imputation: a typo'd ums coefficient (mice
-  only warns, imputations go NA, the rung silently runs complete-case), a
-  non-finite delta, a target named like a tidy() column, and a numeric 0/1
-  target whose baseline imputations are all 0/1 (D6, amends P1 -- norm*
-  imputations are continuous and allowed). Two adversarial reviews (R1-R3,
-  C1-C4; C3 fixed in-branch). Also fixed the 3 test WARNs: they were the
-  set_sem() deprecation notice from the S4 tests, not mice; now asserted.
-  check --as-cran 0/0/0, FAIL 0 | WARN 0 | PASS 283, dev/e2e-narfcs.R 7/7,
-  CI green. Ledger: docs/specs/GRILL-narfcs-delegation-2026-09-23.md.
-- 2026-09-23 (merged): PR #11 feature/testthat-runner -> dev (c9e5b2b, squash).
-  tests/testthat.R had NEVER existed, so R CMD check and CI had never run the
-  suite. Adding it exposed a real bug: --as-cran limits the test library to
-  declared deps, and the IPW default se_type = "sandwich" needs sandwich,
-  which missingmed never declared (medfit only Suggests it) — 8 IPW tests
-  errored (PASS 173/200). sandwich is now in Imports (importFrom vcovHC).
-  devtools::check() 0/0/0 and CI both report FAIL 0 | WARN 3 | PASS 200.
-  Version bumped to 0.3.1.9000. roxygen2 8.1.0 reformats all of NAMESPACE on
-  document(); that churn was reverted and is still owed as its own commit.
-- 2026-09-23 (merged, other session): PR #10 dropped LazyData (5c780a6).
-
-## Since v0.2.0 (released as v0.3.0 / v0.3.1)
-- 2026-08-22 (merged): PR #5 feature/glm-phase -> dev (24fffc3). Also merged
-  rforge#75 (ac16b0a), the .STATUS frontmatter parser fix. Two CI failures were
-  self-inflicted by running a SUBSET of what CI runs: rforge's gate is
-  tests/test-all.sh (44 checks), not `pytest tests/` (599); and missingmed's
-  pkgdown job reads _pkgdown.yml's explicit reference index, which R CMD check
-  never opens — two new exports were missing from it. See CLAUDE.md.
-- 2026-08-30 (release): v0.3.1 SHIPPED — tag 2f466de, GitHub release published,
-  main CI green (R-CMD-check + pkgdown). Patch of 7 correctness fixes. Suite
-  128 -> 200 across the day; check --as-cran 0/0/0 throughout. r-universe still
-  served 0.3.0 at close: it polls main and the v0.3.0 cycle took ~96 min from
-  merge to published, so expect 0.3.1 within a couple of hours. Not a fault.
-- 2026-08-30 (process): THREE adversarial reviews ran, and two of them caught
-  regressions introduced by the PREVIOUS round of fixes — maxit = 0 returning a
-  silently flat sensitivity curve, and .mm_drop_path() turning log(Y) ~ . into
-  Y ~ . so the two log-likelihoods were on different scales and T was not a
-  likelihood ratio (measured 813.76, p = 1.3e-32, rejecting unconditionally).
-  Neither would have surfaced from a failing test. See memory
-  green-ci-is-not-evidence-of-a-correct-artifact.
-- 2026-08-30 (release): v0.3.0 SHIPPED — tag v0.3.0 on e482527, GitHub release
-  published, main CI green, docs live. rforge cran-prep caught what
-  R CMD check --as-cran cannot see: VignetteBuilder declared knitr while the
-  engine is knitr::rmarkdown, so CRAN's noSuggests pass ERRORed on vignette
-  rebuilding. Fixed before tagging.
-- 2026-08-30 (docs): vignettes/technical.Rmd enriched to the self-study standard
-  — five base-R teaching figures, a hand-authored static pipeline SVG (the
-  mermaid fence rendered as raw escaped text; neither html_vignette nor pkgdown
-  loads mermaid.js, and the first render gate passed on the literal word
-  "mermaid"), worked examples, folded self-checks. Verified on the BUILT site,
-  not just the vignette.
-- 2026-08-30 (fix): three correctness fixes now on dev, unreleased at time of
-  writing. MBCO constrained models nulled only the main effect, so
-  Y ~ poly(M,2) + X left the constrained model IDENTICAL to the full one — T = 0,
-  p = 1, the test could never reject. infer() ignored @conf_level: asking for 90%
-  silently returned a 95% interval, 19.7% wider. pool() presented imputation 1's
-  @data/@sigma_m/@sigma_y as pooled. Specs: SPEC-mbco-constrained-models-2026-08-30.md
-  (CLOSED, author ruled reading (i)), PLAN-parked-findings-2026-08-30.md (item 3
-  deferred). Adversarial review of the latter caught %||% resolving from base
-  (R >= 4.4.0 only, DESCRIPTION allows 4.1.0 — would have failed oldrel CI) and a
-  blanking strategy medfit's validator rejects outright.
-- 2026-08-30 (review + gate): PR #7 merged (3521d91). Two adversarial review
-  passes over the release candidate found 4 blockers, then 5 more in the fixes
-  themselves -- including a REGRESSION introduced by the first pass: passing
-  maxit = mids$iteration made a maxit = 0 baseline return a silently FLAT
-  sensitivity curve. Confirmed defects, all fixed: IPW weights misaligned to
-  rows (fitted() vs predict()); .mnar_reimpute() dropping maxit/blocks/formulas/
-  ignore; pool() masking mice::pool; mids$method being block-keyed not
-  variable-keyed; mice floor needing >= 3.18.0 for $calltype.
-  Then rforge cran-prep caught what R CMD check --as-cran cannot see:
-  VignetteBuilder declared knitr but the engine is knitr::rmarkdown, so the
-  CRAN noSuggests pass ERRORed on vignette rebuilding. Gate now STATUS ready.
-  148 tests pass; check --as-cran 0/0/0.
-- 2026-08-30 (research): prior-art scan (docs/specs/SPEC-narfcs-delegation-
-  2026-08-29.md). Every method component is already published; the package-level
-  gap is real -- no R package combines missing-data handling + mediation + MNAR
-  sensitivity. Verified empirically that the post-based delta and mice's native
-  mnar.norm produce IDENTICAL draws (8.9e-16) on the same seed, which retires
-  the old spec's open fork.
-- 2026-08-29 (merge): PR #6 MNAR sensitivity MERGED to dev (b9ac0ce). Before the
-  merge an adversarial review of the diff found 3 real defects, fixed in 7aa2a9f:
-  format() truncated the delta to 7 sig. digits inside the post expression
-  (now digits = 15); seed_source said "argument" for the hard-coded fallback
-  (now "default"); pmm check + method_target only covered target[1] of a
-  multi-column delta (msp is documented as target[1]). 133 pass / 0 fail.
-- 2026-08-22 (code): RMediation API audit DONE. The entire runtime surface is
-  ci_mediation_data() (R/infer.R:32,56); 1.4.0 -> 1.7.0 is NON-BREAKING because
-  pool() already emits named a/b/c_prime + dimnamed vcov, exactly what 1.5.0's
-  strict name-based extraction requires. Floor raised to RMediation (>= 1.5.0):
-  below it, unresolvable paths silently assumed cov(a,b)=0 -> a wrong CI instead
-  of an error. New regression test pins that (test-s7-pipeline.R).
-  Evidence: 73 pass / 0 fail / 0 skip vs RMediation 1.7.0, medfit 0.3.2, R 4.6.1.
-  NB the installed library was 1.6.1 until this session; 1.7.0 now installed.
-  R CMD check --as-cran: Status OK (0E/0W/0N) after .Rbuildignore'ing the
-  .token-optimizer dir, which had produced a hidden-files NOTE.
-- 2026-08-22 (docs): follow-up plan + per-item outcomes ->
-  docs/specs/PLAN-post-v0.2.0-followups-2026-08-22.md. Items 1 and 2 DONE, GLM DONE,
-  MNAR not started. That file is the record; do not restate its detail here.
-- 2026-08-22 (branch, UNMERGED): feature/glm-phase — GLM phase shipped. Non-gaussian
-  families now tested (MI x {binomial mediator, binomial outcome, poisson outcome};
-  IPW x {binomial mediator, binomial outcome} with sandwich; MBCO D4 with a binomial
-  mediator, previously gaussian-only). NO production code changed — the plan's
-  "already plumbed, zero medfit blockers" finding held. 103 pass / 0 fail (was 73),
-  R CMD check Status OK. Also on that branch: 6 tidyselect .data$ deprecations fixed,
-  and roxygen2 7.3.3 -> 8.0.0 regeneration (matches medfit/medsim/RMediation).
-  Documented in vignette("technical") 5A: under a non-identity link a*b is on the
-  LINK scale (log-odds, log-rate) — not a risk difference or odds ratio, and
-  exp(a*b) is not one either.
-- 2026-08-22 (hygiene): removed the stale ORCHESTRATE-s7-migration.md working
-  artifact (merge-cleanup rule; content remains in git history).
-  Note: /rforge:status could not read this file — its parser keys on emoji section
-  headers (🎯 📊 ✅ 📋 ⏰) while all 7 active packages use `key: value` frontmatter.
-  Worse than "no data": it took max() over every N% in the prose, so every package
-  was reported with a WRONG progress figure. FIXED on rforge
-  feature/status-frontmatter (cf3182d, pushed, UNMERGED) — 599 pass / 2 skip.
-- 2026-08-22 (branch, UNMERGED): feature/mnar-sensitivity — MNAR phase COMPLETE,
-  M1–M6. sensitivity_mnar() + MDSensitivityResult: delta-adjusted imputation over
-  a grid, re-running the pipeline per rung to give a sensitivity CURVE (not an
-  estimator — MAR vs MNAR is untestable, so no rung is "the MNAR estimate").
-  98 tests / 0 fail, R CMD check Status OK. Design record:
-  docs/specs/SPEC-mnar-sensitivity-2026-08-22.md +
-  docs/research/RESEARCH-mnar-mechanisms-2026-08-22.md.
-  Key design facts worth not re-deriving:
-    * delta is a CONDITIONAL sensitivity parameter (CSP); what analysts elicit is
-      MARGINAL. Confusing them cost coverage 95% -> 49.3% in Tompsett et al.
-      (2018). tidy() therefore reports the realized msp beside the supplied delta.
-    * Re-imputation rebuilds from the mids' STORED SLOTS, never mids$call, which
-      does not resolve outside the function that built the mids.
-    * mechanism = "mnar" on set_md_mediation() is now DEPRECATED + ignored; it
-      never changed behavior. Only sensitivity_mnar() stamps it.
-    * v1 uses mice's `post`; the NARFCS mice extension (moreno-betancur/NARFCS)
-      is the v2 direction but is GitHub-only, and delegating loses the delta = 0
-      identity (NARFCS also conditions on other variables' missingness).
-  Literature is curated in Zotero ("MNAR sensitivity — missingmed", 14 items) and
-  in a NotebookLM notebook (13 full-text sources).
-- 2026-07-19: .Rbuildignore the .remember/ session-memory dir (5946b3f).
-- 2026-07-16: .STATUS gained `kind: package` (ecosystem convention).
-
-## v0.2.0 RELEASED — 2026-06-12 (all integration steps DONE)
-# - main = 0.2.0 (PR #3 ipw-phase1->dev, PR #4 dev->main). GitHub release v0.2.0.
-#   https://github.com/Data-Wise/missingmed/releases/tag/v0.2.0
-# - medfit 0.3.1 + RMediation 1.4.0 live on r-universe (deps satisfied).
-# - Feature worktrees + branches (feature/s7-migration, feature/ipw-phase1) merged
-#   and DELETED. Only docs/ipw-phase1-spec remains (historical spec).
-# - CI fixes that unblocked the release (key learnings):
-#     * RMediation remote MUST be name-qualified: RMediation=data-wise/rmediation
-#       (repo 'rmediation' != package 'RMediation'); plain form fails pak solve.
-#     * DESCRIPTION Additional_repositories = data-wise r-universe (non-CRAN deps).
-#     * check.yml modernized off renv::restore() (stale lock -> old rlang fails to
-#       compile on R 4.6) to standard r-lib setup-r-dependencies + check-r-package.
-#     * RENV_CONFIG_AUTOLOADER_ENABLED=FALSE in CI (keep dev renv out of CI).
-# - pkgdown destination = pkgdown-site (docs/ holds specs); deploy via gh-pages.
-# - Post-release watch: r-universe rebuild of missingmed 0.2.0 (cron); main CI/site deploy.
-
-## Quick Notes
-- 2026-06-12: CLAUDE.md audited CLEAN (local + global hierarchy) — 0 errors/warnings,
-  all v0.2.0 claims verified vs codebase. Fixed stale "craft only" line in GLOBAL
-  ~/.claude/CLAUDE.md (multi-branch dev pattern now names craft + missingmed).
-- 2026-06-11: Phase 0 S4->S7 migration IMPLEMENTED on feature/s7-migration (pushed,
-  up to commit c4eb495; 11 commits, P0.1–P0.8 + 2 follow-ups). Merged to dev
-  via PR #3; branch deleted.
-  - S7 classes MDMediationData/MDMediationFit/MDMediationResult; pipeline
-    set_md_mediation() -> run() -> pool() -> infer(type=c("mc","mbco")).
-  - run() delegates each imputation to medfit::fit_mediation() (named a/b/c_prime);
-    pool() = Rubin's rules -> NAMED pooled medfit::MediationData (Open Q3 closed);
-    per_imputation_list() accessor (#2 closed); D4-stacked MBCO HOSTED in missingmed
-    (R/mbco_mi.R) — exact parity with research prototype (max abs diff 4.8e-11, 3 cells).
-  - Namespace is RMediation (capital), NOT rmediation. medfit+RMediation in Imports.
-  - S4 set_sem/run_sem/pool_sem .Deprecated() shims kept one cycle.
-  - R CMD check E0/W0/N0; 47 tests pass; vignettes + _pkgdown.yml + pkgdown deploy wf.
-- 2026-06-11: Phase 1 IPW estimator SPEC drafted (cloud routine) on branch
-  docs/ipw-phase1-spec — docs/specs/SPEC-ipw-phase1-2026-06-11.md. Design = thin
-  run() branch (.ipw_run: estimate weights -> medfit::fit_mediation(weights=) ->
-  MDMediationFit(m=1)) + passthrough pool() (B=0).
-  - OQ-1 BLOCKER RESOLVED + IMPLEMENTED: medfit feature/fit-weights (pushed) adds
-    weights= to fit_mediation() (do.call inlines value; unweighted byte-identical;
-    weighted vcov via extract_mediation). medfit 802 tests pass.
-  - Design OQs OQ-2 (weight model) and OQ-3 (SE) were settled by the shipped impl
-    below: joint weight model default (+ per-variable list), se_type = 'sandwich'.
-  - Integration order for IPW impl: needs S7 pipeline (feature/s7-migration) +
-    patched medfit (feature/fit-weights). IPW branch based on both.
-- 2026-06-11: Phase 1 IPW IMPLEMENTED on feature/ipw-phase1 (off feature/s7-migration,
-  pushed). method='ipw' takes a data.frame; run()->.ipw_run (weights: joint default
-  + per-variable list, stabilized, trim) -> medfit::fit_mediation(weights=, se_type=
-  'sandwich') -> MDMediationFit(m=1); pool() passthrough (B=0); infer('mc') reuses
-  ci_mediation_data; infer('mbco') errors for IPW. New props on MDMediationData
-  (weight_formula/weight_stabilize/weight_trim/se_type) + data.frame validator;
-  MDMediationFit@weights. R CMD check E0/W0/N0; 72 tests. Technical vignette
-  (vignettes/technical.Rmd) covers all design/contracts/methodology.
-  DEPENDS ON medfit feature/fit-weights (weights= + se_type=sandwich, 806 tests) —
-  merged and released as medfit 0.3.1. All three worktrees removed.
-- Future scope phases = GLM, MNAR sensitivity (IPW shipped in v0.2.0).
-- Scope spec + 6-phase roadmap: docs/specs/SPEC-missingmed-scope-2026-06-04.md (on dev)
-- 2026-06-11: Phase 0 PLAN written — docs/specs/SPEC-s7-migration-phase0-2026-06-11.md
-  (S4->S7 class mapping, ordered steps P0.1–P0.7, acceptance). Resolves scope Open Q3
-  (pooled MediationData constructor) as step P0.3.
-- 2026-06-11: Consumer contract documented — docs/CONTRACT-mbco-mi-handoff-2026-06-11.md.
-  The Missing Effect MBCO-MI study (now inference-led; target Psychological Methods) needs:
-  (1) pool() -> NAMED medfit::MediationData; (2) per-imputation list accessor (missingmed#2),
-  because MBCO does not commute with Rubin's rules (D4-stacked MBCO). NOT a blocker —
-  manuscript runs on research/Missing Effect/code/prototype-d4-mbco.R meanwhile.
-- Contracts confirmed: rmediation (MBCO/MC-CI, consumes medfit MediationData),
-  medfit (fit_mediation/extract_mediation -> MediationData@estimates/@vcov).
-- missingmed's unique code = Rubin's-rules pooling of NAMED (estimates, vcov) + IPW weights + MNAR.
-- Branches: main (protected) <- dev (current) <- feature/*. Companion manuscript: research/Missing Effect.
+## Standing facts
+- Namespace is RMediation (capital), not rmediation; the r-universe remote must be
+  name-qualified: RMediation=data-wise/rmediation.
+- Pipeline: set_md_mediation() -> run() -> pool() -> infer(type = c("mc", "mbco")); D4-stacked
+  MBCO lives here (R/mbco_mi.R) because MBCO does not commute with Rubin's rules.
+- Branches: main (protected) <- dev <- feature/*. pkgdown builds to pkgdown-site (docs/ holds specs).
+- History: docs/archive/STATUS-narrative-2026-10-16.md (v0.2.0 to 0.5.1),
+  STATUS-next-history-2026-10-16.md (to 2026-10-15), STATUS-worktrees-log-2026-10-16.md.

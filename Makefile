@@ -1,4 +1,4 @@
-.PHONY: doc lint test check build site status help
+.PHONY: doc lint test check build site status help ci
 
 doc:
 	Rscript dev/dev_agent.R doc
@@ -23,3 +23,6 @@ status:
 
 help:
 	Rscript dev/dev_agent.R help
+
+ci:
+	sh dev/local-ci.sh

@@ -1,0 +1,141 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "claude_job_result: completed"
+    }
+  ],
+  "structuredContent": {
+    "ok": true,
+    "operation": "review",
+    "review_kind": "adversarial",
+    "subject_kind": "changes",
+    "subject_label": "841ea70d42405a8effed110a5ca1401bb898b709..HEAD plus working tree",
+    "subject_fingerprint": "8ddff831b04526cd510a0d24d2239873e2d61d1e31bc62c4c436b12be8f58f03",
+    "usage_summary": "Usage: tokens=283870 output=7774 turns=11 duration_ms=54957 api_ms=54175 cost_usd=0.24926670000000004",
+    "total_tokens": 283870,
+    "total_cost_usd": 0.24926670000000004,
+    "cumulative_chain_cost_usd": 0.24926670000000004,
+    "parent_job_id": null,
+    "num_turns": 11,
+    "duration_ms": 54957,
+    "duration_api_ms": 54175,
+    "task_profile": null,
+    "review_profile": "standard",
+    "requested_model": "sonnet",
+    "effective_models": [
+      "claude-sonnet-5-5"
+    ],
+    "effort": "medium",
+    "budget": {
+      "max_turns": 22,
+      "finalize_at_turn": 19,
+      "soft_budget_usd": 1,
+      "max_budget_usd": 1,
+      "timeout_ms": 240000
+    },
+    "evidence_lease": null,
+    "evidence_lease_exhausted": false,
+    "cost_budget_exhausted": false,
+    "turn_limit_reached": false,
+    "result": "{\"verdict\":\"approve\",\"summary\":\"No material D2 ship blocker found, but this is a static read only: I did not rerun tests or execute code.\\n\\n**New assertions on the all-empty null.** The `mbco/null:1` block in `test-sem-literal-certificates.R` (lines ~55-96) pins the typed `medfit_sem_unresolved` error, a NULL p-value and the message naming `a1 == 0`. It checks the node's id, parent_id, syntax, outcome `unresolved`, likelihood unavailable, and `enumeration` complete with required = 2. It requires exactly two children, each with the rebased id `mbco/null:1/branch:i`, a valid exclusion, and certificate label `a1`. These match `.sem_valid_exclusion` and `.sem_rebase_outcome` in `R/sem-outcomes.R:89-135`.\\n\\n**Why null:1 is an all-empty union.** In `R/sem-fit.R:285-345`, every grid branch carries `a1==1` and `a1==0` plus either `a1==0` or `b1==0`. All branches get a literal certificate, so the optimizer never runs. `.sem_abort_outcome` raises `medfit_sem_empty_union`, which inherits `medfit_sem_unresolved`. The null is not a certified-empty leaf.\\n\\n**Disputed prior concern.** The old `any()` predicate required either `feasibility == \\\"certified_empty\\\"` or all children valid exclusions. The full fit has a resolved sibling child, so `all()` is false for it, and its feasibility is \\\"witness\\\". Only the null could satisfy the old predicate, so the old assertion was not vacuous. It was weak because it did not identify which node satisfied it. The new explicit `null:1` checks close that gap.\\n\\n**Success nested nulls.** For `mbco_sem(fit, \\\"a2\\\", \\\"cp\\\")`, the new loop checks parent id, child id, parent_id and `.sem_valid_exclusion`. A top-level null is never given an excluded-child pass. `R/sem-mbco.R:~190-230` aborts with the ledger instead of substituting a survivor-only p-value.\\n\\n**D2 PASS clauses mapped to source and tests.**\\n- **Exact contradiction excluded, resolved sibling decides the minimum:** `R/sem-fit.R:299`; the \\\"certified empty union branch\\\" test (`fit@f` equals the sibling fit).\\n- **Unknown and near-dependent cases not certified:** certificate negatives in the first test; the \\\"unknown\\\" arm of the all-empty test.\\n- **All-infeasible union typed:** the \\\"all-empty unions fail typed\\\" and \\\"ordinary infeasible nulls\\\" tests.\\n- **Same model/domain provenance:** `.sem_valid_outcome` checks child sample, domain, settings and parameters; parameter forgery has its own test.\\n- **Nested and public propagation:** the `null:1` block and the nested a2/cp loop.\\n- **Unknown or error mutated to infeasible must fail:** the \\\"proof removal and unknown-as-empty mutations\\\" test and the changed mutation body at `test-sem-outcomes.R:306`, which now targets `!length(ok) || length(ok)+sum(excluded) != nrow(grid)`.\\n- **Docs:** the `fit_sem.Rd` and `mbco_sem.Rd` D2 paragraphs match the code: literal zero/nonzero only, fixed table values are not premises, and a top-level infeasible null stays a failure.\\n\\n**3d / item 10 boundary.** D2 changes only branch enumeration and the ledger. The D4 helper `.mm_d4_from_stats`, nu/df, the ARIV rules and the legacy driver are untouched. That consumer is unchanged and D5 is deferred. The 3d known-answer df tests (K=20, Li versus Chan–Meng, zero-ARIV, rounding-gap) and the item 10 encoding tests are not exercised by D2. The 1210 receipts do not establish that the full consumer is verified, and this review does not claim it.\\n\\n**Residual weaknesses, none blocking.**\\n1. The new wrong-node, missing-proof and dropped-child \\\"mutations\\\" mutate saved data and use `expect_failure`. They show the assertions discriminate, not that a source guard is load-bearing. The source-level mutation is covered separately in \\\"proof removal…\\\".\\n2. The certificate is deliberately narrow (no bounds or affine contradictions), which the proposal allows for an initial scope.\\n\\nT5 stays unaccepted.\",\"findings\":[],\"next_steps\":[\"Do not claim full consumer or D4/df verification from D2; D5 and the 3d known-answer df and item 10 controls remain separate.\",\"Optionally add a source-level mutation that drops the null:1 child certificate, to complement the data-level mutations.\",\"Keep T5 unaccepted pending the remaining dependency items.\"],\"coverage\":{\"files_examined\":[\"docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md (C5 row, 3c, 3d, tests 1-10, lines 90-209)\",\"docs/specs/PROPOSAL-T5-medfit-evidence-contract-2026-10-22.md (80-110)\",\"/private/tmp/medfit-d1.3jrA2K/medfit/tests/testthat/test-sem-literal-certificates.R (full + working-tree diff)\",\"medfit R/sem-outcomes.R (80-223 plus certificate function)\",\"medfit R/sem-fit.R (285-360)\",\"medfit R/sem-mbco.R (165-230)\",\"medfit tests/testthat/test-sem-outcomes.R (diff hunk)\",\"medfit man/fit_sem.Rd and man/mbco_sem.Rd (D2 paragraphs)\"],\"files_skipped\":[\"/private/tmp/D2-closure-review-2026-10-22.json\",\"/private/tmp/D2-closure-disposition-2026-10-22.md\",\"R/fit-sem.R and the vignette changes\",\"planning/specs/NOTE-D2 and the D2-claude-review JSON\",\"full test-sem-outcomes.R\",\"the D4 consumer code (.mm_d4_from_stats, helper-legacy-mbco.R)\",\"untracked docs/PLAN-research-workflow-enhancements-2026-10-20.md (unrelated)\"],\"areas\":[\"Null-node id, parent, syntax and completeness assertions\",\"All-empty union versus certified-empty leaf\",\"Certificate soundness (literal zero/nonzero)\",\"Mutation controls\",\"3d and item 10 compatibility boundary\"]},\"uncertainty\":\"medium\",\"budget_exhausted\":false,\"recommended_followup\":{\"profile\":\"none\",\"focus\":[],\"reason\":\"No blocker found. The prior closure files were not read, and tests were not run per instructions.\"}}",
+    "structured_output": {
+      "verdict": "approve",
+      "summary": "No material D2 ship blocker found, but this is a static read only: I did not rerun tests or execute code.\n\n**New assertions on the all-empty null.** The `mbco/null:1` block in `test-sem-literal-certificates.R` (lines ~55-96) pins the typed `medfit_sem_unresolved` error, a NULL p-value and the message naming `a1 == 0`. It checks the node's id, parent_id, syntax, outcome `unresolved`, likelihood unavailable, and `enumeration` complete with required = 2. It requires exactly two children, each with the rebased id `mbco/null:1/branch:i`, a valid exclusion, and certificate label `a1`. These match `.sem_valid_exclusion` and `.sem_rebase_outcome` in `R/sem-outcomes.R:89-135`.\n\n**Why null:1 is an all-empty union.** In `R/sem-fit.R:285-345`, every grid branch carries `a1==1` and `a1==0` plus either `a1==0` or `b1==0`. All branches get a literal certificate, so the optimizer never runs. `.sem_abort_outcome` raises `medfit_sem_empty_union`, which inherits `medfit_sem_unresolved`. The null is not a certified-empty leaf.\n\n**Disputed prior concern.** The old `any()` predicate required either `feasibility == \"certified_empty\"` or all children valid exclusions. The full fit has a resolved sibling child, so `all()` is false for it, and its feasibility is \"witness\". Only the null could satisfy the old predicate, so the old assertion was not vacuous. It was weak because it did not identify which node satisfied it. The new explicit `null:1` checks close that gap.\n\n**Success nested nulls.** For `mbco_sem(fit, \"a2\", \"cp\")`, the new loop checks parent id, child id, parent_id and `.sem_valid_exclusion`. A top-level null is never given an excluded-child pass. `R/sem-mbco.R:~190-230` aborts with the ledger instead of substituting a survivor-only p-value.\n\n**D2 PASS clauses mapped to source and tests.**\n- **Exact contradiction excluded, resolved sibling decides the minimum:** `R/sem-fit.R:299`; the \"certified empty union branch\" test (`fit@f` equals the sibling fit).\n- **Unknown and near-dependent cases not certified:** certificate negatives in the first test; the \"unknown\" arm of the all-empty test.\n- **All-infeasible union typed:** the \"all-empty unions fail typed\" and \"ordinary infeasible nulls\" tests.\n- **Same model/domain provenance:** `.sem_valid_outcome` checks child sample, domain, settings and parameters; parameter forgery has its own test.\n- **Nested and public propagation:** the `null:1` block and the nested a2/cp loop.\n- **Unknown or error mutated to infeasible must fail:** the \"proof removal and unknown-as-empty mutations\" test and the changed mutation body at `test-sem-outcomes.R:306`, which now targets `!length(ok) || length(ok)+sum(excluded) != nrow(grid)`.\n- **Docs:** the `fit_sem.Rd` and `mbco_sem.Rd` D2 paragraphs match the code: literal zero/nonzero only, fixed table values are not premises, and a top-level infeasible null stays a failure.\n\n**3d / item 10 boundary.** D2 changes only branch enumeration and the ledger. The D4 helper `.mm_d4_from_stats`, nu/df, the ARIV rules and the legacy driver are untouched. That consumer is unchanged and D5 is deferred. The 3d known-answer df tests (K=20, Li versus Chan–Meng, zero-ARIV, rounding-gap) and the item 10 encoding tests are not exercised by D2. The 1210 receipts do not establish that the full consumer is verified, and this review does not claim it.\n\n**Residual weaknesses, none blocking.**\n1. The new wrong-node, missing-proof and dropped-child \"mutations\" mutate saved data and use `expect_failure`. They show the assertions discriminate, not that a source guard is load-bearing. The source-level mutation is covered separately in \"proof removal…\".\n2. The certificate is deliberately narrow (no bounds or affine contradictions), which the proposal allows for an initial scope.\n\nT5 stays unaccepted.",
+      "findings": [],
+      "next_steps": [
+        "Do not claim full consumer or D4/df verification from D2; D5 and the 3d known-answer df and item 10 controls remain separate.",
+        "Optionally add a source-level mutation that drops the null:1 child certificate, to complement the data-level mutations.",
+        "Keep T5 unaccepted pending the remaining dependency items."
+      ],
+      "coverage": {
+        "files_examined": [
+          "docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md (C5 row, 3c, 3d, tests 1-10, lines 90-209)",
+          "docs/specs/PROPOSAL-T5-medfit-evidence-contract-2026-10-22.md (80-110)",
+          "/private/tmp/medfit-d1.3jrA2K/medfit/tests/testthat/test-sem-literal-certificates.R (full + working-tree diff)",
+          "medfit R/sem-outcomes.R (80-223 plus certificate function)",
+          "medfit R/sem-fit.R (285-360)",
+          "medfit R/sem-mbco.R (165-230)",
+          "medfit tests/testthat/test-sem-outcomes.R (diff hunk)",
+          "medfit man/fit_sem.Rd and man/mbco_sem.Rd (D2 paragraphs)"
+        ],
+        "files_skipped": [
+          "/private/tmp/D2-closure-review-2026-10-22.json",
+          "/private/tmp/D2-closure-disposition-2026-10-22.md",
+          "R/fit-sem.R and the vignette changes",
+          "planning/specs/NOTE-D2 and the D2-claude-review JSON",
+          "full test-sem-outcomes.R",
+          "the D4 consumer code (.mm_d4_from_stats, helper-legacy-mbco.R)",
+          "untracked docs/PLAN-research-workflow-enhancements-2026-10-20.md (unrelated)"
+        ],
+        "areas": [
+          "Null-node id, parent, syntax and completeness assertions",
+          "All-empty union versus certified-empty leaf",
+          "Certificate soundness (literal zero/nonzero)",
+          "Mutation controls",
+          "3d and item 10 compatibility boundary"
+        ]
+      },
+      "uncertainty": "medium",
+      "budget_exhausted": false,
+      "recommended_followup": {
+        "profile": "none",
+        "focus": [],
+        "reason": "No blocker found. The prior closure files were not read, and tests were not run per instructions."
+      }
+    },
+    "session_id": "db098ee5-862b-4c2e-ba05-f5bfa14d4d67",
+    "resume_hint": "claude --resume db098ee5-862b-4c2e-ba05-f5bfa14d4d67",
+    "disclosure": null,
+    "usage": {
+      "input_tokens": 14,
+      "cache_creation_input_tokens": 36895,
+      "cache_read_input_tokens": 239187,
+      "output_tokens": 7774,
+      "output_tokens_details": {
+        "thinking_tokens": 1469
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 36895,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 2462,
+          "cache_read_input_tokens": 48806,
+          "cache_creation_input_tokens": 3209,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 3209
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "model_usage": {
+      "claude-sonnet-5-5": {
+        "inputTokens": 14,
+        "outputTokens": 7774,
+        "cacheReadInputTokens": 239187,
+        "cacheCreationInputTokens": 36895,
+        "webSearchRequests": 0,
+        "costUSD": 0.24926670000000004,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 1469,
+        "canonicalModel": "claude-sonnet-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    }
+  }
+}

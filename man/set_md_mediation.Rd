@@ -99,7 +99,9 @@ For the other engines it is optional: it defaults to the response of
 \item{fit_args}{Named list of extra arguments for the engine, stored on the
 object and used by \code{\link[=run]{run()}} and \code{\link[=sensitivity_mnar]{sensitivity_mnar()}}. For \code{engine = "lavaan"}
 they go to \code{\link[lavaan:sem]{lavaan::sem()}}, for example \code{list(estimator = "MLR")}, and
-cannot set \code{model} or \code{data}. For the other engines they go to
+cannot set \code{model} or \code{data}. SEM MBCO uses medfit instead, with the strict
+allow-list in \code{\link[=infer]{infer()}}; options accepted by \code{\link[=run]{run()}} may be refused there.
+For the other engines they go to
 \code{\link[medfit:fit_mediation]{medfit::fit_mediation()}} (for example \code{list(engine_args = list(...))} with
 a medfit that has it) and cannot restate what this function sets
 (\code{formula_y}, \code{formula_m}, \code{data}, \code{treatment}, \code{mediator}, \code{engine},

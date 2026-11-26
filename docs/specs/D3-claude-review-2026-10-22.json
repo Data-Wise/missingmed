@@ -1,0 +1,189 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "claude_job_result: completed"
+    }
+  ],
+  "structuredContent": {
+    "ok": true,
+    "operation": "review",
+    "review_kind": "adversarial",
+    "subject_kind": "changes",
+    "subject_label": "d22971dd554962117842b4bd4678056c7616a15a..HEAD plus working tree",
+    "subject_fingerprint": "0e34b0510c891ab775563a7ee034999e28a123f3901874ef75b6da79f0f85d9f",
+    "usage_summary": "Usage: tokens=263112 output=9927 turns=8 duration_ms=86050 api_ms=85146 cost_usd=0.2535686",
+    "total_tokens": 263112,
+    "total_cost_usd": 0.2535686,
+    "cumulative_chain_cost_usd": 0.2535686,
+    "parent_job_id": null,
+    "num_turns": 8,
+    "duration_ms": 86050,
+    "duration_api_ms": 85146,
+    "task_profile": null,
+    "review_profile": "standard",
+    "requested_model": "sonnet",
+    "effective_models": [
+      "claude-sonnet-5-5"
+    ],
+    "effort": "medium",
+    "budget": {
+      "max_turns": 22,
+      "finalize_at_turn": 19,
+      "soft_budget_usd": 1,
+      "max_budget_usd": 1,
+      "timeout_ms": 240000
+    },
+    "evidence_lease": null,
+    "evidence_lease_exhausted": false,
+    "cost_budget_exhausted": false,
+    "turn_limit_reached": false,
+    "result": "{\"verdict\":\"needs-attention\",\"summary\":\"Scope: the D3 working diff in /private/tmp/medfit-d1.3jrA2K/medfit against a11c63b, read statically only. No tests were run, nothing was edited, and nothing was installed or simulated. I found no ship-blocking defect in the D3 code. Raw cardinality is computed from the parser's `length(p$factors)` before any grid is built, with an overflow guard and an unchanged `> 64L` refusal. Execution order and `which.min` tie-breaking are untouched. Structural IDs and a strict `identical(x$branch_map, .sem_branch_map(x$constraints))` check are added in `.sem_valid_outcome`. The remaining findings are clause-to-test evidence gaps against PROPOSAL D3 and one small behavioural risk that I inferred from the code and did not run. None of this is a global acceptance claim. T5, D4/D5 and the real-case evidence stay open. I did not review any legacy D1/D2 behaviour except where D3 touches it.\",\"findings\":[{\"severity\":\"medium\",\"title\":\"Mocked tests do not prove the raw-to-canonical mapping is stable under factor permutation, collision-free, or fully tamper-checked\",\"body\":\"The PROPOSAL D3 PASS requires 'overlapping/duplicate product constraints and factor permutations'. The only permutation test (test-sem-branch-map.R:68-69) reverses the order of constraint rows and asserts `expect_setequal` on the IDs. It does not check the following. (a) Reordering the factors inside one product row (`a1*b1` versus `b1*a1`) leaves the ID set unchanged. (b) That reordering also changes the grid order, so the raw-row-to-ID alignment is not asserted anywhere. (c) `unique_count` is not rechecked after permuting. (d) Two different restriction sets never share an ID (collision or encoding ambiguity). `encode()` at R/sem-outcomes.R:28 is length-prefixed, but nothing exercises labels containing digits or ':'. Tamper evidence is similarly thin: test-sem-branch-map.R:36 forges only `raw_to_canonical[1]`. Forged `raw_count`, `factor_counts`, `unique_count` and `state` are covered only implicitly by `identical()`, with no assertion.\",\"file\":\"tests/testthat/test-sem-branch-map.R\",\"line_start\":62,\"line_end\":76,\"confidence\":0.7,\"recommendation\":\"Add assertions for: single-row factor reordering; the per-raw-row ID vector under a factor permutation (a bijection between raw rows, not just setequal); an ID-distinctness control using adversarial labels; and one tamper case per `branch_map` field.\"},{\"severity\":\"low\",\"title\":\"Cardinality boundary and overflow controls are narrower than the D3 PASS wording\",\"body\":\"test-sem-branch-map.R:2 checks 63/64/65 only as a single-factor vector `.sem_raw_count(n)`. It does not test multi-factor products at the boundary (c(8,8)=64, c(8,9)=72), and it does not test the finite-but-above-integer.max range (for example 2^31 to 2^53). In that range `.sem_raw_count` (R/sem-outcomes.R:11) returns a double, and `sprintf('%s', raw_count)` at R/sem-fit.R:276 renders scientific notation such as '1.099512e+12'. The only overflow case is `rep(2L, 2000L)` giving Inf (line 3). So the `count <= .Machine$integer.max` branch and the `count > xmax / n` guard are exercised only at the extremes. The 63 and 65 boundaries are never driven through `.sem_fit_branches`; only 32, 64 and 128 are, at lines 22 and 48.\",\"file\":\"tests/testthat/test-sem-branch-map.R\",\"line_start\":1,\"line_end\":5,\"confidence\":0.6,\"recommendation\":\"Add multi-factor boundary and mid-range finite-large cases. Pin the refusal message format and the type of `enumeration$required` (integer, double, Inf).\"},{\"severity\":\"low\",\"title\":\"Tie-order evidence is weak: the varying-score case is a unique minimum, and the mock records only constraint lhs\",\"body\":\"The 'ties' claim rests on constant payload `f`, where `which.min` returns the first row (test-sem-branch-map.R:30-32). The varying case (lines 39-46) uses f = c(4,1,3,2), which has a unique minimum at row 2, so it is not a tie. No case ties at a non-first position, and no case ties between rows that share a canonical ID. The mock at lines 14-21 records only `parsed$constraints$lhs`. It ignores rhs and every other argument (n_starts, control, weights, se_type and the rest), so 'unchanged execution' is shown only as an lhs call sequence. This is a test-strength gap, not a code defect.\",\"file\":\"tests/testthat/test-sem-branch-map.R\",\"line_start\":14,\"line_end\":46,\"confidence\":0.55,\"recommendation\":\"Add a tie at a non-first position, including between duplicate-canonical rows. Also assert that the full argument list passed to `.sem_fit_syntax` is unchanged.\"},{\"severity\":\"low\",\"title\":\"`.sem_outcome` now runs the constraint parser on every node, so a parser error could mask the original fit error (inferred)\",\"body\":\"D3 adds `branch_map = .sem_branch_map(constraints)` inside `.sem_outcome` (R/sem-outcomes.R:152). `.sem_outcome` is also called on error and cleanup paths: R/sem-fit.R:278 and the branch ledger fallback around R/sem-fit.R:327. `.sem_branch_map` calls `.sem_zero_product_rows`, which parses expressions. If that call throws on a malformed or odd constraint row, the throw would replace the typed `medfit_sem_unresolved` condition and its ledger. The constraints are mostly pre-parsed earlier in the same call, so the risk is low. I did not run this and no test covers it. The extra per-node parsing cost is also new.\",\"file\":\"R/sem-outcomes.R\",\"line_start\":152,\"line_end\":152,\"confidence\":0.35,\"recommendation\":\"Either build `branch_map` only for union nodes, or wrap it in a guard that records an error state instead of throwing. Add a test that a parser failure in the map does not mask the original typed condition.\"}],\"next_steps\":[\"Add the missing permutation, collision, boundary and tamper assertions to tests/testthat/test-sem-branch-map.R, then run the D3 tests, test-sem-outcomes.R, test-sem-branches.R and test-sem-edge-grid.R. I did not run them.\",\"Decide whether `branch_map` belongs only on union nodes, or is guarded against parser throws.\",\"Keep T5 UNACCEPTED. D4, D5 and the real-case evidence remain open.\"],\"coverage\":{\"files_examined\":[\"docs/specs/PROPOSAL-T5-medfit-evidence-contract-2026-10-22.md (D3 lines 108-130)\",\"medfit: tests/testthat/test-sem-branch-map.R (all 76 lines)\",\"medfit: R/sem-outcomes.R (diff plus .sem_outcome, .sem_valid_outcome, .sem_excluded_outcome)\",\"medfit: R/sem-fit.R (diff plus .sem_fit_branches body)\",\"medfit: R/fit-sem.R (diff)\",\"medfit: man/fit_sem.Rd (diff)\",\"medfit: vignettes/articles/computation-algorithms.qmd (diff)\",\"medfit: NEWS.md (diff)\",\"medfit: R/sem-constraints.R (.sem_zero_product_rows, .sem_product_factors)\",\"grep hits in tests/testthat/test-sem-outcomes.R, test-sem-branches.R, test-sem-edge-grid.R\"],\"files_skipped\":[\"docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md (C5, 3c/3d, tests 8-10 not read; budget)\",\"Full bodies of test-sem-outcomes.R, test-sem-branches.R, test-sem-edge-grid.R, test-sem-literal-certificates.R\",\"The memory_exp.rds fixture contents\",\"mbco_sem and other callers outside sem-fit.R\",\"The untracked caller-repo plan docs/PLAN-research-workflow-enhancements-2026-10-20.md (not D3 scope)\"],\"areas\":[\"Bounded raw cardinality and overflow\",\"Parser factors versus tokens\",\"32/64/128 admission and denial\",\"Raw-to-canonical structural IDs\",\"Unchanged execution, order and ties\",\"Strict ledger validation and tamper propagation\",\"Clause-to-test evidence\",\"Doc and NEWS consistency\"]},\"uncertainty\":\"medium\",\"budget_exhausted\":false,\"recommended_followup\":{\"profile\":\"quick\",\"focus\":[\"Read SPEC C5, 3c/3d and tests 8-10 against D3 for clause traceability\",\"Verify the over-cap and `.sem_outcome` parser-throw path with a targeted test\",\"Run test-sem-branch-map.R, test-sem-outcomes.R and test-sem-branches.R\"],\"reason\":\"The D3 code looks correct on static reading. The open items are test-strength gaps and the SPEC clauses I did not read. A run by the owner, not me, is needed to confirm green.\"}}",
+    "structured_output": {
+      "verdict": "needs-attention",
+      "summary": "Scope: the D3 working diff in /private/tmp/medfit-d1.3jrA2K/medfit against a11c63b, read statically only. No tests were run, nothing was edited, and nothing was installed or simulated. I found no ship-blocking defect in the D3 code. Raw cardinality is computed from the parser's `length(p$factors)` before any grid is built, with an overflow guard and an unchanged `> 64L` refusal. Execution order and `which.min` tie-breaking are untouched. Structural IDs and a strict `identical(x$branch_map, .sem_branch_map(x$constraints))` check are added in `.sem_valid_outcome`. The remaining findings are clause-to-test evidence gaps against PROPOSAL D3 and one small behavioural risk that I inferred from the code and did not run. None of this is a global acceptance claim. T5, D4/D5 and the real-case evidence stay open. I did not review any legacy D1/D2 behaviour except where D3 touches it.",
+      "findings": [
+        {
+          "severity": "medium",
+          "title": "Mocked tests do not prove the raw-to-canonical mapping is stable under factor permutation, collision-free, or fully tamper-checked",
+          "body": "The PROPOSAL D3 PASS requires 'overlapping/duplicate product constraints and factor permutations'. The only permutation test (test-sem-branch-map.R:68-69) reverses the order of constraint rows and asserts `expect_setequal` on the IDs. It does not check the following. (a) Reordering the factors inside one product row (`a1*b1` versus `b1*a1`) leaves the ID set unchanged. (b) That reordering also changes the grid order, so the raw-row-to-ID alignment is not asserted anywhere. (c) `unique_count` is not rechecked after permuting. (d) Two different restriction sets never share an ID (collision or encoding ambiguity). `encode()` at R/sem-outcomes.R:28 is length-prefixed, but nothing exercises labels containing digits or ':'. Tamper evidence is similarly thin: test-sem-branch-map.R:36 forges only `raw_to_canonical[1]`. Forged `raw_count`, `factor_counts`, `unique_count` and `state` are covered only implicitly by `identical()`, with no assertion.",
+          "file": "tests/testthat/test-sem-branch-map.R",
+          "line_start": 62,
+          "line_end": 76,
+          "confidence": 0.7,
+          "recommendation": "Add assertions for: single-row factor reordering; the per-raw-row ID vector under a factor permutation (a bijection between raw rows, not just setequal); an ID-distinctness control using adversarial labels; and one tamper case per `branch_map` field."
+        },
+        {
+          "severity": "low",
+          "title": "Cardinality boundary and overflow controls are narrower than the D3 PASS wording",
+          "body": "test-sem-branch-map.R:2 checks 63/64/65 only as a single-factor vector `.sem_raw_count(n)`. It does not test multi-factor products at the boundary (c(8,8)=64, c(8,9)=72), and it does not test the finite-but-above-integer.max range (for example 2^31 to 2^53). In that range `.sem_raw_count` (R/sem-outcomes.R:11) returns a double, and `sprintf('%s', raw_count)` at R/sem-fit.R:276 renders scientific notation such as '1.099512e+12'. The only overflow case is `rep(2L, 2000L)` giving Inf (line 3). So the `count <= .Machine$integer.max` branch and the `count > xmax / n` guard are exercised only at the extremes. The 63 and 65 boundaries are never driven through `.sem_fit_branches`; only 32, 64 and 128 are, at lines 22 and 48.",
+          "file": "tests/testthat/test-sem-branch-map.R",
+          "line_start": 1,
+          "line_end": 5,
+          "confidence": 0.6,
+          "recommendation": "Add multi-factor boundary and mid-range finite-large cases. Pin the refusal message format and the type of `enumeration$required` (integer, double, Inf)."
+        },
+        {
+          "severity": "low",
+          "title": "Tie-order evidence is weak: the varying-score case is a unique minimum, and the mock records only constraint lhs",
+          "body": "The 'ties' claim rests on constant payload `f`, where `which.min` returns the first row (test-sem-branch-map.R:30-32). The varying case (lines 39-46) uses f = c(4,1,3,2), which has a unique minimum at row 2, so it is not a tie. No case ties at a non-first position, and no case ties between rows that share a canonical ID. The mock at lines 14-21 records only `parsed$constraints$lhs`. It ignores rhs and every other argument (n_starts, control, weights, se_type and the rest), so 'unchanged execution' is shown only as an lhs call sequence. This is a test-strength gap, not a code defect.",
+          "file": "tests/testthat/test-sem-branch-map.R",
+          "line_start": 14,
+          "line_end": 46,
+          "confidence": 0.55,
+          "recommendation": "Add a tie at a non-first position, including between duplicate-canonical rows. Also assert that the full argument list passed to `.sem_fit_syntax` is unchanged."
+        },
+        {
+          "severity": "low",
+          "title": "`.sem_outcome` now runs the constraint parser on every node, so a parser error could mask the original fit error (inferred)",
+          "body": "D3 adds `branch_map = .sem_branch_map(constraints)` inside `.sem_outcome` (R/sem-outcomes.R:152). `.sem_outcome` is also called on error and cleanup paths: R/sem-fit.R:278 and the branch ledger fallback around R/sem-fit.R:327. `.sem_branch_map` calls `.sem_zero_product_rows`, which parses expressions. If that call throws on a malformed or odd constraint row, the throw would replace the typed `medfit_sem_unresolved` condition and its ledger. The constraints are mostly pre-parsed earlier in the same call, so the risk is low. I did not run this and no test covers it. The extra per-node parsing cost is also new.",
+          "file": "R/sem-outcomes.R",
+          "line_start": 152,
+          "line_end": 152,
+          "confidence": 0.35,
+          "recommendation": "Either build `branch_map` only for union nodes, or wrap it in a guard that records an error state instead of throwing. Add a test that a parser failure in the map does not mask the original typed condition."
+        }
+      ],
+      "next_steps": [
+        "Add the missing permutation, collision, boundary and tamper assertions to tests/testthat/test-sem-branch-map.R, then run the D3 tests, test-sem-outcomes.R, test-sem-branches.R and test-sem-edge-grid.R. I did not run them.",
+        "Decide whether `branch_map` belongs only on union nodes, or is guarded against parser throws.",
+        "Keep T5 UNACCEPTED. D4, D5 and the real-case evidence remain open."
+      ],
+      "coverage": {
+        "files_examined": [
+          "docs/specs/PROPOSAL-T5-medfit-evidence-contract-2026-10-22.md (D3 lines 108-130)",
+          "medfit: tests/testthat/test-sem-branch-map.R (all 76 lines)",
+          "medfit: R/sem-outcomes.R (diff plus .sem_outcome, .sem_valid_outcome, .sem_excluded_outcome)",
+          "medfit: R/sem-fit.R (diff plus .sem_fit_branches body)",
+          "medfit: R/fit-sem.R (diff)",
+          "medfit: man/fit_sem.Rd (diff)",
+          "medfit: vignettes/articles/computation-algorithms.qmd (diff)",
+          "medfit: NEWS.md (diff)",
+          "medfit: R/sem-constraints.R (.sem_zero_product_rows, .sem_product_factors)",
+          "grep hits in tests/testthat/test-sem-outcomes.R, test-sem-branches.R, test-sem-edge-grid.R"
+        ],
+        "files_skipped": [
+          "docs/specs/SPEC-lavaan-mbco-on-mbco-sem-2026-10-16.md (C5, 3c/3d, tests 8-10 not read; budget)",
+          "Full bodies of test-sem-outcomes.R, test-sem-branches.R, test-sem-edge-grid.R, test-sem-literal-certificates.R",
+          "The memory_exp.rds fixture contents",
+          "mbco_sem and other callers outside sem-fit.R",
+          "The untracked caller-repo plan docs/PLAN-research-workflow-enhancements-2026-10-20.md (not D3 scope)"
+        ],
+        "areas": [
+          "Bounded raw cardinality and overflow",
+          "Parser factors versus tokens",
+          "32/64/128 admission and denial",
+          "Raw-to-canonical structural IDs",
+          "Unchanged execution, order and ties",
+          "Strict ledger validation and tamper propagation",
+          "Clause-to-test evidence",
+          "Doc and NEWS consistency"
+        ]
+      },
+      "uncertainty": "medium",
+      "budget_exhausted": false,
+      "recommended_followup": {
+        "profile": "quick",
+        "focus": [
+          "Read SPEC C5, 3c/3d and tests 8-10 against D3 for clause traceability",
+          "Verify the over-cap and `.sem_outcome` parser-throw path with a targeted test",
+          "Run test-sem-branch-map.R, test-sem-outcomes.R and test-sem-branches.R"
+        ],
+        "reason": "The D3 code looks correct on static reading. The open items are test-strength gaps and the SPEC clauses I did not read. A run by the owner, not me, is needed to confirm green."
+      }
+    },
+    "session_id": "b747dbb3-4b0b-4b73-ae78-14d3bb2b521e",
+    "resume_hint": "claude --resume b747dbb3-4b0b-4b73-ae78-14d3bb2b521e",
+    "disclosure": null,
+    "usage": {
+      "input_tokens": 14,
+      "cache_creation_input_tokens": 33065,
+      "cache_read_input_tokens": 220106,
+      "output_tokens": 9927,
+      "output_tokens_details": {
+        "thinking_tokens": 5530
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 33065,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 4343,
+          "cache_read_input_tokens": 45502,
+          "cache_creation_input_tokens": 2683,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 2683
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "model_usage": {
+      "claude-sonnet-5-5": {
+        "inputTokens": 14,
+        "outputTokens": 9927,
+        "cacheReadInputTokens": 220106,
+        "cacheCreationInputTokens": 33065,
+        "webSearchRequests": 0,
+        "costUSD": 0.2535686,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 5530,
+        "canonicalModel": "claude-sonnet-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    }
+  }
+}

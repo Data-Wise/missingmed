@@ -92,7 +92,9 @@
 #' @param fit_args Named list of extra arguments for the engine, stored on the
 #'   object and used by [run()] and [sensitivity_mnar()]. For `engine = "lavaan"`
 #'   they go to [lavaan::sem()], for example `list(estimator = "MLR")`, and
-#'   cannot set `model` or `data`. For the other engines they go to
+#'   cannot set `model` or `data`. SEM MBCO uses medfit instead, with the strict
+#'   allow-list in [infer()]; options accepted by [run()] may be refused there.
+#'   For the other engines they go to
 #'   [medfit::fit_mediation()] (for example `list(engine_args = list(...))` with
 #'   a medfit that has it) and cannot restate what this function sets
 #'   (`formula_y`, `formula_m`, `data`, `treatment`, `mediator`, `engine`,

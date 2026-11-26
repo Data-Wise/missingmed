@@ -1,3 +1,49 @@
+# missingmed 0.11.0
+
+## Breaking changes
+
+* missingmed now requires medfit 0.14.0 or later. SEM MBCO in
+  `infer(type = "mbco")` and `mbco_d4(model = )` uses medfit to refit the full
+  model and both nulls (#101, #102). `run()` still fits SEMs with lavaan.
+* SEM MBCO accepts ML and a strict list of `fit_args`. See `?infer` for the
+  list. Other options are refused by name, including `std.ov = TRUE`, which
+  can change equality-constrained models. Use `fit_args = list()` for defaults.
+  SEM MBCO also refuses lavaan syntax that the medfit refits cannot support.
+* Scaled SEM MBCO remains unsupported. The internal MLR scaling code and its
+  development harness have been removed.
+
+## New features
+
+* With medfit 0.19.0 or later, SEM MBCO checks the version-1 outcome ledgers
+  before pooling. Missing, unknown, incomplete, or mismatched evidence stops
+  inference. When a supported covariance diagnostic leaves a usable null
+  likelihood, the warning identifies the dataset and affected null. Older
+  supported medfit versions use the guarded affine path and require
+  medfit 0.19.0 or later for covariance retention.
+
+## Bug fixes
+
+* S7 property access now works under the declared R 4.1 minimum.
+* Preserve formula offsets when fitting MBCO constrained branches on R 4.1.
+* Keep the exported `tidy()` callable for missingmed results under S7 1.0.0.
+
+## Internal
+
+* Pin the release and development installs to RMediation 1.11.2 and use the
+  tagged medfit 0.20.0 build in CI and the install guides.
+* Tighten deterministic SEM mutation checks to require intended assertion
+  failures with no execution errors; cover concealed survivor completion,
+  convergence/discrepancy guards and empty-diagnostic/sample-match bypasses.
+* Attribute improper SEM null warnings using separate diagnostic refits when
+  older medfit versions omit branch identity. Require matching samples and both
+  raw likelihood ratios. Unresolved attribution stops inference.
+* Add deterministic SEM acceptance controls for independent denominator df,
+  public per-branch failures, encoding and branch diagnostics. Enforce the
+  approved two-level factor limit even with newer medfit, retain character-valued
+  full-fit improper diagnostics, and combine them with other SEM notices once.
+  Refuse `c()`/`label()` modifiers and multi-lhs regressions before lavaan's
+  parser normalization can erase the excluded constructs.
+
 # missingmed 0.10.0
 
 ## Breaking changes

@@ -112,7 +112,7 @@ flowchart LR
 (formulas + `engine`) are independent. The same `run() -> pool() -> infer()`
 chain serves both estimators; only `run()` branches internally.
 
-```{r}
+```{r, eval = FALSE}
 md <- set_md_mediation(data, formula_y = Y ~ X + M + C, formula_m = M ~ X + C,
   treatment = "X", mediator = "M", method = "mi")   # or method = "ipw"
 res <- pool(run(md))
@@ -314,7 +314,7 @@ The pooled `MediationData` is built by **copy-modifying** a per-imputation one
 `@vcov = `\(T\) — so all medfit metadata (roles, predictors, families) is
 inherited and the aliases stay name-addressable for `ci_mediation_data()`.
 
-```{r}
+```{r, eval = FALSE}
 fit <- run(md_mi)            # m named MediationData
 res <- pool(fit)             # pooled named MediationData + within/between/total vcov
 res@tidy_table               # + statistic, df, riv, fmi, p_value (per path)
@@ -565,7 +565,7 @@ MAR. The whole estimator is a single internal branch, `.ipw_run()`; `pool()` and
 
 ## 5.1 Pipeline
 
-```{r}
+```{r, eval = FALSE}
 md <- set_md_mediation(df, Y ~ X + M + C, M ~ X + C, treatment = "X",
   mediator = "M", method = "ipw",
   weight_formula = NULL, weight_stabilize = TRUE, weight_trim = 0.99,

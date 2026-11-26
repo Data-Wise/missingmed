@@ -34,3 +34,4 @@
 ^README\.dev\.md$
 ^tasks$
 ^\.lintr$
+^AGENTS\.md$

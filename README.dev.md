@@ -29,7 +29,23 @@ make check
 
 Dependencies
 
-The package does not use `renv`; dependencies install into your normal R library. Every dependency, `medfit` and `RMediation` included, is on CRAN, so a pak-based install such as `pak::local_install_deps()` resolves them without extra repositories. CI installs the same way, through `r-lib/actions/setup-r-dependencies`.
+From the checkout, use the dependency combination verified in CI:
+
+```r
+options(repos = c(
+  datawise = "https://data-wise.r-universe.dev",
+  CRAN = "https://cloud.r-project.org"
+))
+pak::pak(c(
+  "deps::.",
+  "Data-Wise/medfit@v0.20.0",
+  "S7@1.0.0",
+  "RMediation@1.11.2"
+))
+```
+
+On R 4.1, replace `"S7@1.0.0"` with `"S7@0.2.2"`. See the
+[installation instructions](README.md#installation) for the GitHub install.
 
 Notes
 

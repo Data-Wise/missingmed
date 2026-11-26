@@ -33,10 +33,8 @@ winning branch.}
 
 \item{p_branch_a}{Share of imputations whose own winning branch is \code{a = 0}.}
 
-\item{scaling}{\code{NA} for every public result. Internal: the mean scaling
-correction by which \code{D4} was divided, set only when the MLR gate harness
-enables the (publicly refused) MLR path; \code{d_S} stays the unscaled stacked
-statistic.}
+\item{scaling}{Retained for result compatibility; \code{NA} for all fitted results.
+Scaled MLR MBCO inference is not supported.}
 }
 \value{
 An \code{MbcoMIResult} S7 object.

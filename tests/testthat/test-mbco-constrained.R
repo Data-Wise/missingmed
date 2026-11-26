@@ -95,6 +95,35 @@ test_that(".mm_drop_path preserves response transformation, intercept and offset
   expect_equal(dp(Y ~ M, "M"), "Y ~ 1")
 })
 
+test_that("constrained likelihood preserves offsets across R versions", {
+  set.seed(731)
+  d <- data.frame(X = rnorm(200), M = rnorm(200), o = rnorm(200), p = rnorm(200))
+  d$Y <- 1 + 0.7 * d$X + 1.5 * d$o - 0.3 * d$p + rnorm(200, sd = 0.4)
+  offset_scale <- 0.3
+  formulas <- list(
+    Y ~ X + M + offset(o),
+    Y ~ 0 + X * M + offset(o) + offset(offset_scale * p),
+    Y ~ M + offset(o),
+    Y ~ 0 + M + offset(offset_scale * p)
+  )
+  oracle <- list(
+    Y ~ X + offset(o),
+    Y ~ 0 + X + offset(o) + offset(offset_scale * p),
+    Y ~ 1 + offset(o),
+    Y ~ 0 + offset(offset_scale * p)
+  )
+  for (i in seq_along(formulas)) {
+    actual <- missingmed:::.mm_drop_path(formulas[[i]], "M")
+    expect_identical(environment(actual), environment(formulas[[i]]))
+    fit <- stats::glm(actual, data = d)
+    reference <- stats::glm(oracle[[i]], data = d)
+    expect_equal(as.numeric(stats::logLik(fit)), as.numeric(stats::logLik(reference)),
+      tolerance = 1e-10)
+    expect_equal(stats::model.offset(stats::model.frame(fit)),
+      stats::model.offset(stats::model.frame(reference)))
+  }
+})
+
 test_that("k reflects the parameters the winning branch removes", {
   d <- gen_mbco()
   # plain spec: one parameter, so k = 1 and nothing about the old behavior moves

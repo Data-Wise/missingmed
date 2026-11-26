@@ -28,10 +28,8 @@
 #' @param branch_mix Logical; `TRUE` when the imputations disagree on their own
 #'   winning branch.
 #' @param p_branch_a Share of imputations whose own winning branch is `a = 0`.
-#' @param scaling `NA` for every public result. Internal: the mean scaling
-#'   correction by which `D4` was divided, set only when the MLR gate harness
-#'   enables the (publicly refused) MLR path; `d_S` stays the unscaled stacked
-#'   statistic.
+#' @param scaling Retained for result compatibility; `NA` for all fitted results.
+#'   Scaled MLR MBCO inference is not supported.
 #' @return An `MbcoMIResult` S7 object.
 #' @seealso [infer()], [mbco_d4()]
 #' @examples

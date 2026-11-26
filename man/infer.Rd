@@ -61,11 +61,32 @@ Every imputation is refit with an unweighted \code{\link[stats:glm]{stats::glm()
 \code{offset}, \code{subset} and \code{na.action} in \code{fit_args} are an error here; use
 \code{type = "mc"} for such fits.
 At least two imputations are required. It also works for
-\code{engine = "lavaan"} fits (including a latent mediator), with lavaan doing
+\code{engine = "lavaan"} fits (including a latent mediator), with medfit doing
 the refits: the tested paths are the structural regressions \code{mediator ~ treatment} and \code{outcome ~ mediator}. Only \code{estimator = "ML"} (the default)
 is supported; \code{MLR}, \code{MLM}, \code{WLSMV}, \code{group}, \code{ordered}, \code{sampling.weights}
 and \code{method = "ipw"} are refused, naming the option. A refit that did not
 converge stops the test, naming the dataset, the branch and the model.
+With medfit >= 0.19.0, SEM MBCO validates the version-1 outcome ledgers
+for the full fit and both nulls before pooling. Missing, unknown,
+incomplete or mismatched evidence stops inference. A validated retained
+null likelihood can be pooled and the warning names the dataset and
+the affected null. An escaping fit error stops inference. The guarded
+affine path on older medfit builds requires an upgrade for typed
+covariance retention. An unattributed improper-null warning still
+requires matching diagnostic refits.
+SEM MBCO requires medfit >= 0.14.0; \code{\link[=run]{run()}} still uses lavaan. MBCO ignores
+\code{std.lv}, \code{std.ov = FALSE}, \code{fixed.x}, \code{conditional.x}, \code{meanstructure},
+\code{information}, \code{missing}, \code{se} and \code{test}, and always uses \code{fixed_x = FALSE}.
+\code{std.ov = TRUE} is refused because standardizing observed variables can
+change equality-constrained models; this restriction applies to SEM MBCO.
+All other options (including \code{control}, \verb{auto.*} and \code{likelihood}) are
+refused. Nonlinear/bounded constraints and singular variance nulls are
+unsupported. Model columns must be numeric or two-level factors; the
+treatment must be numeric. The \code{c()} and \code{label()} modifiers and multi-lhs
+regressions are refused. Warning notices name the affected datasets;
+unattributed improper null notices trigger separate diagnostic refits, which
+must match both reported likelihood ratios before assigning branch labels.
+Unresolved attribution stops inference rather than guessing warning order.
 }
 }
 \examples{
