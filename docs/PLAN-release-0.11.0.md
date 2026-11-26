@@ -43,10 +43,10 @@ updates from [PR #118](https://github.com/Data-Wise/missingmed/pull/118).
    RMediation 1.6.1 failed the direct Monte Carlo call on R 4.1.3
    with S7 0.2.2 and medfit 0.20.0. Verify the same call, installed public
    API smoke, and the full archive check with the published RMediation 1.11.2.
-3. Run the three hosted workflows on the exact release candidate. Require a
-   successful R CMD check, lint and pkgdown build, plus skipped deployment
-   during rehearsal. Request approval for the release PR into `main`. Once
-   approved and merged, verify its tree matches the tested candidate and
+3. Hosted rehearsal complete on `95618d2`. R CMD check, lint, and pkgdown
+   passed, and Pages deployment was skipped. See the hosted verification
+   below. Request approval for the release PR into `main`. Once approved
+   and merged, verify the release tree against the tested candidate and
    confirm that the post-merge checks and Pages deployment succeed.
 4. With release authorization, tag and publish `v0.11.0` on GitHub. Verify the
    tag, archive, release notes, R-universe build and clean install, and the live
@@ -88,7 +88,23 @@ same S7 static analysis.
 - pak resolved the three pins for the archive, development install, and
   workflow dependency sets. actionlint passed on the three workflows.
 
-The hosted workflow rehearsal remains pending.
+## Hosted release verification
+
+On 2026-11-25, a push to `dev` in the private
+`Data-Wise/missingmed-ci-95618d2` repository triggered all three workflows at
+`95618d24bd508c77eb58998e6b3365f436767486`. Each passed on its first attempt
+and verified RMediation 1.11.2 (R-universe source
+`f5606ae3e7f365ba5e9c3aa2c0f0622efed297d6`), S7 1.0.0, and medfit 0.20.0
+(GitHub source `4739e8e76020cd7d0e5f8f29e9d918c6dd4e6ef8`).
+
+| Workflow | Result |
+| --- | --- |
+| [R-CMD-check](https://github.com/Data-Wise/missingmed-ci-95618d2/actions/runs/45746547068) | R 4.6.2, `Status: OK`. Testthat reported 2,571 passes, 2 skips, 0 failures, and 0 warnings. |
+| [Lint](https://github.com/Data-Wise/missingmed-ci-95618d2/actions/runs/45746547037) | Passed with zero lints. |
+| [pkgdown](https://github.com/Data-Wise/missingmed-ci-95618d2/actions/runs/45746547071) | Site build passed. GitHub recorded the Pages deployment step as skipped. |
+
+The two test skips were the source-only refcard check and the optional
+`regmedint` comparison.
 
 ## CRAN
 
