@@ -11,7 +11,9 @@ r_universe: 2026-11-26 - Published v0.11.1 at 42b4805. All nine targets reported
 pr_125: 2026-11-25 - Website documentation PR merged into main as eba33d4. Post-merge pkgdown 45763654984 passed. Pages deployment 45763991106 published gh-pages commit 407ca66. All seven updated live articles matched the deployed HTML byte for byte.
 t5_regressions: 2026-11-25 - Ported the consistent-ledger negative-LR and paired stacked a = 0 covariance controls to tests/testthat/test-mbco-sem-ledger.R, covering both public APIs and ARIV modes. All 236 ledger assertions passed, and the floor-only mutant tripped all 24 intended rejection assertions. make ci passed on R 4.6.2 with medfit 0.20.0, RMediation 1.11.2, and S7 1.0.0. Independent D4 closure remains open.
 session_handoff: 2026-11-25 - Owner ACCEPTED T5 on missingmed 8dac15d9fbb748958e65044d178c336f931f5631 and medfit v0.19.0 (2c334734c9cc89043f8ed1daddfae0d992890739). The decision is recorded in tasks/plan.md and tasks/todo.md, with the two P2 reviews, Opus follow-up, shipped-default run, and verified local archive. Broader D4 independent closure stays open.
-website_0100: 2026-11-25 - Docs-only PR #116 to main at d90f45f corrects the MBCO decision table and guide links and adds a favicon. The local 0.10.0 build ran the examples, passed 1,594 link and asset checks and 1,709 test assertions, with zero lint findings. Hosted dependency setup fails when medfit 0.3.2 loads with S7 1.0.0. A scratch install reproduced the error and loaded missingmed 0.10.0 with medfit 0.3.2 and S7 0.2.2. PR #116 is open and the public site still serves the previous guide.
+pr_123: 2026-11-25 - Merged the Node.js 24 pkgdown action updates into main at 0a72156. Post-merge pkgdown 45760884890 built and deployed without Node.js 20 deprecation warnings. Pages deployment 45761259587 published gh-pages a2ff957. Receipt carried forward from PR #124.
+website_0100: 2026-11-26 - PR #116 remains open against the old 0.10.0 site. Its MBCO guide corrections, direct README guide link, and favicon are present on main. The revised Choosing an analysis guide and favicon are live. The original 0.10.0 branch passed 1,709 assertions and 1,594 link and asset checks locally. Its hosted dependency setup failed with medfit 0.3.2 and S7 1.0.0, while a scratch install loaded that branch with S7 0.2.2.
+cran_hold: 2026-11-26 - CRAN medfit 0.3.2 is below the declared 0.14.0 floor. CRAN RMediation 1.6.1 meets the declared 1.5.0 floor. The earlier RMediation 1.7.1 threshold tracked R-devel S7 compatibility. Hosted CI uses RMediation 1.11.2. A CRAN-only compatibility check remains pending a compatible CRAN medfit.
 r41_checks: 2026-10-29 - PR #114 merged into dev as 65da5b9. Full vignette archive checks: R 4.6.2 OK; R 4.1 tests and vignettes pass, with a prepared-runtime stats4 warning and note. Hosted check and site previously failed because the runner installed medfit 0.3.2. PR #115 pins medfit 0.15.0 and merged into dev as 46520f3; both hosted PR checks passed at 50b9840. Post-merge R-CMD-check 40979440432 and pkgdown 40979384561 passed. No release.
 r41_offset: 2026-10-29 - PR #114 preserves constrained-formula offsets and environments; R 4.1.3 and 4.6.2 archive suites each 2423 pass, 10 skip, zero fail; warnings/notes remain. No release.
 pr_113: 2026-10-26 - PR #113 squash-merged to dev as a4c512ef741ca208290389205d13a9117bf91772; SEM MBCO rejects std.ov = TRUE and local CI repairs landed. Next gate: D4 independent closure after the pending medfit covariance-retention change; see tasks/plan.md.
@@ -37,7 +39,7 @@ d3_public_format: 2026-10-22 - Public/nested map propagation and tamper refusal 
 d3_branch_map: 2026-10-22 - Isolated medfit codex/medfit-d3-branch-map on D2 a11c63b: overflow-safe 64-RAW cap and structural duplicate maps without execution changes. 484 dependency +816 consumer =1300 deterministic assertions/lint pass. Claude b0735071 needs-attention; four concerns addressed/retested, including confirmed error-ledger masking fix, not independently re-reviewed. Original C5/3c/3d/items8-10 omitted by Claude; owner traced, closure pending. Raw docs/specs/D3-claude-review-2026-10-22.json. T5 UNACCEPTED; D4/D5/real cases open. No installs/simulations/saved-result changes/push/merge.
 d2_null_attribution: 2026-10-22 - Tests only in isolated medfit: explicit null:1 all-empty union and nested certificate IDs/proofs; 1210 deterministic assertions/lint pass, zero warnings/errors. Claude424e4da7 approves with no findings, reads approved 3d/items8-10; no full consumer verification claimed. Raw review docs/specs/D2-null-attribution-claude-review-2026-10-22.json. T5 UNACCEPTED; D3-D5/real-case open. No installs/simulations/saved-result changes/push/merge.
 d2_literal_certificates: 2026-10-22 - Local medfit codex/medfit-d2-literal-certificates from pinned D1 8d7d6c1; exact explicit zero/nonzero equality certificates only. 369 dependency +816 consumer assertions pass, no warnings/errors. Claude ca1aef5c needs-attention; four concerns repaired/retested, not independently re-reviewed; cross-root spec/proposal omitted. Receipt /private/tmp/medfit-d1.3jrA2K/medfit/planning/specs/NOTE-D2-literal-certificates-2026-10-22.md. T5 UNACCEPTED, D3-D5/real-case open. No installs/simulations/saved-result changes/push/merge.
-t6: 2026-11-25 - The medfit 0.14.0 minimum passed 953 targeted assertions, and the accepted medfit 0.19.0 pin passed 1,033. Updated the package floor, NEWS, help, and vignettes. Typed covariance retention requires medfit 0.19.0 or later.
+t6: 2026-11-25 - The medfit 0.14.0 minimum passed 953 targeted assertions, and the accepted medfit 0.19.0 pin passed 1,033. Updated the package floor, NEWS, help, and vignettes. For issue #106, DESCRIPTION and the SEM provider runtime guard (R/mbco_sem.R) both require medfit 0.14.0. Typed covariance retention requires medfit 0.19.0 or later.
 next: (refreshed 2026-11-26) D4 is closed on dev. The C5 diagnostic is merged on main and documented on the live site. v0.11.1 remains the published release.
   (historical 2026-10-26) PR #102 MERGED to dev 2026-10-26T20:10Z as 9f77220 (squash of 49 commits, merged by
   Data-Wise; final branch head 4a84e66, tree identical to origin/dev). 0 reviews, no recorded merge authorization
@@ -46,7 +48,7 @@ next: (refreshed 2026-11-26) D4 is closed on dev. The C5 diagnostic is merged on
   0.14.0, owned by medfit-oct-23; D1-D4 commits survive only on local keep/d4-3a98bf6 and keep/d3-pin-cba4c1a).
   D5 recheck trigger MET 2026-10-26: medfit 0.15.0 contains D1-D4 (re-landed as PRs #336-#342; pinned commits are not ancestors), so D5 is unblocked but not started;
   D4 review of 0.15.0 done 2026-10-26: no defect, gate open (vacuous winner assertion, 5 untested retain-covariance clauses); equivalence to reviewed receipts unverified. P3 ruling 2026-10-26 = B (supersedes same-day A): simulated seed 45 accepted, gate amended, collaborator route dropped, R3/R5 dropped; T5 still UNACCEPTED (D4 closure, D5, checkpoint): docs/REQUEST-p3-ruling-2026-10-26.md.
-  missingmed CRAN stays live, blocked by RMediation >= 1.7.1 (author hold).
+  The October CRAN author hold tracked RMediation >= 1.7.1 for R-devel S7 compatibility. See cran_hold above for current dependency evidence.
   The "draft PR #102" and "No open issues or PRs" wording below is dated history (2026-10-16).
   (refreshed 2026-10-16) v0.10.0 RELEASED 2026-10-14 on GitHub + r-universe (release PR #97,
   merge ed28304, tag v0.10.0); dev is 0.10.0.9000. #99 MERGED 2026-10-15 (3dbffc3): frozen-vector
@@ -172,12 +174,10 @@ next: (refreshed 2026-11-26) D4 is closed on dev. The C5 diagnostic is merged on
       Default medfit is 0.7.0; focused checks use the existing 0.11.1 library above.
       Hard medfit >= 0.10.0 blocks CRAN until
       medfit 0.10 is on CRAN.
-  (2) CRAN: blocked on RMediation >= 1.7.1 on CRAN (latest release 1.6.1; 1.7.1 fixes the R-devel S7
-      load error) and on the medfit floor. Re-check why the CRAN plan (docs/specs/PLAN-cran-1.0.0-
-      2026-10-09.md) names medfit 0.7.0 now that medfit is at 0.10.0 on GitHub (CRAN medfit 0.3.2).
-      Then: raise floors, drop .lav_round_nobs() once a CRAN medfit carries .lavaan_n_obs(), re-run
-      win-builder devel; consider dropping quarto/pkgdown from Suggests. mac-builder failed
-      builder-side twice on 2026-10-14 (library broken, not missingmed): retry.
+  (2) Historical CRAN plan: docs/specs/PLAN-cran-1.0.0-2026-10-09.md records the
+      earlier dependency targets and builder follow-ups. The 2026-10-14 mac-builder
+      attempts failed twice in the builder library. See cran_hold above for the
+      current dependency floors and compatibility check.
   (3) mediate_mi() (user-API spec follow-up): not started; waits on
       the author's go-ahead.
   (4) Not started / gated: FIML-MBCO (P6); complete-data infer(<lavaan>) (P4, may be superseded by
