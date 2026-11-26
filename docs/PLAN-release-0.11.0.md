@@ -2,7 +2,8 @@
 
 Proposed on 2026-11-25. GitHub and Data-Wise R-universe currently serve
 missingmed 0.10.0. The candidate starts from upstream `dev` at
-`ca4957f8160c2a3d7d0db6aa2681da7781fdda86` plus the website updates.
+`3c96bd48178c5f79d61bc2d60fd1b70ee925b8fb`, which includes the website
+updates from [PR #118](https://github.com/Data-Wise/missingmed/pull/118).
 
 ## Scope and dependencies
 
@@ -26,7 +27,7 @@ missingmed 0.10.0. The candidate starts from upstream `dev` at
 
 ## Release gates
 
-1. Review the website and plan on a PR into `dev`. Carry forward the corrected
+1. Complete: the website and plan merged into `dev` in PR #118. Carry forward the corrected
    analysis guide and favicon from [PR #116](https://github.com/Data-Wise/missingmed/pull/116)
    with the 0.11.0 semantics. Keep #116 separate as a 0.10.0 backport.
 2. Prepare the release commit. Set `DESCRIPTION` version and date, finalize

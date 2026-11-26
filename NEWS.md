@@ -1,4 +1,4 @@
-# missingmed (development version)
+# missingmed 0.11.0
 
 ## Breaking changes
 
@@ -25,7 +25,6 @@
 
 * S7 property access now works under the declared R 4.1 minimum.
 * Preserve formula offsets when fitting MBCO constrained branches on R 4.1.
-
 * Keep the exported `tidy()` callable for missingmed results under S7 1.0.0.
 
 ## Internal
