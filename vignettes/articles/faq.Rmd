@@ -54,10 +54,10 @@ coefficient.
 
 ### My model has a moderator. Can I use it?
 
-Not in `set_md_mediation()`, which allows only main effects of the treatment
-and mediator plus one `X:M` term (see the *Supported models* article).
-`mbco_d4()` tests the indirect effect of a moderated model on a list of
-completed datasets.
+The [formula interface](supported-models.html) allows a treatment-by-mediator
+interaction in Gaussian identity-link models. For an interaction between the
+mediator and another covariate, use `mbco_d4()` on a list of completed data
+frames. The [cookbook](cookbook.html#test-a-moderated-model) shows an example.
 
 ### Binary mediator or outcome?
 
@@ -94,7 +94,7 @@ Yes, since 0.6.0. The glm path fits regression models through medfit; for a
 structural equation model, including a latent mediator, use
 `set_md_mediation(engine = "lavaan")` with the lavaan syntax in `model` and the
 `outcome` named. `infer(type = "mc")` and `infer(type = "mbco")` both work for
-lavaan fits (MBCO with maximum likelihood only; it is refused for `MLR`, `MLM`,
+lavaan MI fits (MBCO with maximum likelihood only; it is refused for `MLR`, `MLM`,
 `WLSMV`, `group`, `ordered` and `sampling.weights`). See the *Structural equation
 models* article and the *Migrating from the S4 API* article.
 
@@ -111,14 +111,12 @@ Since 0.7.0, fitting options belong in `set_md_mediation()`, where they are stor
 on the object and reused by every later refit (including the refits inside
 `sensitivity_mnar()`). Passing them through `run(...)` or `sensitivity_mnar(...)`
 still works but warns (a lifecycle deprecation warning, shown once per session; set
-`options(lifecycle_verbosity = "warning")` to see every one). Move the argument:
+`options(lifecycle_verbosity = "warning")` to see every one). For example, use `fit_args` to set the mediator reference value in a model
+with a treatment-by-mediator interaction. The [cookbook](cookbook.html#move-fitting-options-out-of-run)
+runs this example.
 
 ```{r fit-args-before-after, eval = FALSE}
-# before (warns)
-fit <- run(md, m_star = 0)
-
-# after
-md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+md <- set_md_mediation(imp, Y ~ X * M + C, M ~ X + C,
   treatment = "X", mediator = "M", fit_args = list(m_star = 0)
 )
 fit <- run(md)

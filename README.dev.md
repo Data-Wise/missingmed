@@ -1,12 +1,14 @@
 # Development agent and CI
 
-This repository includes a small development "agent" script and CI workflow to help with common package maintenance tasks.
+This repository includes a small development "agent" script and CI workflows to help with common package maintenance tasks.
 
 Files added:
 
 - `dev/dev_agent.R` - small CLI wrapper to run package tasks (doc, lint, test, check, build, site, status).
 - `Makefile` - convenience targets that call the dev agent.
-- `.github/workflows/check.yml` - GitHub Actions workflow that runs on push and PR to `main` (lint, install deps, R CMD check, tests).
+- `.github/workflows/check.yml` runs R CMD check on pushes to `main` and `dev` and on pull requests into `dev`.
+- `.github/workflows/lint.yaml` runs lint on pushes to `main` and `dev`.
+- `.github/workflows/pkgdown.yaml` builds the site on pushes to `main` and `dev`, pull requests into `dev`, published releases, and manual dispatches. Deployment requires the `main` ref or a release event.
 
 Usage
 
@@ -25,6 +27,9 @@ Rscript dev/dev_agent.R check
 # or use Makefile targets
 make test
 make check
+
+# run the local pre-PR checks (R CMD check, lint, pkgdown reference index)
+make ci
 ```
 
 Dependencies
