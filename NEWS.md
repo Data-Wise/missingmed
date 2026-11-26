@@ -1,3 +1,14 @@
+# missingmed 0.11.1
+
+## Tests
+
+* The contrast-error test accepts R-devel's updated message and still checks
+  attribution to imputation 2 (#120).
+* SEM MBCO regression tests cover materially negative likelihood ratios from
+  consistent ledgers and pair typed covariance retention with ordinary
+  covariance failure at the stacked `a = 0` null. Both public APIs are
+  exercised in both ARIV modes (#127).
+
 # missingmed 0.11.0
 
 ## Breaking changes
