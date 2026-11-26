@@ -120,6 +120,15 @@ refused for `MLR`, `MLM`, `WLSMV`, `group`, `ordered` and
 `sampling.weights`). See the *Structural equation models* article and
 the *Migrating from the S4 API* article.
 
+[`run()`](https://data-wise.github.io/missingmed/reference/run.md) uses
+lavaan. SEM MBCO refits use medfit 0.14.0 or later and accept a narrower
+set of syntax and options. Keeping a null likelihood after a supported
+covariance failure requires medfit 0.19.0 or later. See [*The MBCO test
+with a lavaan
+fit*](https://data-wise.github.io/missingmed/articles/lavaan-sem.html#the-mbco-test-with-a-lavaan-fit)
+for the allowed options and how to read the warning. Use
+`fit_args = list()` for defaults.
+
 ### Why does `run()` or `sensitivity_mnar()` warn that passing arguments is deprecated?
 
 Since 0.7.0, fitting options belong in

@@ -36,14 +36,17 @@ by step*.
 | A lavaan estimator such as MLR | `"lavaan"` with `fit_args` |
 | regmedint’s estimators | `"regmedint"` (needs medfit 0.4.0 or later; MI only) |
 
-See *Supported models* and *Structural equation models*.
+See [*Supported
+models*](https://data-wise.github.io/missingmed/articles/supported-models.md)
+and [*Structural equation
+models*](https://data-wise.github.io/missingmed/articles/lavaan-sem.md).
 
 ### 3. How is the indirect effect judged? (`infer(type = )`)
 
 |  | `"mc"` | `"mbco"` |
 |----|----|----|
 | Answer | an interval and point estimate for `a * b` | a likelihood-ratio test of no indirect effect |
-| Works with | glm and lavaan engines, MI and IPW | glm engine, MI only |
+| Works with | `glm` and `lavaan` with MI or IPW, and `regmedint` with MI | MI with `glm`, supported `regmedint` models, or [`lavaan` with ML](https://data-wise.github.io/missingmed/articles/lavaan-sem.html#the-mbco-test-with-a-lavaan-fit) |
 | Use when | you want an effect size with uncertainty | the product’s interval is unreliable (both paths weak) |
 
 The Monte Carlo interval is the default report. The MBCO test is more
@@ -61,7 +64,8 @@ See *Testing an indirect effect with incomplete data*.
      ├─ yes -> engine = "glm"
      └─ latent mediator / lavaan options -> engine = "lavaan"
 
-    Then: pool(run(md)); infer(type = "mc"). Both paths weak? Add infer(fit, type = "mbco") (MI; glm, or lavaan with ML).
+    Then: fit <- run(md); infer(pool(fit), type = "mc").
+    Both paths weak? For supported MI models, add infer(fit, type = "mbco").
     Worried about MAR? sensitivity_mnar() (MI only).
 
 ## What no choice here fixes

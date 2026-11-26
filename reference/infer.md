@@ -80,13 +80,36 @@ the named numeric `c(D4, p, r4, nu, d_S)` (index it with `r["p"]` or
   `offset`, `subset` and `na.action` in `fit_args` are an error here;
   use `type = "mc"` for such fits. At least two imputations are
   required. It also works for `engine = "lavaan"` fits (including a
-  latent mediator), with lavaan doing the refits: the tested paths are
+  latent mediator), with medfit doing the refits: the tested paths are
   the structural regressions `mediator ~ treatment` and
   `outcome ~ mediator`. Only `estimator = "ML"` (the default) is
   supported; `MLR`, `MLM`, `WLSMV`, `group`, `ordered`,
   `sampling.weights` and `method = "ipw"` are refused, naming the
   option. A refit that did not converge stops the test, naming the
-  dataset, the branch and the model.
+  dataset, the branch and the model. With medfit \>= 0.19.0, SEM MBCO
+  validates the version-1 outcome ledgers for the full fit and both
+  nulls before pooling. Missing, unknown, incomplete or mismatched
+  evidence stops inference. A validated retained null likelihood can be
+  pooled and the warning names the dataset and the affected null. An
+  escaping fit error stops inference. The guarded affine path on older
+  medfit builds requires an upgrade for typed covariance retention. An
+  unattributed improper-null warning still requires matching diagnostic
+  refits. SEM MBCO requires medfit \>= 0.14.0;
+  [`run()`](https://data-wise.github.io/missingmed/reference/run.md)
+  still uses lavaan. MBCO ignores `std.lv`, `std.ov = FALSE`, `fixed.x`,
+  `conditional.x`, `meanstructure`, `information`, `missing`, `se` and
+  `test`, and always uses `fixed_x = FALSE`. `std.ov = TRUE` is refused
+  because standardizing observed variables can change
+  equality-constrained models; this restriction applies to SEM MBCO. All
+  other options (including `control`, `auto.*` and `likelihood`) are
+  refused. Nonlinear/bounded constraints and singular variance nulls are
+  unsupported. Model columns must be numeric or two-level factors; the
+  treatment must be numeric. The [`c()`](https://rdrr.io/r/base/c.html)
+  and `label()` modifiers and multi-lhs regressions are refused. Warning
+  notices name the affected datasets; unattributed improper null notices
+  trigger separate diagnostic refits, which must match both reported
+  likelihood ratios before assigning branch labels. Unresolved
+  attribution stops inference rather than guessing warning order.
 
 ## See also
 

@@ -162,7 +162,11 @@ set_md_mediation(
   For `engine = "lavaan"` they go to
   [`lavaan::sem()`](https://rdrr.io/pkg/lavaan/man/sem.html), for
   example `list(estimator = "MLR")`, and cannot set `model` or `data`.
-  For the other engines they go to
+  SEM MBCO uses medfit instead, with the strict allow-list in
+  [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md);
+  options accepted by
+  [`run()`](https://data-wise.github.io/missingmed/reference/run.md) may
+  be refused there. For the other engines they go to
   [`medfit::fit_mediation()`](https://data-wise.github.io/medfit/reference/fit_mediation.html)
   (for example `list(engine_args = list(...))` with a medfit that has
   it) and cannot restate what this function sets (`formula_y`,

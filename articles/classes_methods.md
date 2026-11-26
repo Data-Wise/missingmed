@@ -136,7 +136,7 @@ S7::S7_data(r)
 ## Registration notes for contributors
 
 - `R/zzz.R` calls
-  [`S7::methods_register()`](https://rconsortium.github.io/S7/reference/methods_register.html)
+  [`S7::methods_register()`](https://rconsortium.github.io/S7/reference/S7_on_load.html)
   in `.onLoad()`, which registers the S7 methods on external generics at
   load time, so they need no `S3method()` lines in `NAMESPACE`.
 - `MDMediationData`, `MDMediationFit`, `MDMediationResult` and

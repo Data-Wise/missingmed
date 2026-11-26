@@ -67,7 +67,12 @@ mbco_d4(
   `outcome ~ mediator` (b); a latent mediator uses its structural rows,
   and its measurement model and any direct effects of its indicators on
   the outcome stay free. Only `estimator = "ML"` (the default) is
-  supported, with no `group`, `ordered` or `sampling.weights`.
+  supported, with no `group`, `ordered` or `sampling.weights`. Refitting
+  uses medfit \>= 0.14.0, not lavaan's optimizer. The ignored options
+  and syntax restrictions are described in
+  [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md).
+  `fit_args` must be a list: use
+  [`list()`](https://rdrr.io/r/base/list.html), not `NULL`.
 
 ## Value
 
@@ -136,6 +141,15 @@ likelihood ratio. A fit that converged but carries glm's "fitted
 probabilities numerically 0 or 1" warning is not refused (its likelihood
 is finite and the warning reaches you unchanged), but the
 chi-square-type reference may be poor for such near-separated data.
+
+With medfit \>= 0.19.0, SEM MBCO validates the version-1 outcome ledgers
+for the full fit and both nulls before pooling. Missing, unknown,
+incomplete or mismatched evidence stops inference. A validated retained
+null likelihood can be pooled and the warning names the dataset and the
+affected null. An escaping fit error stops inference. The guarded affine
+path on older medfit builds requires an upgrade for typed covariance
+retention. An unattributed improper-null warning still requires matching
+diagnostic refits.
 
 At least two imputations are required. For a single complete dataset,
 use a complete-data MBCO test such as

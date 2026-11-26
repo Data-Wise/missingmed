@@ -354,7 +354,7 @@ infer(fit2, type = "mc", treatment_level = 1)
 #> [1] 0.05690246
 #> 
 #> $MC.Error
-#> [1] 5.690246e-07
+#> [1] 0.0001799414
 #> 
 #> $Estimand
 #> [1] "a * (b + theta3 * 1)"
@@ -370,7 +370,7 @@ infer(fit2, type = "mc", treatment_level = 0)
 #> [1] 0.05881474
 #> 
 #> $MC.Error
-#> [1] 5.881474e-07
+#> [1] 0.0001859885
 #> 
 #> $Estimand
 #> [1] "a * (b + theta3 * 0)"

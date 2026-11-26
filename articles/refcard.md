@@ -38,7 +38,11 @@ Notes:
   matches it for the Gaussian and binomial models it accepts.
 - MBCO with `lavaan` is maximum likelihood only: `estimator = "MLR"`,
   `"MLM"`, `"WLSMV"`, and `group`, `ordered` and `sampling.weights` in
-  `fit_args` are refused, naming the option.
+  `fit_args` are refused, naming the option. SEM MBCO refits use medfit
+  \>= 0.14.0, while
+  [`run()`](https://data-wise.github.io/missingmed/reference/run.md)
+  uses lavaan; unlisted options (including `control`, `auto.*` and
+  `likelihood`) are also refused.
 - IPW has no imputations, so it has no MBCO test and no delta
   sensitivity analysis.
 
@@ -66,11 +70,12 @@ but warns (a lifecycle deprecation warning, class
 | a lavaan fit did not converge in [`run()`](https://data-wise.github.io/missingmed/reference/run.md) | `did not converge on imputation` | simplify the model, or `fit_args = list(control = list(iter.max = 5000))` |
 | MBCO: a glm refit did not converge | `model did not converge` | rescale variables, merge sparse factor levels; the data may be separated |
 | MBCO: a glm refit has a non-finite log-likelihood | `non-finite log-likelihood` | check the data for degenerate columns |
-| MBCO: a lavaan refit did not converge | `lavaan model did not converge` | as for [`run()`](https://data-wise.github.io/missingmed/reference/run.md) |
+| MBCO: a SEM full refit failed | `The full model did not converge or is unresolved` | simplify/check the model; lavaan controls are not medfit controls |
 | `sensitivity_mnar(on_error = "continue")`: a rung failed (warning) | `rung(s) failed` | [`tidy()`](https://generics.r-lib.org/reference/tidy.html) has an `error` column naming each failure; fix the cause and rerun the failed deltas |
-| MBCO: improper solution in a refit (warning) | `improper solution` | check the model for a negative variance or a boundary estimate; the test proceeds |
+| MBCO: improper solution in a refit (warning) | `improper solution` | check the dataset and fit named in the warning for a negative variance or boundary estimate |
+| SEM MBCO: retaining a null likelihood requires a newer medfit | `SEM covariance retention requires medfit >= 0.19.0` | upgrade medfit and check the null and dataset named in any subsequent warning |
 | MBCO with IPW | `MBCO inference for IPW is not yet implemented` | use `type = "mc"` |
-| MBCO with a lavaan estimator other than ML | `supports estimator = "ML" only` | use `type = "mc"`, or refit with ML |
+| MBCO with a lavaan estimator other than ML | `must be "ML"` | use `type = "mc"`, or refit with ML |
 | MBCO with fewer than two imputations | `at least 2 imputations` | re-impute with `m >= 2` |
 | MBCO: missing values in a variable the constraint drops | `which the MBCO constraint drops` | impute every model variable |
 | MBCO: the constraint removes a different number of parameters across imputations | `Under ariv = "fixed"` | drop or merge the sparse factor level |
@@ -86,6 +91,7 @@ but warns (a lifecycle deprecation warning, class
   [`?mbco_d4`](https://data-wise.github.io/missingmed/reference/mbco_d4.md);
   the result:
   [`?MbcoMIResult`](https://data-wise.github.io/missingmed/reference/MbcoMIResult.md)
-- structural equation models: the *Structural equation models* article
+- structural equation models: the [*Structural equation models*
+  article](https://data-wise.github.io/missingmed/articles/lavaan-sem.md)
 - choosing between engines and methods: the *Choosing an analysis*
   article

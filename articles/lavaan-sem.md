@@ -79,10 +79,10 @@ must be a column of the data.
 res_obs <- pool(run(md_obs))
 res_obs
 #> <MDMediationResult> (pooled, Rubin's rules; m = 5 )
-#>     term  estimate   std_error
-#>        a 0.5625950 0.102205867
-#>        b 0.5178868 0.068891519
-#>  c_prime 0.2318642 0.004089056
+#>     term  estimate  std_error
+#>        a 0.5625950 0.10220587
+#>        b 0.5178868 0.06889152
+#>  c_prime 0.2318642 0.12522219
 #>   indirect effect a*b = 0.2914 
 #>   -> infer(type = "mc") for the indirect-effect CI
 ```
@@ -124,7 +124,7 @@ res_lat@tidy_table[, c("term", "estimate", "std_error", "statistic", "p_value")]
 #> 10     m3~~m3 0.2923506 0.03095271        NA           NA
 #> 11       Y~~Y 1.0303279 0.08692134        NA           NA
 #> 12 Mlat~~Mlat 1.0108630 0.11183901        NA           NA
-#> 13    c_prime 0.1848040 0.01229161 15.034967 1.140356e-04
+#> 13    c_prime 0.1848040 0.12723510  1.452461 1.463803e-01
 ```
 
 Two things to read in that table:
@@ -316,14 +316,21 @@ tidy(s)
 
 ## The MBCO test with a lavaan fit
 
+missingmed requires medfit 0.14.0 or later. For SEM MBCO, medfit
+versions below 0.19.0 use the guarded affine path. When a warning from
+that path lacks a null label, missingmed checks separate diagnostic
+refits against the original sample and both likelihood ratios before
+attributing it.
+
 `infer(type = "mbco")` runs the same D4-stacked likelihood-ratio test of
-H0: a·b = 0 as the glm engine, with lavaan doing the refits. Each
-imputation is fit once in full and once with the `a` path (`Mlat ~ X`)
-fixed to 0 and once with the `b` path (`Y ~ Mlat`) fixed to 0; the
-stacked data are fit the same three ways. With a latent mediator, only
-the **structural** path is fixed: the loadings, the measurement errors
-and any direct effect of an indicator on `Y` stay free, so each branch
-tests exactly one parameter (`k = 1`).
+H0: a·b = 0 as the glm engine.
+[`run()`](https://data-wise.github.io/missingmed/reference/run.md) fits
+with lavaan. For each imputation and the stacked data, MBCO uses medfit
+to fit the full model and two null models. The `a = 0` null fixes
+`Mlat ~ X` to zero. The `b = 0` null fixes `Y ~ Mlat` to zero. With a
+latent mediator, fixing the **structural** path leaves the loadings, the
+measurement errors and any direct effect of an indicator on `Y` free, so
+each branch tests exactly one parameter (`k = 1`).
 
 ``` r
 
@@ -376,6 +383,49 @@ statistics are excluded because the D4 pooling is justified for
 likelihood-ratio statistics, not for scaled ones, and no validated
 pooling exists yet. Use `type = "mc"` for those fits.
 
-A refit that does not converge stops the test, naming the imputation (or
-the stacked data) and which fit; an improper solution warns once and
-goes on.
+A failed refit stops the test and identifies the imputation or stacked
+data. With medfit 0.19.0 or later, SEM MBCO checks the version-1 outcome
+ledgers for the full fit and both nulls before pooling. Missing,
+unknown, incomplete or mismatched ledgers stop inference. If medfit
+reports a supported covariance failure and supplies a valid retained
+null likelihood, the test can proceed. The warning names the imputation
+or stacked data and the affected null (`a = 0` or `b = 0`). Other fit
+errors stop inference. On supported medfit versions below 0.19.0, a
+covariance-retention notice stops the test with
+`SEM covariance retention requires medfit >= 0.19.0`.
+
+For MBCO, the allowed `fit_args` are `estimator = "ML"`, `std.lv`,
+`std.ov = FALSE`, `fixed.x`, `conditional.x`, `meanstructure`,
+`information`, `missing`, `se` and `test`. These statistic-invariant
+options are ignored; medfit always receives `fixed_x = FALSE`. Every
+other option is refused by name, including `auto.*`, `orthogonal*`,
+`int.*.free`, `control` and `likelihood = "wishart"`. Thus the
+iteration-limit advice for
+[`run()`](https://data-wise.github.io/missingmed/reference/run.md) above
+does not apply to MBCO. Use `fit_args = list()` for defaults; `NULL`
+remains invalid. `std.ov = TRUE` is refused because standardization can
+change equality-constrained models.
+
+MBCO syntax is narrower than lavaan syntax. Fixed tested paths,
+multigroup modifiers, nonlinear/product equalities, inequalities and
+bounded parameters are refused, as are
+[`c()`](https://rdrr.io/r/base/c.html)/`label()` modifiers and multi-lhs
+regressions. Nulls forcing unsupported variance domains are refused
+before fitting; numerically unresolved affine checks also stop
+inference. No absence of warnings or successful surviving branch is a
+completeness certificate. Other unsupported medfit syntax fails
+explicitly rather than falling back to lavaan. Non-finite or materially
+negative raw likelihood-ratio summaries on either branch stop inference;
+roundoff-sized negatives within `1e-7` are reported and rounded to zero
+before pooling. SEM notices are collected into one dataset-labeled
+warning. Unattributed improper null notices trigger separate diagnostic
+refits through `fit_sem()`, using the original data and matching fitting
+options. Both reported likelihood ratios must match within `1e-7` raw LR
+units before assigning a/b labels; unresolved attribution stops
+inference. Warning order alone is never used to guess the affected
+branch.
+
+MBCO model columns must be numeric or two-level factors; factors with
+more levels are refused even if a newer medfit can expand them. Binary
+factor covariates use the factor-level order for 0/1 coding. The
+treatment must still be numeric under the public data specification.
