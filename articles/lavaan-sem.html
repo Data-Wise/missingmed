@@ -469,7 +469,10 @@ explicitly rather than falling back to lavaan. Non-finite or materially
 negative raw likelihood-ratio summaries on either branch stop inference;
 roundoff-sized negatives within <code>1e-7</code> are reported and
 rounded to zero before pooling. SEM notices are collected into one
-dataset-labeled warning. Unattributed improper null notices trigger
+dataset-labeled warning that inherits the original medfit warning
+classes. Muffling it by any of those classes suppresses the whole
+combined warning. Improper fits are reported by dataset and branch even
+if medfit emits no warning. Unattributed improper null notices trigger
 separate diagnostic refits through <code>fit_sem()</code>, using the
 original data and matching fitting options. Both reported likelihood
 ratios must match within <code>1e-7</code> raw LR units before assigning
