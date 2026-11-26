@@ -122,8 +122,8 @@ failures, skips, or warnings. `make ci` passed on R 4.6.2 with the existing pins
 (medfit 0.20.0 at `4739e8e`, RMediation 1.11.2, S7 1.0.0). R CMD check
 reported zero errors, warnings, and notes, with 2,707 test passes and 10 skips.
 Lint and the pkgdown reference check passed. Pandoc reported a nonblocking
-`--mathml` deprecation during the reference check. The package version remains
-0.11.1.
+`--mathml` deprecation during the reference check. PR #133 retained package
+version 0.11.1.
 
 The merge commit passed
 [R-CMD-check](https://github.com/Data-Wise/missingmed/actions/runs/45884928030),
