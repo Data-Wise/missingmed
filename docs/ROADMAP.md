@@ -21,6 +21,14 @@ and [Pages deployment](https://github.com/Data-Wise/missingmed/actions/runs/4575
 passed. The updated installation links were verified on the live homepage
 and Getting Started article.
 
+[PR #123](https://github.com/Data-Wise/missingmed/pull/123) moved the checkout
+and Pages deploy actions to Node.js 24 and merged into `main` as `0a72156`.
+The [post-merge pkgdown build](https://github.com/Data-Wise/missingmed/actions/runs/45760884890)
+passed with the deploy step enabled and zero Node.js 20 deprecation warnings.
+The [Pages deployment](https://github.com/Data-Wise/missingmed/actions/runs/45761259587)
+published `gh-pages` commit `a2ff957`. The
+[live homepage](https://data-wise.github.io/missingmed/) served v0.11.0.
+
 ## T5 evidence and owner decision
 
 The owner **accepted T5 on 2026-11-25** on missingmed `8dac15d` and medfit
