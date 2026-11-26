@@ -46,7 +46,9 @@ the decision.
 
 - T6 verified the medfit 0.14.0 dependency floor and synchronized NEWS, help, and vignettes. Typed covariance retention requires medfit 0.19.0 or later.
 - T7 is closed with RMediation 1.6.1. PR #117 merged to `dev` at `ca4957f`, where R CMD check, lint, and pkgdown passed and Pages deployment was skipped.
-- The replay inputs and receipts are in the verified local archive. Porting the two scratch controls into the suite remains a regression follow-up.
+- The [ledger regression suite](../tests/testthat/test-mbco-sem-ledger.R) now covers material negative
+  LRs in consistent v1 ledgers and paired failures at the stacked `a = 0` null. The replay inputs
+  and [original receipts](../tasks/plan.md#pinned-d5-follow-up-checks) are preserved in the local archive.
 
 ## Parked
 
