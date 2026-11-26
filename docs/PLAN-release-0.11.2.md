@@ -32,11 +32,27 @@ to `main`.
   `missingmed_0.11.2.tar.gz` is
   `f695375935ca48e8b81f0386684318deaceb10d4b7ea3d08ab2eacd2bbd00975`.
 
-## Hosted and publication gates
+## Hosted verification
 
-- After authorization, rehearse R CMD check, lint, and pkgdown on the exact
-  candidate on `dev` in a private GitHub repository. Verify that Pages
-  deployment is skipped.
+On 2026-11-26, all three workflows passed on the push of
+`18af5fbe04940b01d12c8d9b1869f2118e08bfab` to `dev` in the private
+`Data-Wise/missingmed-ci-d910970` repository. Each workflow passed its
+dependency version check with medfit 0.20.0 (pinned in the workflow to
+`4739e8e76020cd7d0e5f8f29e9d918c6dd4e6ef8`), RMediation 1.11.2, and S7 1.0.0.
+
+- [R CMD check](https://github.com/Data-Wise/missingmed-ci-d910970/actions/runs/45890316315)
+  reported `Status: OK` on R 4.6.2, with 2,775 test passes, 2 skips, and
+  zero test failures or warnings.
+- [Lint](https://github.com/Data-Wise/missingmed-ci-d910970/actions/runs/45890316305)
+  passed.
+- [pkgdown](https://github.com/Data-Wise/missingmed-ci-d910970/actions/runs/45890316258)
+  built the site. GitHub marked the Pages deployment step `skipped`.
+
+R CMD check and lint emitted a nonblocking Node.js 20 deprecation annotation
+for `actions/checkout@v4`.
+
+## Remaining publication gates
+
 - Open the authorized release PR into `main` and verify its head and diff.
 - After an authorized merge, verify the merge tree, all three workflows on
   the resulting `main` SHA, and Pages deployment.
