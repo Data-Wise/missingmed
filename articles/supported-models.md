@@ -1,9 +1,10 @@
 # Supported models
 
 [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)
-checks the model before anything is fitted. This article lists what it
-accepts and what it refuses, and runs every rule below: each refusal is
-asserted, so the page fails to build if a rule changes.
+checks the model before fitting. The examples below exercise the formula
+interface for `engine = "glm"`. The lavaan interface takes a model
+string and has its own
+[requirements](https://data-wise.github.io/missingmed/articles/lavaan-sem.md).
 
 ``` r
 
@@ -121,7 +122,7 @@ stopifnot(!accepts(imp_f, Y ~ X + M + C, M ~ X + C, treatment = "X", mediator = 
 | `X:M` only with Gaussian identity-link models | `X:M` with `family_y = binomial()` |
 | the treatment column is numeric | factor, character, logical |
 | `treatment` and `mediator` are syntactic R names | `"my M"` |
-| `engine` is `"glm"`, or `"regmedint"` with medfit \>= 0.4.0 and `method = "mi"` | `engine = "lavaan"` |
+| Formula engines are `"glm"` and `"regmedint"`. The latter needs the regmedint package and `method = "mi"`. | `engine = "regmedint"` with `method = "ipw"` |
 
 [`?set_md_mediation`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md)
 lists the same rules under *Details*, together with the checks on IPW’s
@@ -141,7 +142,8 @@ moderated models such as `Y ~ X + M * W`. See
 
 Structural equation models, including a latent mediator, run through
 `set_md_mediation(engine = "lavaan")`: give the lavaan syntax in `model`
-and name the `outcome`. See the *Structural equation models* article for
-the call, the MBCO test with a lavaan fit, and what is refused, and the
-*Migrating from the S4 API* article for the move from the old entry
-points.
+and name the `outcome`. See [*Structural equation
+models*](https://data-wise.github.io/missingmed/articles/lavaan-sem.md)
+for examples and MBCO restrictions, and [*Migrating from the S4
+API*](https://data-wise.github.io/missingmed/articles/s4-migration.md)
+for the old entry points.

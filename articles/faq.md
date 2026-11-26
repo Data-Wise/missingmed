@@ -68,13 +68,15 @@ missing information per coefficient.
 
 ### My model has a moderator. Can I use it?
 
-Not in
-[`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md),
-which allows only main effects of the treatment and mediator plus one
-`X:M` term (see the *Supported models* article).
+The [formula
+interface](https://data-wise.github.io/missingmed/articles/supported-models.md)
+allows a treatment-by-mediator interaction in Gaussian identity-link
+models. For an interaction between the mediator and another covariate,
+use
 [`mbco_d4()`](https://data-wise.github.io/missingmed/reference/mbco_d4.md)
-tests the indirect effect of a moderated model on a list of completed
-datasets.
+on a list of completed data frames. The
+[cookbook](https://data-wise.github.io/missingmed/articles/cookbook.html#test-a-moderated-model)
+shows an example.
 
 ### Binary mediator or outcome?
 
@@ -115,7 +117,7 @@ Yes, since 0.6.0. The glm path fits regression models through medfit;
 for a structural equation model, including a latent mediator, use
 `set_md_mediation(engine = "lavaan")` with the lavaan syntax in `model`
 and the `outcome` named. `infer(type = "mc")` and `infer(type = "mbco")`
-both work for lavaan fits (MBCO with maximum likelihood only; it is
+both work for lavaan MI fits (MBCO with maximum likelihood only; it is
 refused for `MLR`, `MLM`, `WLSMV`, `group`, `ordered` and
 `sampling.weights`). See the *Structural equation models* article and
 the *Migrating from the S4 API* article.
@@ -138,16 +140,15 @@ where they are stored on the object and reused by every later refit
 [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/reference/sensitivity_mnar.md)).
 Passing them through `run(...)` or `sensitivity_mnar(...)` still works
 but warns (a lifecycle deprecation warning, shown once per session; set
-`options(lifecycle_verbosity = "warning")` to see every one). Move the
-argument:
+`options(lifecycle_verbosity = "warning")` to see every one). For
+example, use `fit_args` to set the mediator reference value in a model
+with a treatment-by-mediator interaction. The
+[cookbook](https://data-wise.github.io/missingmed/articles/cookbook.html#move-fitting-options-out-of-run)
+runs this example.
 
 ``` r
 
-# before (warns)
-fit <- run(md, m_star = 0)
-
-# after
-md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+md <- set_md_mediation(imp, Y ~ X * M + C, M ~ X + C,
   treatment = "X", mediator = "M", fit_args = list(m_star = 0)
 )
 fit <- run(md)

@@ -1,9 +1,11 @@
 # Cookbook
 
 Short recipes for tasks that come up after the first analysis. Each is
-self-contained given the data below, and each runs when the site builds.
-For a guided introduction start with *Choosing an analysis*; for what
-each engine supports, see the *Reference card*.
+self-contained given the data below. The R recipes run when the site
+builds. For a guided introduction, see [*Choosing an
+analysis*](https://data-wise.github.io/missingmed/articles/choosing-an-analysis.md).
+For engine support, see the [*Reference
+card*](https://data-wise.github.io/missingmed/articles/refcard.md).
 
 ## The data used throughout
 
@@ -30,7 +32,12 @@ analysis.)
 ## 1. Test a latent mediator with MBCO
 
 Give lavaan syntax and name the latent variable as the mediator. The
-test fixes only the structural path, so each branch tests one parameter.
+test fixes one structural path per branch. The example uses the direct
+list-of-data-frames API. The [SEM
+tutorial](https://data-wise.github.io/missingmed/articles/lavaan-sem.html#the-mbco-test-with-a-lavaan-fit)
+shows the same test after
+[`run()`](https://data-wise.github.io/missingmed/reference/run.md) and
+explains how to read retained-null warnings.
 
 ``` r
 
@@ -59,8 +66,10 @@ mbco_d4(mice::complete(imp_l, "all"),
 ## 2. Sweep a sensitivity analysis with MBCO
 
 `type = "mbco"` returns one test per rung. Read it as a curve: if the
-p-value crosses your threshold as `delta` grows, the conclusion depends
-on the MAR assumption.
+p-value crosses your threshold within the chosen range, the conclusion
+is sensitive to the assumed departure from MAR. See the [sensitivity
+tutorial](https://data-wise.github.io/missingmed/articles/sensitivity-mnar.md)
+for choosing and interpreting that range.
 
 ``` r
 
@@ -124,16 +133,16 @@ Options belong in `fit_args` on
 Passing them through `run(...)` still works but warns (a lifecycle
 deprecation warning, shown once per session).
 
+`m_star` sets the mediator reference value for the four-way
+decomposition, which requires a treatment-by-mediator interaction. Put
+it in `fit_args` when you specify that model.
+
 ``` r
 
-# before: warns
-fit <- run(md, m_star = 0)
-
-# after
-md <- set_md_mediation(imp, Y ~ X + M + C, M ~ X + C,
+md_opts <- set_md_mediation(imp, Y ~ X * M + C, M ~ X + C,
   treatment = "X", mediator = "M", fit_args = list(m_star = 0)
 )
-fit <- run(md)
+fit_opts <- run(md_opts)
 ```
 
 ## 6. Read `branch_mix` and `ariv`
@@ -155,8 +164,11 @@ rbind(fixed = summ(fixed), own = summ(own))
 #> own   9.584559 0.001986522     0
 ```
 
-When the imputations agree (`mixed = 0`) the two are close. When they
-disagree, prefer `"fixed"`: it tests one constraint with one `k`.
+`branch_mix` compares the imputation winners with each other. Check the
+stack’s choice with `fixed@stacked_branch`. The modes use the same
+branch in every imputation when every imputation agrees with the stack.
+Both modes require a common number of restrictions `k` for the
+comparisons they pool.
 
 ## 7. Recover from a refit that did not converge
 
@@ -186,20 +198,21 @@ outcome model, then rerun.
 
 ## 8. Run a large simulation on a cluster
 
-A calibration grid of hundreds of replications per cell does not belong
-on a laptop. The repository’s `dev/` folder has the harness used to
-check the lavaan MBCO: a per-task script (one cell and chunk per
-`SLURM_ARRAY_TASK_ID`), an `sbatch` script, and a combiner. The pattern
-to copy is to pilot through `sbatch` itself, not on the login node, then
-submit the full array.
+The repository’s `dev/` folder has the SEM MBCO calibration harness.
+Each SLURM array task runs one chunk from one grid cell. The batch
+script assumes a particular cluster account, R module, library, and
+checkout path. Adapt those settings before submitting. Pilot through the
+scheduler and use separate output directories so pilot results cannot
+enter the full summary.
 
 ``` sh
-# one task as a pilot, through the scheduler
-sbatch --array=1 --export=ALL,REPS=8 dev/sim-sem-mbco-calibration.sbatch
+pilot_out="$(pwd)/calibration-pilot"
+full_out="$(pwd)/calibration-full"
+sbatch --array=1 --export=ALL,REPS=8,SIM_OUT="$pilot_out" dev/sim-sem-mbco-calibration.sbatch
 
-# then the whole grid: 20 cells x 4 chunks
-sbatch --array=1-80%20 dev/sim-sem-mbco-calibration.sbatch
+# After checking the pilot, submit 20 cells x 4 chunks.
+sbatch --array=1-80%20 --export=ALL,SIM_OUT="$full_out" dev/sim-sem-mbco-calibration.sbatch
 
-# combine the per-task files
-Rscript dev/sim-sem-mbco-combine.R "$SIM_OUT"
+# After all array tasks complete, combine their files.
+Rscript dev/sim-sem-mbco-combine.R "$full_out"
 ```

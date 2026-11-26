@@ -150,11 +150,11 @@ fraction of missing information per coefficient.</p>
 <div class="section level3">
 <h3 id="my-model-has-a-moderator--can-i-use-it">My model has a moderator. Can I use it?<a class="anchor" aria-label="anchor" href="#my-model-has-a-moderator--can-i-use-it"></a>
 </h3>
-<p>Not in <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code>, which allows only main
-effects of the treatment and mediator plus one <code>X:M</code> term
-(see the <em>Supported models</em> article). <code><a href="../reference/mbco_d4.html">mbco_d4()</a></code>
-tests the indirect effect of a moderated model on a list of completed
-datasets.</p>
+<p>The <a href="supported-models.html">formula interface</a> allows a
+treatment-by-mediator interaction in Gaussian identity-link models. For
+an interaction between the mediator and another covariate, use
+<code><a href="../reference/mbco_d4.html">mbco_d4()</a></code> on a list of completed data frames. The <a href="cookbook.html#test-a-moderated-model">cookbook</a> shows an
+example.</p>
 </div>
 <div class="section level3">
 <h3 id="binary-mediator-or-outcome">Binary mediator or outcome?<a class="anchor" aria-label="anchor" href="#binary-mediator-or-outcome"></a>
@@ -204,7 +204,7 @@ for a structural equation model, including a latent mediator, use
 <code>set_md_mediation(engine = "lavaan")</code> with the lavaan syntax
 in <code>model</code> and the <code>outcome</code> named.
 <code>infer(type = "mc")</code> and <code>infer(type = "mbco")</code>
-both work for lavaan fits (MBCO with maximum likelihood only; it is
+both work for lavaan MI fits (MBCO with maximum likelihood only; it is
 refused for <code>MLR</code>, <code>MLM</code>, <code>WLSMV</code>,
 <code>group</code>, <code>ordered</code> and
 <code>sampling.weights</code>). See the <em>Structural equation
@@ -228,13 +228,11 @@ reused by every later refit (including the refits inside
 <code>run(...)</code> or <code>sensitivity_mnar(...)</code> still works
 but warns (a lifecycle deprecation warning, shown once per session; set
 <code>options(lifecycle_verbosity = "warning")</code> to see every one).
-Move the argument:</p>
+For example, use <code>fit_args</code> to set the mediator reference
+value in a model with a treatment-by-mediator interaction. The <a href="cookbook.html#move-fitting-options-out-of-run">cookbook</a> runs
+this example.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># before (warns)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span>, m_star <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># after</span></span>
-<span><span class="va">md</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">imp</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
+<code class="sourceCode R"><span><span class="va">md</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">imp</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">*</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
 <span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, fit_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>m_star <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span></span></code></pre></div>

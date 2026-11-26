@@ -72,9 +72,10 @@
 
     
     
-<p>One page to look things up. Every cell of the matrix and every
-message in the catalog below is checked by the package tests, so this
-page cannot drift from what the code does.</p>
+<p>The source test suite checks the support matrix against live calls
+and checks the catalog messages against live conditions or their source.
+The matrix test is skipped when the article is absent from the built
+package.</p>
 <div class="section level2">
 <h2 id="the-pipeline">The pipeline<a class="anchor" aria-label="anchor" href="#the-pipeline"></a>
 </h2>
@@ -100,13 +101,15 @@ frame (<code>method = "ipw"</code>), the model, the roles</td>
 <td><code><a href="../reference/run.html">run()</a></code></td>
 <td><code>MDMediationData</code></td>
 <td>
-<code>MDMediationFit</code>: one fit per imputation</td>
+<code>MDMediationFit</code> with one fit per imputation for MI or
+one weighted fit for IPW</td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/pool.html">pool()</a></code></td>
 <td><code>MDMediationFit</code></td>
 <td>
-<code>MDMediationResult</code>: Rubin’s-rules estimates</td>
+<code>MDMediationResult</code> with Rubin’s-rules estimates for MI
+or weighted estimates for IPW</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/infer.html">infer()</a></code></td>
@@ -187,7 +190,7 @@ cross means it is refused with a message from the catalog below.</p>
 <p>Notes:</p>
 <ul>
 <li>
-<code>regmedint</code> needs medfit 0.4.0 or later and
+<code>regmedint</code> needs the regmedint package and
 <code>method = "mi"</code>. Its MBCO test refits with
 <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code>, which matches it for the Gaussian and binomial
 models it accepts.</li>
@@ -391,8 +394,8 @@ delta</td>
 <li>structural equation models: the <a href="lavaan-sem.html"><em>Structural equation models</em>
 article</a>
 </li>
-<li>choosing between engines and methods: the <em>Choosing an
-analysis</em> article</li>
+<li>choosing between engines and methods: <a href="choosing-an-analysis.html"><em>Choosing an analysis</em></a>
+</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

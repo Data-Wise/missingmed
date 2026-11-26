@@ -73,10 +73,10 @@
     
     
 <p>Short recipes for tasks that come up after the first analysis. Each
-is self-contained given the data below, and each runs when the site
-builds. For a guided introduction start with <em>Choosing an
-analysis</em>; for what each engine supports, see the <em>Reference
-card</em>.</p>
+is self-contained given the data below. The R recipes run when the site
+builds. For a guided introduction, see <a href="choosing-an-analysis.html"><em>Choosing an analysis</em></a>. For
+engine support, see the <a href="refcard.html"><em>Reference
+card</em></a>.</p>
 <div class="section level2">
 <h2 id="the-data-used-throughout">The data used throughout<a class="anchor" aria-label="anchor" href="#the-data-used-throughout"></a>
 </h2>
@@ -101,8 +101,10 @@ analysis.)</p>
 <h2 id="test-a-latent-mediator-with-mbco">1. Test a latent mediator with MBCO<a class="anchor" aria-label="anchor" href="#test-a-latent-mediator-with-mbco"></a>
 </h2>
 <p>Give lavaan syntax and name the latent variable as the mediator. The
-test fixes only the structural path, so each branch tests one
-parameter.</p>
+test fixes one structural path per branch. The example uses the direct
+list-of-data-frames API. The <a href="lavaan-sem.html#the-mbco-test-with-a-lavaan-fit">SEM tutorial</a>
+shows the same test after <code><a href="../reference/run.html">run()</a></code> and explains how to read
+retained-null warnings.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">51</span><span class="op">)</span></span>
 <span><span class="va">L</span> <span class="op">&lt;-</span> <span class="fl">0.6</span> <span class="op">*</span> <span class="va">d</span><span class="op">$</span><span class="va">X</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>                      <span class="co"># the latent mediator</span></span>
@@ -129,8 +131,10 @@ parameter.</p>
 <h2 id="sweep-a-sensitivity-analysis-with-mbco">2. Sweep a sensitivity analysis with MBCO<a class="anchor" aria-label="anchor" href="#sweep-a-sensitivity-analysis-with-mbco"></a>
 </h2>
 <p><code>type = "mbco"</code> returns one test per rung. Read it as a
-curve: if the p-value crosses your threshold as <code>delta</code>
-grows, the conclusion depends on the MAR assumption.</p>
+curve: if the p-value crosses your threshold within the chosen range,
+the conclusion is sensitive to the assumed departure from MAR. See the
+<a href="sensitivity-mnar.html">sensitivity tutorial</a> for choosing
+and interpreting that range.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sensitivity_mnar.html">sensitivity_mnar</a></span><span class="op">(</span><span class="va">md</span>, delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0</span>, <span class="fl">0.5</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"mbco"</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
@@ -185,15 +189,15 @@ imputations.</p>
 <code><a href="../reference/set_md_mediation.html">set_md_mediation()</a></code>. Passing them through
 <code>run(...)</code> still works but warns (a lifecycle deprecation
 warning, shown once per session).</p>
+<p><code>m_star</code> sets the mediator reference value for the
+four-way decomposition, which requires a treatment-by-mediator
+interaction. Put it in <code>fit_args</code> when you specify that
+model.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># before: warns</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span>, m_star <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># after</span></span>
-<span><span class="va">md</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">imp</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
+<code class="sourceCode R"><span><span class="va">md_opts</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_md_mediation.html">set_md_mediation</a></span><span class="op">(</span><span class="va">imp</span>, <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">*</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
 <span>  treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, fit_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>m_star <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">fit_opts</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">md_opts</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="read-branch_mix-and-ariv">6. Read <code>branch_mix</code> and <code>ariv</code><a class="anchor" aria-label="anchor" href="#read-branch_mix-and-ariv"></a>
@@ -212,9 +216,11 @@ each choose.</p>
 <span><span class="co">#&gt;             D4           p mixed</span></span>
 <span><span class="co">#&gt; fixed 9.584559 0.001986522     0</span></span>
 <span><span class="co">#&gt; own   9.584559 0.001986522     0</span></span></code></pre></div>
-<p>When the imputations agree (<code>mixed = 0</code>) the two are
-close. When they disagree, prefer <code>"fixed"</code>: it tests one
-constraint with one <code>k</code>.</p>
+<p><code>branch_mix</code> compares the imputation winners with each
+other. Check the stack’s choice with <code>fixed@stacked_branch</code>.
+The modes use the same branch in every imputation when every imputation
+agrees with the stack. Both modes require a common number of
+restrictions <code>k</code> for the comparisons they pool.</p>
 </div>
 <div class="section level2">
 <h2 id="recover-from-a-refit-that-did-not-converge">7. Recover from a refit that did not converge<a class="anchor" aria-label="anchor" href="#recover-from-a-refit-that-did-not-converge"></a>
@@ -242,21 +248,21 @@ outcome model, then rerun.</p>
 <div class="section level2">
 <h2 id="run-a-large-simulation-on-a-cluster">8. Run a large simulation on a cluster<a class="anchor" aria-label="anchor" href="#run-a-large-simulation-on-a-cluster"></a>
 </h2>
-<p>A calibration grid of hundreds of replications per cell does not
-belong on a laptop. The repository’s <code>dev/</code> folder has the
-harness used to check the lavaan MBCO: a per-task script (one cell and
-chunk per <code>SLURM_ARRAY_TASK_ID</code>), an <code>sbatch</code>
-script, and a combiner. The pattern to copy is to pilot through
-<code>sbatch</code> itself, not on the login node, then submit the full
-array.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># one task as a pilot, through the scheduler</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--array</span><span class="op">=</span>1 <span class="at">--export</span><span class="op">=</span>ALL,REPS=8 dev/sim-sem-mbco-calibration.sbatch</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co"># then the whole grid: 20 cells x 4 chunks</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--array</span><span class="op">=</span>1-80%20 dev/sim-sem-mbco-calibration.sbatch</span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co"># combine the per-task files</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="ex">Rscript</span> dev/sim-sem-mbco-combine.R <span class="st">"</span><span class="va">$SIM_OUT</span><span class="st">"</span></span></code></pre></div>
+<p>The repository’s <code>dev/</code> folder has the SEM MBCO
+calibration harness. Each SLURM array task runs one chunk from one grid
+cell. The batch script assumes a particular cluster account, R module,
+library, and checkout path. Adapt those settings before submitting.
+Pilot through the scheduler and use separate output directories so pilot
+results cannot enter the full summary.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="va">pilot_out</span><span class="op">=</span><span class="st">"</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/calibration-pilot"</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="va">full_out</span><span class="op">=</span><span class="st">"</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/calibration-full"</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--array</span><span class="op">=</span>1 <span class="at">--export</span><span class="op">=</span>ALL,REPS=8,SIM_OUT=<span class="st">"</span><span class="va">$pilot_out</span><span class="st">"</span> dev/sim-sem-mbco-calibration.sbatch</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co"># After checking the pilot, submit 20 cells x 4 chunks.</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--array</span><span class="op">=</span>1-80%20 <span class="at">--export</span><span class="op">=</span>ALL,SIM_OUT=<span class="st">"</span><span class="va">$full_out</span><span class="st">"</span> dev/sim-sem-mbco-calibration.sbatch</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co"># After all array tasks complete, combine their files.</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="ex">Rscript</span> dev/sim-sem-mbco-combine.R <span class="st">"</span><span class="va">$full_out</span><span class="st">"</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

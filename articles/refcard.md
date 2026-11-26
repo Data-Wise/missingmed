@@ -1,16 +1,17 @@
 # Reference card
 
-One page to look things up. Every cell of the matrix and every message
-in the catalog below is checked by the package tests, so this page
-cannot drift from what the code does.
+The source test suite checks the support matrix against live calls and
+checks the catalog messages against live conditions or their source. The
+matrix test is skipped when the article is absent from the built
+package.
 
 ## The pipeline
 
 | Verb | Takes | Returns |
 |----|----|----|
 | [`set_md_mediation()`](https://data-wise.github.io/missingmed/reference/set_md_mediation.md) | a [`mice::mids`](https://amices.org/mice/reference/mids.html) (`method = "mi"`) or a data frame (`method = "ipw"`), the model, the roles | `MDMediationData` |
-| [`run()`](https://data-wise.github.io/missingmed/reference/run.md) | `MDMediationData` | `MDMediationFit`: one fit per imputation |
-| [`pool()`](https://data-wise.github.io/missingmed/reference/pool.md) | `MDMediationFit` | `MDMediationResult`: Rubin’s-rules estimates |
+| [`run()`](https://data-wise.github.io/missingmed/reference/run.md) | `MDMediationData` | `MDMediationFit` with one fit per imputation for MI or one weighted fit for IPW |
+| [`pool()`](https://data-wise.github.io/missingmed/reference/pool.md) | `MDMediationFit` | `MDMediationResult` with Rubin’s-rules estimates for MI or weighted estimates for IPW |
 | [`infer()`](https://data-wise.github.io/missingmed/reference/infer.md) | a fit (`"mc"`, `"mbco"`) or a pooled result (`"mc"`) | an interval, or an `MbcoMIResult` test |
 
 [`mbco_d4()`](https://data-wise.github.io/missingmed/reference/mbco_d4.md)
@@ -33,7 +34,7 @@ cross means it is refused with a message from the catalog below.
 
 Notes:
 
-- `regmedint` needs medfit 0.4.0 or later and `method = "mi"`. Its MBCO
+- `regmedint` needs the regmedint package and `method = "mi"`. Its MBCO
   test refits with [`glm()`](https://rdrr.io/r/stats/glm.html), which
   matches it for the Gaussian and binomial models it accepts.
 - MBCO with `lavaan` is maximum likelihood only: `estimator = "MLR"`,
@@ -93,5 +94,5 @@ but warns (a lifecycle deprecation warning, class
   [`?MbcoMIResult`](https://data-wise.github.io/missingmed/reference/MbcoMIResult.md)
 - structural equation models: the [*Structural equation models*
   article](https://data-wise.github.io/missingmed/articles/lavaan-sem.md)
-- choosing between engines and methods: the *Choosing an analysis*
-  article
+- choosing between engines and methods: [*Choosing an
+  analysis*](https://data-wise.github.io/missingmed/articles/choosing-an-analysis.md)

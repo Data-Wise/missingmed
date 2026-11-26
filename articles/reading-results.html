@@ -232,9 +232,10 @@ and is not normally distributed.</p>
 <p><code>type = "mc"</code> draws from the pooled distribution of
 <code>(a, b)</code> and reports the percentile interval of
 <code>a * b</code> (via RMediation). <code>$CI</code> is the interval,
-<code>$Estimate</code> the point estimate, <code>$SE</code> the Monte
-Carlo standard error of the product, and <code>$MC.Error</code> the
-simulation error: raise <code>n.mc</code> to shrink it.</p>
+<code>$Estimate</code> the point estimate, <code>$SE</code> the
+estimated standard deviation of the product draws, and
+<code>$MC.Error</code> the Monte Carlo error. Increasing
+<code>n.mc</code> reduces simulation error.</p>
 <p><code>level</code> defaults to the <code>conf_level</code> you set on
 the data object; an explicit <code>level =</code> in
 <code><a href="../reference/infer.html">infer()</a></code> wins.</p>
@@ -254,7 +255,8 @@ the fit, not on the pooled result:</p>
 <span><span class="co">#&gt;   imputations on the a = 0 branch: 30% (mixed)</span></span></code></pre></div>
 <p><code>mb["p"]</code> is the p-value, <code>mb["D4"]</code> the
 statistic, <code>mb["nu"]</code> its denominator degrees of freedom. See
-the <em>Testing an indirect effect</em> article.</p>
+<a href="mbco-mi.html"><em>Testing an indirect effect with incomplete
+data</em></a>.</p>
 </div>
 <div class="section level2">
 <h2 id="what-is-not-in-the-table">What is not in the table<a class="anchor" aria-label="anchor" href="#what-is-not-in-the-table"></a>

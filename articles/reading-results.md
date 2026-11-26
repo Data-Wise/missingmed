@@ -118,9 +118,9 @@ mc
 
 `type = "mc"` draws from the pooled distribution of `(a, b)` and reports
 the percentile interval of `a * b` (via RMediation). `$CI` is the
-interval, `$Estimate` the point estimate, `$SE` the Monte Carlo standard
-error of the product, and `$MC.Error` the simulation error: raise `n.mc`
-to shrink it.
+interval, `$Estimate` the point estimate, `$SE` the estimated standard
+deviation of the product draws, and `$MC.Error` the Monte Carlo error.
+Increasing `n.mc` reduces simulation error.
 
 `level` defaults to the `conf_level` you set on the data object; an
 explicit `level =` in
@@ -144,8 +144,9 @@ mb
 ```
 
 `mb["p"]` is the p-value, `mb["D4"]` the statistic, `mb["nu"]` its
-denominator degrees of freedom. See the *Testing an indirect effect*
-article.
+denominator degrees of freedom. See [*Testing an indirect effect with
+incomplete
+data*](https://data-wise.github.io/missingmed/articles/mbco-mi.md).
 
 ## What is not in the table
 

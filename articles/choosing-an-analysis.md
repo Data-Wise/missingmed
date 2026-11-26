@@ -34,7 +34,7 @@ by step*.
 | Treatment-by-mediator interaction | `"glm"` (Gaussian, identity link) |
 | Latent mediator, or a model easier to state as lavaan syntax | `"lavaan"` (give `model` and `outcome`) |
 | A lavaan estimator such as MLR | `"lavaan"` with `fit_args` |
-| regmedint’s estimators | `"regmedint"` (needs medfit 0.4.0 or later; MI only) |
+| regmedint’s estimators | `"regmedint"` (requires the regmedint package; MI only) |
 
 See [*Supported
 models*](https://data-wise.github.io/missingmed/articles/supported-models.md)
@@ -45,14 +45,16 @@ models*](https://data-wise.github.io/missingmed/articles/lavaan-sem.md).
 
 |  | `"mc"` | `"mbco"` |
 |----|----|----|
-| Answer | an interval and point estimate for `a * b` | a likelihood-ratio test of no indirect effect |
+| Answer | an interval and point estimate for the indirect effect | a likelihood-ratio test of no indirect effect |
 | Works with | `glm` and `lavaan` with MI or IPW, and `regmedint` with MI | MI with `glm`, supported `regmedint` models, or [`lavaan` with ML](https://data-wise.github.io/missingmed/articles/lavaan-sem.html#the-mbco-test-with-a-lavaan-fit) |
-| Use when | you want an effect size with uncertainty | the product’s interval is unreliable (both paths weak) |
+| Use when | you want an effect size with uncertainty | you want to test the composite null of no indirect effect |
 
-The Monte Carlo interval is the default report. The MBCO test is more
-reliable when both paths are weak and the product’s distribution is far
-from normal. Report the interval and, if the paths are weak, the test.
-See *Testing an indirect effect with incomplete data*.
+With a treatment-by-mediator interaction, choose `treatment_level` for
+the Monte Carlo interval. The MBCO test evaluates the model’s composite
+no-mediation null. Its calibration depends on the model and can be
+conservative when both paths are near zero. See [*Testing an indirect
+effect with incomplete
+data*](https://data-wise.github.io/missingmed/articles/mbco-mi.md).
 
 ## A quick path
 
@@ -70,9 +72,9 @@ See *Testing an indirect effect with incomplete data*.
 
 ## What no choice here fixes
 
-- MAR is an assumption, not a result. Run
-  [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/reference/sensitivity_mnar.md)
-  and report the curve.
+- With MI, use
+  [`sensitivity_mnar()`](https://data-wise.github.io/missingmed/articles/sensitivity-mnar.md)
+  to check how departures from MAR would affect the conclusion.
 - The mediation estimates are causal only under the usual
   no-unmeasured-confounding assumptions, which missingmed does not
   address.

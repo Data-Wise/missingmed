@@ -173,6 +173,7 @@ summary(res)
   in the `mids` object), so differences between rungs are the delta, not
   Monte Carlo noise.
 - `method = "mi"` only. IPW has no imputed values to shift.
-- With `engine = "lavaan"`, `type = "mc"` works. A latent mediator needs
-  an explicit observed `target`; see the *Structural equation models*
-  article.
+- With `engine = "lavaan"`, use `type = "mc"` for intervals or
+  `type = "mbco"` for models supported by [SEM
+  MBCO](https://data-wise.github.io/missingmed/articles/lavaan-sem.html#the-mbco-test-with-a-lavaan-fit).
+  A latent mediator needs an explicit observed `target`.

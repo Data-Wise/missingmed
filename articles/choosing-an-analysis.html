@@ -175,7 +175,8 @@ variables</td>
 <tr class="odd">
 <td>regmedint’s estimators</td>
 <td>
-<code>"regmedint"</code> (needs medfit 0.4.0 or later; MI only)</td>
+<code>"regmedint"</code> (requires the regmedint package; MI
+only)</td>
 </tr>
 </tbody>
 </table>
@@ -200,8 +201,7 @@ variables</td>
 <tbody>
 <tr class="odd">
 <td>Answer</td>
-<td>an interval and point estimate for <code>a * b</code>
-</td>
+<td>an interval and point estimate for the indirect effect</td>
 <td>a likelihood-ratio test of no indirect effect</td>
 </tr>
 <tr class="even">
@@ -217,14 +217,16 @@ with ML</a>
 <tr class="odd">
 <td>Use when</td>
 <td>you want an effect size with uncertainty</td>
-<td>the product’s interval is unreliable (both paths weak)</td>
+<td>you want to test the composite null of no indirect effect</td>
 </tr>
 </tbody>
 </table>
-<p>The Monte Carlo interval is the default report. The MBCO test is more
-reliable when both paths are weak and the product’s distribution is far
-from normal. Report the interval and, if the paths are weak, the test.
-See <em>Testing an indirect effect with incomplete data</em>.</p>
+<p>With a treatment-by-mediator interaction, choose
+<code>treatment_level</code> for the Monte Carlo interval. The MBCO test
+evaluates the model’s composite no-mediation null. Its calibration
+depends on the model and can be conservative when both paths are near
+zero. See <a href="mbco-mi.html"><em>Testing an indirect effect with
+incomplete data</em></a>.</p>
 </div>
 </div>
 <div class="section level2">
@@ -246,8 +248,8 @@ Worried about MAR? sensitivity_mnar() (MI only).</code></pre>
 <h2 id="what-no-choice-here-fixes">What no choice here fixes<a class="anchor" aria-label="anchor" href="#what-no-choice-here-fixes"></a>
 </h2>
 <ul>
-<li>MAR is an assumption, not a result. Run
-<code><a href="../reference/sensitivity_mnar.html">sensitivity_mnar()</a></code> and report the curve.</li>
+<li>With MI, use <a href="sensitivity-mnar.html"><code>sensitivity_mnar()</code></a> to
+check how departures from MAR would affect the conclusion.</li>
 <li>The mediation estimates are causal only under the usual
 no-unmeasured-confounding assumptions, which missingmed does not
 address.</li>
