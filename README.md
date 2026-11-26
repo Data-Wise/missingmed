@@ -54,8 +54,8 @@ pak::pak(c("missingmed", "medfit@0.20.0", "S7@1.0.0", "RMediation@1.6.1"))
 ```
 
 For the GitHub development branch, replace `"missingmed"` with
-`"Data-Wise/missingmed@dev"`. On R 4.1, use `"S7@0.2.2"` in place
-of `"S7@1.0.0"` because S7 1.0.0 requires R 4.2 or later.
+`"Data-Wise/missingmed@dev"`. The pinned install recipe
+requires R 4.2 or later.
 
 ## The pipeline
 

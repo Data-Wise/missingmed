@@ -40,6 +40,10 @@ updates from [PR #118](https://github.com/Data-Wise/missingmed/pull/118).
    archive tests on the declared R 4.1 floor and a current R release. Exercise
    ordinary SEM refits on the supported medfit floor and ledger-based refits
    on the current pin. Record any warnings or skips against the exact SHA.
+   The R 4.1.3 gate is blocked. RMediation 1.6.1 uses `mu@vcov` without the
+   S7 accessor in its namespace. The direct Monte Carlo call fails on R 4.1.3
+   with S7 0.2.2 and medfit 0.20.0. Both SEM MBCO APIs pass on that stack.
+   Recheck the dependency fix and the full archive on R 4.1 before proceeding.
 3. Run the three hosted workflows on the exact release candidate. Require a
    successful R CMD check, lint and pkgdown build, plus skipped deployment
    during rehearsal. Request approval for the release PR into `main`. Once
