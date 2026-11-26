@@ -413,7 +413,9 @@ bounded parameters are refused, as are
 regressions. Nulls forcing unsupported variance domains are refused
 before fitting; numerically unresolved affine checks also stop
 inference. No absence of warnings or successful surviving branch is a
-completeness certificate. Other unsupported medfit syntax fails
+completeness certificate. With medfit 0.19.0 or later, a null that fails
+to converge stops inference and the error names the imputation or
+stacked data and the failed null. Other unsupported medfit syntax fails
 explicitly rather than falling back to lavaan. Non-finite or materially
 negative raw likelihood-ratio summaries on either branch stop inference;
 roundoff-sized negatives within `1e-7` are reported and rounded to zero
